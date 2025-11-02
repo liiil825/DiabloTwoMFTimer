@@ -1,0 +1,14 @@
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\bin\Debug\net7.0-windows\WinFormsDemo.exe
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\bin\Debug\net7.0-windows\WinFormsDemo.deps.json
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\bin\Debug\net7.0-windows\WinFormsDemo.runtimeconfig.json
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\bin\Debug\net7.0-windows\WinFormsDemo.dll
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\bin\Debug\net7.0-windows\WinFormsDemo.pdb
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\WinFormsDemo.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\WinFormsDemo.AssemblyInfoInputs.cache
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\WinFormsDemo.AssemblyInfo.cs
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\WinFormsDemo.csproj.CoreCompileInputs.cache
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\WinFormsDemo.dll
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\refint\WinFormsDemo.dll
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\WinFormsDemo.pdb
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\WinFormsDemo.genruntimeconfig.cache
+C:\Users\lizhi\Desktop\Diablo\mf-time-helper\obj\Debug\net7.0-windows\ref\WinFormsDemo.dll

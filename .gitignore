@@ -1,0 +1,81 @@
+# Windows 默认文件系统文件
+Thumbs.db
+.DS_Store
+
+# Visual Studio 项目文件
+.vs/
+bin/
+obj/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstates
+
+# Visual Studio 缓存目录
+*.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+# 构建输出
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.config
+*.resources
+*.cache
+*.log
+
+# .NET Core 相关文件
+*.runtimeconfig.json
+*.runtimeconfig.dev.json
+*.deps.json
+
+# NuGet 相关文件
+*.nupkg
+.nuget/
+packages/
+
+# 发布文件
+publish/
+
+# 测试结果
+TestResults/
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 编辑器特定文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# 调试文件
+*.ilk
+*.map
+*.exp
+
+# 预编译文件
+*.g.cs
+*.g.i.cs
