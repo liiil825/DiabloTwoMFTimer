@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 using WinFormsDemo.Resources;
+using AntdUI;
 
 namespace WinFormsDemo
 {
@@ -30,78 +31,68 @@ namespace WinFormsDemo
             this.components = new System.ComponentModel.Container();
             this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
             this.tabControl = new System.Windows.Forms.TabControl();
-            this.tabCount = new System.Windows.Forms.TabPage();
-            this.tabPomodoro = new System.Windows.Forms.TabPage();
-            this.tabSettings = new System.Windows.Forms.TabPage();
-            this.mainMenuStrip.SuspendLayout();
-            this.tabControl.SuspendLayout();
-            this.tabCount.SuspendLayout();
-            this.tabPomodoro.SuspendLayout();
-            this.tabSettings.SuspendLayout();
+            this.tabCountPage = new System.Windows.Forms.TabPage();
+            this.tabPomodoroPage = new System.Windows.Forms.TabPage();
+            this.tabSettingsPage = new System.Windows.Forms.TabPage();
             this.SuspendLayout();
             // 
             // mainMenuStrip
             // 
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
-            this.mainMenuStrip.Size = new System.Drawing.Size(300, 24);
+            this.mainMenuStrip.Size = new System.Drawing.Size(400, 24);
             this.mainMenuStrip.TabIndex = 0;
             this.mainMenuStrip.Text = "mainMenuStrip";
             // 
             // tabControl
             // 
-            this.tabControl.Controls.Add(this.tabCount);
-            this.tabControl.Controls.Add(this.tabPomodoro);
-            this.tabControl.Controls.Add(this.tabSettings);
+            this.tabControl.TabPages.AddRange(new[] {
+                this.tabCountPage,
+                this.tabPomodoroPage,
+                this.tabSettingsPage});
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Location = new System.Drawing.Point(0, 24);
             this.tabControl.Name = "tabControl";
-            this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(300, 240);
+            this.tabControl.Size = new System.Drawing.Size(400, 276);
             this.tabControl.TabIndex = 1;
+            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
             // 
-            // tabCount
+            // tabCountPage
             // 
-            this.tabCount.Location = new System.Drawing.Point(4, 24);
-            this.tabCount.Name = "tabCount";
-            this.tabCount.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCount.Size = new System.Drawing.Size(292, 212);
-            this.tabCount.TabIndex = 0;
-            this.tabCount.UseVisualStyleBackColor = true;
+            this.tabCountPage.Location = new System.Drawing.Point(4, 24);
+            this.tabCountPage.Name = "tabCountPage";
+            this.tabCountPage.Size = new System.Drawing.Size(392, 248);
+            this.tabCountPage.TabIndex = 0;
+            this.tabCountPage.Text = "";
+            this.tabCountPage.UseVisualStyleBackColor = true;
             // 
-            // tabPomodoro
+            // tabPomodoroPage
             // 
-            this.tabPomodoro.Location = new System.Drawing.Point(4, 24);
-            this.tabPomodoro.Name = "tabPomodoro";
-            this.tabPomodoro.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPomodoro.Size = new System.Drawing.Size(292, 212);
-            this.tabPomodoro.TabIndex = 1;
-            this.tabPomodoro.UseVisualStyleBackColor = true;
+            this.tabPomodoroPage.Location = new System.Drawing.Point(4, 24);
+            this.tabPomodoroPage.Name = "tabPomodoroPage";
+            this.tabPomodoroPage.Size = new System.Drawing.Size(392, 248);
+            this.tabPomodoroPage.TabIndex = 1;
+            this.tabPomodoroPage.Text = "";
+            this.tabPomodoroPage.UseVisualStyleBackColor = true;
             // 
-            // tabSettings
+            // tabSettingsPage
             // 
-            this.tabSettings.Location = new System.Drawing.Point(4, 24);
-            this.tabSettings.Name = "tabSettings";
-            this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSettings.Size = new System.Drawing.Size(292, 212);
-            this.tabSettings.TabIndex = 2;
-            this.tabSettings.UseVisualStyleBackColor = true;
+            this.tabSettingsPage.Location = new System.Drawing.Point(4, 24);
+            this.tabSettingsPage.Name = "tabSettingsPage";
+            this.tabSettingsPage.Size = new System.Drawing.Size(392, 248);
+            this.tabSettingsPage.TabIndex = 2;
+            this.tabSettingsPage.Text = "";
+            this.tabSettingsPage.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(300, 264);
+            this.ClientSize = new System.Drawing.Size(400, 300);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.mainMenuStrip);
             this.MainMenuStrip = this.mainMenuStrip;
             this.Name = "MainForm";
-            this.mainMenuStrip.ResumeLayout(false);
-            this.mainMenuStrip.PerformLayout();
-            this.tabControl.ResumeLayout(false);
-            this.tabCount.ResumeLayout(false);
-            this.tabPomodoro.ResumeLayout(false);
-            this.tabSettings.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -118,29 +109,32 @@ namespace WinFormsDemo
             pomodoroControl.Dock = DockStyle.Fill;
             settingsControl.Dock = DockStyle.Fill;
 
-            // 添加到对应的Tab页面
-            if (tabCount != null)
+            // 标签页已经在InitializeComponent中添加，这里不需要重复添加
+            
+            // 添加到对应的TabPage
+            if (tabCountPage != null)
             {
-                tabCount.Controls.Add(countControl);
+                tabCountPage.Controls.Add(countControl);
                 countControl.TimerStateChanged += OnCountTimerStateChanged;
             }
-            if (tabPomodoro != null)
+            if (tabPomodoroPage != null)
             {
-                tabPomodoro.Controls.Add(pomodoroControl);
+                tabPomodoroPage.Controls.Add(pomodoroControl);
                 pomodoroControl.TimerStateChanged += OnPomodoroTimerStateChanged;
                 pomodoroControl.PomodoroCompleted += OnPomodoroCompleted;
             }
-            if (tabSettings != null)
+            if (tabSettingsPage != null)
             {
-                tabSettings.Controls.Add(settingsControl);
+                tabSettingsPage.Controls.Add(settingsControl);
                 settingsControl.WindowPositionChanged += OnWindowPositionChanged;
                 settingsControl.LanguageChanged += OnLanguageChanged;
                 settingsControl.AlwaysOnTopChanged += OnAlwaysOnTopChanged;
             }
         }
         
-        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        private void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
         {
+            // 当标签页切换时，可以在这里添加额外的逻辑
             // 根据当前选中的选项卡更新UI
             UpdateUI();
         }
@@ -162,15 +156,15 @@ namespace WinFormsDemo
             // 更新界面文本
             this.Text = LanguageManager.GetString("FormTitle");
             
-            // 更新Tab页面标题
-            tabCount!.Text = LanguageManager.GetString("TabCount");
-            tabPomodoro!.Text = LanguageManager.GetString("TabPomodoro");
-            tabSettings!.Text = LanguageManager.GetString("TabSettings");
+            // 更新选项卡标题
+            if (tabControl != null && tabControl.TabPages.Count >= 3)
+            {
+                tabControl.TabPages[0].Text = LanguageManager.GetString("TabCount");
+                tabControl.TabPages[1].Text = LanguageManager.GetString("TabPomodoro");
+                tabControl.TabPages[2].Text = LanguageManager.GetString("TabSettings");
+            }
             
-            // 语言和窗口设置现在通过SettingsControl管理
-            // 不再需要单独的菜单项
-            
-            // 更新各个控件的UI
+            // 更新各功能控件的UI
             countControl?.UpdateUI();
             pomodoroControl?.UpdateUI();
             settingsControl?.UpdateUI();
@@ -230,8 +224,8 @@ namespace WinFormsDemo
         private System.ComponentModel.IContainer? components;
         private System.Windows.Forms.MenuStrip? mainMenuStrip;
         private System.Windows.Forms.TabControl? tabControl;
-        private System.Windows.Forms.TabPage? tabCount;
-        private System.Windows.Forms.TabPage? tabPomodoro;
-        private System.Windows.Forms.TabPage? tabSettings;
+        private System.Windows.Forms.TabPage? tabCountPage;
+        private System.Windows.Forms.TabPage? tabPomodoroPage;
+        private System.Windows.Forms.TabPage? tabSettingsPage;
     }
 }

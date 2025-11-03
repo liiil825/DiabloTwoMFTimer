@@ -79,3 +79,6 @@ $RECYCLE.BIN/
 # 预编译文件
 *.g.cs
 *.g.i.cs
+
+./bin/
+./obj/
