@@ -57,6 +57,7 @@ namespace DTwoMFTimerHelper.Resources
                 jsonFilePath = Path.Combine("Resources", $"strings_{langCode}.json");
             }
             
+            // 加载JSON文件中的翻译
             if (File.Exists(jsonFilePath))
             {
                 try
@@ -68,6 +69,40 @@ namespace DTwoMFTimerHelper.Resources
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error loading translations: {ex.Message}");
+                }
+            }
+            
+            // 添加必要的默认翻译字符串作为后备
+            AddDefaultTranslations(langCode);
+        }
+        
+        private static void AddDefaultTranslations(string langCode)
+        {
+            // 英文默认翻译
+            var defaultTranslations = new Dictionary<string, string>()
+            {
+                { "HotkeySettings", "Hotkey Settings" },
+                { "StartStop", "Start/Stop" },
+                { "Set", "Set" }
+            };
+            
+            // 如果是中文，使用中文翻译
+            if (langCode == "zh")
+            {
+                defaultTranslations = new Dictionary<string, string>()
+                {
+                    { "HotkeySettings", "快捷键设置" },
+                    { "StartStop", "开始/结束" },
+                    { "Set", "设置" }
+                };
+            }
+            
+            // 添加或更新默认翻译
+            foreach (var pair in defaultTranslations)
+            {
+                if (!translations.ContainsKey(pair.Key))
+                {
+                    translations[pair.Key] = pair.Value;
                 }
             }
         }
