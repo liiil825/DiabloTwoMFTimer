@@ -70,7 +70,7 @@ namespace DTwoMFTimerHelper
             // 
             this.radioTopLeft.AutoSize = true;
             this.radioTopLeft.Checked = true;
-            this.radioTopLeft.Location = new System.Drawing.Point(30, 30);
+            this.radioTopLeft.Location = new System.Drawing.Point(50, 25);
             this.radioTopLeft.Name = "radioTopLeft";
             this.radioTopLeft.Size = new System.Drawing.Size(47, 19);
             this.radioTopLeft.TabIndex = 1;
@@ -78,54 +78,54 @@ namespace DTwoMFTimerHelper
             this.radioTopLeft.Text = "左上";
             this.radioTopLeft.UseVisualStyleBackColor = true;
             // 
-            // radioTopCenter
-            // 
-            this.radioTopCenter.AutoSize = true;
-            this.radioTopCenter.Location = new System.Drawing.Point(140, 30);
-            this.radioTopCenter.Name = "radioTopCenter";
-            this.radioTopCenter.Size = new System.Drawing.Size(47, 19);
-            this.radioTopCenter.TabIndex = 2;
-            this.radioTopCenter.TabStop = true;
-            this.radioTopCenter.Text = "上中";
-            this.radioTopCenter.UseVisualStyleBackColor = true;
-            // 
             // radioTopRight
             // 
             this.radioTopRight.AutoSize = true;
-            this.radioTopRight.Location = new System.Drawing.Point(250, 30);
+            this.radioTopRight.Location = new System.Drawing.Point(230, 25);
             this.radioTopRight.Name = "radioTopRight";
             this.radioTopRight.Size = new System.Drawing.Size(47, 19);
-            this.radioTopRight.TabIndex = 3;
+            this.radioTopRight.TabIndex = 2;
             this.radioTopRight.TabStop = true;
             this.radioTopRight.Text = "右上";
             this.radioTopRight.UseVisualStyleBackColor = true;
             // 
-            // radioBottomLeft
+            // radioTopCenter
             // 
-            this.radioBottomLeft.AutoSize = true;
-            this.radioBottomLeft.Location = new System.Drawing.Point(30, 70);
-            this.radioBottomLeft.Name = "radioBottomLeft";
-            this.radioBottomLeft.Size = new System.Drawing.Size(47, 19);
-            this.radioBottomLeft.TabIndex = 4;
-            this.radioBottomLeft.TabStop = true;
-            this.radioBottomLeft.Text = "左下";
-            this.radioBottomLeft.UseVisualStyleBackColor = true;
+            this.radioTopCenter.AutoSize = true;
+            this.radioTopCenter.Location = new System.Drawing.Point(50, 60);
+            this.radioTopCenter.Name = "radioTopCenter";
+            this.radioTopCenter.Size = new System.Drawing.Size(47, 19);
+            this.radioTopCenter.TabIndex = 3;
+            this.radioTopCenter.TabStop = true;
+            this.radioTopCenter.Text = "上中";
+            this.radioTopCenter.UseVisualStyleBackColor = true;
             // 
             // radioBottomCenter
             // 
             this.radioBottomCenter.AutoSize = true;
-            this.radioBottomCenter.Location = new System.Drawing.Point(140, 70);
+            this.radioBottomCenter.Location = new System.Drawing.Point(230, 60);
             this.radioBottomCenter.Name = "radioBottomCenter";
             this.radioBottomCenter.Size = new System.Drawing.Size(47, 19);
-            this.radioBottomCenter.TabIndex = 5;
+            this.radioBottomCenter.TabIndex = 4;
             this.radioBottomCenter.TabStop = true;
             this.radioBottomCenter.Text = "下中";
             this.radioBottomCenter.UseVisualStyleBackColor = true;
             // 
+            // radioBottomLeft
+            // 
+            this.radioBottomLeft.AutoSize = true;
+            this.radioBottomLeft.Location = new System.Drawing.Point(50, 95);
+            this.radioBottomLeft.Name = "radioBottomLeft";
+            this.radioBottomLeft.Size = new System.Drawing.Size(47, 19);
+            this.radioBottomLeft.TabIndex = 5;
+            this.radioBottomLeft.TabStop = true;
+            this.radioBottomLeft.Text = "左下";
+            this.radioBottomLeft.UseVisualStyleBackColor = true;
+            // 
             // radioBottomRight
             // 
             this.radioBottomRight.AutoSize = true;
-            this.radioBottomRight.Location = new System.Drawing.Point(250, 70);
+            this.radioBottomRight.Location = new System.Drawing.Point(230, 95);
             this.radioBottomRight.Name = "radioBottomRight";
             this.radioBottomRight.Size = new System.Drawing.Size(47, 19);
             this.radioBottomRight.TabIndex = 6;
@@ -138,9 +138,9 @@ namespace DTwoMFTimerHelper
             this.groupBoxPosition.Controls.Add(this.radioTopLeft);
             this.groupBoxPosition.Controls.Add(this.radioTopRight);
             this.groupBoxPosition.Controls.Add(this.radioTopCenter);
+            this.groupBoxPosition.Controls.Add(this.radioBottomCenter);
             this.groupBoxPosition.Controls.Add(this.radioBottomLeft);
             this.groupBoxPosition.Controls.Add(this.radioBottomRight);
-            this.groupBoxPosition.Controls.Add(this.radioBottomCenter);
             this.groupBoxPosition.Location = new System.Drawing.Point(10, 10);
             this.groupBoxPosition.Name = "groupBoxPosition";
             this.groupBoxPosition.Size = new System.Drawing.Size(360, 110);

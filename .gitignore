@@ -49,6 +49,9 @@ TestResults/
 .env.local
 .env.*.local
 
+# 日志文件
+debug_log.txt
+
 # 编辑器特定文件
 .vscode/
 .idea/
