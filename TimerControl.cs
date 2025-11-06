@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using DTwoMFTimerHelper.Data;
 
@@ -12,13 +14,17 @@ namespace DTwoMFTimerHelper
         private System.Windows.Forms.Timer? timer;
         private Data.CharacterProfile? currentProfile = null;
 
+        // 运行统计数据
+        private int runCount = 0;
+        private List<TimeSpan> runHistory = new List<TimeSpan>();
+        private TimeSpan fastestTime = TimeSpan.MaxValue;
+
         // 事件
         public event EventHandler? TimerStateChanged;
 
         // 公共属性
         public bool IsTimerRunning => isTimerRunning;
         public Data.CharacterProfile? CurrentProfile => currentProfile;
-        // Removed reference to non-existent currentRecord field
 
         public TimerControl()
         {
@@ -29,59 +35,101 @@ namespace DTwoMFTimerHelper
 
         private void InitializeComponent()
         {
+            // 状态指示按钮
+            btnStatusIndicator = new Button();
+            
             // 主要计时显示标签
             lblTimeDisplay = new Label();
             
-            // 信息显示标签
-            lblCurrentProfile = new Label();
+            // 运行统计信息
+            lblRunCount = new Label();
+            lblFastestTime = new Label();
+            lblAverageTime = new Label();
             
-            // 提示标签
-            lblHint = new Label();
+            // 历史记录区域
+            lstRunHistory = new ListBox();
             
             SuspendLayout();
+            // 
+            // btnStatusIndicator - 状态指示按钮
+            // 
+            btnStatusIndicator.Enabled = false;
+            btnStatusIndicator.FlatStyle = FlatStyle.Flat;
+            btnStatusIndicator.Size = new Size(16, 16);
+            btnStatusIndicator.Location = new Point(15, 45);
+            btnStatusIndicator.Name = "btnStatusIndicator";
+            btnStatusIndicator.TabIndex = 0;
+            btnStatusIndicator.TabStop = false;
+            btnStatusIndicator.BackColor = Color.Red;
+            btnStatusIndicator.FlatAppearance.BorderSize = 0;
+            
             // 
             // lblTimeDisplay - 计时显示
             // 
             lblTimeDisplay.AutoSize = true;
-            lblTimeDisplay.Font = new System.Drawing.Font("Microsoft YaHei UI", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            lblTimeDisplay.Location = new System.Drawing.Point(20, 30);
+            lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 36F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+            lblTimeDisplay.Location = new Point(40, 30);
             lblTimeDisplay.Name = "lblTimeDisplay";
-            lblTimeDisplay.Size = new System.Drawing.Size(288, 64);
-            lblTimeDisplay.TabIndex = 0;
-            lblTimeDisplay.Text = "00:00:00";
+            lblTimeDisplay.Size = new Size(306, 64);
+            lblTimeDisplay.TabIndex = 1;
+            lblTimeDisplay.Text = "00:00:00:0";
             
             // 
-            // lblCurrentProfile - 当前角色显示
+            // lblRunCount - 运行次数显示
             // 
-            lblCurrentProfile.AutoSize = true;
-            lblCurrentProfile.Font = new System.Drawing.Font("Microsoft YaHei UI", 10.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            lblCurrentProfile.Location = new System.Drawing.Point(20, 110);
-            lblCurrentProfile.Name = "lblCurrentProfile";
-            lblCurrentProfile.Size = new System.Drawing.Size(120, 20);
-            lblCurrentProfile.TabIndex = 1;
+            lblRunCount.AutoSize = true;
+            lblRunCount.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+            lblRunCount.Location = new Point(15, 100);
+            lblRunCount.Name = "lblRunCount";
+            lblRunCount.Size = new Size(150, 21);
+            lblRunCount.TabIndex = 2;
+            lblRunCount.Text = "--- Run count 0 (0) ---";
             
             // 
-            // lblHint - 使用提示
+            // lblFastestTime - 最快时间显示
             // 
-            lblHint.AutoSize = true;
-            lblHint.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            lblHint.ForeColor = System.Drawing.Color.Gray;
-            lblHint.Location = new System.Drawing.Point(20, 150);
-            lblHint.Name = "lblHint";
-            lblHint.Size = new System.Drawing.Size(220, 17);
-            lblHint.TabIndex = 2;
-            lblHint.Text = "使用快捷键开始/结束计时（默认Alt+Q）";
+            lblFastestTime.AutoSize = true;
+            lblFastestTime.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+            lblFastestTime.Location = new Point(15, 125);
+            lblFastestTime.Name = "lblFastestTime";
+            lblFastestTime.Size = new Size(120, 19);
+            lblFastestTime.TabIndex = 3;
+            lblFastestTime.Text = "Fastest time: --:--:--.-";
+            
+            // 
+            // lblAverageTime - 平均时间显示
+            // 
+            lblAverageTime.AutoSize = true;
+            lblAverageTime.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+            lblAverageTime.Location = new Point(15, 145);
+            lblAverageTime.Name = "lblAverageTime";
+            lblAverageTime.Size = new Size(125, 19);
+            lblAverageTime.TabIndex = 4;
+            lblAverageTime.Text = "Average time: --:--:--.-";
+            
+            // 
+            // lstRunHistory - 历史记录列表
+            // 
+            lstRunHistory.FormattingEnabled = true;
+            lstRunHistory.ItemHeight = 15;
+            lstRunHistory.Location = new Point(15, 170);
+            lstRunHistory.Name = "lstRunHistory";
+            lstRunHistory.Size = new Size(290, 139);
+            lstRunHistory.TabIndex = 5;
             
             // 
             // TimerControl - 主控件设置
             // 
-            AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            AutoScaleDimensions = new SizeF(9F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(btnStatusIndicator);
             Controls.Add(lblTimeDisplay);
-            Controls.Add(lblCurrentProfile);
-            Controls.Add(lblHint);
+            Controls.Add(lblRunCount);
+            Controls.Add(lblFastestTime);
+            Controls.Add(lblAverageTime);
+            Controls.Add(lstRunHistory);
             Name = "TimerControl";
-            Size = new System.Drawing.Size(340, 200);
+            Size = new Size(320, 320);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -89,20 +137,16 @@ namespace DTwoMFTimerHelper
         private void InitializeTimer()
         {
             timer = new Timer();
-            timer.Interval = 1000; // 1秒
+            timer.Interval = 100; // 100毫秒
             timer.Tick += Timer_Tick;
         }
 
         public void UpdateUI()
         {
-            // 更新当前角色显示
-            if (currentProfile != null)
+            // 更新状态指示按钮颜色
+            if (btnStatusIndicator != null)
             {
-                if (lblCurrentProfile != null) lblCurrentProfile.Text = $"角色: {currentProfile.Name}";
-            }
-            else
-            {
-                if (lblCurrentProfile != null) lblCurrentProfile.Text = "角色: 未选择";
+                btnStatusIndicator.BackColor = isTimerRunning ? Color.Green : Color.Red;
             }
             
             // 更新时间显示
@@ -121,23 +165,27 @@ namespace DTwoMFTimerHelper
                     elapsed = DateTime.Now - startTime - pausedDuration;
                 }
                 
-                string formattedTime = string.Format("{0:00}:{1:00}:{2:00}", elapsed.Hours, elapsed.Minutes, elapsed.Seconds);
+                // 显示100毫秒格式
+                string formattedTime = string.Format("{0:00}:{1:00}:{2:00}:{3}", 
+                    elapsed.Hours, elapsed.Minutes, elapsed.Seconds, 
+                    (int)(elapsed.Milliseconds / 100));
+                    
                 if (lblTimeDisplay != null) 
                 {
                     // 根据时间长度调整字体大小确保显示完整
                     if (elapsed.Hours > 9)
                     {
-                        lblTimeDisplay.Font = new System.Drawing.Font("Microsoft YaHei UI", 30F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+                        lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 30F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
                     }
                     else
                     {
-                        lblTimeDisplay.Font = new System.Drawing.Font("Microsoft YaHei UI", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+                        lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 36F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
                     }
                     
                     // 暂停时显示不同的样式
                     if (isPaused)
                     {
-                        lblTimeDisplay.Text = $"暂停 - {formattedTime}";
+                        lblTimeDisplay.Text = formattedTime;
                     }
                     else
                     {
@@ -149,8 +197,71 @@ namespace DTwoMFTimerHelper
             {
                 if (lblTimeDisplay != null) 
                 {
-                    lblTimeDisplay.Font = new System.Drawing.Font("Microsoft YaHei UI", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-                    lblTimeDisplay.Text = "00:00:00";
+                    lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 36F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+                    lblTimeDisplay.Text = "00:00:00:0";
+                }
+            }
+            
+            // 更新统计信息
+            if (lblRunCount != null)
+            {
+                lblRunCount.Text = $"--- Run count {runCount} ({runCount}) ---";
+            }
+            
+            if (lblFastestTime != null)
+            {
+                if (runCount > 0 && fastestTime != TimeSpan.MaxValue)
+                {
+                    string fastestFormatted = string.Format("{0:00}:{1:00}:{2:00}.{3}", 
+                        fastestTime.Hours, fastestTime.Minutes, fastestTime.Seconds, 
+                        (int)(fastestTime.Milliseconds / 100));
+                    lblFastestTime.Text = $"Fastest time: {fastestFormatted}";
+                }
+                else
+                {
+                    lblFastestTime.Text = "Fastest time: --:--:--.-";
+                }
+            }
+            
+            if (lblAverageTime != null)
+            {
+                if (runCount > 0)
+                {
+                    TimeSpan averageTime = TimeSpan.Zero;
+                    foreach (var time in runHistory)
+                    {
+                        averageTime += time;
+                    }
+                    averageTime = new TimeSpan(averageTime.Ticks / runHistory.Count);
+                    
+                    string averageFormatted = string.Format("{0:00}:{1:00}:{2:00}.{3}", 
+                        averageTime.Hours, averageTime.Minutes, averageTime.Seconds, 
+                        (int)(averageTime.Milliseconds / 100));
+                    lblAverageTime.Text = $"Average time: {averageFormatted}";
+                }
+                else
+                {
+                    lblAverageTime.Text = "Average time: --:--:--.-";
+                }
+            }
+            
+            // 更新历史记录列表
+            if (lstRunHistory != null)
+            {
+                lstRunHistory.Items.Clear();
+                for (int i = 0; i < runHistory.Count; i++)
+                {
+                    var time = runHistory[i];
+                    string timeFormatted = string.Format("{0:00}:{1:00}:{2:00}.{3}", 
+                        time.Hours, time.Minutes, time.Seconds, 
+                        (int)(time.Milliseconds / 100));
+                    lstRunHistory.Items.Add($"Run {i + 1}: {timeFormatted}");
+                }
+                
+                // 确保最新记录在顶部
+                if (lstRunHistory.Items.Count > 0)
+                {
+                    lstRunHistory.SelectedIndex = 0;
                 }
             }
         }
@@ -234,6 +345,21 @@ namespace DTwoMFTimerHelper
             isTimerRunning = false;
             isPaused = false;
             timer?.Stop();
+            
+            // 记录本次运行时间
+            if (startTime != DateTime.MinValue)
+            {
+                TimeSpan runTime = DateTime.Now - startTime - pausedDuration;
+                runHistory.Insert(0, runTime); // 新记录插入到开头
+                runCount++;
+                
+                // 更新最快时间
+                if (runTime < fastestTime)
+                {
+                    fastestTime = runTime;
+                }
+            }
+            
             UpdateUI();
             TimerStateChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -258,12 +384,13 @@ namespace DTwoMFTimerHelper
             UpdateUI();
         }
 
-        // 私有字段定义
         // 控件字段定义
+        private Button? btnStatusIndicator;
         private Label? lblTimeDisplay;
-        private Label? lblCurrentProfile;
-        private Label? lblHint;
-        // 已移除按钮，改为使用快捷键控制
+        private Label? lblRunCount;
+        private Label? lblFastestTime;
+        private Label? lblAverageTime;
+        private ListBox? lstRunHistory;
         
         // 计时器状态字段
         private bool isPaused = false;
