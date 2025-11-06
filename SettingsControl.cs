@@ -260,21 +260,21 @@ namespace DTwoMFTimerHelper
             // 
             // btnSetPauseHotkey
             // 
-            this.btnSetPauseHotkey.Location = new System.Drawing.Point(210, 70);
+            this.btnSetPauseHotkey.Location = new System.Drawing.Point(200, 70);
             this.btnSetPauseHotkey.Name = "btnSetPauseHotkey";
-            this.btnSetPauseHotkey.Size = new System.Drawing.Size(75, 23);
+            this.btnSetPauseHotkey.Size = new System.Drawing.Size(70, 23);
             this.btnSetPauseHotkey.TabIndex = 5;
-            this.btnSetPauseHotkey.Text = "设置";
+            this.btnSetPauseHotkey.Text = "Set"; // 将在UpdateUI中通过LanguageManager更新
             this.btnSetPauseHotkey.UseVisualStyleBackColor = true;
             this.btnSetPauseHotkey.Click += new System.EventHandler(this.btnSetPauseHotkey_Click);
             // 
             // btnSetStartStopHotkey
             // 
-            this.btnSetStartStopHotkey.Location = new System.Drawing.Point(210, 30);
+            this.btnSetStartStopHotkey.Location = new System.Drawing.Point(200, 30);
             this.btnSetStartStopHotkey.Name = "btnSetStartStopHotkey";
-            this.btnSetStartStopHotkey.Size = new System.Drawing.Size(75, 23);
+            this.btnSetStartStopHotkey.Size = new System.Drawing.Size(70, 23);
             this.btnSetStartStopHotkey.TabIndex = 4;
-            this.btnSetStartStopHotkey.Text = "设置";
+            this.btnSetStartStopHotkey.Text = "Set"; // 将在UpdateUI中通过LanguageManager更新
             this.btnSetStartStopHotkey.UseVisualStyleBackColor = true;
             this.btnSetStartStopHotkey.Click += new System.EventHandler(this.btnSetStartStopHotkey_Click);
             // 
@@ -303,7 +303,7 @@ namespace DTwoMFTimerHelper
             this.labelHotkeyPause.Name = "labelHotkeyPause";
             this.labelHotkeyPause.Size = new System.Drawing.Size(64, 15);
             this.labelHotkeyPause.TabIndex = 1;
-            this.labelHotkeyPause.Text = "暂停";
+            this.labelHotkeyPause.Text = "Pause"; // 将在UpdateUI中通过LanguageManager更新
             // 
             // labelHotkeyStartStop
             // 
@@ -312,7 +312,7 @@ namespace DTwoMFTimerHelper
             this.labelHotkeyStartStop.Name = "labelHotkeyStartStop";
             this.labelHotkeyStartStop.Size = new System.Drawing.Size(64, 15);
             this.labelHotkeyStartStop.TabIndex = 0;
-            this.labelHotkeyStartStop.Text = "开始/结束";
+            this.labelHotkeyStartStop.Text = "Start/Stop"; // 将在UpdateUI中通过LanguageManager更新
             // 
             // groupBoxHotkeys
             // 
@@ -327,7 +327,7 @@ namespace DTwoMFTimerHelper
             this.groupBoxHotkeys.Size = new System.Drawing.Size(310, 110);
             this.groupBoxHotkeys.TabIndex = 0;
             this.groupBoxHotkeys.TabStop = false;
-            this.groupBoxHotkeys.Text = "快捷键设置";
+            this.groupBoxHotkeys.Text = "Hotkey Settings"; // 将在UpdateUI中通过LanguageManager更新
             // 
             // SettingsControl
             // 
@@ -512,10 +512,12 @@ namespace DTwoMFTimerHelper
             isSettingHotkey = true;
             currentHotkeySetting = hotkeyType;
             
+            // 使用通用文本，避免中英文问题
+            string pressKeyText = "Press Key...";
             if (hotkeyType == "StartStop")
-                labelStartStopHotkey!.Text = "按下按键...";
+                labelStartStopHotkey!.Text = pressKeyText;
             else
-                labelPauseHotkey!.Text = "按下按键...";
+                labelPauseHotkey!.Text = pressKeyText;
             
             // 为当前控件添加键盘事件处理
             this.Focus();

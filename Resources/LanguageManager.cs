@@ -83,7 +83,10 @@ namespace DTwoMFTimerHelper.Resources
             {
                 { "HotkeySettings", "Hotkey Settings" },
                 { "StartStop", "Start/Stop" },
-                { "Set", "Set" }
+                { "Pause", "Pause" },
+                { "Set", "Set" },
+                { "General", "General" },
+                { "Hotkeys", "Hotkeys" }
             };
             
             // 如果是中文，使用中文翻译
@@ -93,7 +96,10 @@ namespace DTwoMFTimerHelper.Resources
                 {
                     { "HotkeySettings", "快捷键设置" },
                     { "StartStop", "开始/结束" },
-                    { "Set", "设置" }
+                    { "Pause", "暂停" },
+                    { "Set", "设置" },
+                    { "General", "通用" },
+                    { "Hotkeys", "快捷键" }
                 };
             }
             
