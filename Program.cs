@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.IO;
 
-namespace WinFormsDemo
+namespace DTwoMFTimerHelper
 {
     static class Program
     {

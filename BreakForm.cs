@@ -1,8 +1,8 @@
 using System;
 using System.Windows.Forms;
-using WinFormsDemo.Resources;
+using DTwoMFTimerHelper.Resources;
 
-namespace WinFormsDemo
+namespace DTwoMFTimerHelper
 {
     public partial class BreakForm : Form
     {
@@ -12,113 +12,123 @@ namespace WinFormsDemo
             ShortBreak,
             LongBreak
         }
-        
+
         // 公共属性
         public int RemainingMilliseconds { get; set; } // 修改为毫秒级
         public BreakType CurrentBreakType { get; private set; }
-        
+
         // 事件
         public event EventHandler? BreakSkipped;
-        
+
         private Timer? breakTimer;
-        
+
         public BreakForm(int breakDurationMinutes, BreakType breakType)
         {
             InitializeComponent();
-            
+
             // 设置窗口属性 - 全屏显示
             this.StartPosition = FormStartPosition.CenterScreen;
             this.WindowState = FormWindowState.Maximized;
             this.FormBorderStyle = FormBorderStyle.None; // 无边框
             this.TopMost = true;
-            
+
             // 初始化休息设置
             RemainingMilliseconds = breakDurationMinutes * 60 * 1000; // 转换为毫秒
             CurrentBreakType = breakType;
-            
+
             // 初始化计时器 - 使用100ms间隔更稳定
             breakTimer = new Timer();
             breakTimer.Interval = 100; // 100毫秒
             breakTimer.Tick += BreakTimer_Tick;
             breakTimer.Start();
-            
+
             // 添加窗口大小变化事件，确保按钮始终在正确位置
             this.SizeChanged += BreakForm_SizeChanged;
-            
+
             // 更新界面
             UpdateUI();
         }
-        
+
         private void InitializeComponent()
         {
-            this.lblBreakMessage = new System.Windows.Forms.Label();
-            this.lblBreakTime = new System.Windows.Forms.Label();
-            this.btnClose = new System.Windows.Forms.Button();
-            this.btnSkipBreak = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            lblBreakMessage = new Label();
+            lblBreakTime = new Label();
+            btnClose = new Button();
+            btnSkipBreak = new Button();
+            SuspendLayout();
             // 
             // lblBreakMessage
             // 
-            this.lblBreakMessage.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblBreakMessage.Font = new System.Drawing.Font("Microsoft YaHei", 48F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblBreakMessage.ForeColor = System.Drawing.Color.Green;
-            this.lblBreakMessage.Location = new System.Drawing.Point(0, 0);
-            this.lblBreakMessage.Name = "lblBreakMessage";
-            this.lblBreakMessage.Size = new System.Drawing.Size(800, 150);
-            this.lblBreakMessage.TabIndex = 0;
-            this.lblBreakMessage.Text = "休息时间";
-            this.lblBreakMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblBreakMessage.Dock = DockStyle.Top;
+            lblBreakMessage.Font = new System.Drawing.Font("微软雅黑", 48F);
+            lblBreakMessage.ForeColor = System.Drawing.Color.Green;
+            lblBreakMessage.Location = new System.Drawing.Point(0, 0);
+            lblBreakMessage.Margin = new Padding(6, 0, 6, 0);
+            lblBreakMessage.Name = "lblBreakMessage";
+            lblBreakMessage.Size = new System.Drawing.Size(1486, 280);
+            lblBreakMessage.TabIndex = 0;
+            lblBreakMessage.Text = "休息时间";
+            lblBreakMessage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lblBreakTime
             // 
-            this.lblBreakTime.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblBreakTime.Font = new System.Drawing.Font("Microsoft YaHei", 96F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblBreakTime.ForeColor = System.Drawing.Color.Green;
-            this.lblBreakTime.Location = new System.Drawing.Point(0, 150);
-            this.lblBreakTime.Name = "lblBreakTime";
-            this.lblBreakTime.Size = new System.Drawing.Size(800, 450);
-            this.lblBreakTime.TabIndex = 1;
-            this.lblBreakTime.Text = "05:00.000";
-            this.lblBreakTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblBreakTime.Dock = DockStyle.Fill;
+            lblBreakTime.Font = new System.Drawing.Font("微软雅黑", 96F);
+            lblBreakTime.ForeColor = System.Drawing.Color.Green;
+            lblBreakTime.Location = new System.Drawing.Point(0, 280);
+            lblBreakTime.Margin = new Padding(6, 0, 6, 0);
+            lblBreakTime.Name = "lblBreakTime";
+            lblBreakTime.Size = new System.Drawing.Size(1486, 840);
+            lblBreakTime.TabIndex = 1;
+            lblBreakTime.Text = "05:00.000";
+            lblBreakTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblBreakTime.Click += lblBreakTime_Click;
             // 
             // btnClose
             // 
-            this.btnClose.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnClose.Size = new System.Drawing.Size(120, 50);
-            this.btnClose.TabIndex = 2;
-            this.btnClose.Text = "关闭";
-            this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            btnClose.Font = new System.Drawing.Font("微软雅黑", 12F);
+            btnClose.Location = new System.Drawing.Point(0, 0);
+            btnClose.Margin = new Padding(6, 6, 6, 6);
+            btnClose.Name = "btnClose";
+            btnClose.Size = new System.Drawing.Size(223, 93);
+            btnClose.TabIndex = 2;
+            btnClose.Text = "关闭";
+            btnClose.UseVisualStyleBackColor = true;
+            btnClose.Click += btnClose_Click;
             // 
             // btnSkipBreak
             // 
-            this.btnSkipBreak.Font = new System.Drawing.Font("Microsoft YaHei", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnSkipBreak.Size = new System.Drawing.Size(120, 50);
-            this.btnSkipBreak.TabIndex = 3;
-            this.btnSkipBreak.Text = "跳过休息";
-            this.btnSkipBreak.UseVisualStyleBackColor = true;
-            this.btnSkipBreak.Click += new System.EventHandler(this.btnSkipBreak_Click);
+            btnSkipBreak.Font = new System.Drawing.Font("微软雅黑", 12F);
+            btnSkipBreak.Location = new System.Drawing.Point(0, 0);
+            btnSkipBreak.Margin = new Padding(6, 6, 6, 6);
+            btnSkipBreak.Name = "btnSkipBreak";
+            btnSkipBreak.Size = new System.Drawing.Size(223, 93);
+            btnSkipBreak.TabIndex = 3;
+            btnSkipBreak.Text = "跳过休息";
+            btnSkipBreak.UseVisualStyleBackColor = true;
+            btnSkipBreak.Click += btnSkipBreak_Click;
             // 
             // BreakForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 600);
-            this.Controls.Add(this.btnSkipBreak);
-            this.Controls.Add(this.btnClose);
-            this.Controls.Add(this.lblBreakTime);
-            this.Controls.Add(this.lblBreakMessage);
-            this.Name = "BreakForm";
-            this.Text = "休息时间";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.BreakForm_FormClosing);
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(1486, 1120);
+            Controls.Add(btnSkipBreak);
+            Controls.Add(btnClose);
+            Controls.Add(lblBreakTime);
+            Controls.Add(lblBreakMessage);
+            Margin = new Padding(6, 6, 6, 6);
+            Name = "BreakForm";
+            Text = "休息时间";
+            FormClosing += BreakForm_FormClosing;
+            ResumeLayout(false);
         }
-        
+
         public void UpdateUI()
         {
             // 更新标题
             this.Text = LanguageManager.GetString("BreakTime") ?? "休息时间";
-            
+
             // 更新休息消息
             if (CurrentBreakType == BreakType.ShortBreak)
             {
@@ -128,15 +138,15 @@ namespace WinFormsDemo
             {
                 lblBreakMessage!.Text = LanguageManager.GetString("LongBreakMessage") ?? "长休息时间";
             }
-            
+
             // 更新按钮文本
             btnClose!.Text = LanguageManager.GetString("Close") ?? "关闭";
             btnSkipBreak!.Text = LanguageManager.GetString("SkipBreak") ?? "跳过休息";
-            
+
             // 更新倒计时显示
             UpdateBreakTimeDisplay();
         }
-        
+
         private void UpdateBreakTimeDisplay()
         {
             // 计算分、秒和毫秒（只显示几百毫秒）
@@ -145,17 +155,17 @@ namespace WinFormsDemo
             int seconds = totalSeconds % 60;
             // 只保留百位的毫秒值
             int hundredsOfMilliseconds = (RemainingMilliseconds % 1000) / 100;
-            
+
             // 格式化为 mm:ss:h 其中h表示几百毫秒
             string timeText = string.Format("{0:00}:{1:00}:{2}", minutes, seconds, hundredsOfMilliseconds);
-            
+
             // 确保标签不为空再更新
             if (lblBreakTime != null && !string.IsNullOrEmpty(timeText))
             {
                 lblBreakTime.Text = timeText;
             }
         }
-        
+
         private void BreakTimer_Tick(object? sender, EventArgs e)
         {
             if (RemainingMilliseconds > 0)
@@ -170,30 +180,30 @@ namespace WinFormsDemo
                 this.Close();
             }
         }
-        
+
         private void BreakForm_SizeChanged(object? sender, EventArgs e)
         {
             // 确保按钮始终在右下角，距离右边和下面各80px，按钮间距离40px
             const int marginRight = 80;
             const int marginBottom = 80;
             const int buttonSpacing = 40;
-            
+
             // 检查按钮控件是否为null，避免空引用异常
             if (btnClose != null && btnSkipBreak != null)
             {
                 int buttonWidth = btnClose.Width;
                 int buttonHeight = btnClose.Height;
-                
+
                 // 设置关闭按钮位置
                 btnClose.Left = this.ClientSize.Width - marginRight - buttonWidth;
                 btnClose.Top = this.ClientSize.Height - marginBottom - buttonHeight;
-                
+
                 // 设置跳过休息按钮位置
                 btnSkipBreak.Left = btnClose.Left - buttonWidth - buttonSpacing;
                 btnSkipBreak.Top = btnClose.Top;
             }
         }
-        
+
         private void btnClose_Click(object? sender, EventArgs e)
         {
             // 暂停计时器
@@ -201,7 +211,7 @@ namespace WinFormsDemo
             // 只关闭窗口，不跳过休息
             this.Close();
         }
-        
+
         private void btnSkipBreak_Click(object? sender, EventArgs e)
         {
             // 暂停计时器
@@ -211,16 +221,21 @@ namespace WinFormsDemo
             // 关闭窗口
             this.Close();
         }
-        
+
         private void BreakForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
             // 确保计时器停止
             breakTimer?.Stop();
         }
-        
+
         private Label? lblBreakMessage;
         private Label? lblBreakTime;
         private Button? btnClose;
         private Button? btnSkipBreak;
+
+        private void lblBreakTime_Click(object? sender, EventArgs e)
+        {
+
+        }
     }
 }

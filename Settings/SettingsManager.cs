@@ -1,0 +1,120 @@
+using System;
+using System.IO;
+using System.Windows.Forms;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
+
+namespace DTwoMFTimerHelper.Settings
+{
+    public class AppSettings
+    {
+        // 窗口设置
+        public string WindowPosition { get; set; } = "TopLeft";
+        public bool AlwaysOnTop { get; set; } = true;
+        public string Language { get; set; } = "Chinese";
+        
+        // 番茄时钟设置
+        public int WorkTimeMinutes { get; set; } = 25;
+        public int WorkTimeSeconds { get; set; } = 0;
+        public int ShortBreakMinutes { get; set; } = 5;
+        public int ShortBreakSeconds { get; set; } = 0;
+        public int LongBreakMinutes { get; set; } = 15;
+        public int LongBreakSeconds { get; set; } = 0;
+    }
+
+    public static class SettingsManager
+    {
+        private static readonly string ConfigFilePath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "mf-time-helper",
+            "config.yaml");
+        
+        private static readonly ISerializer serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        
+        private static readonly IDeserializer deserializer = new DeserializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        
+        // 加载设置
+        public static AppSettings LoadSettings()
+        {
+            try
+            {
+                // 确保目录存在 - 添加null检查以修复CS8604警告
+                string? directory = Path.GetDirectoryName(ConfigFilePath);
+                if (directory != null)
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                
+                if (File.Exists(ConfigFilePath))
+                {
+                    var yaml = File.ReadAllText(ConfigFilePath);
+                    return deserializer.Deserialize<AppSettings>(yaml);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"加载设置失败: {ex.Message}");
+            }
+            
+            // 返回默认设置
+            return new AppSettings();
+        }
+        
+        // 保存设置
+        public static void SaveSettings(AppSettings settings)
+        {
+            try
+            {
+                // 确保目录存在 - 添加null检查以修复CS8604警告
+                string? directory = Path.GetDirectoryName(ConfigFilePath);
+                if (directory != null)
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                
+                var yaml = serializer.Serialize(settings);
+                File.WriteAllText(ConfigFilePath, yaml);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"保存设置失败: {ex.Message}");
+            }
+        }
+        
+        // 将设置窗口的位置枚举转换为字符串
+        public static string WindowPositionToString(SettingsControl.WindowPosition position)
+        {
+            return position.ToString();
+        }
+        
+        // 将字符串转换为设置窗口的位置枚举
+        public static SettingsControl.WindowPosition StringToWindowPosition(string positionStr)
+        {
+            if (Enum.TryParse<SettingsControl.WindowPosition>(positionStr, out var position))
+            {
+                return position;
+            }
+            return SettingsControl.WindowPosition.TopLeft;
+        }
+        
+        // 将语言选项转换为字符串
+        public static string LanguageToString(SettingsControl.LanguageOption language)
+        {
+            return language.ToString();
+        }
+        
+        // 将字符串转换为语言选项
+        public static SettingsControl.LanguageOption StringToLanguage(string languageStr)
+        {
+            if (Enum.TryParse<SettingsControl.LanguageOption>(languageStr, out var language))
+            {
+                return language;
+            }
+            return SettingsControl.LanguageOption.Chinese;
+        }
+    }
+}

@@ -1,9 +1,10 @@
 using System;
 using System.Windows.Forms;
 using System.Media;
-using WinFormsDemo.Resources;
+using DTwoMFTimerHelper.Resources;
+using DTwoMFTimerHelper.Settings;
 
-namespace WinFormsDemo
+namespace DTwoMFTimerHelper
 {
     public partial class PomodoroControl : UserControl
     {
@@ -38,8 +39,41 @@ namespace WinFormsDemo
         {
             InitializeComponent();
             InitializeTimer();
+            
+            // 从配置文件加载设置
+            LoadSettings();
+            
             InitializePomodoro();
             UpdateUI();
+        }
+        
+        private void LoadSettings()
+        {
+            var settings = SettingsManager.LoadSettings();
+            if (settings != null)
+            {
+                workTimeMinutes = settings.WorkTimeMinutes;
+                workTimeSeconds = settings.WorkTimeSeconds;
+                shortBreakMinutes = settings.ShortBreakMinutes;
+                shortBreakSeconds = settings.ShortBreakSeconds;
+                longBreakMinutes = settings.LongBreakMinutes;
+                longBreakSeconds = settings.LongBreakSeconds;
+            }
+        }
+        
+        private void SaveSettings()
+        {
+            var settings = SettingsManager.LoadSettings();
+            if (settings != null)
+            {
+                settings.WorkTimeMinutes = workTimeMinutes;
+                settings.WorkTimeSeconds = workTimeSeconds;
+                settings.ShortBreakMinutes = shortBreakMinutes;
+                settings.ShortBreakSeconds = shortBreakSeconds;
+                settings.LongBreakMinutes = longBreakMinutes;
+                settings.LongBreakSeconds = longBreakSeconds;
+                SettingsManager.SaveSettings(settings);
+            }
         }
 
         private void InitializeComponent()
@@ -304,6 +338,9 @@ namespace WinFormsDemo
                     shortBreakSeconds = settingsForm.ShortBreakSeconds;
                     longBreakMinutes = settingsForm.LongBreakMinutes;
                     longBreakSeconds = settingsForm.LongBreakSeconds;
+                    
+                    // 保存设置到配置文件
+                    SaveSettings();
                     
                     // 如果当前不是运行状态，更新显示的时间
                     if (!isPomodoroRunning && currentState == TimerState.Work)

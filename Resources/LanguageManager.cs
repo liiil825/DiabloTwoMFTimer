@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace WinFormsDemo.Resources
+namespace DTwoMFTimerHelper.Resources
 {
     public static class LanguageManager
     {

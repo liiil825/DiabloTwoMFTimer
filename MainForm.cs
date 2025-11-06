@@ -1,121 +1,193 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
-using WinFormsDemo.Resources;
+using DTwoMFTimerHelper.Resources;
 using AntdUI;
+using DTwoMFTimerHelper.Settings;
 
-namespace WinFormsDemo
+namespace DTwoMFTimerHelper
 {
     public partial class MainForm : Form
     {
         // 各个功能控件
-        private CountControl? countControl;
+        private ProfileManager? profileManager;
         private PomodoroControl? pomodoroControl;
+        private TimerControl? timerControl;
         private SettingsControl? settingsControl;
+        private AppSettings? appSettings;
 
         public MainForm()
         {
             InitializeComponent();
+            
+            // 加载设置
+            LoadSettings();
+            
+            // 启动测试：直接加载角色档案并显示详细信息
+            LoadCharacterProfile();
+            
             InitializeControls();
             InitializeLanguageSupport();
             
             // 确保窗口可见并具有合理的大小和位置
-            this.Size = new Size(400, 300);
-            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Size = new Size(480, 600);
+            this.StartPosition = FormStartPosition.Manual;
+            
+            // 应用保存的窗口位置
+            if (appSettings != null && Screen.PrimaryScreen != null)
+            {
+                var position = SettingsManager.StringToWindowPosition(appSettings.WindowPosition);
+                settingsControl?.MoveWindowToPosition(this, position);
+            }
+            
             this.ShowInTaskbar = true;
             this.Visible = true;
+        }
+        
+        private void LoadSettings()
+        {
+            appSettings = SettingsManager.LoadSettings();
+            
+            // 应用设置
+            if (appSettings != null)
+            {
+                // 应用窗口置顶设置
+                this.TopMost = appSettings.AlwaysOnTop;
+            }
+        }
+        
+        private void LoadCharacterProfile()
+         {
+             try
+             {
+                 Console.WriteLine("[启动测试] 开始加载角色档案...");
+                 // 调用DataManager加载角色档案，分别测试includeHidden=true和false
+                 Console.WriteLine("[启动测试] 测试1: 只加载非隐藏角色 (includeHidden=false)");
+                 var profilesVisible = DTwoMFTimerHelper.Data.DataManager.LoadAllProfiles(includeHidden: false);
+                 Console.WriteLine($"[启动测试] 测试1结果: 找到 {profilesVisible.Count} 个非隐藏角色档案");
+                 
+                 Console.WriteLine("\n[启动测试] 测试2: 加载所有角色包括隐藏的 (includeHidden=true)");
+                 var profilesAll = DTwoMFTimerHelper.Data.DataManager.LoadAllProfiles(includeHidden: true);
+                 Console.WriteLine($"[启动测试] 测试2结果: 找到 {profilesAll.Count} 个角色档案（包括隐藏的）");
+                 
+                 // 显示每个角色的详细信息
+                 Console.WriteLine("\n[启动测试] 所有角色详细信息:");
+                 foreach (var profile in profilesAll)
+                 {
+                     Console.WriteLine($"[启动测试] - 角色: {profile.Name}, 职业: {profile.Class}, IsHidden: {profile.IsHidden}");
+                 }
+                 
+                 Console.WriteLine("[启动测试] 角色档案加载完成");
+             }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[启动测试] 加载角色档案失败: {0}", ex.Message);
+                Console.WriteLine("[启动测试] 异常堆栈: {0}", ex.StackTrace);
+                // 在调试模式下显示错误对话框
+#if DEBUG
+                MessageBox.Show("[启动测试] 加载角色档案失败: " + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+#else
+                // 生产环境只记录日志，不显示错误
+#endif
+            }
         }
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
-            this.tabControl = new System.Windows.Forms.TabControl();
-            this.tabCountPage = new System.Windows.Forms.TabPage();
-            this.tabPomodoroPage = new System.Windows.Forms.TabPage();
-            this.tabSettingsPage = new System.Windows.Forms.TabPage();
-            this.SuspendLayout();
-            // 
-            // mainMenuStrip
-            // 
-            this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
-            this.mainMenuStrip.Name = "mainMenuStrip";
-            this.mainMenuStrip.Size = new System.Drawing.Size(400, 24);
-            this.mainMenuStrip.TabIndex = 0;
-            this.mainMenuStrip.Text = "mainMenuStrip";
+            tabControl = new TabControl();
+            tabProfilePage = new System.Windows.Forms.TabPage();
+            tabTimerPage = new System.Windows.Forms.TabPage();
+            tabPomodoroPage = new System.Windows.Forms.TabPage();
+            tabSettingsPage = new System.Windows.Forms.TabPage();
+            tabControl.SuspendLayout();
+            SuspendLayout();
             // 
             // tabControl
             // 
-            this.tabControl.TabPages.AddRange(new[] {
-                this.tabCountPage,
-                this.tabPomodoroPage,
-                this.tabSettingsPage});
-            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl.Location = new System.Drawing.Point(0, 24);
-            this.tabControl.Name = "tabControl";
-            this.tabControl.Size = new System.Drawing.Size(400, 276);
-            this.tabControl.TabIndex = 1;
-            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
+            tabControl.Controls.Add(tabProfilePage);
+            tabControl.Controls.Add(tabTimerPage);
+            tabControl.Controls.Add(tabPomodoroPage);
+            tabControl.Controls.Add(tabSettingsPage);
+            tabControl.Dock = DockStyle.Fill;
+            tabControl.Location = new Point(0, 0);
+            tabControl.Margin = new Padding(6);
+            tabControl.Name = "tabControl";
+            tabControl.SelectedIndex = 0;
+            tabControl.Size = new Size(894, 878);
+            tabControl.TabIndex = 1;
+            tabControl.SelectedIndexChanged += tabControl_SelectedIndexChanged;
             // 
-            // tabCountPage
+            // tabProfilePage
             // 
-            this.tabCountPage.Location = new System.Drawing.Point(4, 24);
-            this.tabCountPage.Name = "tabCountPage";
-            this.tabCountPage.Size = new System.Drawing.Size(392, 248);
-            this.tabCountPage.TabIndex = 0;
-            this.tabCountPage.Text = "";
-            this.tabCountPage.UseVisualStyleBackColor = true;
+            tabProfilePage.Location = new Point(4, 37);
+            tabProfilePage.Name = "tabProfilePage";
+            tabProfilePage.Size = new Size(886, 813);
+            tabProfilePage.TabIndex = 0;
+            tabProfilePage.Text = LanguageManager.GetString("TabProfile");
+            tabProfilePage.UseVisualStyleBackColor = true;
+            // 
+            // tabTimerPage
+            // 
+            tabTimerPage.Location = new Point(4, 37);
+            tabTimerPage.Name = "tabTimerPage";
+            tabTimerPage.Size = new Size(886, 813);
+            tabTimerPage.TabIndex = 1;
+            tabTimerPage.UseVisualStyleBackColor = true;
             // 
             // tabPomodoroPage
             // 
-            this.tabPomodoroPage.Location = new System.Drawing.Point(4, 24);
-            this.tabPomodoroPage.Name = "tabPomodoroPage";
-            this.tabPomodoroPage.Size = new System.Drawing.Size(392, 248);
-            this.tabPomodoroPage.TabIndex = 1;
-            this.tabPomodoroPage.Text = "";
-            this.tabPomodoroPage.UseVisualStyleBackColor = true;
+            tabPomodoroPage.Location = new Point(4, 37);
+            tabPomodoroPage.Name = "tabPomodoroPage";
+            tabPomodoroPage.Size = new Size(886, 813);
+            tabPomodoroPage.TabIndex = 2;
+            tabPomodoroPage.UseVisualStyleBackColor = true;
             // 
             // tabSettingsPage
             // 
-            this.tabSettingsPage.Location = new System.Drawing.Point(4, 24);
-            this.tabSettingsPage.Name = "tabSettingsPage";
-            this.tabSettingsPage.Size = new System.Drawing.Size(392, 248);
-            this.tabSettingsPage.TabIndex = 2;
-            this.tabSettingsPage.Text = "";
-            this.tabSettingsPage.UseVisualStyleBackColor = true;
+            tabSettingsPage.Location = new Point(4, 37);
+            tabSettingsPage.Name = "tabSettingsPage";
+            tabSettingsPage.Size = new Size(886, 837);
+            tabSettingsPage.TabIndex = 3;
+            tabSettingsPage.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 300);
-            this.Controls.Add(this.tabControl);
-            this.Controls.Add(this.mainMenuStrip);
-            this.MainMenuStrip = this.mainMenuStrip;
-            this.Name = "MainForm";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(13F, 28F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(894, 878);
+            Controls.Add(tabControl);
+            Margin = new Padding(6);
+            Name = "MainForm";
+            tabControl.ResumeLayout(false);
+            ResumeLayout(false);
         }
 
         private void InitializeControls()
         {
             // 初始化各个功能控件
-            countControl = new CountControl();
+            profileManager = new ProfileManager();
+            timerControl = new TimerControl();
             pomodoroControl = new PomodoroControl();
             settingsControl = new SettingsControl();
 
             // 设置控件的Dock属性
-            countControl.Dock = DockStyle.Fill;
+            profileManager.Dock = DockStyle.Fill;
+            timerControl.Dock = DockStyle.Fill;
             pomodoroControl.Dock = DockStyle.Fill;
             settingsControl.Dock = DockStyle.Fill;
 
             // 标签页已经在InitializeComponent中添加，这里不需要重复添加
             
             // 添加到对应的TabPage
-            if (tabCountPage != null)
+            if (tabProfilePage != null)
             {
-                tabCountPage.Controls.Add(countControl);
-                countControl.TimerStateChanged += OnCountTimerStateChanged;
+                tabProfilePage.Controls.Add(profileManager);
+                profileManager.TimerStateChanged += OnCountTimerStateChanged;
+            }
+            if (tabTimerPage != null)
+            {
+                tabTimerPage.Controls.Add(timerControl);
+                timerControl.TimerStateChanged += OnTimerTimerStateChanged;
             }
             if (tabPomodoroPage != null)
             {
@@ -132,7 +204,7 @@ namespace WinFormsDemo
             }
         }
         
-        private void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
+        private void tabControl_SelectedIndexChanged(object? sender, EventArgs e)
         {
             // 当标签页切换时，可以在这里添加额外的逻辑
             // 根据当前选中的选项卡更新UI
@@ -157,15 +229,17 @@ namespace WinFormsDemo
             this.Text = LanguageManager.GetString("FormTitle");
             
             // 更新选项卡标题
-            if (tabControl != null && tabControl.TabPages.Count >= 3)
+            if (tabControl != null && tabControl.TabPages.Count >= 4)
             {
-                tabControl.TabPages[0].Text = LanguageManager.GetString("TabCount");
-                tabControl.TabPages[1].Text = LanguageManager.GetString("TabPomodoro");
-                tabControl.TabPages[2].Text = LanguageManager.GetString("TabSettings");
+                tabControl.TabPages[0].Text = LanguageManager.GetString("TabProfile");
+                tabControl.TabPages[1].Text = "计时器";
+                tabControl.TabPages[2].Text = LanguageManager.GetString("TabPomodoro");
+                tabControl.TabPages[3].Text = LanguageManager.GetString("TabSettings");
             }
             
             // 更新各功能控件的UI
-            countControl?.UpdateUI();
+            profileManager?.UpdateUI();
+            timerControl?.UpdateUI();
             pomodoroControl?.UpdateUI();
             settingsControl?.UpdateUI();
         }
@@ -188,13 +262,13 @@ namespace WinFormsDemo
             // 番茄时钟完成时的处理
             // 可以在这里添加提示或其他操作
         }
-
-        private void OnWindowPositionChanged(object? sender, SettingsControl.WindowPositionChangedEventArgs e)
-        {
-            // 窗口位置改变时的处理
-            settingsControl?.MoveWindowToPosition(this, e.Position);
-        }
         
+        private void OnTimerTimerStateChanged(object? sender, EventArgs e)
+        {
+            UpdateUI();
+        }
+
+
         private void OnLanguageChanged(object? sender, SettingsControl.LanguageChangedEventArgs e)
         {
             // 语言改变时的处理
@@ -206,25 +280,51 @@ namespace WinFormsDemo
             {
                 LanguageManager.SwitchLanguage(LanguageManager.English);
             }
+            
+            // 保存设置
+            if (appSettings != null)
+            {
+                appSettings.Language = SettingsManager.LanguageToString(e.Language);
+                SettingsManager.SaveSettings(appSettings);
+            }
         }
         
         private void OnAlwaysOnTopChanged(object? sender, SettingsControl.AlwaysOnTopChangedEventArgs e)
         {
             // 窗口置顶状态改变时的处理
             this.TopMost = e.IsAlwaysOnTop;
+            
+            // 保存设置
+            if (appSettings != null)
+            {
+                appSettings.AlwaysOnTop = e.IsAlwaysOnTop;
+                SettingsManager.SaveSettings(appSettings);
+            }
         }
+        
+        private void OnWindowPositionChanged(object? sender, SettingsControl.WindowPositionChangedEventArgs e)
+        {
+            // 窗口位置改变时的处理
+            settingsControl?.MoveWindowToPosition(this, e.Position);
+            
+            // 保存设置
+            if (appSettings != null)
+            {
+                appSettings.WindowPosition = SettingsManager.WindowPositionToString(e.Position);
+                SettingsManager.SaveSettings(appSettings);
+            }
+        }
+        
+
 
         private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e)
         {
             // 语言改变时更新UI
             UpdateUI();
         }
-
-        // 界面控件
-        private System.ComponentModel.IContainer? components;
-        private System.Windows.Forms.MenuStrip? mainMenuStrip;
         private System.Windows.Forms.TabControl? tabControl;
-        private System.Windows.Forms.TabPage? tabCountPage;
+        private System.Windows.Forms.TabPage? tabProfilePage;
+        private System.Windows.Forms.TabPage? tabTimerPage;
         private System.Windows.Forms.TabPage? tabPomodoroPage;
         private System.Windows.Forms.TabPage? tabSettingsPage;
     }

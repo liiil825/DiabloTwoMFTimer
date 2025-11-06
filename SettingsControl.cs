@@ -1,9 +1,9 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
-using WinFormsDemo.Resources;
+using DTwoMFTimerHelper.Resources;
 
-namespace WinFormsDemo
+namespace DTwoMFTimerHelper
 {
     public partial class SettingsControl : UserControl
     {
@@ -186,13 +186,14 @@ namespace WinFormsDemo
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true; // 启用自动滚动
             this.Controls.Add(this.alwaysOnTopLabel);
             this.Controls.Add(this.alwaysOnTopCheckBox);
             this.Controls.Add(this.groupBoxLanguage);
             this.Controls.Add(this.btnConfirmSettings);
             this.Controls.Add(this.groupBoxPosition);
             this.Name = "SettingsControl";
-            this.Size = new System.Drawing.Size(292, 400);
+            this.Size = new System.Drawing.Size(480, 500);
             this.groupBoxPosition.ResumeLayout(false);
             this.groupBoxPosition.PerformLayout();
             this.groupBoxLanguage.ResumeLayout(false);

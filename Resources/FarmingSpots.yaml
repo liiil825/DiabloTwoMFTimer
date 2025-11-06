@@ -1,0 +1,67 @@
+farmingSpots:
+  - ACT: 1
+    enUS: "Countess"
+    zhCN: "女伯爵"
+  - ACT: 1
+    enUS: "Pit"
+    zhCN: "地下洞穴"
+  - ACT: 1
+    enUS: "Andariel"
+    zhCN: "安达利尔"
+  - ACT: 1
+    enUS: "The Secret Cow Level"
+    zhCN: "秘密母牛关卡"
+  - ACT: 2
+    enUS: "Stony Tomb"
+    zhCN: "石制古墓"
+  - ACT: 2
+    enUS: "Ancient Tunnels"
+    zhCN: "古代水道"
+  - ACT: 2
+    enUS: "Summoner & Arcane Sanctuary"
+    zhCN: "召唤者与神秘避难所"
+  - ACT: 3
+    enUS: "Arachnid Lair"
+    zhCN: "蜘蛛巢穴"
+  - ACT: 3
+    enUS: "Lower Kurast Super Chest"
+    zhCN: "库拉斯特下层超级箱子"
+  - ACT: 3
+    enUS: "Temples"
+    zhCN: "神殿"
+  - ACT: 3
+    enUS: "Travincal"
+    zhCN: "崔凡克"
+  - ACT: 3
+    enUS: "Mephisto"
+    zhCN: "墨菲斯托"
+  - ACT: 4
+    enUS: "City of the Damned"
+    zhCN: "诅咒之城"
+  - ACT: 4
+    enUS: "River of Flame"
+    zhCN: "火焰之河"
+  - ACT: 4
+    enUS: "Chaos Sanctuary & Diablo"
+    zhCN: "混沌避难所与迪亚波罗"
+  - ACT: 5
+    enUS: "Eldritch & Shenk"
+    zhCN: "艾德崔奇与沈克"
+  - ACT: 5    
+    enUS: "Thresh Socket"
+    zhCN: "碎骨者"
+  - ACT: 5
+    enUS: "Pindleskin"
+    zhCN: "暴躁外皮"
+  - ACT: 5
+    enUS: "Drifter Cavern"
+    zhCN: "漂流洞穴"
+  - ACT: 5
+    enUS: "Icy Cellar"
+    zhCN: "冰冻地窖"
+  - ACT: 5
+    enUS: "Nihlathak"
+    zhCN: "尼拉塞克"
+  - ACT: 5
+    enUS: "Worldstone Keep & Baal"
+    zhCN: "世界之石要塞与巴尔"
