@@ -25,7 +25,7 @@ namespace DTwoMFTimerHelper
         public event EventHandler<AlwaysOnTopChangedEventArgs>? AlwaysOnTopChanged;
         public event EventHandler<HotkeyChangedEventArgs>? StartStopHotkeyChanged;
         public event EventHandler<HotkeyChangedEventArgs>? PauseHotkeyChanged;
-        
+
         // 语言枚举
         public enum LanguageOption
         {
@@ -88,10 +88,22 @@ namespace DTwoMFTimerHelper
             // tabPageGeneral
             // 
             this.tabPageGeneral.Controls.Add(this.btnConfirmSettings);
-            this.tabPageGeneral.Controls.Add(this.alwaysOnTopLabel);
             this.tabPageGeneral.Controls.Add(this.alwaysOnTopCheckBox);
-            this.tabPageGeneral.Controls.Add(this.groupBoxLanguage);
+            this.tabPageGeneral.Controls.Add(this.alwaysOnTopLabel);
             this.tabPageGeneral.Controls.Add(this.groupBoxPosition);
+            this.tabPageGeneral.Controls.Add(this.groupBoxLanguage);
+            // 
+            // tabPageHotkeys
+            // 
+            this.tabPageHotkeys.Controls.Add(this.btnConfirmSettings);
+            this.tabPageHotkeys.Controls.Add(this.groupBoxHotkeys);
+            this.tabPageHotkeys.Location = new System.Drawing.Point(4, 24);
+            this.tabPageHotkeys.Name = "tabPageHotkeys";
+            this.tabPageHotkeys.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageHotkeys.Size = new System.Drawing.Size(323, 282);
+            this.tabPageHotkeys.TabIndex = 1;
+            this.tabPageHotkeys.Text = "快捷键";
+            this.tabPageHotkeys.UseVisualStyleBackColor = true;
             this.tabPageGeneral.Location = new System.Drawing.Point(4, 24);
             this.tabPageGeneral.Name = "tabPageGeneral";
             this.tabPageGeneral.Padding = new System.Windows.Forms.Padding(3);
@@ -186,9 +198,9 @@ namespace DTwoMFTimerHelper
             this.groupBoxPosition.Controls.Add(this.radioBottomCenter);
             this.groupBoxPosition.Controls.Add(this.radioBottomLeft);
             this.groupBoxPosition.Controls.Add(this.radioBottomRight);
-            this.groupBoxPosition.Location = new System.Drawing.Point(6, 6);
+            this.groupBoxPosition.Location = new System.Drawing.Point(8, 8);
             this.groupBoxPosition.Name = "groupBoxPosition";
-            this.groupBoxPosition.Size = new System.Drawing.Size(310, 110);
+            this.groupBoxPosition.Size = new System.Drawing.Size(307, 110);
             this.groupBoxPosition.TabIndex = 0;
             this.groupBoxPosition.TabStop = false;
             this.groupBoxPosition.Text = "窗口位置";
@@ -220,9 +232,9 @@ namespace DTwoMFTimerHelper
             // 
             this.groupBoxLanguage.Controls.Add(this.chineseRadioButton);
             this.groupBoxLanguage.Controls.Add(this.englishRadioButton);
-            this.groupBoxLanguage.Location = new System.Drawing.Point(6, 122);
+            this.groupBoxLanguage.Location = new System.Drawing.Point(8, 124);
             this.groupBoxLanguage.Name = "groupBoxLanguage";
-            this.groupBoxLanguage.Size = new System.Drawing.Size(310, 70);
+            this.groupBoxLanguage.Size = new System.Drawing.Size(307, 70);
             this.groupBoxLanguage.TabIndex = 1;
             this.groupBoxLanguage.TabStop = false;
             this.groupBoxLanguage.Text = "语言";
@@ -231,7 +243,7 @@ namespace DTwoMFTimerHelper
             // 
             this.alwaysOnTopCheckBox.AutoSize = true;
             this.alwaysOnTopCheckBox.Checked = true;
-            this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(75, 208);
+            this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(75, 202);
             this.alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
             this.alwaysOnTopCheckBox.Size = new System.Drawing.Size(15, 14);
             this.alwaysOnTopCheckBox.TabIndex = 3;
@@ -240,7 +252,7 @@ namespace DTwoMFTimerHelper
             // alwaysOnTopLabel
             // 
             this.alwaysOnTopLabel.AutoSize = true;
-            this.alwaysOnTopLabel.Location = new System.Drawing.Point(8, 208);
+            this.alwaysOnTopLabel.Location = new System.Drawing.Point(8, 202);
             this.alwaysOnTopLabel.Name = "alwaysOnTopLabel";
             this.alwaysOnTopLabel.Size = new System.Drawing.Size(70, 15);
             this.alwaysOnTopLabel.TabIndex = 4;
@@ -248,15 +260,7 @@ namespace DTwoMFTimerHelper
             // 
             // tabPageHotkeys
             // 
-            this.tabPageHotkeys.Controls.Add(this.btnConfirmSettings);
-            this.tabPageHotkeys.Controls.Add(this.groupBoxHotkeys);
-            this.tabPageHotkeys.Location = new System.Drawing.Point(4, 24);
-            this.tabPageHotkeys.Name = "tabPageHotkeys";
-            this.tabPageHotkeys.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageHotkeys.Size = new System.Drawing.Size(327, 282);
-            this.tabPageHotkeys.TabIndex = 1;
-            this.tabPageHotkeys.Text = "快捷键";
-            this.tabPageHotkeys.UseVisualStyleBackColor = true;
+            // 已移除重复的tabPageHotkeys定义
             // 
             // 已移除设置按钮，改为点击标签直接设置快捷键
             // 
@@ -266,7 +270,7 @@ namespace DTwoMFTimerHelper
             this.labelPauseHotkey.Cursor = System.Windows.Forms.Cursors.Hand;
             this.labelPauseHotkey.Location = new System.Drawing.Point(70, 70);
             this.labelPauseHotkey.Name = "labelPauseHotkey";
-            this.labelPauseHotkey.Size = new System.Drawing.Size(205, 23);
+            this.labelPauseHotkey.Size = new System.Drawing.Size(227, 23);
             this.labelPauseHotkey.TabIndex = 3;
             this.labelPauseHotkey.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.labelPauseHotkey.Click += new System.EventHandler(this.btnSetPauseHotkey_Click);
@@ -277,7 +281,7 @@ namespace DTwoMFTimerHelper
             this.labelStartStopHotkey.Cursor = System.Windows.Forms.Cursors.Hand;
             this.labelStartStopHotkey.Location = new System.Drawing.Point(70, 30);
             this.labelStartStopHotkey.Name = "labelStartStopHotkey";
-            this.labelStartStopHotkey.Size = new System.Drawing.Size(205, 23);
+            this.labelStartStopHotkey.Size = new System.Drawing.Size(227, 23);
             this.labelStartStopHotkey.TabIndex = 2;
             this.labelStartStopHotkey.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.labelStartStopHotkey.Click += new System.EventHandler(this.btnSetStartStopHotkey_Click);
@@ -306,9 +310,9 @@ namespace DTwoMFTimerHelper
             this.groupBoxHotkeys.Controls.Add(this.labelStartStopHotkey);
             this.groupBoxHotkeys.Controls.Add(this.labelHotkeyPause);
             this.groupBoxHotkeys.Controls.Add(this.labelHotkeyStartStop);
-            this.groupBoxHotkeys.Location = new System.Drawing.Point(6, 6);
+            this.groupBoxHotkeys.Location = new System.Drawing.Point(8, 8);
             this.groupBoxHotkeys.Name = "groupBoxHotkeys";
-            this.groupBoxHotkeys.Size = new System.Drawing.Size(310, 110);
+            this.groupBoxHotkeys.Size = new System.Drawing.Size(307, 110);
             this.groupBoxHotkeys.TabIndex = 0;
             this.groupBoxHotkeys.TabStop = false;
             this.groupBoxHotkeys.Text = "Hotkey Settings"; // 将在UpdateUI中通过LanguageManager更新
@@ -346,26 +350,26 @@ namespace DTwoMFTimerHelper
             radioBottomLeft!.Text = LanguageManager.GetString("BottomLeft");
             radioBottomCenter!.Text = LanguageManager.GetString("BottomCenter");
             radioBottomRight!.Text = LanguageManager.GetString("BottomRight");
-            
+
             // 更新语言选择文本
             groupBoxLanguage!.Text = LanguageManager.GetString("Language");
             chineseRadioButton!.Text = LanguageManager.GetString("Chinese");
             englishRadioButton!.Text = LanguageManager.GetString("English");
-            
+
             // 更新窗口置顶文本
             alwaysOnTopLabel!.Text = LanguageManager.GetString("AlwaysOnTop");
-            
+
             // 更新Tab页面文本
             tabPageGeneral!.Text = LanguageManager.GetString("General");
             tabPageHotkeys!.Text = LanguageManager.GetString("Hotkeys");
-            
+
             // 更新快捷键设置文本
             groupBoxHotkeys!.Text = LanguageManager.GetString("HotkeySettings");
             labelHotkeyStartStop!.Text = LanguageManager.GetString("StartStop");
             labelHotkeyPause!.Text = LanguageManager.GetString("Pause");
             btnSetStartStopHotkey!.Text = LanguageManager.GetString("Set");
             btnSetPauseHotkey!.Text = LanguageManager.GetString("Set");
-            
+
             // 更新快捷键显示
             UpdateHotkeyLabels();
         }
@@ -391,9 +395,9 @@ namespace DTwoMFTimerHelper
         {
             // 获取屏幕工作区域
             Rectangle screenBounds = Screen.GetWorkingArea(form);
-            
+
             int x, y;
-            
+
             switch (position)
             {
                 case WindowPosition.TopLeft:
@@ -423,7 +427,7 @@ namespace DTwoMFTimerHelper
                 default:
                     return;
             }
-            
+
             // 设置窗口位置
             form.Location = new Point(x, y);
         }
@@ -433,89 +437,89 @@ namespace DTwoMFTimerHelper
         private Keys pauseHotkey = Keys.Space | Keys.Control; // 默认 Ctrl + 空格
         private bool isSettingHotkey = false;
         private string currentHotkeySetting = string.Empty;
-        
+
         private void btnConfirmSettings_Click(object? sender, EventArgs e)
         {
             // 触发位置变更事件
             WindowPosition position = GetSelectedPosition();
             WindowPositionChanged?.Invoke(this, new WindowPositionChangedEventArgs(position));
-            
+
             // 触发语言变更事件
             LanguageOption language = GetSelectedLanguage();
             LanguageChanged?.Invoke(this, new LanguageChangedEventArgs(language));
-            
+
             // 触发窗口置顶变更事件
             bool isAlwaysOnTop = alwaysOnTopCheckBox?.Checked ?? false;
             AlwaysOnTopChanged?.Invoke(this, new AlwaysOnTopChangedEventArgs(isAlwaysOnTop));
-            
+
             // 触发快捷键变更事件
             StartStopHotkeyChanged?.Invoke(this, new HotkeyChangedEventArgs(startStopHotkey));
             PauseHotkeyChanged?.Invoke(this, new HotkeyChangedEventArgs(pauseHotkey));
         }
-        
+
         private void UpdateHotkeyLabels()
         {
             // 更新开始/结束快捷键显示
             labelStartStopHotkey!.Text = GetHotkeyDisplayText(startStopHotkey);
-            
+
             // 更新暂停快捷键显示
             labelPauseHotkey!.Text = GetHotkeyDisplayText(pauseHotkey);
         }
-        
+
         private string GetHotkeyDisplayText(Keys keys)
         {
             string text = string.Empty;
-            
+
             if ((keys & Keys.Control) == Keys.Control)
                 text += "Ctrl + ";
             if ((keys & Keys.Alt) == Keys.Alt)
                 text += "Alt + ";
             if ((keys & Keys.Shift) == Keys.Shift)
                 text += "Shift + ";
-            
+
             // 获取剩余的键
             Keys key = keys & ~Keys.Control & ~Keys.Alt & ~Keys.Shift;
             if (key != Keys.None)
                 text += key.ToString();
-            
+
             return text;
         }
-        
+
         private void btnSetStartStopHotkey_Click(object sender, EventArgs e)
         {
             StartHotkeySetup("StartStop");
         }
-        
+
         private void btnSetPauseHotkey_Click(object sender, EventArgs e)
         {
             StartHotkeySetup("Pause");
         }
-        
+
         private void StartHotkeySetup(string hotkeyType)
         {
             isSettingHotkey = true;
             currentHotkeySetting = hotkeyType;
-            
+
             // 使用通用文本，避免中英文问题
             string pressKeyText = "Press Key...";
             if (hotkeyType == "StartStop")
                 labelStartStopHotkey!.Text = pressKeyText;
             else
                 labelPauseHotkey!.Text = pressKeyText;
-            
+
             // 为当前控件添加键盘事件处理
             this.Focus();
             this.KeyDown += new KeyEventHandler(OnKeyDownWhileSettingHotkey);
         }
-        
+
         private void OnKeyDownWhileSettingHotkey(object sender, KeyEventArgs e)
         {
             if (!isSettingHotkey) return;
-            
+
             // 忽略特殊键单独按下的情况
             if (e.KeyCode == Keys.ControlKey || e.KeyCode == Keys.Menu || e.KeyCode == Keys.ShiftKey)
                 return;
-            
+
             // 构建快捷键组合
             Keys newHotkey = e.KeyCode;
             if (e.Control)
@@ -524,26 +528,26 @@ namespace DTwoMFTimerHelper
                 newHotkey |= Keys.Alt;
             if (e.Shift)
                 newHotkey |= Keys.Shift;
-            
+
             // 保存快捷键
             if (currentHotkeySetting == "StartStop")
                 startStopHotkey = newHotkey;
             else
                 pauseHotkey = newHotkey;
-            
+
             // 重置状态
             isSettingHotkey = false;
             currentHotkeySetting = string.Empty;
             this.KeyDown -= new KeyEventHandler(OnKeyDownWhileSettingHotkey);
-            
+
             // 更新显示
             UpdateHotkeyLabels();
-            
+
             // 阻止事件继续传播
             e.Handled = true;
             e.SuppressKeyPress = true;
         }
-        
+
         private LanguageOption GetSelectedLanguage()
         {
             if (chineseRadioButton?.Checked ?? false) return LanguageOption.Chinese;
@@ -555,40 +559,40 @@ namespace DTwoMFTimerHelper
         public class WindowPositionChangedEventArgs : EventArgs
         {
             public WindowPosition Position { get; }
-            
+
             public WindowPositionChangedEventArgs(WindowPosition position)
             {
                 Position = position;
             }
         }
-        
+
         // 语言变更事件参数
         public class LanguageChangedEventArgs : EventArgs
         {
             public LanguageOption Language { get; }
-            
+
             public LanguageChangedEventArgs(LanguageOption language)
             {
                 Language = language;
             }
         }
-        
+
         // 窗口置顶变更事件参数
         public class AlwaysOnTopChangedEventArgs : EventArgs
         {
             public bool IsAlwaysOnTop { get; }
-            
+
             public AlwaysOnTopChangedEventArgs(bool isAlwaysOnTop)
             {
                 IsAlwaysOnTop = isAlwaysOnTop;
             }
         }
-        
+
         // 快捷键变更事件参数
         public class HotkeyChangedEventArgs : EventArgs
         {
             public Keys Hotkey { get; }
-            
+
             public HotkeyChangedEventArgs(Keys hotkey)
             {
                 Hotkey = hotkey;
