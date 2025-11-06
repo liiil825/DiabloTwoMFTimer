@@ -115,7 +115,7 @@ namespace DTwoMFTimerHelper
             // 
             this.radioTopLeft.AutoSize = true;
             this.radioTopLeft.Checked = true;
-            this.radioTopLeft.Location = new System.Drawing.Point(30, 25);
+            this.radioTopLeft.Location = new System.Drawing.Point(8, 25);
             this.radioTopLeft.Name = "radioTopLeft";
             this.radioTopLeft.Size = new System.Drawing.Size(47, 19);
             this.radioTopLeft.TabIndex = 1;
@@ -126,7 +126,7 @@ namespace DTwoMFTimerHelper
             // radioTopRight
             // 
             this.radioTopRight.AutoSize = true;
-            this.radioTopRight.Location = new System.Drawing.Point(180, 25);
+            this.radioTopRight.Location = new System.Drawing.Point(150, 25);
             this.radioTopRight.Name = "radioTopRight";
             this.radioTopRight.Size = new System.Drawing.Size(47, 19);
             this.radioTopRight.TabIndex = 2;
@@ -137,7 +137,7 @@ namespace DTwoMFTimerHelper
             // radioTopCenter
             // 
             this.radioTopCenter.AutoSize = true;
-            this.radioTopCenter.Location = new System.Drawing.Point(30, 60);
+            this.radioTopCenter.Location = new System.Drawing.Point(8, 60);
             this.radioTopCenter.Name = "radioTopCenter";
             this.radioTopCenter.Size = new System.Drawing.Size(47, 19);
             this.radioTopCenter.TabIndex = 3;
@@ -148,7 +148,7 @@ namespace DTwoMFTimerHelper
             // radioBottomCenter
             // 
             this.radioBottomCenter.AutoSize = true;
-            this.radioBottomCenter.Location = new System.Drawing.Point(180, 60);
+            this.radioBottomCenter.Location = new System.Drawing.Point(150, 60);
             this.radioBottomCenter.Name = "radioBottomCenter";
             this.radioBottomCenter.Size = new System.Drawing.Size(47, 19);
             this.radioBottomCenter.TabIndex = 4;
@@ -159,7 +159,7 @@ namespace DTwoMFTimerHelper
             // radioBottomLeft
             // 
             this.radioBottomLeft.AutoSize = true;
-            this.radioBottomLeft.Location = new System.Drawing.Point(30, 95);
+            this.radioBottomLeft.Location = new System.Drawing.Point(8, 95);
             this.radioBottomLeft.Name = "radioBottomLeft";
             this.radioBottomLeft.Size = new System.Drawing.Size(47, 19);
             this.radioBottomLeft.TabIndex = 5;
@@ -170,7 +170,7 @@ namespace DTwoMFTimerHelper
             // radioBottomRight
             // 
             this.radioBottomRight.AutoSize = true;
-            this.radioBottomRight.Location = new System.Drawing.Point(180, 95);
+            this.radioBottomRight.Location = new System.Drawing.Point(150, 95);
             this.radioBottomRight.Name = "radioBottomRight";
             this.radioBottomRight.Size = new System.Drawing.Size(47, 19);
             this.radioBottomRight.TabIndex = 6;
@@ -197,7 +197,7 @@ namespace DTwoMFTimerHelper
             // 
             this.chineseRadioButton.AutoSize = true;
             this.chineseRadioButton.Checked = true;
-            this.chineseRadioButton.Location = new System.Drawing.Point(30, 30);
+            this.chineseRadioButton.Location = new System.Drawing.Point(8, 30);
             this.chineseRadioButton.Name = "chineseRadioButton";
             this.chineseRadioButton.Size = new System.Drawing.Size(59, 19);
             this.chineseRadioButton.TabIndex = 8;
@@ -208,7 +208,7 @@ namespace DTwoMFTimerHelper
             // englishRadioButton
             // 
             this.englishRadioButton.AutoSize = true;
-            this.englishRadioButton.Location = new System.Drawing.Point(130, 30);
+            this.englishRadioButton.Location = new System.Drawing.Point(100, 30);
             this.englishRadioButton.Name = "englishRadioButton";
             this.englishRadioButton.Size = new System.Drawing.Size(64, 19);
             this.englishRadioButton.TabIndex = 9;
@@ -231,7 +231,7 @@ namespace DTwoMFTimerHelper
             // 
             this.alwaysOnTopCheckBox.AutoSize = true;
             this.alwaysOnTopCheckBox.Checked = true;
-            this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(94, 208);
+            this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(75, 208);
             this.alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
             this.alwaysOnTopCheckBox.Size = new System.Drawing.Size(15, 14);
             this.alwaysOnTopCheckBox.TabIndex = 3;
@@ -240,7 +240,7 @@ namespace DTwoMFTimerHelper
             // alwaysOnTopLabel
             // 
             this.alwaysOnTopLabel.AutoSize = true;
-            this.alwaysOnTopLabel.Location = new System.Drawing.Point(24, 208);
+            this.alwaysOnTopLabel.Location = new System.Drawing.Point(8, 208);
             this.alwaysOnTopLabel.Name = "alwaysOnTopLabel";
             this.alwaysOnTopLabel.Size = new System.Drawing.Size(70, 15);
             this.alwaysOnTopLabel.TabIndex = 4;
@@ -260,7 +260,7 @@ namespace DTwoMFTimerHelper
             // 
             // btnSetPauseHotkey
             // 
-            this.btnSetPauseHotkey.Location = new System.Drawing.Point(200, 70);
+            this.btnSetPauseHotkey.Location = new System.Drawing.Point(205, 70);
             this.btnSetPauseHotkey.Name = "btnSetPauseHotkey";
             this.btnSetPauseHotkey.Size = new System.Drawing.Size(70, 23);
             this.btnSetPauseHotkey.TabIndex = 5;
@@ -270,7 +270,7 @@ namespace DTwoMFTimerHelper
             // 
             // btnSetStartStopHotkey
             // 
-            this.btnSetStartStopHotkey.Location = new System.Drawing.Point(200, 30);
+            this.btnSetStartStopHotkey.Location = new System.Drawing.Point(205, 30);
             this.btnSetStartStopHotkey.Name = "btnSetStartStopHotkey";
             this.btnSetStartStopHotkey.Size = new System.Drawing.Size(70, 23);
             this.btnSetStartStopHotkey.TabIndex = 4;
@@ -281,25 +281,25 @@ namespace DTwoMFTimerHelper
             // labelPauseHotkey
             // 
             this.labelPauseHotkey.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.labelPauseHotkey.Location = new System.Drawing.Point(100, 70);
+            this.labelPauseHotkey.Location = new System.Drawing.Point(70, 70);
             this.labelPauseHotkey.Name = "labelPauseHotkey";
-            this.labelPauseHotkey.Size = new System.Drawing.Size(100, 23);
+            this.labelPauseHotkey.Size = new System.Drawing.Size(130, 23);
             this.labelPauseHotkey.TabIndex = 3;
             this.labelPauseHotkey.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // labelStartStopHotkey
             // 
             this.labelStartStopHotkey.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.labelStartStopHotkey.Location = new System.Drawing.Point(100, 30);
+            this.labelStartStopHotkey.Location = new System.Drawing.Point(70, 30);
             this.labelStartStopHotkey.Name = "labelStartStopHotkey";
-            this.labelStartStopHotkey.Size = new System.Drawing.Size(100, 23);
+            this.labelStartStopHotkey.Size = new System.Drawing.Size(130, 23);
             this.labelStartStopHotkey.TabIndex = 2;
             this.labelStartStopHotkey.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // labelHotkeyPause
             // 
             this.labelHotkeyPause.AutoSize = true;
-            this.labelHotkeyPause.Location = new System.Drawing.Point(30, 75);
+            this.labelHotkeyPause.Location = new System.Drawing.Point(8, 75);
             this.labelHotkeyPause.Name = "labelHotkeyPause";
             this.labelHotkeyPause.Size = new System.Drawing.Size(64, 15);
             this.labelHotkeyPause.TabIndex = 1;
@@ -308,7 +308,7 @@ namespace DTwoMFTimerHelper
             // labelHotkeyStartStop
             // 
             this.labelHotkeyStartStop.AutoSize = true;
-            this.labelHotkeyStartStop.Location = new System.Drawing.Point(30, 35);
+            this.labelHotkeyStartStop.Location = new System.Drawing.Point(8, 35);
             this.labelHotkeyStartStop.Name = "labelHotkeyStartStop";
             this.labelHotkeyStartStop.Size = new System.Drawing.Size(64, 15);
             this.labelHotkeyStartStop.TabIndex = 0;
