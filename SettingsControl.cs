@@ -40,8 +40,8 @@ namespace DTwoMFTimerHelper
         {
             this.btnConfirmSettings = new System.Windows.Forms.Button();
             this.radioTopLeft = new System.Windows.Forms.RadioButton();
-            this.radioTopCenter = new System.Windows.Forms.RadioButton();
             this.radioTopRight = new System.Windows.Forms.RadioButton();
+            this.radioTopCenter = new System.Windows.Forms.RadioButton();
             this.radioBottomLeft = new System.Windows.Forms.RadioButton();
             this.radioBottomCenter = new System.Windows.Forms.RadioButton();
             this.radioBottomRight = new System.Windows.Forms.RadioButton();
@@ -58,7 +58,7 @@ namespace DTwoMFTimerHelper
             // btnConfirmSettings
             // 
             this.btnConfirmSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnConfirmSettings.Location = new System.Drawing.Point(295, 362);
+            this.btnConfirmSettings.Location = new System.Drawing.Point(250, 280);
             this.btnConfirmSettings.Name = "btnConfirmSettings";
             this.btnConfirmSettings.Size = new System.Drawing.Size(75, 23);
             this.btnConfirmSettings.TabIndex = 0;
@@ -70,7 +70,7 @@ namespace DTwoMFTimerHelper
             // 
             this.radioTopLeft.AutoSize = true;
             this.radioTopLeft.Checked = true;
-            this.radioTopLeft.Location = new System.Drawing.Point(50, 25);
+            this.radioTopLeft.Location = new System.Drawing.Point(30, 25);
             this.radioTopLeft.Name = "radioTopLeft";
             this.radioTopLeft.Size = new System.Drawing.Size(47, 19);
             this.radioTopLeft.TabIndex = 1;
@@ -81,7 +81,7 @@ namespace DTwoMFTimerHelper
             // radioTopRight
             // 
             this.radioTopRight.AutoSize = true;
-            this.radioTopRight.Location = new System.Drawing.Point(230, 25);
+            this.radioTopRight.Location = new System.Drawing.Point(180, 25);
             this.radioTopRight.Name = "radioTopRight";
             this.radioTopRight.Size = new System.Drawing.Size(47, 19);
             this.radioTopRight.TabIndex = 2;
@@ -92,7 +92,7 @@ namespace DTwoMFTimerHelper
             // radioTopCenter
             // 
             this.radioTopCenter.AutoSize = true;
-            this.radioTopCenter.Location = new System.Drawing.Point(50, 60);
+            this.radioTopCenter.Location = new System.Drawing.Point(30, 60);
             this.radioTopCenter.Name = "radioTopCenter";
             this.radioTopCenter.Size = new System.Drawing.Size(47, 19);
             this.radioTopCenter.TabIndex = 3;
@@ -103,7 +103,7 @@ namespace DTwoMFTimerHelper
             // radioBottomCenter
             // 
             this.radioBottomCenter.AutoSize = true;
-            this.radioBottomCenter.Location = new System.Drawing.Point(230, 60);
+            this.radioBottomCenter.Location = new System.Drawing.Point(180, 60);
             this.radioBottomCenter.Name = "radioBottomCenter";
             this.radioBottomCenter.Size = new System.Drawing.Size(47, 19);
             this.radioBottomCenter.TabIndex = 4;
@@ -114,7 +114,7 @@ namespace DTwoMFTimerHelper
             // radioBottomLeft
             // 
             this.radioBottomLeft.AutoSize = true;
-            this.radioBottomLeft.Location = new System.Drawing.Point(50, 95);
+            this.radioBottomLeft.Location = new System.Drawing.Point(30, 95);
             this.radioBottomLeft.Name = "radioBottomLeft";
             this.radioBottomLeft.Size = new System.Drawing.Size(47, 19);
             this.radioBottomLeft.TabIndex = 5;
@@ -125,7 +125,7 @@ namespace DTwoMFTimerHelper
             // radioBottomRight
             // 
             this.radioBottomRight.AutoSize = true;
-            this.radioBottomRight.Location = new System.Drawing.Point(230, 95);
+            this.radioBottomRight.Location = new System.Drawing.Point(180, 95);
             this.radioBottomRight.Name = "radioBottomRight";
             this.radioBottomRight.Size = new System.Drawing.Size(47, 19);
             this.radioBottomRight.TabIndex = 6;
@@ -143,7 +143,7 @@ namespace DTwoMFTimerHelper
             this.groupBoxPosition.Controls.Add(this.radioBottomRight);
             this.groupBoxPosition.Location = new System.Drawing.Point(10, 10);
             this.groupBoxPosition.Name = "groupBoxPosition";
-            this.groupBoxPosition.Size = new System.Drawing.Size(360, 110);
+            this.groupBoxPosition.Size = new System.Drawing.Size(320, 110);
             this.groupBoxPosition.TabIndex = 7;
             this.groupBoxPosition.TabStop = false;
             this.groupBoxPosition.Text = "窗口位置";
@@ -163,7 +163,7 @@ namespace DTwoMFTimerHelper
             // englishRadioButton
             // 
             this.englishRadioButton.AutoSize = true;
-            this.englishRadioButton.Location = new System.Drawing.Point(140, 30);
+            this.englishRadioButton.Location = new System.Drawing.Point(130, 30);
             this.englishRadioButton.Name = "englishRadioButton";
             this.englishRadioButton.Size = new System.Drawing.Size(64, 19);
             this.englishRadioButton.TabIndex = 9;
@@ -177,7 +177,7 @@ namespace DTwoMFTimerHelper
             this.groupBoxLanguage.Controls.Add(this.englishRadioButton);
             this.groupBoxLanguage.Location = new System.Drawing.Point(10, 130);
             this.groupBoxLanguage.Name = "groupBoxLanguage";
-            this.groupBoxLanguage.Size = new System.Drawing.Size(360, 70);
+            this.groupBoxLanguage.Size = new System.Drawing.Size(320, 70);
             this.groupBoxLanguage.TabIndex = 10;
             this.groupBoxLanguage.TabStop = false;
             this.groupBoxLanguage.Text = "语言";
@@ -186,7 +186,7 @@ namespace DTwoMFTimerHelper
             // 
             this.alwaysOnTopCheckBox.AutoSize = true;
             this.alwaysOnTopCheckBox.Checked = true;
-            this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(120, 220);
+            this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(100, 220);
             this.alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
             this.alwaysOnTopCheckBox.Size = new System.Drawing.Size(15, 14);
             this.alwaysOnTopCheckBox.TabIndex = 3;
@@ -205,14 +205,14 @@ namespace DTwoMFTimerHelper
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoScroll = true;
+            this.AutoScroll = false;
             this.Controls.Add(this.alwaysOnTopLabel);
             this.Controls.Add(this.alwaysOnTopCheckBox);
             this.Controls.Add(this.groupBoxLanguage);
             this.Controls.Add(this.groupBoxPosition);
             this.Controls.Add(this.btnConfirmSettings);
             this.Name = "SettingsControl";
-            this.Size = new System.Drawing.Size(380, 400);
+            this.Size = new System.Drawing.Size(335, 310);
             this.groupBoxPosition.ResumeLayout(false);
             this.groupBoxPosition.PerformLayout();
             this.groupBoxLanguage.ResumeLayout(false);
