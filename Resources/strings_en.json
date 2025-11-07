@@ -48,6 +48,8 @@
   "Reset": "Reset",
   "SelectScene": "Select Scene:",
   "DifficultyLabel": "Difficulty:",
+  "CharacterLabel": "Character:",
+  "SceneLabel": "Scene:",
   "ClassBarbarian": "Barbarian",
   "ClassSorceress": "Sorceress",
   "ClassAssassin": "Assassin",

@@ -49,6 +49,8 @@
   "Reset": "重置",
   "SelectScene": "选择场景:",
   "DifficultyLabel": "难度:",
+  "CharacterLabel": "角色:",
+  "SceneLabel": "场景:",
   "ClassBarbarian": "野蛮人",
   "ClassSorceress": "法师",
   "ClassAssassin": "刺客",

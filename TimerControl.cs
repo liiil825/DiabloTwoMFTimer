@@ -71,6 +71,10 @@ namespace DTwoMFTimerHelper
             // 历史记录区域
             lstRunHistory = new ListBox();
             
+            // 角色和场景显示标签
+            lblCharacterDisplay = new Label();
+            lblSceneDisplay = new Label();
+            
             SuspendLayout();
             // 
             // btnStatusIndicator - 状态指示按钮
@@ -136,10 +140,34 @@ namespace DTwoMFTimerHelper
             // 
             lstRunHistory.FormattingEnabled = true;
             lstRunHistory.ItemHeight = 15;
-            lstRunHistory.Location = new Point(15, 170);
+            lstRunHistory.Location = new Point(15, 190);
             lstRunHistory.Name = "lstRunHistory";
-            lstRunHistory.Size = new Size(290, 139);
-            lstRunHistory.TabIndex = 5;
+            lstRunHistory.Size = new Size(290, 119);
+            lstRunHistory.TabIndex = 7;
+            
+            // 
+            // lblCharacterDisplay - 角色显示
+            // 
+            lblCharacterDisplay.BorderStyle = BorderStyle.FixedSingle;
+            lblCharacterDisplay.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+            lblCharacterDisplay.Location = new Point(15, 165);
+            lblCharacterDisplay.Name = "lblCharacterDisplay";
+            lblCharacterDisplay.Size = new Size(140, 25);
+            lblCharacterDisplay.TextAlign = ContentAlignment.MiddleCenter;
+            lblCharacterDisplay.TabIndex = 5;
+            lblCharacterDisplay.Text = LanguageManager.GetString("CharacterLabel") + " ";
+            
+            // 
+            // lblSceneDisplay - 场景显示
+            // 
+            lblSceneDisplay.BorderStyle = BorderStyle.FixedSingle;
+            lblSceneDisplay.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
+            lblSceneDisplay.Location = new Point(165, 165);
+            lblSceneDisplay.Name = "lblSceneDisplay";
+            lblSceneDisplay.Size = new Size(140, 25);
+            lblSceneDisplay.TextAlign = ContentAlignment.MiddleCenter;
+            lblSceneDisplay.TabIndex = 6;
+            lblSceneDisplay.Text = LanguageManager.GetString("SceneLabel") + " ";
             
             // 
             // TimerControl - 主控件设置
@@ -151,6 +179,8 @@ namespace DTwoMFTimerHelper
             Controls.Add(lblRunCount);
             Controls.Add(lblFastestTime);
             Controls.Add(lblAverageTime);
+            Controls.Add(lblCharacterDisplay);
+            Controls.Add(lblSceneDisplay);
             Controls.Add(lstRunHistory);
             Name = "TimerControl";
             Size = new Size(320, 320);
@@ -165,6 +195,17 @@ namespace DTwoMFTimerHelper
             timer.Tick += Timer_Tick;
         }
 
+        private string currentCharacter = "";
+        private string currentScene = "";
+        
+        // 设置当前角色和场景的方法
+        public void SetCharacterAndScene(string character, string scene)
+        {
+            currentCharacter = character;
+            currentScene = scene;
+            UpdateUI();
+        }
+        
         public void UpdateUI()
         {
             // 更新状态指示按钮颜色
@@ -337,6 +378,33 @@ namespace DTwoMFTimerHelper
                     lstRunHistory.SelectedIndex = 0;
                 }
             }
+            
+            // 更新角色和场景显示
+            if (lblCharacterDisplay != null)
+            {
+                string characterLabel = LanguageManager.GetString("CharacterLabel");
+                if (string.IsNullOrEmpty(currentCharacter))
+                {
+                    lblCharacterDisplay.Text = characterLabel + " ";
+                }
+                else
+                {
+                    lblCharacterDisplay.Text = characterLabel + " " + currentCharacter;
+                }
+            }
+            
+            if (lblSceneDisplay != null)
+            {
+                string sceneLabel = LanguageManager.GetString("SceneLabel");
+                if (string.IsNullOrEmpty(currentScene))
+                {
+                    lblSceneDisplay.Text = sceneLabel + " ";
+                }
+                else
+                {
+                    lblSceneDisplay.Text = sceneLabel + " " + currentScene;
+                }
+            }
         }
 
         private void Timer_Tick(object? sender, EventArgs e)
@@ -464,6 +532,8 @@ namespace DTwoMFTimerHelper
         private Label? lblFastestTime;
         private Label? lblAverageTime;
         private ListBox? lstRunHistory;
+        private Label? lblCharacterDisplay;
+        private Label? lblSceneDisplay;
         
         // 计时器状态字段
         private bool isPaused = false;
