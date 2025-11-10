@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 using System.Media;
-using DTwoMFTimerHelper.Resources;
+using DTwoMFTimerHelper.Utils;
 using DTwoMFTimerHelper.Settings;
 
 namespace DTwoMFTimerHelper

@@ -1,6 +1,6 @@
 using System;
 using System.Windows.Forms;
-using DTwoMFTimerHelper.Resources;
+using DTwoMFTimerHelper.Utils;
 
 namespace DTwoMFTimerHelper
 {

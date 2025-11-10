@@ -5,9 +5,8 @@ using System.Windows.Forms;
 using System.Linq;
 using System.IO;
 using DTwoMFTimerHelper.Data;
-using DTwoMFTimerHelper.Resources;
-using DTwoMFTimerHelper.Settings;
 using DTwoMFTimerHelper.Utils;
+using DTwoMFTimerHelper.Settings;
 
 namespace DTwoMFTimerHelper
 {
@@ -19,7 +18,15 @@ namespace DTwoMFTimerHelper
         private System.Windows.Forms.Timer? timer;
         private Data.CharacterProfile? currentProfile = null;
         private Data.MFRecord? inProgressRecord = null;
+        private void InitializeTimer()
+        {
+            timer = new Timer();
+            timer.Interval = 100; // 100毫秒
+            timer.Tick += Timer_Tick;
+        }
 
+        private string currentCharacter = "";
+        private string currentScene = "";
         // 运行统计数据
         private int runCount = 0;
         private List<TimeSpan> runHistory = new List<TimeSpan>();
@@ -76,12 +83,13 @@ namespace DTwoMFTimerHelper
                         // 调整startTime，使得计算出的elapsed等于yaml中的elapsedTime
                         if (isPaused && pauseStartTime != DateTime.MinValue)
                         {
-                            startTime = pauseStartTime - TimeSpan.FromSeconds(incompleteRecord.ElapsedTime.Value) - pausedDuration;
+                            this.startTime = pauseStartTime - TimeSpan.FromSeconds(incompleteRecord.ElapsedTime.Value) - pausedDuration;
                         }
                         else
                         {
-                            startTime = DateTime.Now - TimeSpan.FromSeconds(incompleteRecord.ElapsedTime.Value) - pausedDuration;
+                            this.startTime = DateTime.Now - TimeSpan.FromSeconds(incompleteRecord.ElapsedTime.Value) - pausedDuration;
                         }
+                        LogManager.WriteDebugLog("TimerControl", $"startTime: {this.startTime}");
                     }
                 }
                 else
@@ -253,16 +261,6 @@ namespace DTwoMFTimerHelper
             ResumeLayout(false);
             PerformLayout();
         }
-
-        private void InitializeTimer()
-        {
-            timer = new Timer();
-            timer.Interval = 100; // 100毫秒
-            timer.Tick += Timer_Tick;
-        }
-
-        private string currentCharacter = "";
-        private string currentScene = "";
         
         // 使用LogManager进行日志记录
         
@@ -277,13 +275,6 @@ namespace DTwoMFTimerHelper
             
             // 使用DataManager获取对应的英文场景名称
             string englishSceneName = DTwoMFTimerHelper.Data.DataManager.GetEnglishSceneName(scene);
-            
-            // 确保场景名称不为空
-            if (string.IsNullOrEmpty(englishSceneName))
-            {
-                englishSceneName = "UnknownScene"; // 设置默认值
-                LogManager.WriteDebugLog("TimerControl", $"警告: 获取英文场景名称失败，原始场景: '{scene}'，使用默认值 '{englishSceneName}'");
-            }
             
             currentScene = englishSceneName;
             
@@ -539,26 +530,8 @@ namespace DTwoMFTimerHelper
                     string characterClass = "";
                     if (currentProfile != null)
                     {
-                        // 使用LanguageManager根据当前语言获取职业名称
-                        switch (currentProfile.Class)
-                        {
-                            case Data.CharacterClass.Barbarian: characterClass = Resources.LanguageManager.GetString("CharacterClass_Barbarian");
-                                break;
-                            case Data.CharacterClass.Sorceress: characterClass = Resources.LanguageManager.GetString("CharacterClass_Sorceress");
-                                break;
-                            case Data.CharacterClass.Assassin: characterClass = Resources.LanguageManager.GetString("CharacterClass_Assassin");
-                                break;
-                            case Data.CharacterClass.Druid: characterClass = Resources.LanguageManager.GetString("CharacterClass_Druid");
-                                break;
-                            case Data.CharacterClass.Paladin: characterClass = Resources.LanguageManager.GetString("CharacterClass_Paladin");
-                                break;
-                            case Data.CharacterClass.Amazon: characterClass = Resources.LanguageManager.GetString("CharacterClass_Amazon");
-                                break;
-                            case Data.CharacterClass.Necromancer: characterClass = Resources.LanguageManager.GetString("CharacterClass_Necromancer");
-                                break;
-                            default: characterClass = Resources.LanguageManager.GetString("CharacterClass_Unknown");
-                                break;
-                        }
+                        // 使用LogManager中的统一方法获取本地化职业名称
+                        characterClass = Utils.LanguageManager.GetLocalizedClassName(currentProfile.Class);
                     }
                     
                     // 检查currentCharacter是否已经包含职业信息格式
@@ -594,7 +567,7 @@ namespace DTwoMFTimerHelper
                     
                     // 直接使用LanguageManager.GetString获取本地化的场景名称
                     // LanguageManager.cs中已增强了场景名称的自动翻译功能
-                    string localizedSceneName = Resources.LanguageManager.GetString(currentScene);
+                    string localizedSceneName = Utils.LanguageManager.GetString(currentScene);
                     
                     // 在场景名称前添加难度
                     lblSceneDisplay.Text = $"{difficultyText} {localizedSceneName}";
@@ -839,6 +812,7 @@ namespace DTwoMFTimerHelper
             TryGetProfileInfoFromMainForm();
             LoadProfileHistoryData();
             UpdateUI();
+            BindLatestIncompleteRecord(); // 添加这一行，加载未完成记录
             Console.WriteLine($"已同步角色和场景信息: {currentCharacter} - {currentScene}");
         }
         
@@ -884,7 +858,7 @@ namespace DTwoMFTimerHelper
                     
                     // 从角色档案中过滤出同场景记录
                     // 使用LanguageManager获取纯英文场景名称进行匹配
-                    string pureEnglishSceneName = DTwoMFTimerHelper.Resources.LanguageManager.GetPureEnglishSceneName(currentScene);
+                    string pureEnglishSceneName = DTwoMFTimerHelper.Utils.LanguageManager.GetPureEnglishSceneName(currentScene);
                     
                     // 日志记录当前匹配的场景名称
                     LogManager.WriteDebugLog("TimerControl", $"匹配场景名称: '{pureEnglishSceneName}'");
@@ -1045,7 +1019,7 @@ namespace DTwoMFTimerHelper
 
                 // 获取英文场景名称并移除ACT前缀，与CreateStartRecord方法保持一致的格式
                 string sceneEnNameForSearch = DTwoMFTimerHelper.Data.DataManager.GetEnglishSceneName(currentScene);
-                string pureEnglishSceneNameForSearch = DTwoMFTimerHelper.Resources.LanguageManager.GetPureEnglishSceneName(currentScene);
+                string pureEnglishSceneNameForSearch = DTwoMFTimerHelper.Utils.LanguageManager.GetPureEnglishSceneName(currentScene);
                 
                 LogManager.WriteDebugLog("TimerControl", $"查找未完成记录: 原始场景名='{currentScene}', 纯英文场景名='{pureEnglishSceneNameForSearch}'");
                 
@@ -1184,13 +1158,13 @@ namespace DTwoMFTimerHelper
             switch (difficulty)
             {
                 case DTwoMFTimerHelper.Data.GameDifficulty.Normal:
-                    return DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyNormal");
+                    return DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyNormal");
                 case DTwoMFTimerHelper.Data.GameDifficulty.Nightmare:
-                    return DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyNightmare");
+                    return DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyNightmare");
                 case DTwoMFTimerHelper.Data.GameDifficulty.Hell:
-                    return DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyHell");
+                    return DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyHell");
                 default:
-                    return DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyUnknown");
+                    return DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyUnknown");
             }
         }
 
@@ -1323,7 +1297,7 @@ namespace DTwoMFTimerHelper
                 
                 // 获取英文场景名称和纯英文场景名称（移除ACT前缀）
                 string sceneEnName = DTwoMFTimerHelper.Data.DataManager.GetEnglishSceneName(currentScene);
-                string pureEnglishSceneName = DTwoMFTimerHelper.Resources.LanguageManager.GetPureEnglishSceneName(currentScene);
+                string pureEnglishSceneName = DTwoMFTimerHelper.Utils.LanguageManager.GetPureEnglishSceneName(currentScene);
                 
                 LogManager.WriteDebugLog("TimerControl", $"保存场景名称: 原始='{currentScene}', 英文='{sceneEnName}', 纯英文='{pureEnglishSceneName}'");
                 
@@ -1379,7 +1353,7 @@ namespace DTwoMFTimerHelper
             var difficulty = GetCurrentDifficulty();
             
             // 使用与创建记录时相同的场景名称处理逻辑
-            string pureEnglishSceneName = DTwoMFTimerHelper.Resources.LanguageManager.GetPureEnglishSceneName(currentScene);
+            string pureEnglishSceneName = DTwoMFTimerHelper.Utils.LanguageManager.GetPureEnglishSceneName(currentScene);
             
             // 查找同场景、同难度、未完成的最近一条记录
             return currentProfile.Records

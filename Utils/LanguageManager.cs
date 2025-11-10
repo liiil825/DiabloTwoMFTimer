@@ -6,8 +6,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
+using DTwoMFTimerHelper.Data;
 
-namespace DTwoMFTimerHelper.Resources
+namespace DTwoMFTimerHelper.Utils
 {
     public static class LanguageManager
     {
@@ -17,7 +18,7 @@ namespace DTwoMFTimerHelper.Resources
         
         // 当前语言
         private static CultureInfo currentCulture = CultureInfo.CurrentCulture;
-        private static Dictionary<string, string> translations = new Dictionary<string, string>();
+        private static Dictionary<string, string> translations = [];
         
         // 语言变更事件
         public static event EventHandler? OnLanguageChanged;
@@ -272,5 +273,22 @@ namespace DTwoMFTimerHelper.Resources
             // 使用DataManager获取对应的英文场景名称
             return DTwoMFTimerHelper.Data.DataManager.GetEnglishSceneName(pureSceneName);
         }
+        
+        /// <summary>
+        /// 获取本地化的职业名称
+        /// </summary>
+        /// <param name="charClass">角色职业枚举</param>
+        /// <returns>本地化的职业名称</returns>
+        public static string GetLocalizedClassName(CharacterClass charClass) => charClass switch
+        {
+            CharacterClass.Barbarian => GetString("CharacterClass_Barbarian") ?? "野蛮人",
+            CharacterClass.Sorceress => GetString("CharacterClass_Sorceress") ?? "法师",
+            CharacterClass.Assassin => GetString("CharacterClass_Assassin") ?? "刺客",
+            CharacterClass.Druid => GetString("CharacterClass_Druid") ?? "德鲁伊",
+            CharacterClass.Paladin => GetString("CharacterClass_Paladin") ?? "圣骑士",
+            CharacterClass.Amazon => GetString("CharacterClass_Amazon") ?? "亚马逊",
+            CharacterClass.Necromancer => GetString("CharacterClass_Necromancer") ?? "死灵法师",
+            _ => GetString("CharacterClass_Unknown") ?? "未知"
+        };
     }
 }

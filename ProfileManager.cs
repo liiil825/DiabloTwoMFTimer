@@ -347,9 +347,9 @@ namespace DTwoMFTimerHelper
         {
             switch (difficulty)
             {
-                case Data.GameDifficulty.Normal: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyNormal");
-        case Data.GameDifficulty.Nightmare: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyNightmare");
-        case Data.GameDifficulty.Hell: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyHell");
+                case Data.GameDifficulty.Normal: return DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyNormal");
+        case Data.GameDifficulty.Nightmare: return DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyNightmare");
+        case Data.GameDifficulty.Hell: return DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyHell");
                 default: return difficulty.ToString();
             }
         }
@@ -380,7 +380,7 @@ namespace DTwoMFTimerHelper
         {
             if (currentProfile != null)
             {
-                string className = GetLocalizedClassName(currentProfile.Class);
+                string className = Utils.LanguageManager.GetLocalizedClassName(currentProfile.Class);
                 return $"{currentProfile.Name} ({className})";
             }
             return "未选择";
@@ -399,9 +399,9 @@ namespace DTwoMFTimerHelper
         public void UpdateUI()
         {
             // 更新按钮文本
-            if (btnCreateCharacter != null) btnCreateCharacter.Text = DTwoMFTimerHelper.Resources.LanguageManager.GetString("CreateCharacter");
-            if (btnSwitchCharacter != null) btnSwitchCharacter.Text = DTwoMFTimerHelper.Resources.LanguageManager.GetString("SwitchCharacter");
-            if (btnDeleteCharacter != null) btnDeleteCharacter.Text = DTwoMFTimerHelper.Resources.LanguageManager.GetString("DeleteCharacter");
+            if (btnCreateCharacter != null) btnCreateCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("CreateCharacter");
+            if (btnSwitchCharacter != null) btnSwitchCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("SwitchCharacter");
+            if (btnDeleteCharacter != null) btnDeleteCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("DeleteCharacter");
             
             // 根据是否有未完成记录设置开始按钮文本
             if (btnStartStop != null)
@@ -436,7 +436,7 @@ namespace DTwoMFTimerHelper
                             }
                         }
                         
-                        string pureEnglishSceneName = DTwoMFTimerHelper.Resources.LanguageManager.GetPureEnglishSceneName(sceneDisplayName);
+                        string pureEnglishSceneName = DTwoMFTimerHelper.Utils.LanguageManager.GetPureEnglishSceneName(sceneDisplayName);
                         DTwoMFTimerHelper.Utils.LogManager.WriteDebugLog("ProfileManager", $"获取纯英文场景名称: {pureEnglishSceneName}");
                         
                         // 记录当前配置文件中的记录数量
@@ -472,22 +472,22 @@ namespace DTwoMFTimerHelper
                 // 根据是否有未完成记录设置按钮文本
                 if (hasIncompleteRecord)
                 {
-                    btnStartStop.Text = DTwoMFTimerHelper.Resources.LanguageManager.GetString("ContinueFarm");
+                    btnStartStop.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("ContinueFarm");
                     DTwoMFTimerHelper.Utils.LogManager.WriteDebugLog("ProfileManager", "设置按钮文本为: ContinueFarm");
                 }
                 else
                 {
-                    btnStartStop.Text = DTwoMFTimerHelper.Resources.LanguageManager.GetString("StartTimer");
+                    btnStartStop.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("StartTimer");
                     DTwoMFTimerHelper.Utils.LogManager.WriteDebugLog("ProfileManager", "设置按钮文本为: StartTimer");
                 }
             }
-            if (lblScene != null) lblScene.Text = DTwoMFTimerHelper.Resources.LanguageManager.GetString("SelectScene");
-            if (lblDifficulty != null) lblDifficulty.Text = DTwoMFTimerHelper.Resources.LanguageManager.GetString("DifficultyLabel");
+            if (lblScene != null) lblScene.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("SelectScene");
+            if (lblDifficulty != null) lblDifficulty.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("DifficultyLabel");
             
             // 更新当前角色显示
             if (currentProfile != null)
             {
-                string className = GetLocalizedClassName(currentProfile.Class);
+                string className = Utils.LanguageManager.GetLocalizedClassName(currentProfile.Class);
                 if (lblCurrentProfile != null) lblCurrentProfile.Text = $"当前角色: {currentProfile.Name} ({className})";
             }
             else
@@ -510,20 +510,7 @@ namespace DTwoMFTimerHelper
             if (btnStartStop != null) btnStartStop.Enabled = currentProfile != null;
         }
         
-        private string GetLocalizedClassName(Data.CharacterClass charClass)
-        {
-            switch (charClass)
-            {
-                case Data.CharacterClass.Barbarian: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Barbarian") ?? "野蛮人";
-                case Data.CharacterClass.Sorceress: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Sorceress") ?? "法师";
-                case Data.CharacterClass.Assassin: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Assassin") ?? "刺客";
-                case Data.CharacterClass.Druid: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Druid") ?? "德鲁伊";
-                case Data.CharacterClass.Paladin: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Paladin") ?? "圣骑士";
-                case Data.CharacterClass.Amazon: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Amazon") ?? "亚马逊";
-                case Data.CharacterClass.Necromancer: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Necromancer") ?? "死灵法师";
-                default: return DTwoMFTimerHelper.Resources.LanguageManager.GetString("CharacterClass_Unknown") ?? "未知";
-            }
-        }
+        // 使用LanguageManager中的GetLocalizedClassName方法
 
         private string FormatTime(double seconds)
         {

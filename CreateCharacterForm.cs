@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 using DTwoMFTimerHelper.Data;
-using DTwoMFTimerHelper.Resources;
+using DTwoMFTimerHelper.Utils;
 
 namespace DTwoMFTimerHelper
 {
@@ -102,36 +102,23 @@ namespace DTwoMFTimerHelper
                 
                 // 添加本地化的职业名称
                 foreach (CharacterClass charClass in Enum.GetValues(typeof(CharacterClass)))
-                {
-                    cmbCharacterClass.Items.Add(GetLocalizedClassName(charClass));
-                }
+            {
+                cmbCharacterClass.Items.Add(DTwoMFTimerHelper.Utils.LanguageManager.GetLocalizedClassName(charClass));
+            }
                 
                 if (selectedIndex >= 0 && selectedIndex < cmbCharacterClass.Items.Count)
                     cmbCharacterClass.SelectedIndex = selectedIndex;
             }
         }
         
-        private string GetLocalizedClassName(CharacterClass charClass)
-        {
-            switch (charClass)
-            {
-                case CharacterClass.Barbarian: return LanguageManager.GetString("CharacterClass_Barbarian") ?? "野蛮人";
-                case CharacterClass.Sorceress: return LanguageManager.GetString("CharacterClass_Sorceress") ?? "法师";
-                case CharacterClass.Assassin: return LanguageManager.GetString("CharacterClass_Assassin") ?? "刺客";
-                case CharacterClass.Druid: return LanguageManager.GetString("CharacterClass_Druid") ?? "德鲁伊";
-                case CharacterClass.Paladin: return LanguageManager.GetString("CharacterClass_Paladin") ?? "圣骑士";
-                case CharacterClass.Amazon: return LanguageManager.GetString("CharacterClass_Amazon") ?? "亚马逊";
-                case CharacterClass.Necromancer: return LanguageManager.GetString("CharacterClass_Necromancer") ?? "死灵法师";
-                default: return LanguageManager.GetString("CharacterClass_Unknown") ?? "未知";
-            }
-        }
+        // 使用LanguageManager中的GetLocalizedClassName方法
         
         private CharacterClass GetCharacterClassFromLocalizedName(string localizedName)
         {
             // 反向映射
             foreach (CharacterClass charClass in Enum.GetValues(typeof(CharacterClass)))
             {
-                if (GetLocalizedClassName(charClass).Equals(localizedName))
+                if (DTwoMFTimerHelper.Utils.LanguageManager.GetLocalizedClassName(charClass).Equals(localizedName))
                     return charClass;
             }
             return CharacterClass.Barbarian; // 默认值

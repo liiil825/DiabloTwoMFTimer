@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using DTwoMFTimerHelper.Data;
+using DTwoMFTimerHelper.Utils;
 
 namespace DTwoMFTimerHelper.Utils
 {
@@ -17,7 +19,10 @@ namespace DTwoMFTimerHelper.Utils
         {
             try
             {
+                // 调试日志路径
                 string debugLogPath = Path.Combine(Environment.CurrentDirectory, "debug_log.txt");
+                // 调试日志：记录文件路径和当前时间
+                Console.WriteLine($"[调试] 日志文件路径: {debugLogPath}, 当前时间: {DateTime.Now}");
                 using (StreamWriter writer = new StreamWriter(debugLogPath, true))
                 {
                     writer.WriteLine($"[{DateTime.Now}] [{className}] {message}");

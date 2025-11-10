@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Windows.Input;
 using System.Runtime.InteropServices;
-using DTwoMFTimerHelper.Resources;
+using DTwoMFTimerHelper.Utils;
 using AntdUI;
 using DTwoMFTimerHelper.Settings;
 

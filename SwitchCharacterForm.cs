@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using DTwoMFTimerHelper.Data;
-using DTwoMFTimerHelper.Resources;
+using DTwoMFTimerHelper.Utils;
 
 namespace DTwoMFTimerHelper
 {
@@ -185,26 +185,13 @@ namespace DTwoMFTimerHelper
                 Profile = profile;
                 
                 // 获取本地化的职业名称
-                string className = GetLocalizedClassName(profile.Class);
+                string className = DTwoMFTimerHelper.Utils.LanguageManager.GetLocalizedClassName(profile.Class);
                 
                 // 显示角色名称、职业和游戏统计
                 DisplayName = $"{profile.Name} - {className} (游戏局数: {profile.CompletedGamesCount}, 总时间: {FormatTime(profile.TotalPlayTimeSeconds)})";
             }
             
-            private string GetLocalizedClassName(Data.CharacterClass charClass)
-            {
-                switch (charClass)
-                {
-                    case Data.CharacterClass.Barbarian: return LanguageManager.GetString("CharacterClass_Barbarian") ?? "野蛮人";
-                    case Data.CharacterClass.Sorceress: return LanguageManager.GetString("CharacterClass_Sorceress") ?? "法师";
-                    case Data.CharacterClass.Assassin: return LanguageManager.GetString("CharacterClass_Assassin") ?? "刺客";
-                    case Data.CharacterClass.Druid: return LanguageManager.GetString("CharacterClass_Druid") ?? "德鲁伊";
-                    case Data.CharacterClass.Paladin: return LanguageManager.GetString("CharacterClass_Paladin") ?? "圣骑士";
-                    case Data.CharacterClass.Amazon: return LanguageManager.GetString("CharacterClass_Amazon") ?? "亚马逊";
-                    case Data.CharacterClass.Necromancer: return LanguageManager.GetString("CharacterClass_Necromancer") ?? "死灵法师";
-                    default: return LanguageManager.GetString("CharacterClass_Unknown") ?? "未知";
-                }
-            }
+            // 使用Utils.LanguageManager中的GetLocalizedClassName方法
             
             private string FormatTime(double seconds)
             {

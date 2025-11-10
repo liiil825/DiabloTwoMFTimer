@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Windows.Input;
-using DTwoMFTimerHelper.Resources;
+using DTwoMFTimerHelper.Utils;
 
 namespace DTwoMFTimerHelper
 {
