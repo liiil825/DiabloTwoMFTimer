@@ -90,7 +90,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         }
         
         protected override void Dispose(bool disposing)
-        {            if (disposing)
+        {   
+            if (disposing)
             {
                 // 取消注册语言变更事件
                 Utils.LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;

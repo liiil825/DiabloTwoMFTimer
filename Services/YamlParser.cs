@@ -75,11 +75,11 @@ namespace DTwoMFTimerHelper.Services
                                 LogManager.WriteDebugLog("YamlParser", $"解析到LatestTime: {record.LatestTime}");
                             }
                             break;
-                        case "elapsedtime":
+                        case "durationseconds":
                             if (!string.IsNullOrEmpty(value) && double.TryParse(value, out var elapsedTime))
                             {
-                                record.ElapsedTime = elapsedTime;
-                                LogManager.WriteDebugLog("YamlParser", $"解析到ElapsedTime: {record.ElapsedTime}");
+                                record.DurationSeconds = elapsedTime;
+                                LogManager.WriteDebugLog("YamlParser", $"解析到{key}，设置为DurationSeconds: {record.DurationSeconds}");
                             }
                             break;
                     }

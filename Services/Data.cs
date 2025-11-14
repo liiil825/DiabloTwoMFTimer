@@ -329,7 +329,7 @@ namespace DTwoMFTimerHelper.Services
                 existingRecord.EndTime = record.EndTime;
                 existingRecord.Difficulty = record.Difficulty;
                 existingRecord.LatestTime = record.LatestTime;
-                existingRecord.ElapsedTime = record.ElapsedTime;
+                existingRecord.DurationSeconds = record.DurationSeconds;
                 // 更新其他字段
             }
 
