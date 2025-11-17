@@ -184,12 +184,12 @@ namespace DTwoMFTimerHelper.UI.Timer
 
         #region Public Methods
         /// <summary>
-        /// 通过快捷键触发开始/停止计时
+        /// 通过快捷键触发开始/重新开始计时
         /// </summary>
         public void ToggleTimer()
         {
             LogManager.WriteDebugLog("TimerControl", $"ToggleTimer 调用（快捷键触发），当前状态: isTimerRunning={_timerService.IsRunning}");
-            _timerService.Toggle();
+            _timerService.StartOrRestart();
         }
 
         /// <summary>
@@ -241,8 +241,9 @@ namespace DTwoMFTimerHelper.UI.Timer
             }
 
             // 更新时间显示
-            if (!_timerService.IsRunning)
+            if (!_timerService.IsRunning && !_timerService.IsPaused)
             {
+                // 只有在计时器完全停止（不是暂停）时才重置显示
                 if (lblTimeDisplay != null)
                 {
                     lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 30F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));

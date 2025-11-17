@@ -18,7 +18,6 @@ namespace DTwoMFTimerHelper.Services
         {
             LoadLastUsedProfile();
             LoadLastUsedScene();
-            RestoreIncompleteRecordRequestedEvent?.Invoke();
         }
         #endregion
 
@@ -308,6 +307,15 @@ namespace DTwoMFTimerHelper.Services
                 LogManager.WriteDebugLog("ProfileService", "调用TimerService.Start()");
                 TimerService.Instance.Start();
             }
+        }
+
+        /// <summary>
+        /// 触发恢复未完成记录的请求
+        /// 提供公共方法以便其他类可以请求恢复未完成的记录
+        /// </summary>
+        public void RestoreIncompleteRecord()
+        {
+            RestoreIncompleteRecordRequestedEvent?.Invoke();
         }
         #endregion
 

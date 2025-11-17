@@ -8,6 +8,26 @@ namespace DTwoMFTimerHelper.Services
 {
     public class TimerService : IDisposable
     {
+        /// <summary>
+        /// 计时器状态枚举
+        /// </summary>
+        public enum TimerStatus
+        {
+            /// <summary>
+            /// 未运行
+            /// </summary>
+            Stopped,
+
+            /// <summary>
+            /// 正在运行
+            /// </summary>
+            Running,
+
+            /// <summary>
+            /// 已暂停
+            /// </summary>
+            Paused
+        }
         #region Singleton Implementation
         private static readonly Lazy<TimerService> _instance =
             new(() => new TimerService());
@@ -38,12 +58,12 @@ namespace DTwoMFTimerHelper.Services
         private DateTime _startTime = DateTime.MinValue;
         private TimeSpan _pausedDuration = TimeSpan.Zero;
         private DateTime _pauseStartTime = DateTime.MinValue;
-        private bool _isRunning = false;
-        private bool _isPaused = false;
+        private TimerStatus _status = TimerStatus.Stopped;
 
         // 当前状态属性
-        public bool IsRunning => _isRunning;
-        public bool IsPaused => _isPaused;
+        public bool IsRunning => _status == TimerStatus.Running;
+        public bool IsPaused => _status == TimerStatus.Paused;
+        public TimerStatus Status => _status;
         public DateTime StartTime => _startTime;
         public TimeSpan PausedDuration => _pausedDuration;
         public DateTime PauseStartTime => _pauseStartTime;
@@ -53,11 +73,10 @@ namespace DTwoMFTimerHelper.Services
         /// </summary>
         public void Start()
         {
-            if (_isRunning)
+            if (_status == TimerStatus.Running)
                 return;
 
-            _isRunning = true;
-            _isPaused = false;
+            _status = TimerStatus.Running;
             _startTime = DateTime.Now;
             _pauseStartTime = DateTime.Now; // 设置为当前时间，与Resume方法保持一致
             _pausedDuration = TimeSpan.Zero;
@@ -76,7 +95,7 @@ namespace DTwoMFTimerHelper.Services
         /// <param name="autoStartNext">是否自动开始下一场</param>
         public void Stop(bool autoStartNext = false)
         {
-            if (!_isRunning)
+            if (_status == TimerStatus.Stopped)
                 return;
 
             if (_pauseStartTime != DateTime.MinValue)
@@ -99,8 +118,7 @@ namespace DTwoMFTimerHelper.Services
             }
 
             TimerRunningStateChangedEvent?.Invoke(false);
-            _isRunning = false;
-            _isPaused = false;
+            _status = TimerStatus.Stopped;
 
             // 自动开始下一场
             if (autoStartNext)
@@ -113,11 +131,11 @@ namespace DTwoMFTimerHelper.Services
         }
 
         /// <summary>
-        /// 切换计时状态（开始/停止）
+        /// 启动计时器或停止当前计时并重新开始
         /// </summary>
-        public void Toggle()
+        public void StartOrRestart()
         {
-            if (!_isRunning)
+            if (_status == TimerStatus.Stopped || _status == TimerStatus.Paused)
                 Start();
             else
                 Stop(true); // 停止并自动开始下一场
@@ -128,9 +146,9 @@ namespace DTwoMFTimerHelper.Services
         /// </summary>
         public void TogglePause()
         {
-            if (_isRunning)
+            if (_status == TimerStatus.Running || _status == TimerStatus.Paused)
             {
-                if (_isPaused)
+                if (_status == TimerStatus.Paused)
                     Resume();
                 else
                     Pause();
@@ -142,9 +160,9 @@ namespace DTwoMFTimerHelper.Services
         /// </summary>
         public void Pause()
         {
-            if (_isRunning && !_isPaused)
+            if (_status == TimerStatus.Running)
             {
-                _isPaused = true;
+                _status = TimerStatus.Paused;
                 DateTime now = DateTime.Now;
 
                 // 计算暂停期间的时间并累加
@@ -168,9 +186,9 @@ namespace DTwoMFTimerHelper.Services
         /// </summary>
         public void Resume()
         {
-            if (_isRunning && _isPaused)
+            if (_status == TimerStatus.Paused)
             {
-                _isPaused = false;
+                _status = TimerStatus.Running;
 
                 // 设置_pauseStartTime = now
                 _pauseStartTime = DateTime.Now;
@@ -201,7 +219,7 @@ namespace DTwoMFTimerHelper.Services
         /// </summary>
         public TimeSpan GetElapsedTime()
         {
-            if (!_isRunning || _startTime == DateTime.MinValue)
+            if (_startTime == DateTime.MinValue)
                 return TimeSpan.Zero;
 
             // 如果_pauseStartTime被清空重置了，就直接返回_pausedDuration
@@ -232,10 +250,10 @@ namespace DTwoMFTimerHelper.Services
         /// </summary>
         public void HandleApplicationClosing()
         {
-            if (_isRunning)
+            if (_status == TimerStatus.Running || _status == TimerStatus.Paused)
             {
                 // 如果计时器正在运行，更新未完成记录
-                if (!_isPaused)
+                if (_status == TimerStatus.Running)
                 {
                     UpdateIncompleteRecord();
                 }
@@ -459,7 +477,7 @@ namespace DTwoMFTimerHelper.Services
         /// <summary>
         /// 处理来自ProfileService的恢复未完成记录请求
         /// </summary>
-        private void OnRestoreIncompleteRecordRequested()
+        public void OnRestoreIncompleteRecordRequested()
         {
             Reset();
             LogManager.WriteDebugLog("TimerService", "接收到恢复未完成记录请求");
@@ -467,9 +485,9 @@ namespace DTwoMFTimerHelper.Services
             if (record == null)
                 return;
 
-            _isRunning = true;
-            _isPaused = true;
+            _status = TimerStatus.Paused;
             _startTime = record.StartTime;
+            _pauseStartTime = DateTime.MinValue;
             _pausedDuration = TimeSpan.FromSeconds(record.DurationSeconds);
 
             // 立即更新显示
@@ -480,8 +498,8 @@ namespace DTwoMFTimerHelper.Services
                 $"已累计时间={record.DurationSeconds}秒, " +
                 $"开始时间={_startTime}");
             // 通知UI状态变化
-            TimerRunningStateChangedEvent?.Invoke(_isRunning);
-            TimerPauseStateChangedEvent?.Invoke(_isPaused);
+            TimerRunningStateChangedEvent?.Invoke(_status != TimerStatus.Stopped);
+            TimerPauseStateChangedEvent?.Invoke(_status == TimerStatus.Paused);
         }
         #endregion
 

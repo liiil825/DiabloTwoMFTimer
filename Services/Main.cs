@@ -95,6 +95,9 @@ namespace DTwoMFTimerHelper.UI
 
             // 加载上次使用的角色档案
             _profileManager?.LoadLastUsedProfile();
+
+            // 在所有初始化完成后，触发恢复未完成记录的请求
+            ProfileService.Instance.RestoreIncompleteRecord();
         }
 
         /// <summary>
