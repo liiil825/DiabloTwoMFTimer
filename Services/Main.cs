@@ -2,30 +2,43 @@ using System;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using DTwoMFTimerHelper.Utils;
-using DTwoMFTimerHelper.Services;
+using DTwoMFTimerHelper.UI;
 using DTwoMFTimerHelper.UI.Timer;
 using DTwoMFTimerHelper.UI.Pomodoro;
 using DTwoMFTimerHelper.UI.Settings;
 using DTwoMFTimerHelper.UI.Profiles;
 
-namespace DTwoMFTimerHelper.UI
+namespace DTwoMFTimerHelper.Services
 {
-    public class MainServices : IDisposable
+    public interface IMainServices
     {
-        #region Singleton Implementation
-        private static readonly Lazy<MainServices> _instance =
-            new(() => new MainServices());
+        void InitializeMainForm(MainForm mainForm);
+        void HandleTabChanged();
+        void RefreshUI();
+        void InitializeApplication();
+        void ApplyWindowSettings();
+        void ProcessHotKeyMessage(Message msg);
+        void HandleApplicationClosing();
+        void SetActiveTabPage(Models.TabPage tabPage);
+    }
 
-        public static MainServices Instance => _instance.Value;
-
-        private MainServices()
+    public class MainServices : IMainServices, IDisposable
+    {
+        // 修复构造函数：移除 IMainServices 参数
+        public MainServices(
+            IProfileService profileService,
+            ITimerService timerService,
+            ITimerHistoryService timerHistoryService)
         {
-            InitializeControlInstances();
-            InitializeServices();
+            _profileService = profileService;
+            _timerService = timerService;
+            _timerHistoryService = timerHistoryService;
         }
-        #endregion
 
         #region Fields and Properties
+        private readonly IProfileService _profileService;
+        private readonly ITimerService _timerService;
+        private readonly ITimerHistoryService _timerHistoryService;
         private MainForm? _mainForm;
         private ProfileManager? _profileManager;
         private PomodoroControl? _pomodoroControl;
@@ -59,11 +72,13 @@ namespace DTwoMFTimerHelper.UI
 
         #region Public Methods
         /// <summary>
-        /// 设置主窗体引用
+        /// 初始化主窗体引用和相关组件
+        /// 程序第一层加载时调用
         /// </summary>
-        public void SetMainForm(MainForm mainForm)
+        public void InitializeMainForm(MainForm mainForm)
         {
             _mainForm = mainForm;
+            InitializeControlInstances(); // 在这里初始化控件实例
             InitializeControls();
         }
 
@@ -97,7 +112,8 @@ namespace DTwoMFTimerHelper.UI
             _profileManager?.LoadLastUsedProfile();
 
             // 在所有初始化完成后，触发恢复未完成记录的请求
-            TimerService.Instance.RestoreIncompleteRecord();
+            _timerService.RestoreIncompleteRecord();
+            UpdateUI();
         }
 
         /// <summary>
@@ -151,19 +167,28 @@ namespace DTwoMFTimerHelper.UI
             _timerControl?.HandleApplicationClosing();
             UnregisterHotKeys();
         }
+
+        /// <summary>
+        /// 应用窗口设置
+        /// </summary>
+        public void ApplyWindowSettings()
+        {
+            if (_mainForm != null && _appSettings != null && Screen.PrimaryScreen != null)
+            {
+                _mainForm.TopMost = _appSettings.AlwaysOnTop;
+
+                var position = SettingsManager.StringToWindowPosition(_appSettings.WindowPosition);
+                SettingsControl.MoveWindowToPosition(_mainForm, position);
+            }
+        }
         #endregion
 
         #region Private Methods
-        private void InitializeServices()
-        {
-            // 初始化各个服务
-        }
-
         private void InitializeControlInstances()
         {
-            // 初始化各个UI控件实例
-            _profileManager = new ProfileManager();
-            _timerControl = new TimerControl();
+            // 修复：传递 this 作为 IMainServices 参数
+            _profileManager = new ProfileManager(_profileService, _timerService, this);
+            _timerControl = new TimerControl(_profileService, _timerService, _timerHistoryService);
             _pomodoroControl = new PomodoroControl();
             _settingsControl = new SettingsControl();
         }
@@ -238,17 +263,6 @@ namespace DTwoMFTimerHelper.UI
         private void LoadSettings()
         {
             _appSettings = SettingsManager.LoadSettings();
-        }
-
-        public void ApplyWindowSettings()
-        {
-            if (_mainForm != null && _appSettings != null && Screen.PrimaryScreen != null)
-            {
-                _mainForm.TopMost = _appSettings.AlwaysOnTop;
-
-                var position = SettingsManager.StringToWindowPosition(_appSettings.WindowPosition);
-                SettingsControl.MoveWindowToPosition(_mainForm, position);
-            }
         }
 
         private static void LoadCharacterProfile()

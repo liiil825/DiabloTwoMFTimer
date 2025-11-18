@@ -1,13 +1,25 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
+using DTwoMFTimerHelper.Services;
 
 namespace DTwoMFTimerHelper.UI
 {
     public partial class MainForm : Form
     {
         // 服务实例
-        private readonly MainServices _mainServices;
+        private readonly IMainServices _mainServices;
+        public MainForm(IMainServices mainServices)
+        {
+            // 获取服务实例并设置主窗体引用
+            _mainServices = mainServices;
+
+            InitializeComponent();
+            // 设置窗体属性
+            InitializeForm();
+            // 添加Shown事件处理，确保窗口显示后正确应用位置设置
+            this.Shown += (sender, e) => OnMainForm_Shown(sender ?? this, e);
+        }
 
         // UI控件 - 改为internal以便服务类访问
         internal TabControl? TabControl => tabControl;
@@ -22,26 +34,6 @@ namespace DTwoMFTimerHelper.UI
         private System.Windows.Forms.TabPage? tabPomodoroPage;
         private System.Windows.Forms.TabPage? tabSettingsPage;
 
-        public MainForm()
-        {
-            InitializeComponent();
-
-            // 获取服务实例并设置主窗体引用
-            _mainServices = MainServices.Instance;
-            _mainServices.SetMainForm(this);
-
-            // 初始化应用程序
-            _mainServices.InitializeApplication();
-
-            // 立即刷新UI以确保Tab标题正确显示
-            _mainServices.RefreshUI();
-
-            // 设置窗体属性
-            InitializeForm();
-
-            // 添加Shown事件处理，确保窗口显示后正确应用位置设置
-            this.Shown += (sender, e) => OnMainForm_Shown(sender ?? this, e);
-        }
 
         private void OnMainForm_Shown(object sender, EventArgs e)
         {

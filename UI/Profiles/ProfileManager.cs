@@ -9,6 +9,23 @@ namespace DTwoMFTimerHelper.UI.Profiles
 {
     public partial class ProfileManager : UserControl
     {
+        private readonly ITimerService _timerService;
+        private readonly IProfileService _profileService;
+        private readonly IMainServices _mainServices;
+
+        public ProfileManager(
+        IProfileService profileService,
+        ITimerService timerService,
+        IMainServices mainServices)
+        {
+            _profileService = profileService;
+            _timerService = timerService;
+            _mainServices = mainServices;
+
+            InitializeComponent();
+            LoadFarmingScenes();
+            UpdateUI();
+        }
         // 控件字段 - 标记为可为null以修复CS8618警告
         private Button? btnCreateCharacter;
         private Button? btnSwitchCharacter;
@@ -46,13 +63,6 @@ namespace DTwoMFTimerHelper.UI.Profiles
             {
                 return GetSelectedDifficulty();
             }
-        }
-
-        public ProfileManager()
-        {
-            InitializeComponent();
-            LoadFarmingScenes();
-            UpdateUI();
         }
 
         private void InitializeComponent()
@@ -525,7 +535,7 @@ namespace DTwoMFTimerHelper.UI.Profiles
                     }
 
                     // 使用 ProfileService 的单例来统一管理角色切换
-                    bool switchResult = ProfileService.Instance.SwitchCharacter(selectedProfile);
+                    bool switchResult = _profileService.SwitchCharacter(selectedProfile);
 
                     if (switchResult)
                     {
@@ -571,9 +581,8 @@ namespace DTwoMFTimerHelper.UI.Profiles
 
         private void BtnStartStop_Click(object? sender, EventArgs e)
         {
-            ProfileService.Instance.HandleStartFarm();
-
-            MainServices.Instance.SetActiveTabPage(Models.TabPage.Timer);
+            _mainServices.SetActiveTabPage(Models.TabPage.Timer);
+            _timerService.HandleStartFarm();
         }
 
         // 场景选择变更事件处理
@@ -583,13 +592,7 @@ namespace DTwoMFTimerHelper.UI.Profiles
             if (cmbScene != null)
             {
                 WriteDebugLog($"场景已变更为: {cmbScene.Text}");
-
-                // 同步更新ProfileService中的CurrentScene
-                if (Services.ProfileService.Instance != null)
-                {
-                    Services.ProfileService.Instance.CurrentScene = cmbScene.Text;
-                }
-
+                _profileService.CurrentScene = cmbScene.Text;
                 // 更新按钮文本，检查是否有未完成记录
                 UpdateUI();
             }
@@ -608,13 +611,10 @@ namespace DTwoMFTimerHelper.UI.Profiles
                 // 使用SceneService中的GetDifficultyByIndex方法获取对应的GameDifficulty枚举值
                 Models.GameDifficulty difficulty = Services.SceneService.GetDifficultyByIndex(selectedIndex);
 
-                // 更新ProfileService中的CurrentDifficulty
-                if (Services.ProfileService.Instance != null)
-                {
-                    Services.ProfileService.Instance.CurrentDifficulty = difficulty;
-                    // 更新UI - TimerControl会通过事件监听自动更新
-                    UpdateUI();
-                }
+
+                _profileService.CurrentDifficulty = difficulty;
+                // 更新UI - TimerControl会通过事件监听自动更新
+                UpdateUI();
             }
         }
 

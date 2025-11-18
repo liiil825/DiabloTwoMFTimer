@@ -20,19 +20,27 @@ namespace DTwoMFTimerHelper.Services
         public TimeSpan? AddedRecord { get; set; } // 当ChangeType为Add时，包含新添加的记录
     }
 
-    public class TimerHistoryService
+    public interface ITimerHistoryService
     {
-        #region Singleton Implementation
-        private static readonly Lazy<TimerHistoryService> _instance =
-            new(() => new TimerHistoryService());
+        event EventHandler<HistoryChangedEventArgs>? HistoryDataChanged;
+        List<TimeSpan> RunHistory { get; }
+        int RunCount { get; }
+        TimeSpan FastestTime { get; }
+        TimeSpan AverageTime { get; }
+        void ResetHistoryData();
+        bool LoadProfileHistoryData(CharacterProfile? profile, string scene, string characterName, GameDifficulty difficulty);
 
-        public static TimerHistoryService Instance => _instance.Value;
+        void AddRunRecord(TimeSpan runTime);
+        void UpdateHistory(List<TimeSpan> runHistory);
+    }
 
-        private TimerHistoryService()
+    public class TimerHistoryService : ITimerHistoryService
+    {
+        public TimerHistoryService()
         {
             RunHistory = [];
         }
-        #endregion
+
 
         // 使用更具体的事件参数
         public event EventHandler<HistoryChangedEventArgs>? HistoryDataChanged;

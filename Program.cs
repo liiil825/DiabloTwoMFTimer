@@ -1,11 +1,42 @@
 using System;
 using System.Windows.Forms;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection;
+using DTwoMFTimerHelper.Services;
+using DTwoMFTimerHelper.UI;
 
 namespace DTwoMFTimerHelper
 {
+    public static class ServiceConfiguration
+    {
+        public static IServiceProvider ConfigureServices()
+        {
+            var services = new ServiceCollection();
+
+            // 注册服务
+            services.AddSingleton<IProfileService, ProfileService>();
+            services.AddSingleton<ITimerHistoryService, TimerHistoryService>();
+            services.AddSingleton<ITimerService, TimerService>();
+
+            // 注册 IMainServices 接口
+            services.AddSingleton<IMainServices, MainServices>();
+
+            // 注册UI组件
+            services.AddTransient<MainForm>();
+            services.AddTransient<UI.Profiles.ProfileManager>();
+            services.AddTransient<UI.Timer.TimerControl>();
+            services.AddTransient<UI.Timer.CharacterSceneControl>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            return serviceProvider;
+        }
+    }
+
     static class Program
     {
+        private static IServiceProvider? _serviceProvider;
+
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
@@ -20,14 +51,31 @@ namespace DTwoMFTimerHelper
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
             // 只在提供--debug参数时才启用调试日志
             if (args.Length > 0 && args[0].Equals("--debug", StringComparison.CurrentCultureIgnoreCase))
             {
                 Utils.LogManager.IsDebugEnabled = true;
             }
+
             try
             {
-                Application.Run(new UI.MainForm());
+                // 配置依赖注入
+                _serviceProvider = ServiceConfiguration.ConfigureServices();
+
+                // 从DI容器解析MainForm
+                var mainForm = _serviceProvider.GetRequiredService<MainForm>();
+
+                // 修复：通过接口解析IMainServices
+                var mainServices = _serviceProvider.GetRequiredService<IMainServices>();
+
+                // 初始化主窗体引用和相关组件
+                mainServices.InitializeMainForm(mainForm);
+
+                // 初始化应用程序
+                mainServices.InitializeApplication();
+
+                Application.Run(mainForm);
             }
             catch (Exception ex)
             {

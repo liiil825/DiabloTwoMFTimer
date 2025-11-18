@@ -9,19 +9,20 @@ namespace DTwoMFTimerHelper.UI.Timer
 {
     public partial class CharacterSceneControl : UserControl
     {
-        private Label? lblCharacterDisplay;
-        private Label? lblSceneDisplay;
-
-        public CharacterSceneControl()
+        private readonly IProfileService _profileService;
+        public CharacterSceneControl(IProfileService profileService)
         {
             InitializeComponent();
+            _profileService = profileService;
             // 注册语言变更事件
             Utils.LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
             // 注册ProfileService事件
-            ProfileService.Instance.CurrentProfileChangedEvent += OnProfileChanged;
-            ProfileService.Instance.CurrentSceneChangedEvent += OnSceneChanged;
-            ProfileService.Instance.CurrentDifficultyChangedEvent += OnDifficultyChanged;
+            _profileService.CurrentProfileChangedEvent += OnProfileChanged;
+            _profileService.CurrentSceneChangedEvent += OnSceneChanged;
+            _profileService.CurrentDifficultyChangedEvent += OnDifficultyChanged;
         }
+        private Label? lblCharacterDisplay;
+        private Label? lblSceneDisplay;
 
         protected override void Dispose(bool disposing)
         {
@@ -29,9 +30,9 @@ namespace DTwoMFTimerHelper.UI.Timer
             {                // 取消注册语言变更事件
                 Utils.LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
                 // 取消注册ProfileService事件
-                ProfileService.Instance.CurrentProfileChangedEvent -= OnProfileChanged;
-                ProfileService.Instance.CurrentSceneChangedEvent -= OnSceneChanged;
-                ProfileService.Instance.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
+                _profileService.CurrentProfileChangedEvent -= OnProfileChanged;
+                _profileService.CurrentSceneChangedEvent -= OnSceneChanged;
+                _profileService.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
             }
             base.Dispose(disposing);
         }
@@ -107,7 +108,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             // 更新角色显示
             if (lblCharacterDisplay != null)
             {
-                var profile = ProfileService.Instance.CurrentProfile;
+                var profile = _profileService.CurrentProfile;
                 if (profile == null)
                 {
                     lblCharacterDisplay.Text = "";
@@ -125,7 +126,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             // 更新场景显示
             if (lblSceneDisplay != null)
             {
-                string currentScene = ProfileService.Instance.CurrentScene;
+                string currentScene = _profileService.CurrentScene;
                 if (string.IsNullOrEmpty(currentScene))
                 {
                     lblSceneDisplay.Text = "";
@@ -134,7 +135,7 @@ namespace DTwoMFTimerHelper.UI.Timer
                 {                    // 获取本地化的场景名称
                     string localizedSceneName = Utils.LanguageManager.GetString(currentScene);
                     // 获取本地化的难度名称
-                    string localizedDifficultyName = ProfileService.Instance.CurrentDifficultyLocalized;
+                    string localizedDifficultyName = _profileService.CurrentDifficultyLocalized;
 
                     // 在场景名称前添加难度
                     lblSceneDisplay.Text = $"{localizedDifficultyName} {localizedSceneName}";

@@ -15,7 +15,7 @@ namespace DTwoMFTimerHelper.UI.Timer
         private ListBox? lstRunHistory;
 
         // 历史记录服务
-        private readonly TimerHistoryService _historyService;
+        private readonly ITimerHistoryService _historyService;
 
         // 分页相关变量
         private const int PageSize = 20; // 每页显示20条记录
@@ -28,10 +28,10 @@ namespace DTwoMFTimerHelper.UI.Timer
         public TimeSpan AverageTime => _historyService.AverageTime;
         public List<TimeSpan> RunHistory => _historyService.RunHistory;
 
-        public HistoryControl()
+        public HistoryControl(ITimerHistoryService historyService)
         {
+            _historyService = historyService;
             InitializeComponent();
-            _historyService = TimerHistoryService.Instance;
             LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
             _historyService.HistoryDataChanged += OnHistoryDataChanged;
         }

@@ -6,20 +6,41 @@ using DTwoMFTimerHelper.Utils;
 
 namespace DTwoMFTimerHelper.Services
 {
-    public class ProfileService
+    public interface IProfileService
     {
-        #region Singleton Implementation
-        private static readonly Lazy<ProfileService> _instance =
-            new(() => new ProfileService());
+        event Action<CharacterProfile?>? CurrentProfileChangedEvent;
+        event Action<string>? CurrentSceneChangedEvent;
+        event Action<GameDifficulty>? CurrentDifficultyChangedEvent;
+        event Action? ProfileListChangedEvent;
 
-        public static ProfileService Instance => _instance.Value;
+        CharacterProfile? CurrentProfile { get; set; }
+        string CurrentScene { get; set; }
+        GameDifficulty CurrentDifficulty { get; set; }
+        string CurrentDifficultyLocalized { get; }
+        List<FarmingScene> FarmingScenes { get; }
 
-        private ProfileService()
+        void LoadFarmingScenes();
+        CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass);
+        bool SwitchCharacter(CharacterProfile profile);
+        bool DeleteCharacter(CharacterProfile profile);
+        List<CharacterProfile> GetAllProfiles();
+        CharacterProfile? FindProfileByName(string name);
+        bool HasIncompleteRecord();
+        string GetStartButtonText();
+        List<string> GetSceneDisplayNames();
+        FarmingScene? GetSceneByDisplayName(string displayName);
+        List<string> GetLocalizedDifficultyNames();
+        GameDifficulty GetDifficultyByIndex(int index);
+        int GetDifficultyIndex(GameDifficulty difficulty);
+    }
+
+    public class ProfileService : IProfileService
+    {
+        public ProfileService()
         {
             LoadLastUsedProfile();
             LoadLastUsedScene();
         }
-        #endregion
 
         #region Events for UI Communication
         public event Action<CharacterProfile?>? CurrentProfileChangedEvent;
@@ -46,7 +67,6 @@ namespace DTwoMFTimerHelper.Services
                         var settings = SettingsManager.LoadSettings();
                         settings.LastUsedProfile = value.Name;
                         SettingsManager.SaveSettings(settings);
-                        TimerService.Instance.RestoreIncompleteRecord();
                     }
                 }
             }
@@ -70,7 +90,6 @@ namespace DTwoMFTimerHelper.Services
                     var settings = SettingsManager.LoadSettings();
                     settings.LastUsedScene = englishSceneName;
                     SettingsManager.SaveSettings(settings);
-                    TimerService.Instance.RestoreIncompleteRecord();
                 }
             }
         }
@@ -90,7 +109,6 @@ namespace DTwoMFTimerHelper.Services
                     var settings = SettingsManager.LoadSettings();
                     settings.LastUsedDifficulty = value.ToString();
                     SettingsManager.SaveSettings(settings);
-                    TimerService.Instance.RestoreIncompleteRecord();
                 }
             }
         }
@@ -175,7 +193,7 @@ namespace DTwoMFTimerHelper.Services
 
             ProfileListChangedEvent?.Invoke();
             // 触发重置定时器事件
-            TimerService.Instance.ResetTimerRequested();
+            // _timerService.ResetTimerRequested();
             LogManager.WriteDebugLog("ProfileService", $"成功删除角色: {profile.Name}");
 
             return true;
@@ -184,7 +202,7 @@ namespace DTwoMFTimerHelper.Services
         /// <summary>
         /// 获取所有角色档案
         /// </summary>
-        public static List<CharacterProfile> GetAllProfiles()
+        public List<CharacterProfile> GetAllProfiles()
         {
             return DataService.LoadAllProfiles(false);
         }
@@ -192,7 +210,7 @@ namespace DTwoMFTimerHelper.Services
         /// <summary>
         /// 根据名称查找角色档案
         /// </summary>
-        public static CharacterProfile? FindProfileByName(string name)
+        public CharacterProfile? FindProfileByName(string name)
         {
             return DataService.FindProfileByName(name);
         }
@@ -261,7 +279,7 @@ namespace DTwoMFTimerHelper.Services
         /// <summary>
         /// 获取本地化的难度名称列表
         /// </summary>
-        public static List<string> GetLocalizedDifficultyNames()
+        public List<string> GetLocalizedDifficultyNames()
         {
             return [.. Enum.GetValues(typeof(GameDifficulty))
                       .Cast<GameDifficulty>()
@@ -271,7 +289,7 @@ namespace DTwoMFTimerHelper.Services
         /// <summary>
         /// 根据索引获取难度
         /// </summary>
-        public static GameDifficulty GetDifficultyByIndex(int index)
+        public GameDifficulty GetDifficultyByIndex(int index)
         {
             var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
             return index >= 0 && index < difficulties.Count ? difficulties[index] : GameDifficulty.Hell;
@@ -280,32 +298,12 @@ namespace DTwoMFTimerHelper.Services
         /// <summary>
         /// 根据难度获取索引
         /// </summary>
-        public static int GetDifficultyIndex(GameDifficulty difficulty)
+        public int GetDifficultyIndex(GameDifficulty difficulty)
         {
             var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
             return difficulties.IndexOf(difficulty);
         }
 
-        /// <summary>
-        /// 处理开始Farm操作
-        /// </summary>
-        public void HandleStartFarm()
-        {
-            // 检查是否有未完成记录
-            bool hasIncompleteRecord = HasIncompleteRecord();
-            // 根据是否有未完成记录调用不同的方法
-            if (hasIncompleteRecord)
-            {
-                // 没有未完成记录事件触发，直接恢复计时器
-                TimerService.Instance.TogglePause();
-            }
-            else
-            {
-                // 没有未完成记录，调用TimerService的Start方法
-                LogManager.WriteDebugLog("ProfileService", "调用TimerService.Start()");
-                TimerService.Instance.Start();
-            }
-        }
         #endregion
 
         #region Private Methods

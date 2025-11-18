@@ -9,7 +9,27 @@ namespace DTwoMFTimerHelper.UI.Timer
     public partial class TimerControl : UserControl
     {
         // 服务层引用
-        private readonly TimerService _timerService;
+        private readonly ITimerService _timerService;
+        private readonly IProfileService _profileService;
+        private readonly ITimerHistoryService _historyService;
+
+        public TimerControl(IProfileService profileService, ITimerService timerService, ITimerHistoryService historyService)
+        {
+
+            // 获取TimerService单例实例
+            _timerService = timerService;
+            _profileService = profileService;
+            _historyService = historyService;
+
+            InitializeComponent();
+            // 订阅服务事件
+            SubscribeToServiceEvents();
+
+            // 注册语言变更事件
+            LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
+
+            UpdateUI();
+        }
 
         // 组件引用
         private StatisticsControl? statisticsControl;
@@ -23,29 +43,13 @@ namespace DTwoMFTimerHelper.UI.Timer
         // 事件
         public event EventHandler? TimerStateChanged;
 
-        public TimerControl()
-        {
-            InitializeComponent();
-
-            // 获取TimerService单例实例
-            _timerService = TimerService.Instance;
-
-            // 订阅服务事件
-            SubscribeToServiceEvents();
-
-            // 注册语言变更事件
-            LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
-
-            UpdateUI();
-        }
-
         #region Properties
         public bool IsTimerRunning => _timerService.IsRunning;
-        public static Models.CharacterProfile? CurrentProfile
-        {
-            get => ProfileService.Instance.CurrentProfile;
-            set => ProfileService.Instance.CurrentProfile = value; // 直接设置ProfileService中的属性
-        }
+        // public Models.CharacterProfile? CurrentProfile
+        // {
+        //     get => _profileService.CurrentProfile;
+        //     set => _profileService.CurrentProfile = value; // 直接设置ProfileService中的属性
+        // }
         #endregion
 
         #region Service Event Handlers
@@ -59,9 +63,9 @@ namespace DTwoMFTimerHelper.UI.Timer
             _timerService.RunCompletedEvent += OnRunCompleted;
 
             // 订阅ProfileService事件
-            ProfileService.Instance.CurrentProfileChangedEvent += OnProfileChanged;
-            ProfileService.Instance.CurrentSceneChangedEvent += OnSceneChanged;
-            ProfileService.Instance.CurrentDifficultyChangedEvent += OnDifficultyChanged;
+            _profileService.CurrentProfileChangedEvent += OnProfileChanged;
+            _profileService.CurrentSceneChangedEvent += OnSceneChanged;
+            _profileService.CurrentDifficultyChangedEvent += OnDifficultyChanged;
         }
 
         private void UnsubscribeFromServiceEvents()
@@ -74,9 +78,9 @@ namespace DTwoMFTimerHelper.UI.Timer
             _timerService.RunCompletedEvent -= OnRunCompleted;
 
             // 取消订阅ProfileService事件
-            ProfileService.Instance.CurrentProfileChangedEvent -= OnProfileChanged;
-            ProfileService.Instance.CurrentSceneChangedEvent -= OnSceneChanged;
-            ProfileService.Instance.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
+            _profileService.CurrentProfileChangedEvent -= OnProfileChanged;
+            _profileService.CurrentSceneChangedEvent -= OnSceneChanged;
+            _profileService.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
         }
 
         private void OnTimeUpdated(string timeString)
@@ -150,10 +154,10 @@ namespace DTwoMFTimerHelper.UI.Timer
         {
             if (historyControl != null)
             {
-                var profile = ProfileService.Instance.CurrentProfile;
-                var scene = ProfileService.Instance.CurrentScene;
+                var profile = _profileService.CurrentProfile;
+                var scene = _profileService.CurrentScene;
                 var characterName = profile?.Name ?? "";
-                var difficulty = ProfileService.Instance.CurrentDifficulty;
+                var difficulty = _profileService.CurrentDifficulty;
 
                 historyControl.LoadProfileHistoryData(profile, scene, characterName, difficulty);
             }
@@ -331,7 +335,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             };
 
             // 初始化历史记录控件
-            historyControl = new HistoryControl
+            historyControl = new HistoryControl(_historyService)
             {
                 Location = new Point(15, 170),
                 Name = "historyControl",
@@ -341,7 +345,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             };
 
             // 初始化角色场景信息组件
-            characterSceneControl = new CharacterSceneControl
+            characterSceneControl = new CharacterSceneControl(_profileService)
             {
                 Location = new Point(15, 270),
                 Name = "characterSceneControl",
