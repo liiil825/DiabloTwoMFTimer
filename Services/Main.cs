@@ -28,17 +28,21 @@ namespace DTwoMFTimerHelper.Services
         public MainServices(
             IProfileService profileService,
             ITimerService timerService,
-            ITimerHistoryService timerHistoryService)
+            ITimerHistoryService timerHistoryService,
+            PomodoroTimerService pomodoroTimerService)
         {
             _profileService = profileService;
             _timerService = timerService;
             _timerHistoryService = timerHistoryService;
+            _pomodoroTimerService = pomodoroTimerService;
         }
 
         #region Fields and Properties
         private readonly IProfileService _profileService;
         private readonly ITimerService _timerService;
         private readonly ITimerHistoryService _timerHistoryService;
+        private readonly PomodoroTimerService _pomodoroTimerService;
+
         private MainForm? _mainForm;
         private ProfileManager? _profileManager;
         private PomodoroControl? _pomodoroControl;
@@ -199,7 +203,7 @@ namespace DTwoMFTimerHelper.Services
             // 修复：传递 this 作为 IMainServices 参数
             _profileManager = new ProfileManager(_profileService, _timerService, this);
             _timerControl = new TimerControl(_profileService, _timerService, _timerHistoryService);
-            _pomodoroControl = new PomodoroControl();
+            _pomodoroControl = new PomodoroControl(_pomodoroTimerService);
             _settingsControl = new SettingsControl();
         }
 
@@ -252,13 +256,6 @@ namespace DTwoMFTimerHelper.Services
             if (_timerControl != null)
             {
                 _timerControl.TimerStateChanged += OnTimerTimerStateChanged;
-            }
-
-            // 订阅番茄时钟事件
-            if (_pomodoroControl != null)
-            {
-                _pomodoroControl.TimerStateChanged += OnPomodoroTimerStateChanged;
-                _pomodoroControl.PomodoroCompleted += OnPomodoroCompleted;
             }
 
             // 订阅设置事件
@@ -374,16 +371,6 @@ namespace DTwoMFTimerHelper.Services
             UpdateUI();
         }
 
-        private void OnPomodoroTimerStateChanged(object? sender, EventArgs e)
-        {
-            // 番茄时钟状态改变时的处理
-        }
-
-        private void OnPomodoroCompleted(object? sender, EventArgs e)
-        {
-            // 番茄时钟完成时的处理
-        }
-
         private void OnLanguageChanged(object? sender, SettingsControl.LanguageChangedEventArgs e)
         {
             if (e.Language == SettingsControl.LanguageOption.Chinese)
@@ -456,11 +443,6 @@ namespace DTwoMFTimerHelper.Services
             if (_timerControl != null)
             {
                 _timerControl.TimerStateChanged -= OnTimerTimerStateChanged;
-            }
-            if (_pomodoroControl != null)
-            {
-                _pomodoroControl.TimerStateChanged -= OnPomodoroTimerStateChanged;
-                _pomodoroControl.PomodoroCompleted -= OnPomodoroCompleted;
             }
             if (_settingsControl != null)
             {
