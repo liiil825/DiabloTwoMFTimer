@@ -36,13 +36,34 @@ namespace DTwoMFTimerHelper.Services
         event Action<TimeSpan>? RunCompletedEvent;
 
         // 属性
-        bool IsRunning { get; }
-        bool IsPaused { get; }
-        bool IsStopped { get; }
-        TimerStatus Status { get; }
-        DateTime StartTime { get; }
-        TimeSpan PausedDuration { get; }
-        DateTime PauseStartTime { get; }
+        bool IsRunning
+        {
+            get;
+        }
+        bool IsPaused
+        {
+            get;
+        }
+        bool IsStopped
+        {
+            get;
+        }
+        TimerStatus Status
+        {
+            get;
+        }
+        DateTime StartTime
+        {
+            get;
+        }
+        TimeSpan PausedDuration
+        {
+            get;
+        }
+        DateTime PauseStartTime
+        {
+            get;
+        }
 
         // 方法
         void Start();

@@ -123,7 +123,8 @@ namespace DTwoMFTimerHelper.Utils
         /// <returns>本地化后的字符串</returns>
         public static string GetString(string key, params object[] args)
         {
-            if (key == null) return string.Empty;
+            if (key == null)
+                return string.Empty;
             string value;
 
             // 首先尝试直接从翻译字典中获取

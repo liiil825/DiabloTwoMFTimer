@@ -13,9 +13,18 @@ namespace DTwoMFTimerHelper.UI.Timer
         private Label? lblAverageTime;
 
         // 统计数据属性
-        public int RunCount { get; set; }
-        public TimeSpan FastestTime { get; set; }
-        public TimeSpan AverageTime { get; set; }
+        public int RunCount
+        {
+            get; set;
+        }
+        public TimeSpan FastestTime
+        {
+            get; set;
+        }
+        public TimeSpan AverageTime
+        {
+            get; set;
+        }
 
         public StatisticsControl()
         {

@@ -35,11 +35,20 @@ namespace DTwoMFTimerHelper.Models
         public int ACT { get; set; } = 0;
         public GameDifficulty Difficulty { get; set; } = GameDifficulty.Normal;
         [YamlDotNet.Serialization.YamlMember(Alias = "startTime")]
-        public DateTime StartTime { get; set; }
+        public DateTime StartTime
+        {
+            get; set;
+        }
         [YamlDotNet.Serialization.YamlMember(Alias = "endTime")]
-        public DateTime? EndTime { get; set; }
+        public DateTime? EndTime
+        {
+            get; set;
+        }
         [YamlDotNet.Serialization.YamlMember(Alias = "latestTime")]
-        public DateTime? LatestTime { get; set; }
+        public DateTime? LatestTime
+        {
+            get; set;
+        }
         [YamlDotNet.Serialization.YamlMember(Alias = "durationSeconds")]
         public double DurationSeconds { get; set; } = 0;
 
@@ -50,18 +59,36 @@ namespace DTwoMFTimerHelper.Models
     public class CharacterProfile
     {
         public string Name { get; set; } = string.Empty;
-        public CharacterClass Class { get; set; }
+        public CharacterClass Class
+        {
+            get; set;
+        }
         public bool IsHidden { get; set; } = false;
         public List<MFRecord> Records { get; set; } = [];
 
         // 计算属性
         public double TotalPlayTimeSeconds
         {
-            get { try { return Records?.Sum(r => r.DurationSeconds) ?? 0; } catch { return 0; } }
+            get
+            {
+                try
+                {
+                    return Records?.Sum(r => r.DurationSeconds) ?? 0;
+                }
+                catch { return 0; }
+            }
         }
         public double AverageGameTimeSeconds
         {
-            get { try { var completedRecords = Records.Where(r => r.IsCompleted).ToList(); return completedRecords.Count > 0 ? completedRecords.Average(r => r.DurationSeconds) : 0; } catch { return 0; } }
+            get
+            {
+                try
+                {
+                    var completedRecords = Records.Where(r => r.IsCompleted).ToList();
+                    return completedRecords.Count > 0 ? completedRecords.Average(r => r.DurationSeconds) : 0;
+                }
+                catch { return 0; }
+            }
         }
         public int CompletedGamesCount => Records.Count(r => r.IsCompleted);
         public int TotalGamesCount => Records.Count;

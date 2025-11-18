@@ -128,9 +128,19 @@ namespace DTwoMFTimerHelper.Services
                 switch (id)
                 {
                     case HOTKEY_ID_STARTSTOP:
-                        _timerControl?.ToggleTimer();
+                        SetActiveTabPage(Models.TabPage.Timer);
+                        bool hasIncompleteRecord = _profileService?.HasIncompleteRecord() ?? false;
+                        if (hasIncompleteRecord)
+                        {
+                            _timerControl?.TogglePause();
+                        }
+                        else
+                        {
+                            _timerControl?.ToggleTimer();
+                        }
                         break;
                     case HOTKEY_ID_PAUSE:
+                        SetActiveTabPage(Models.TabPage.Timer);
                         _timerControl?.TogglePause();
                         break;
                 }
@@ -195,7 +205,8 @@ namespace DTwoMFTimerHelper.Services
 
         private void InitializeControls()
         {
-            if (_mainForm == null || _profileManager == null || _timerControl == null || _pomodoroControl == null || _settingsControl == null) return;
+            if (_mainForm == null || _profileManager == null || _timerControl == null || _pomodoroControl == null || _settingsControl == null)
+                return;
 
             // 设置控件的Dock属性
             _profileManager.Dock = DockStyle.Fill;
@@ -215,7 +226,8 @@ namespace DTwoMFTimerHelper.Services
 
         private void AddControlToTabPage(Models.TabPage tabPage, Control control)
         {
-            if (control == null || _mainForm == null) return;
+            if (control == null || _mainForm == null)
+                return;
 
             switch (tabPage)
             {
@@ -298,7 +310,8 @@ namespace DTwoMFTimerHelper.Services
 
         private void UpdateUI()
         {
-            if (_mainForm == null) return;
+            if (_mainForm == null)
+                return;
 
             _mainForm.UpdateFormTitle(LanguageManager.GetString("FormTitle"));
 
@@ -337,7 +350,8 @@ namespace DTwoMFTimerHelper.Services
 
         private void RegisterHotKey(Keys keys, int id)
         {
-            if (_mainForm == null || _mainForm.IsDisposed || !_mainForm.IsHandleCreated) return;
+            if (_mainForm == null || _mainForm.IsDisposed || !_mainForm.IsHandleCreated)
+                return;
 
             int modifiers = 0;
 

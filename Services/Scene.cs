@@ -232,7 +232,8 @@ namespace DTwoMFTimerHelper.Services
                     pureSceneName = sceneName[(colonIndex + 1)..].Trim();
                 }
             }
-            return pureSceneName; ;
+            return pureSceneName;
+            ;
         }
 
         /// <summary>

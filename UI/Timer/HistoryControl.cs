@@ -127,14 +127,16 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// </summary>
         private async Task UpdateUIAsync()
         {
-            if (lstRunHistory == null || _historyService == null) return;
+            if (lstRunHistory == null || _historyService == null)
+                return;
 
             // 清空当前列表
             lstRunHistory.Items.Clear();
 
             // 获取要显示的数据范围
             var currentHistory = _historyService.RunHistory;
-            if (currentHistory == null) return;
+            if (currentHistory == null)
+                return;
 
             int currentCount = currentHistory.Count;
             int displayCount = Math.Min(currentCount - _displayStartIndex, PageSize);
@@ -182,14 +184,16 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// </summary>
         private void UpdateUI()
         {
-            if (lstRunHistory == null || _historyService == null) return;
+            if (lstRunHistory == null || _historyService == null)
+                return;
 
             // 清空当前列表
             lstRunHistory.Items.Clear();
 
             // 获取要显示的数据范围
             var currentHistory = _historyService.RunHistory;
-            if (currentHistory == null) return;
+            if (currentHistory == null)
+                return;
 
             int currentCount = currentHistory.Count;
             int displayCount = Math.Min(currentCount - _displayStartIndex, PageSize);
@@ -224,13 +228,15 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// </summary>
         public async Task RefreshUIAsync()
         {
-            if (lstRunHistory == null || _historyService == null) return;
+            if (lstRunHistory == null || _historyService == null)
+                return;
 
             await Task.Run(() =>
             {
                 // 只更新现有项目的文本（用于语言切换等）
                 var currentHistory = _historyService.RunHistory;
-                if (currentHistory == null) return;
+                if (currentHistory == null)
+                    return;
 
                 if (InvokeRequired)
                 {
@@ -248,7 +254,8 @@ namespace DTwoMFTimerHelper.UI.Timer
 
         private void UpdateListItems(List<TimeSpan> currentHistory)
         {
-            if (lstRunHistory == null) return;
+            if (lstRunHistory == null)
+                return;
 
             for (int i = 0; i < lstRunHistory.Items.Count; i++)
             {
@@ -274,11 +281,13 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// </summary>
         private void AddSingleRunRecord(TimeSpan runTime)
         {
-            if (lstRunHistory == null || _historyService == null) return;
+            if (lstRunHistory == null || _historyService == null)
+                return;
 
             // 获取新记录的索引
             var currentHistory = _historyService.RunHistory;
-            if (currentHistory == null) return;
+            if (currentHistory == null)
+                return;
 
             int newIndex = currentHistory.Count - 1;
 
@@ -321,7 +330,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// </summary>
         private async Task LoadMoreHistoryAsync()
         {
-            if (lstRunHistory == null || _loadingIndicator == null || _displayStartIndex <= 0 || _isLoading || _historyService == null) return;
+            if (lstRunHistory == null || _loadingIndicator == null || _displayStartIndex <= 0 || _isLoading || _historyService == null)
+                return;
 
             _isLoading = true;
 
@@ -330,7 +340,8 @@ namespace DTwoMFTimerHelper.UI.Timer
             {
                 Invoke(new Action(() =>
                 {
-                    if (_loadingIndicator != null) _loadingIndicator.Visible = true;
+                    if (_loadingIndicator != null)
+                        _loadingIndicator.Visible = true;
                 }));
             }
             else
@@ -346,7 +357,8 @@ namespace DTwoMFTimerHelper.UI.Timer
 
                 // 异步处理数据格式化
                 var currentHistory = _historyService.RunHistory;
-                if (currentHistory == null) return;
+                if (currentHistory == null)
+                    return;
 
                 var newItems = await Task.Run(() =>
                 {
@@ -435,7 +447,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         private void OnHistoryDataChanged(object? sender, HistoryChangedEventArgs e)
         {
             // 确保e不为null
-            if (e == null) return;
+            if (e == null)
+                return;
 
             if (InvokeRequired)
             {
@@ -457,7 +470,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         private async void ProcessHistoryChange(HistoryChangedEventArgs e)
         {
             // 确保e不为null
-            if (e == null) return;
+            if (e == null)
+                return;
 
             switch (e.ChangeType)
             {
@@ -560,7 +574,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         private async void LanguageManager_OnLanguageChanged(object? sender, EventArgs e)
         {
             // 确保e不为null
-            if (e == null) return;
+            if (e == null)
+                return;
 
             await RefreshUIAsync(); // 只刷新显示文本，不重新加载数据
         }

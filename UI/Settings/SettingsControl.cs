@@ -398,12 +398,18 @@ namespace DTwoMFTimerHelper.UI.Settings
 
         private WindowPosition GetSelectedPosition()
         {
-            if (radioTopLeft?.Checked ?? false) return WindowPosition.TopLeft;
-            if (radioTopCenter?.Checked ?? false) return WindowPosition.TopCenter;
-            if (radioTopRight?.Checked ?? false) return WindowPosition.TopRight;
-            if (radioBottomLeft?.Checked ?? false) return WindowPosition.BottomLeft;
-            if (radioBottomCenter?.Checked ?? false) return WindowPosition.BottomCenter;
-            if (radioBottomRight?.Checked ?? false) return WindowPosition.BottomRight;
+            if (radioTopLeft?.Checked ?? false)
+                return WindowPosition.TopLeft;
+            if (radioTopCenter?.Checked ?? false)
+                return WindowPosition.TopCenter;
+            if (radioTopRight?.Checked ?? false)
+                return WindowPosition.TopRight;
+            if (radioBottomLeft?.Checked ?? false)
+                return WindowPosition.BottomLeft;
+            if (radioBottomCenter?.Checked ?? false)
+                return WindowPosition.BottomCenter;
+            if (radioBottomRight?.Checked ?? false)
+                return WindowPosition.BottomRight;
             return WindowPosition.TopLeft; // 默认左上
         }
 
@@ -530,7 +536,8 @@ namespace DTwoMFTimerHelper.UI.Settings
 
         private void OnKeyDownWhileSettingHotkey(object? sender, KeyEventArgs e)
         {
-            if (!isSettingHotkey) return;
+            if (!isSettingHotkey)
+                return;
 
             // 忽略特殊键单独按下的情况
             if (e.KeyCode == Keys.ControlKey || e.KeyCode == Keys.Menu || e.KeyCode == Keys.ShiftKey)
@@ -574,8 +581,10 @@ namespace DTwoMFTimerHelper.UI.Settings
 
         private LanguageOption GetSelectedLanguage()
         {
-            if (chineseRadioButton?.Checked ?? false) return LanguageOption.Chinese;
-            if (englishRadioButton?.Checked ?? false) return LanguageOption.English;
+            if (chineseRadioButton?.Checked ?? false)
+                return LanguageOption.Chinese;
+            if (englishRadioButton?.Checked ?? false)
+                return LanguageOption.English;
             return LanguageOption.Chinese; // 默认中文
         }
 

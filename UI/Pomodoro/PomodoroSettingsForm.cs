@@ -24,12 +24,30 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
         private Button? btnCancel;
 
         // 属性，用于获取设置的值
-        public int WorkTimeMinutes { get; private set; }
-        public int WorkTimeSeconds { get; private set; }
-        public int ShortBreakMinutes { get; private set; }
-        public int ShortBreakSeconds { get; private set; }
-        public int LongBreakMinutes { get; private set; }
-        public int LongBreakSeconds { get; private set; }
+        public int WorkTimeMinutes
+        {
+            get; private set;
+        }
+        public int WorkTimeSeconds
+        {
+            get; private set;
+        }
+        public int ShortBreakMinutes
+        {
+            get; private set;
+        }
+        public int ShortBreakSeconds
+        {
+            get; private set;
+        }
+        public int LongBreakMinutes
+        {
+            get; private set;
+        }
+        public int LongBreakSeconds
+        {
+            get; private set;
+        }
 
         public PomodoroSettingsForm(int workTime, int shortBreakTime, int longBreakTime)
         {
@@ -84,9 +102,12 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
                 var settings = SettingsManager.LoadSettings();
 
                 // 只在秒数为0时才从设置中加载
-                if (WorkTimeSeconds == 0) WorkTimeSeconds = settings.WorkTimeSeconds;
-                if (ShortBreakSeconds == 0) ShortBreakSeconds = settings.ShortBreakSeconds;
-                if (LongBreakSeconds == 0) LongBreakSeconds = settings.LongBreakSeconds;
+                if (WorkTimeSeconds == 0)
+                    WorkTimeSeconds = settings.WorkTimeSeconds;
+                if (ShortBreakSeconds == 0)
+                    ShortBreakSeconds = settings.ShortBreakSeconds;
+                if (LongBreakSeconds == 0)
+                    LongBreakSeconds = settings.LongBreakSeconds;
             }
             catch
             {
@@ -275,12 +296,18 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
         private void UpdateUI()
         {
             // 设置数值控件的值
-            if (nudWorkTimeMin != null) nudWorkTimeMin.Value = WorkTimeMinutes;
-            if (nudWorkTimeSec != null) nudWorkTimeSec.Value = WorkTimeSeconds;
-            if (nudShortBreakTimeMin != null) nudShortBreakTimeMin.Value = ShortBreakMinutes;
-            if (nudShortBreakTimeSec != null) nudShortBreakTimeSec.Value = ShortBreakSeconds;
-            if (nudLongBreakTimeMin != null) nudLongBreakTimeMin.Value = LongBreakMinutes;
-            if (nudLongBreakTimeSec != null) nudLongBreakTimeSec.Value = LongBreakSeconds;
+            if (nudWorkTimeMin != null)
+                nudWorkTimeMin.Value = WorkTimeMinutes;
+            if (nudWorkTimeSec != null)
+                nudWorkTimeSec.Value = WorkTimeSeconds;
+            if (nudShortBreakTimeMin != null)
+                nudShortBreakTimeMin.Value = ShortBreakMinutes;
+            if (nudShortBreakTimeSec != null)
+                nudShortBreakTimeSec.Value = ShortBreakSeconds;
+            if (nudLongBreakTimeMin != null)
+                nudLongBreakTimeMin.Value = LongBreakMinutes;
+            if (nudLongBreakTimeSec != null)
+                nudLongBreakTimeSec.Value = LongBreakSeconds;
             // 更新界面文本
             this.Text = LanguageManager.GetString("PomodoroSettings") ?? "番茄时钟设置";
             this.lblWorkTime!.Text = LanguageManager.GetString("WorkTime") ?? "工作时间(分):";

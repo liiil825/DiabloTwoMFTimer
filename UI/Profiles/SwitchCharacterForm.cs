@@ -12,7 +12,10 @@ namespace DTwoMFTimerHelper.UI.Profiles
         private Label? lblCharacters;
 
         // 属性
-        public Models.CharacterProfile? SelectedProfile { get; private set; }
+        public Models.CharacterProfile? SelectedProfile
+        {
+            get; private set;
+        }
 
         public SwitchCharacterForm()
         {
@@ -175,8 +178,14 @@ namespace DTwoMFTimerHelper.UI.Profiles
         // 包装类，用于显示友好的角色信息
         private class ProfileItem
         {
-            public Models.CharacterProfile Profile { get; }
-            public string DisplayName { get; }
+            public Models.CharacterProfile Profile
+            {
+                get;
+            }
+            public string DisplayName
+            {
+                get;
+            }
 
             public ProfileItem(Models.CharacterProfile profile)
             {

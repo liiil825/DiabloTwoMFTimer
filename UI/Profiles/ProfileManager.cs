@@ -293,8 +293,10 @@ namespace DTwoMFTimerHelper.UI.Profiles
                     if (profile != null)
                     {
                         currentProfile = profile;
-                        if (btnDeleteCharacter != null) btnDeleteCharacter.Enabled = true;
-                        if (btnStartStop != null) btnStartStop.Enabled = true;
+                        if (btnDeleteCharacter != null)
+                            btnDeleteCharacter.Enabled = true;
+                        if (btnStartStop != null)
+                            btnStartStop.Enabled = true;
                         // 更新界面显示
                         UpdateUI();
                     }
@@ -346,9 +348,12 @@ namespace DTwoMFTimerHelper.UI.Profiles
         private void UpdateUI()
         {
             // 更新按钮文本
-            if (btnCreateCharacter != null) btnCreateCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("CreateCharacter");
-            if (btnSwitchCharacter != null) btnSwitchCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("SwitchCharacter");
-            if (btnDeleteCharacter != null) btnDeleteCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("DeleteCharacter");
+            if (btnCreateCharacter != null)
+                btnCreateCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("CreateCharacter");
+            if (btnSwitchCharacter != null)
+                btnSwitchCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("SwitchCharacter");
+            if (btnDeleteCharacter != null)
+                btnDeleteCharacter.Text = DTwoMFTimerHelper.Utils.LanguageManager.GetString("DeleteCharacter");
 
             // 根据是否有未完成记录设置开始按钮文本
             if (btnStartStop != null)
@@ -428,18 +433,22 @@ namespace DTwoMFTimerHelper.UI.Profiles
                     WriteDebugLog("设置按钮文本为: StartTimer");
                 }
             }
-            if (lblScene != null) lblScene.Text = LanguageManager.GetString("SelectScene");
-            if (lblDifficulty != null) lblDifficulty.Text = LanguageManager.GetString("DifficultyLabel");
+            if (lblScene != null)
+                lblScene.Text = LanguageManager.GetString("SelectScene");
+            if (lblDifficulty != null)
+                lblDifficulty.Text = LanguageManager.GetString("DifficultyLabel");
 
             // 更新当前角色显示
             if (currentProfile != null)
             {
                 string className = LanguageManager.GetLocalizedClassName(currentProfile.Class);
-                if (lblCurrentProfile != null) lblCurrentProfile.Text = LanguageManager.GetString("CurrentCharacter", currentProfile.Name, className);
+                if (lblCurrentProfile != null)
+                    lblCurrentProfile.Text = LanguageManager.GetString("CurrentCharacter", currentProfile.Name, className);
             }
             else
             {
-                if (lblCurrentProfile != null) lblCurrentProfile.Text = LanguageManager.GetString("CurrentCharacterNotSelected");
+                if (lblCurrentProfile != null)
+                    lblCurrentProfile.Text = LanguageManager.GetString("CurrentCharacterNotSelected");
             }
 
             // 隐藏时间和统计信息标签，去掉红色标注
@@ -453,8 +462,10 @@ namespace DTwoMFTimerHelper.UI.Profiles
             }
 
             // 更新按钮状态
-            if (btnDeleteCharacter != null) btnDeleteCharacter.Enabled = currentProfile != null;
-            if (btnStartStop != null) btnStartStop.Enabled = currentProfile != null;
+            if (btnDeleteCharacter != null)
+                btnDeleteCharacter.Enabled = currentProfile != null;
+            if (btnStartStop != null)
+                btnStartStop.Enabled = currentProfile != null;
         }
 
         private void BtnCreateCharacter_Click(object? sender, EventArgs e)
@@ -566,7 +577,8 @@ namespace DTwoMFTimerHelper.UI.Profiles
 
         private void BtnDeleteCharacter_Click(object? sender, EventArgs e)
         {
-            if (currentProfile == null) return;
+            if (currentProfile == null)
+                return;
 
             string confirmMsg = $"确定要删除角色: {currentProfile.Name}?";
             if (MessageBox.Show(confirmMsg, "删除角色", MessageBoxButtons.YesNo) == DialogResult.Yes)

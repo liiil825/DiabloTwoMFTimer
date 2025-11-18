@@ -13,11 +13,26 @@ namespace DTwoMFTimerHelper.Services
         event Action<GameDifficulty>? CurrentDifficultyChangedEvent;
         event Action? ProfileListChangedEvent;
 
-        CharacterProfile? CurrentProfile { get; set; }
-        string CurrentScene { get; set; }
-        GameDifficulty CurrentDifficulty { get; set; }
-        string CurrentDifficultyLocalized { get; }
-        List<FarmingScene> FarmingScenes { get; }
+        CharacterProfile? CurrentProfile
+        {
+            get; set;
+        }
+        string CurrentScene
+        {
+            get; set;
+        }
+        GameDifficulty CurrentDifficulty
+        {
+            get; set;
+        }
+        string CurrentDifficultyLocalized
+        {
+            get;
+        }
+        List<FarmingScene> FarmingScenes
+        {
+            get;
+        }
 
         void LoadFarmingScenes();
         CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass);

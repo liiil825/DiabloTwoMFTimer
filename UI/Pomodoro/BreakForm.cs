@@ -15,8 +15,14 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
         }
 
         // 公共属性
-        public int RemainingMilliseconds { get; set; } // 修改为毫秒级
-        public BreakType CurrentBreakType { get; private set; }
+        public int RemainingMilliseconds
+        {
+            get; set;
+        } // 修改为毫秒级
+        public BreakType CurrentBreakType
+        {
+            get; private set;
+        }
 
         // 事件
         public event EventHandler? BreakSkipped;
