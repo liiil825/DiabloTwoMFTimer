@@ -182,6 +182,11 @@ namespace DTwoMFTimerHelper.Services
             {
                 _timerControl.HandleTabSelected();
             }
+            // 当切换到档案标签页时，重新刷新ProfileManager的UI，确保按钮文本根据最新的计时器状态正确显示
+            else if (TabControl != null && _profileManager != null && TabControl.SelectedIndex == (int)Models.TabPage.Profile)
+            {
+                _profileManager.RefreshUI();
+            }
         }
 
         /// <summary>
@@ -238,35 +243,13 @@ namespace DTwoMFTimerHelper.Services
             _settingsControl.Dock = DockStyle.Fill;
 
             // 添加到对应的TabPage
-            AddControlToTabPage(Models.TabPage.Profile, _profileManager);
-            AddControlToTabPage(Models.TabPage.Timer, _timerControl);
-            AddControlToTabPage(Models.TabPage.Pomodoro, _pomodoroControl);
-            AddControlToTabPage(Models.TabPage.Settings, _settingsControl);
+            _mainForm.TabProfilePage?.Controls.Add(_profileManager);
+            _mainForm.TabTimerPage?.Controls.Add(_timerControl);
+            _mainForm.TabPomodoroPage?.Controls.Add(_pomodoroControl);
+            _mainForm.TabSettingsPage?.Controls.Add(_settingsControl);
 
             // 订阅事件
             SubscribeToEvents();
-        }
-
-        private void AddControlToTabPage(Models.TabPage tabPage, Control control)
-        {
-            if (control == null || _mainForm == null)
-                return;
-
-            switch (tabPage)
-            {
-                case Models.TabPage.Profile:
-                    _mainForm.TabProfilePage?.Controls.Add(control);
-                    break;
-                case Models.TabPage.Timer:
-                    _mainForm.TabTimerPage?.Controls.Add(control);
-                    break;
-                case Models.TabPage.Pomodoro:
-                    _mainForm.TabPomodoroPage?.Controls.Add(control);
-                    break;
-                case Models.TabPage.Settings:
-                    _mainForm.TabSettingsPage?.Controls.Add(control);
-                    break;
-            }
         }
 
         private void SubscribeToEvents()

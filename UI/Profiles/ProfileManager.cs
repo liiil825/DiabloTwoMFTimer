@@ -247,65 +247,56 @@ namespace DTwoMFTimerHelper.UI.Profiles
                 WriteDebugLog(summary);
             }
 
-            // 尝试加载上次使用的场景、难度和角色档案
-            try
+            var settings = Services.SettingsManager.LoadSettings();
+            // 加载上次使用的场景
+            if (!string.IsNullOrEmpty(settings.LastUsedScene) && cmbScene != null)
             {
-                var settings = Services.SettingsManager.LoadSettings();
-                // 加载上次使用的场景
-                if (!string.IsNullOrEmpty(settings.LastUsedScene) && cmbScene != null)
+                for (int i = 0; i < cmbScene.Items.Count; i++)
                 {
-                    for (int i = 0; i < cmbScene.Items.Count; i++)
+                    var itemText = cmbScene.Items[i]?.ToString();
+                    if (itemText != null && itemText == settings.LastUsedScene)
                     {
-                        var itemText = cmbScene.Items[i]?.ToString();
-                        if (itemText != null && itemText == settings.LastUsedScene)
-                        {
-                            cmbScene.SelectedIndex = i;
-                            break;
-                        }
-                    }
-                }
-
-                // 尝试加载上次使用的难度
-                if (!string.IsNullOrEmpty(settings.LastUsedDifficulty) && cmbDifficulty != null)
-                {
-                    if (Enum.TryParse<DTwoMFTimerHelper.Models.GameDifficulty>(settings.LastUsedDifficulty, out var difficulty))
-                    {
-                        // 根据难度值设置下拉框索引
-                        switch (difficulty)
-                        {
-                            case DTwoMFTimerHelper.Models.GameDifficulty.Normal:
-                                cmbDifficulty.SelectedIndex = 0;
-                                break;
-                            case DTwoMFTimerHelper.Models.GameDifficulty.Nightmare:
-                                cmbDifficulty.SelectedIndex = 1;
-                                break;
-                            case DTwoMFTimerHelper.Models.GameDifficulty.Hell:
-                                cmbDifficulty.SelectedIndex = 2;
-                                break;
-                        }
-                    }
-                }
-
-                // 尝试加载上次使用的角色档案
-                if (!string.IsNullOrEmpty(settings.LastUsedProfile))
-                {
-                    var profile = Services.DataService.FindProfileByName(settings.LastUsedProfile);
-                    if (profile != null)
-                    {
-                        currentProfile = profile;
-                        if (btnDeleteCharacter != null)
-                            btnDeleteCharacter.Enabled = true;
-                        if (btnStartStop != null)
-                            btnStartStop.Enabled = true;
-                        // 更新界面显示
-                        UpdateUI();
+                        cmbScene.SelectedIndex = i;
+                        break;
                     }
                 }
             }
-            catch (Exception ex)
+
+            // 尝试加载上次使用的难度
+            if (!string.IsNullOrEmpty(settings.LastUsedDifficulty) && cmbDifficulty != null)
             {
-                // 错误处理可以留空或添加更简洁的日志
-                WriteDebugLog($"LoadFarmingScenes 错误: {ex.Message}");
+                if (Enum.TryParse<DTwoMFTimerHelper.Models.GameDifficulty>(settings.LastUsedDifficulty, out var difficulty))
+                {
+                    // 根据难度值设置下拉框索引
+                    switch (difficulty)
+                    {
+                        case DTwoMFTimerHelper.Models.GameDifficulty.Normal:
+                            cmbDifficulty.SelectedIndex = 0;
+                            break;
+                        case DTwoMFTimerHelper.Models.GameDifficulty.Nightmare:
+                            cmbDifficulty.SelectedIndex = 1;
+                            break;
+                        case DTwoMFTimerHelper.Models.GameDifficulty.Hell:
+                            cmbDifficulty.SelectedIndex = 2;
+                            break;
+                    }
+                }
+            }
+
+            // 尝试加载上次使用的角色档案
+            if (!string.IsNullOrEmpty(settings.LastUsedProfile))
+            {
+                var profile = Services.DataService.FindProfileByName(settings.LastUsedProfile);
+                if (profile != null)
+                {
+                    currentProfile = profile;
+                    if (btnDeleteCharacter != null)
+                        btnDeleteCharacter.Enabled = true;
+                    if (btnStartStop != null)
+                        btnStartStop.Enabled = true;
+                    // 更新界面显示
+                    UpdateUI();
+                }
             }
         }
 
@@ -421,16 +412,14 @@ namespace DTwoMFTimerHelper.UI.Profiles
                     WriteDebugLog("当前没有选择角色配置");
                 }
 
-                // 根据是否有未完成记录设置按钮文本
+                // 根据是否有未完成记录或计时器是否暂停设置按钮文本
                 if (hasIncompleteRecord)
                 {
                     btnStartStop.Text = LanguageManager.GetString("ContinueFarm");
-                    WriteDebugLog("设置按钮文本为: ContinueFarm");
                 }
                 else
                 {
                     btnStartStop.Text = LanguageManager.GetString("StartTimer");
-                    WriteDebugLog("设置按钮文本为: StartTimer");
                 }
             }
             if (lblScene != null)
@@ -473,58 +462,46 @@ namespace DTwoMFTimerHelper.UI.Profiles
             using var form = new CreateCharacterForm();
             if (form.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(form.CharacterName))
             {
-                try
+                // 确保cmbScene不为null
+                if (cmbScene != null)
                 {
-                    WriteDebugLog("开始创建新角色...");
-
-                    // 确保cmbScene不为null
-                    if (cmbScene != null)
-                    {
-                        cmbScene.SelectedIndex = 0; // 重置场景选择
-                    }
-
-                    string characterName = form.CharacterName;
-                    WriteDebugLog($"角色名称: {characterName}");
-
-                    // 获取选中的职业并确保类型转换正确
-                    var selectedClass = form.GetSelectedClass();
-                    if (!selectedClass.HasValue)
-                    {
-                        throw new InvalidOperationException("未选择有效的角色职业");
-                    }
-
-                    // 显式转换为Models命名空间下的CharacterClass
-                    DTwoMFTimerHelper.Models.CharacterClass charClass = (DTwoMFTimerHelper.Models.CharacterClass)selectedClass.Value;
-                    WriteDebugLog($"角色职业: {charClass}");
-
-                    // 创建新角色档案
-                    currentProfile = Services.DataService.CreateNewProfile(characterName, charClass);
-
-                    // 验证创建结果
-                    if (currentProfile == null)
-                    {
-                        throw new InvalidOperationException("创建角色失败，返回的配置文件为null");
-                    }
-
-                    WriteDebugLog($"角色创建成功: {currentProfile.Name}");
-
-                    // 更新上次使用的角色档案设置
-                    var settings = Services.SettingsManager.LoadSettings();
-                    settings.LastUsedProfile = currentProfile.Name;
-                    Services.SettingsManager.SaveSettings(settings);
-
-                    // 清除当前记录并更新UI
-                    currentRecord = null;
-                    UpdateUI();
-
-                    // 显示成功消息
-                    MessageBox.Show($"角色 '{characterName}' 创建成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    cmbScene.SelectedIndex = 0; // 重置场景选择
                 }
-                catch (Exception ex)
+
+                string characterName = form.CharacterName;
+
+                // 获取选中的职业并确保类型转换正确
+                var selectedClass = form.GetSelectedClass();
+                if (!selectedClass.HasValue)
                 {
-                    LogManager.WriteErrorLog("ProfileManager", $"创建角色失败", ex);
-                    MessageBox.Show($"创建角色失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    throw new InvalidOperationException("未选择有效的角色职业");
                 }
+
+                // 显式转换为Models命名空间下的CharacterClass
+                Models.CharacterClass charClass = selectedClass.Value;
+
+                // 创建新角色档案
+                currentProfile = DataService.CreateNewProfile(characterName, charClass);
+
+                // 验证创建结果
+                if (currentProfile == null)
+                {
+                    throw new InvalidOperationException("创建角色失败，返回的配置文件为null");
+                }
+
+                WriteDebugLog($"角色创建成功: {currentProfile.Name}");
+
+                // 更新上次使用的角色档案设置
+                var settings = Services.SettingsManager.LoadSettings();
+                settings.LastUsedProfile = currentProfile.Name;
+                Services.SettingsManager.SaveSettings(settings);
+
+                // 清除当前记录并更新UI
+                currentRecord = null;
+                UpdateUI();
+
+                // 显示成功消息
+                MessageBox.Show($"角色 '{characterName}' 创建成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -533,44 +510,36 @@ namespace DTwoMFTimerHelper.UI.Profiles
             using var form = new SwitchCharacterForm();
             if (form.ShowDialog() == DialogResult.OK && form.SelectedProfile != null)
             {
-                try
+                WriteDebugLog("开始切换角色...");
+
+                var selectedProfile = form.SelectedProfile;
+
+                // 验证角色数据
+                if (selectedProfile == null || string.IsNullOrWhiteSpace(selectedProfile.Name))
                 {
-                    WriteDebugLog("开始切换角色...");
-
-                    var selectedProfile = form.SelectedProfile;
-
-                    // 验证角色数据
-                    if (selectedProfile == null || string.IsNullOrWhiteSpace(selectedProfile.Name))
-                    {
-                        throw new InvalidOperationException("无效的角色数据");
-                    }
-
-                    // 使用 ProfileService 的单例来统一管理角色切换
-                    bool switchResult = _profileService.SwitchCharacter(selectedProfile);
-
-                    if (switchResult)
-                    {
-                        // 更新本地引用
-                        currentProfile = selectedProfile;
-                        currentRecord = null;
-
-                        WriteDebugLog($"成功切换到角色: {currentProfile.Name}");
-
-                        // 更新UI显示新角色信息
-                        UpdateUI();
-
-                        // 显示成功消息
-                        MessageBox.Show($"已成功切换到角色 '{currentProfile.Name}'", "切换成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException("角色切换失败");
-                    }
+                    throw new InvalidOperationException("无效的角色数据");
                 }
-                catch (Exception ex)
+
+                // 使用 ProfileService 的单例来统一管理角色切换
+                bool switchResult = _profileService.SwitchCharacter(selectedProfile);
+
+                if (switchResult)
                 {
-                    LogManager.WriteErrorLog("ProfileManager", $"切换角色失败", ex);
-                    MessageBox.Show($"切换角色失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // 更新本地引用
+                    currentProfile = selectedProfile;
+                    currentRecord = null;
+
+                    WriteDebugLog($"成功切换到角色: {currentProfile.Name}");
+
+                    // 更新UI显示新角色信息
+                    UpdateUI();
+
+                    // 显示成功消息
+                    MessageBox.Show($"已成功切换到角色 '{currentProfile.Name}'", "切换成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    throw new InvalidOperationException("角色切换失败");
                 }
             }
         }
@@ -584,7 +553,7 @@ namespace DTwoMFTimerHelper.UI.Profiles
             if (MessageBox.Show(confirmMsg, "删除角色", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 // 删除角色档案
-                Services.DataService.DeleteProfile(currentProfile);
+                DataService.DeleteProfile(currentProfile);
                 currentProfile = null;
                 currentRecord = null;
                 UpdateUI();
@@ -636,42 +605,35 @@ namespace DTwoMFTimerHelper.UI.Profiles
         public void LoadLastUsedProfile()
         {
             WriteDebugLog("LoadLastUsedProfile 开始执行");
-            try
-            {                // 加载设置并获取上次使用的角色档案名称
-                var settings = SettingsManager.LoadSettings();
-                string lastUsedProfileName = settings.LastUsedProfile;
-                WriteDebugLog($"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
+            var settings = SettingsManager.LoadSettings();
+            string lastUsedProfileName = settings.LastUsedProfile;
+            WriteDebugLog($"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
 
-                if (!string.IsNullOrWhiteSpace(lastUsedProfileName))
+            if (!string.IsNullOrWhiteSpace(lastUsedProfileName))
+            {
+                WriteDebugLog($"尝试加载上次使用的角色档案: {lastUsedProfileName}");
+
+                // 加载所有角色档案
+                var allProfiles = Services.DataService.LoadAllProfiles(false);
+                WriteDebugLog($"已加载所有角色档案，数量: {allProfiles.Count}");
+
+                // 查找上次使用的角色档案
+                var profile = allProfiles.FirstOrDefault(p => p.Name == lastUsedProfileName);
+                if (profile != null)
                 {
-                    WriteDebugLog($"尝试加载上次使用的角色档案: {lastUsedProfileName}");
-
-                    // 加载所有角色档案
-                    var allProfiles = Services.DataService.LoadAllProfiles(false);
-                    WriteDebugLog($"已加载所有角色档案，数量: {allProfiles.Count}");
-
-                    // 查找上次使用的角色档案
-                    var profile = allProfiles.FirstOrDefault(p => p.Name == lastUsedProfileName);
-                    if (profile != null)
-                    {
-                        currentProfile = profile;
-                        currentRecord = null;
-                        UpdateUI();
-                        WriteDebugLog($"成功加载上次使用的角色档案: {lastUsedProfileName}, profile.Name={profile.Name}");
-                    }
-                    else
-                    {
-                        WriteDebugLog($"未找到上次使用的角色档案: {lastUsedProfileName}");
-                    }
+                    currentProfile = profile;
+                    currentRecord = null;
+                    UpdateUI();
+                    WriteDebugLog($"成功加载上次使用的角色档案: {lastUsedProfileName}, profile.Name={profile.Name}");
                 }
                 else
                 {
-                    WriteDebugLog("没有保存的上次使用角色档案");
+                    WriteDebugLog($"未找到上次使用的角色档案: {lastUsedProfileName}");
                 }
             }
-            catch (Exception ex)
+            else
             {
-                LogManager.WriteErrorLog("ProfileManager", $"加载上次使用角色档案失败", ex);
+                WriteDebugLog("没有保存的上次使用角色档案");
             }
         }
     }

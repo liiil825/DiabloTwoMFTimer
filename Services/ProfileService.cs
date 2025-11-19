@@ -238,30 +238,16 @@ namespace DTwoMFTimerHelper.Services
             if (CurrentProfile == null || string.IsNullOrEmpty(CurrentScene))
                 return false;
 
-            try
-            {
-                LogManager.WriteDebugLog("ProfileService", "开始检查未完成记录");
-                LogManager.WriteDebugLog("ProfileService", $"当前角色: {CurrentProfile.Name}");
-                LogManager.WriteDebugLog("ProfileService", $"当前场景: {CurrentScene}");
-                LogManager.WriteDebugLog("ProfileService", $"当前难度: {CurrentDifficulty}");
+            // 获取场景的纯英文名称（与记录存储格式一致）
+            string pureEnglishSceneName = LanguageManager.GetPureEnglishSceneName(CurrentScene);
+            // 查找同场景、同难度、未完成的记录
+            bool hasIncompleteRecord = CurrentProfile.Records.Any(r =>
+                r.SceneName == pureEnglishSceneName &&
+                r.Difficulty == CurrentDifficulty &&
+                !r.IsCompleted);
 
-                // 获取场景的纯英文名称（与记录存储格式一致）
-                string pureEnglishSceneName = LanguageManager.GetPureEnglishSceneName(CurrentScene);
-                LogManager.WriteDebugLog("ProfileService", $"纯英文场景名称: {pureEnglishSceneName}");
-                // 查找同场景、同难度、未完成的记录
-                bool hasIncompleteRecord = CurrentProfile.Records.Any(r =>
-                    r.SceneName == pureEnglishSceneName &&
-                    r.Difficulty == CurrentDifficulty &&
-                    !r.IsCompleted);
-
-                LogManager.WriteDebugLog("ProfileService", $"是否存在未完成记录: {hasIncompleteRecord}");
-                return hasIncompleteRecord;
-            }
-            catch (Exception ex)
-            {
-                LogManager.WriteErrorLog("ProfileService", $"检查未完成记录时出错", ex);
-                return false;
-            }
+            LogManager.WriteDebugLog("ProfileService", $"是否存在未完成记录: {hasIncompleteRecord}");
+            return hasIncompleteRecord;
         }
 
         /// <summary>

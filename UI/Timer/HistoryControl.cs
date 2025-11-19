@@ -22,6 +22,10 @@ namespace DTwoMFTimerHelper.UI.Timer
         private int _displayStartIndex = 0; // 当前显示的起始索引
         private bool _isLoading = false; // 是否正在加载数据
         private Label? _loadingIndicator; // 加载状态指示器
+
+        // 新增：防止重复处理事件的标志
+        private bool _isProcessingHistoryChange = false;
+
         private CharacterProfile? _currentProfile = null;
         private string? _currentCharacterName = null;
         private string? _currentScene = null;
@@ -81,11 +85,15 @@ namespace DTwoMFTimerHelper.UI.Timer
                         actualIndex);
 
                     if (deleteSuccess)
-                    {                         // 保存到YAML文件 - SaveProfile方法只需要profile参数
+                    {
+                        // 保存到YAML文件 - SaveProfile方法只需要profile参数
                         Services.DataService.SaveProfile(_currentProfile);
 
                         // 更新显示起始索引，确保它在有效范围内
                         _displayStartIndex = Math.Max(0, Math.Min(_displayStartIndex, _historyService.RunHistory.Count - 1));
+
+                        // 重置加载状态，确保UI能更新
+                        _isLoading = false;
                         await UpdateUIAsync();
                         return true;
                     }
@@ -104,6 +112,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         public async Task<bool> LoadProfileHistoryDataAsync(
             CharacterProfile? profile, string scene, string characterName, GameDifficulty difficulty)
         {
+            LogManager.WriteDebugLog("HistoryControl", $"开始LoadProfileHistoryDataAsync - 场景: {scene}");
+
             // 设置加载状态
             _isLoading = true;
             if (_loadingIndicator != null)
@@ -134,8 +144,10 @@ namespace DTwoMFTimerHelper.UI.Timer
                 {
                     // 重置显示起始索引，初始只显示最近的记录
                     _displayStartIndex = Math.Max(0, _historyService.RunHistory.Count - PageSize);
+                    LogManager.WriteDebugLog("HistoryControl", $"LoadProfileHistoryDataAsync - 设置显示起始索引: {_displayStartIndex}");
                     await UpdateUIAsync();
                 }
+                LogManager.WriteDebugLog("HistoryControl", $"LoadProfileHistoryDataAsync完成 - 结果: {result}");
                 return result;
             }
             finally
@@ -164,6 +176,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// </summary>
         public bool LoadProfileHistoryData(CharacterProfile? profile, string scene, string characterName, GameDifficulty difficulty)
         {
+            LogManager.WriteDebugLog("HistoryControl", $"开始LoadProfileHistoryData - 场景: {scene}");
+
             // 保存当前配置信息，用于后续保存操作
             _currentProfile = profile;
             _currentCharacterName = characterName;
@@ -175,8 +189,12 @@ namespace DTwoMFTimerHelper.UI.Timer
             {
                 // 重置显示起始索引，初始只显示最近的记录
                 _displayStartIndex = Math.Max(0, _historyService.RunHistory.Count - PageSize);
-                UpdateUI();
+                LogManager.WriteDebugLog("HistoryControl", $"LoadProfileHistoryData - 设置显示起始索引: {_displayStartIndex}");
+
+                // 使用异步更新，但同步等待完成
+                UpdateUIAsync().ConfigureAwait(false).GetAwaiter().GetResult();
             }
+            LogManager.WriteDebugLog("HistoryControl", $"LoadProfileHistoryData完成 - 结果: {result}");
             return result;
         }
 
@@ -188,103 +206,110 @@ namespace DTwoMFTimerHelper.UI.Timer
             if (lstRunHistory == null || _historyService == null)
                 return;
 
-            // 清空当前列表
-            lstRunHistory.Items.Clear();
-
-            // 获取要显示的数据范围
-            var currentHistory = _historyService.RunHistory;
-            if (currentHistory == null)
+            // 防止重复更新
+            if (_isLoading)
+            {
+                LogManager.WriteDebugLog("HistoryControl", "正在加载中，跳过UpdateUIAsync");
                 return;
-
-            // 在异步任务前创建副本，避免并发修改问题
-            var historyCopy = currentHistory.ToList();
-            int currentCount = historyCopy.Count;
-
-            // 重新计算_displayStartIndex，确保它在有效范围内
-            _displayStartIndex = Math.Max(0, Math.Min(_displayStartIndex, currentCount - 1));
-
-            int displayCount = Math.Min(currentCount - _displayStartIndex, PageSize);
-            if (displayCount < 0) displayCount = 0;
-
-            // 异步处理数据格式化，使用副本数据避免索引越界
-            var itemsToAdd = await Task.Run(() =>
-            {
-                var items = new List<string>(displayCount);
-
-                for (int i = _displayStartIndex; i < _displayStartIndex + displayCount; i++)
-                {
-                    // 添加严格的边界检查，确保索引有效
-                    if (i >= 0 && i < historyCopy.Count)
-                    {
-                        var time = historyCopy[i];
-                        string timeFormatted = FormatTime(time);
-                        string runText = GetRunText(i + 1, timeFormatted);
-                        items.Add(runText);
-                    }
-                    else
-                    {
-                        // 索引无效时退出循环
-                        break;
-                    }
-                }
-                return items;
-            });
-
-            // 在UI线程添加项目
-            foreach (var item in itemsToAdd)
-            {
-                lstRunHistory.Items.Add(item);
             }
 
-            // 滚动到最新记录
-            if (lstRunHistory.Items.Count > 0)
+            _isLoading = true;
+
+            try
             {
-                lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
-                lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
-            }
-        }
+                LogManager.WriteDebugLog("HistoryControl", $"开始UpdateUIAsync - 当前列表项数: {lstRunHistory.Items.Count}, 显示起始索引: {_displayStartIndex}");
 
-        /// <summary>
-        /// 同步更新UI显示
-        /// </summary>
-        private void UpdateUI()
-        {
-            if (lstRunHistory == null || _historyService == null)
-                return;
-
-            // 清空当前列表
-            lstRunHistory.Items.Clear();
-
-            // 获取要显示的数据范围
-            var currentHistory = _historyService.RunHistory;
-            if (currentHistory == null)
-                return;
-
-            int currentCount = currentHistory.Count;
-            int displayCount = Math.Min(currentCount - _displayStartIndex, PageSize);
-
-            for (int i = _displayStartIndex; i < _displayStartIndex + displayCount; i++)
-            {
-                // 添加严格的边界检查，确保索引有效
-                if (i >= 0 && i < currentCount)
+                // 在UI线程清空列表
+                if (InvokeRequired)
                 {
-                    var time = currentHistory[i];
-                    string timeFormatted = FormatTime(time);
-                    string runText = GetRunText(i + 1, timeFormatted);
-                    lstRunHistory.Items.Add(runText);
+                    Invoke(new Action(() =>
+                    {
+                        lstRunHistory.Items.Clear();
+                    }));
                 }
                 else
                 {
-                    // 索引无效时退出循环
-                    break;
+                    lstRunHistory.Items.Clear();
                 }
-            }
 
-            // 滚动到最新记录
-            if (lstRunHistory.Items.Count > 0)
+                LogManager.WriteDebugLog("HistoryControl", $"清空后列表项数: {lstRunHistory.Items.Count}");
+
+                // 获取要显示的数据范围
+                var currentHistory = _historyService.RunHistory;
+                if (currentHistory == null)
+                {
+                    LogManager.WriteDebugLog("HistoryControl", "currentHistory为null");
+                    return;
+                }
+
+                LogManager.WriteDebugLog("HistoryControl", $"RunHistory总记录数: {currentHistory.Count}");
+
+                // 确保_displayStartIndex在有效范围内
+                _displayStartIndex = Math.Max(0, Math.Min(_displayStartIndex, currentHistory.Count - 1));
+                int displayCount = Math.Min(currentHistory.Count - _displayStartIndex, PageSize);
+
+                LogManager.WriteDebugLog("HistoryControl", $"显示范围: 起始索引={_displayStartIndex}, 显示数量={displayCount}");
+
+                // 异步处理数据格式化
+                var itemsToAdd = await Task.Run(() =>
+                {
+                    var items = new List<string>(displayCount);
+                    for (int i = _displayStartIndex; i < _displayStartIndex + displayCount; i++)
+                    {
+                        if (i >= 0 && i < currentHistory.Count)
+                        {
+                            var time = currentHistory[i];
+                            string timeFormatted = FormatTime(time);
+                            string runText = GetRunText(i + 1, timeFormatted);
+                            items.Add(runText);
+                            LogManager.WriteDebugLog("HistoryControl", $"格式化记录 #{i + 1}: {runText}");
+                        }
+                    }
+                    return items;
+                });
+
+                LogManager.WriteDebugLog("HistoryControl", $"准备添加 {itemsToAdd.Count} 项到列表");
+
+                // 在UI线程添加项目
+                if (InvokeRequired)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        foreach (var item in itemsToAdd)
+                        {
+                            lstRunHistory.Items.Add(item);
+                        }
+                        LogManager.WriteDebugLog("HistoryControl", $"添加后列表项数: {lstRunHistory.Items.Count}");
+
+                        // 滚动到最新记录
+                        if (lstRunHistory.Items.Count > 0)
+                        {
+                            lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
+                            lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
+                        }
+                    }));
+                }
+                else
+                {
+                    foreach (var item in itemsToAdd)
+                    {
+                        lstRunHistory.Items.Add(item);
+                    }
+                    LogManager.WriteDebugLog("HistoryControl", $"添加后列表项数: {lstRunHistory.Items.Count}");
+
+                    // 滚动到最新记录
+                    if (lstRunHistory.Items.Count > 0)
+                    {
+                        lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
+                        lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
+                    }
+                }
+
+                LogManager.WriteDebugLog("HistoryControl", "UpdateUIAsync完成");
+            }
+            finally
             {
-                lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
-                lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
+                _isLoading = false;
             }
         }
 
@@ -420,17 +445,18 @@ namespace DTwoMFTimerHelper.UI.Timer
                 int newStartIndex = Math.Max(0, _displayStartIndex - PageSize);
                 int addedCount = _displayStartIndex - newStartIndex;
 
-                // 异步处理数据格式化
+                // 获取当前历史记录的副本
                 var currentHistory = _historyService.RunHistory;
-                if (currentHistory == null)
+                if (currentHistory == null || currentHistory.Count == 0)
                     return;
 
+                // 异步处理数据格式化
                 var newItems = await Task.Run(() =>
                 {
                     var items = new List<string>(addedCount);
                     for (int i = newStartIndex; i < _displayStartIndex; i++)
                     {
-                        if (i < currentHistory.Count)
+                        if (i >= 0 && i < currentHistory.Count)
                         {
                             var time = currentHistory[i];
                             string timeFormatted = FormatTime(time);
@@ -441,34 +467,41 @@ namespace DTwoMFTimerHelper.UI.Timer
                     return items;
                 });
 
+                // 如果新加载的项目为空，则直接返回
+                if (newItems.Count == 0)
+                    return;
+
                 // 更新起始索引
                 _displayStartIndex = newStartIndex;
 
-                // 保存当前列表项
-                var oldItems = new string[lstRunHistory.Items.Count];
-                for (int i = 0; i < lstRunHistory.Items.Count; i++)
+                // 保存当前显示的项
+                var currentDisplayItems = new List<string>();
+                foreach (var item in lstRunHistory.Items)
                 {
-                    var item = lstRunHistory.Items[i];
-                    oldItems[i] = item?.ToString() ?? string.Empty;
+                    currentDisplayItems.Add(item?.ToString() ?? string.Empty);
                 }
 
                 // 清空列表并重新填充
                 lstRunHistory.Items.Clear();
 
-                // 添加新加载的历史记录
+                // 添加新加载的历史记录（较早的记录）
                 foreach (var item in newItems)
                 {
                     lstRunHistory.Items.Add(item);
                 }
 
-                // 添加之前的记录
-                foreach (var item in oldItems)
+                // 添加之前显示的记录（较新的记录）
+                foreach (var item in currentDisplayItems)
                 {
                     lstRunHistory.Items.Add(item);
                 }
 
-                // 调整滚动位置到新加载内容的末尾
-                lstRunHistory.TopIndex = newItems.Count;
+                // 调整滚动位置，让用户看到新加载的内容
+                if (newItems.Count > 0)
+                {
+                    lstRunHistory.TopIndex = 0; // 滚动到顶部显示新加载的内容
+                    lstRunHistory.SelectedIndex = -1; // 取消选择
+                }
             }
             finally
             {
@@ -538,60 +571,86 @@ namespace DTwoMFTimerHelper.UI.Timer
             if (e == null)
                 return;
 
-            switch (e.ChangeType)
+            // 防止重复处理
+            if (_isProcessingHistoryChange)
             {
-                case HistoryChangeType.Add:
-                    // 只添加单条记录，不刷新整个列表
-                    if (e.AddedRecord.HasValue)
-                    {
-                        AddSingleRunRecord(e.AddedRecord.Value);
-                    }
-                    break;
-                case HistoryChangeType.FullRefresh:
-                default:
-                    // 异步全量刷新UI，显示加载状态
-                    if (_loadingIndicator != null)
-                    {
-                        if (InvokeRequired)
-                        {
-                            Invoke(new Action(() =>
-                            {
-                                _loadingIndicator.Visible = true;
-                            }));
-                        }
-                        else
-                        {
-                            _loadingIndicator.Visible = true;
-                        }
-                    }
+                LogManager.WriteDebugLog("HistoryControl", "正在处理历史变更，跳过重复调用");
+                return;
+            }
 
-                    try
-                    {
-                        if (_historyService != null && _historyService.RunHistory != null)
+            _isProcessingHistoryChange = true;
+
+            try
+            {
+                LogManager.WriteDebugLog("HistoryControl", $"ProcessHistoryChange - 变更类型: {e.ChangeType}, 新增记录: {e.AddedRecord}");
+
+                switch (e.ChangeType)
+                {
+                    case HistoryChangeType.Add:
+                        // 只添加单条记录，不刷新整个列表
+                        if (e.AddedRecord.HasValue)
                         {
-                            _displayStartIndex = Math.Max(0, _historyService.RunHistory.Count - PageSize);
-                            await UpdateUIAsync();
+                            LogManager.WriteDebugLog("HistoryControl", "执行单条记录添加");
+                            AddSingleRunRecord(e.AddedRecord.Value);
                         }
-                    }
-                    finally
-                    {
-                        // 隐藏加载指示器
+                        break;
+                    case HistoryChangeType.FullRefresh:
+                    default:
+                        LogManager.WriteDebugLog("HistoryControl", "执行全量刷新");
+                        // 确保重置加载状态
+                        _isLoading = false;
+
+                        // 异步全量刷新UI，显示加载状态
                         if (_loadingIndicator != null)
                         {
                             if (InvokeRequired)
                             {
                                 Invoke(new Action(() =>
                                 {
-                                    _loadingIndicator.Visible = false;
+                                    _loadingIndicator.Visible = true;
                                 }));
                             }
                             else
                             {
-                                _loadingIndicator.Visible = false;
+                                _loadingIndicator.Visible = true;
                             }
                         }
-                    }
-                    break;
+
+                        try
+                        {
+                            if (_historyService != null && _historyService.RunHistory != null)
+                            {
+                                _displayStartIndex = Math.Max(0, _historyService.RunHistory.Count - PageSize);
+                                LogManager.WriteDebugLog("HistoryControl", $"全量刷新 - 设置显示起始索引: {_displayStartIndex}");
+
+                                // 统一使用异步更新
+                                await UpdateUIAsync();
+                            }
+                        }
+                        finally
+                        {
+                            // 隐藏加载指示器
+                            if (_loadingIndicator != null)
+                            {
+                                if (InvokeRequired)
+                                {
+                                    Invoke(new Action(() =>
+                                    {
+                                        _loadingIndicator.Visible = false;
+                                    }));
+                                }
+                                else
+                                {
+                                    _loadingIndicator.Visible = false;
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+            finally
+            {
+                _isProcessingHistoryChange = false;
             }
         }
 

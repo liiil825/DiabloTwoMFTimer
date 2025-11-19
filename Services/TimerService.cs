@@ -269,8 +269,8 @@ namespace DTwoMFTimerHelper.Services
         public void HandleStartFarm()
         {
             // 检查是否有未完成记录
-            var existingRecord = FindIncompleteRecordForCurrentScene();
-            if (existingRecord != null)
+            var hasIncompleteRecord = _profileService.HasIncompleteRecord();
+            if (hasIncompleteRecord)
             {
                 TogglePause();
             }

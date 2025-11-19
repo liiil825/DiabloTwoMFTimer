@@ -16,8 +16,6 @@ namespace DTwoMFTimerHelper.UI.Timer
 
         public TimerControl(IProfileService profileService, ITimerService timerService, ITimerHistoryService historyService)
         {
-
-            // 获取TimerService单例实例
             _timerService = timerService;
             _profileService = profileService;
             _historyService = historyService;
