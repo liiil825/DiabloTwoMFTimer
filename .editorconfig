@@ -10,14 +10,18 @@ wrap_line_length = 120
 
 # 具体的换行规则
 csharp_preserve_single_line_statements = true
-csharp_preserve_single_line_blocks = false
+csharp_preserve_single_line_blocks = true  # 改为 true 以保持单行块
 csharp_preserve_newlines = true
 
 # 方法调用时的换行规则
 csharp_indent_block_contents = true
 csharp_indent_switch_labels = true
 csharp_indent_labels = flush_left
-csharp_new_line_before_open_brace = all
+
+# 关键修改：控制大括号换行行为
+csharp_new_line_before_open_brace = methods, properties, control_blocks, types
+csharp_new_line_before_open_brace = none  # 或者直接设为 none 来禁止所有大括号换行
+
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true

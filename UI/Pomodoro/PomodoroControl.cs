@@ -4,10 +4,8 @@ using System.Windows.Forms;
 using DTwoMFTimerHelper.Services;
 using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.UI.Pomodoro
-{
-    public partial class PomodoroControl : UserControl
-    {
+namespace DTwoMFTimerHelper.UI.Pomodoro {
+    public partial class PomodoroControl : UserControl {
         private readonly PomodoroTimerService _timerService;
         private BreakForm? _breakForm;
 
@@ -18,8 +16,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
         private Label? lblPomodoroTime;
         private Label? lblPomodoroCount;
 
-        public PomodoroControl(PomodoroTimerService timerService)
-        {
+        public PomodoroControl(PomodoroTimerService timerService) {
             _timerService = timerService;
             InitializeComponent();
 
@@ -35,8 +32,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
             UpdateUI();
         }
 
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             btnPomodoroReset = new Button();
             btnStartPomodoro = new Button();
             lblPomodoroTime = new Label();
@@ -106,25 +102,24 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
             PerformLayout();
         }
 
-        private void LoadSettings()
-        {
+        private void LoadSettings() {
             var settings = SettingsManager.LoadSettings();
-            if (settings != null)
-            {
+            if (settings != null) {
                 _timerService.Settings.WorkTimeMinutes = settings.WorkTimeMinutes;
                 _timerService.Settings.WorkTimeSeconds = settings.WorkTimeSeconds;
                 _timerService.Settings.ShortBreakMinutes = settings.ShortBreakMinutes;
                 _timerService.Settings.ShortBreakSeconds = settings.ShortBreakSeconds;
                 _timerService.Settings.LongBreakMinutes = settings.LongBreakMinutes;
                 _timerService.Settings.LongBreakSeconds = settings.LongBreakSeconds;
+
+                // 重置计时器以应用新的设置
+                _timerService.Reset();
             }
         }
 
-        private void SaveSettings()
-        {
+        private void SaveSettings() {
             var settings = SettingsManager.LoadSettings();
-            if (settings != null)
-            {
+            if (settings != null) {
                 settings.WorkTimeMinutes = _timerService.Settings.WorkTimeMinutes;
                 settings.WorkTimeSeconds = _timerService.Settings.WorkTimeSeconds;
                 settings.ShortBreakMinutes = _timerService.Settings.ShortBreakMinutes;
@@ -135,35 +130,28 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
             }
         }
 
-        private void TimerService_TimerStateChanged(object? sender, TimerStateChangedEventArgs e)
-        {
+        private void TimerService_TimerStateChanged(object? sender, TimerStateChangedEventArgs e) {
             UpdateUI();
         }
 
-        private void TimerService_PomodoroCompleted(object? sender, PomodoroCompletedEventArgs e)
-        {
+        private void TimerService_PomodoroCompleted(object? sender, PomodoroCompletedEventArgs e) {
             // 可以在这里处理番茄完成后的逻辑
         }
 
-        private void TimerService_BreakStarted(object? sender, BreakStartedEventArgs e)
-        {
+        private void TimerService_BreakStarted(object? sender, BreakStartedEventArgs e) {
             ShowBreakForm(e.BreakType);
         }
 
-        private void TimerService_BreakSkipped(object? sender, EventArgs e)
-        {
+        private void TimerService_BreakSkipped(object? sender, EventArgs e) {
             // 跳过休息的逻辑已经在服务层处理
         }
 
-        private void TimerService_TimeUpdated(object? sender, EventArgs e)
-        {
+        private void TimerService_TimeUpdated(object? sender, EventArgs e) {
             UpdateTimeDisplay();
         }
 
-        private void UpdateUI()
-        {
-            if (InvokeRequired)
-            {
+        private void UpdateUI() {
+            if (InvokeRequired) {
                 Invoke(new Action(UpdateUI));
                 return;
             }
@@ -178,10 +166,8 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
             UpdateCountDisplay();
         }
 
-        private void UpdateTimeDisplay()
-        {
-            if (InvokeRequired)
-            {
+        private void UpdateTimeDisplay() {
+            if (InvokeRequired) {
                 Invoke(new Action(UpdateTimeDisplay));
                 return;
             }
@@ -199,44 +185,36 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
                 Color.Black : Color.Green;
         }
 
-        private void UpdateCountDisplay()
-        {
+        private void UpdateCountDisplay() {
             int completed = _timerService.CompletedPomodoros;
             int bigPomodoros = completed / 4;
             int smallPomodoros = completed % 4;
 
             string countText;
-            if (smallPomodoros == 0)
-            {
+            if (smallPomodoros == 0) {
                 countText = $"{bigPomodoros}个大番茄";
             }
-            else
-            {
+            else {
                 countText = $"{bigPomodoros}个大番茄，{smallPomodoros}个小番茄";
             }
 
             lblPomodoroCount!.Text = countText;
         }
 
-        private void BtnStartPomodoro_Click(object? sender, EventArgs e)
-        {
-            if (_timerService.IsRunning)
-            {
+        private void BtnStartPomodoro_Click(object? sender, EventArgs e) {
+            if (_timerService.IsRunning) {
                 _timerService.Pause();
             }
-            else
-            {
+            else {
                 _timerService.Start();
             }
         }
 
-        private void BtnPomodoroReset_Click(object? sender, EventArgs e)
-        {
+        private void BtnPomodoroReset_Click(object? sender, EventArgs e) {
             _timerService.Reset();
         }
 
-        private void BtnPomodoroSettings_Click(object? sender, EventArgs e)
-        {
+        private void BtnPomodoroSettings_Click(object? sender, EventArgs e) {
             using var settingsForm = new PomodoroSettingsForm(
                 _timerService.Settings.WorkTimeMinutes,
                 _timerService.Settings.WorkTimeSeconds,
@@ -245,8 +223,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
                 _timerService.Settings.LongBreakMinutes,
                 _timerService.Settings.LongBreakSeconds);
 
-            if (settingsForm.ShowDialog(this.FindForm()) == DialogResult.OK)
-            {
+            if (settingsForm.ShowDialog(this.FindForm()) == DialogResult.OK) {
                 _timerService.Settings.WorkTimeMinutes = settingsForm.WorkTimeMinutes;
                 _timerService.Settings.WorkTimeSeconds = settingsForm.WorkTimeSeconds;
                 _timerService.Settings.ShortBreakMinutes = settingsForm.ShortBreakMinutes;
@@ -259,10 +236,8 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
             }
         }
 
-        private void ShowBreakForm(BreakType breakType)
-        {
-            if (_breakForm != null && !_breakForm.IsDisposed)
-            {
+        private void ShowBreakForm(BreakType breakType) {
+            if (_breakForm != null && !_breakForm.IsDisposed) {
                 _breakForm.Close();
             }
 
@@ -270,8 +245,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
             _breakForm.Show(this.FindForm());
         }
 
-        public void RefreshUI()
-        {
+        public void RefreshUI() {
             UpdateUI();
         }
     }

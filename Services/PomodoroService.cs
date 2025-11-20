@@ -1,10 +1,8 @@
 using System;
 using System.Media;
 
-namespace DTwoMFTimerHelper.Services
-{
-    public class PomodoroTimerService
-    {
+namespace DTwoMFTimerHelper.Services {
+    public class PomodoroTimerService {
         // 事件定义
         public event EventHandler<TimerStateChangedEventArgs>? TimerStateChanged;
         public event EventHandler<PomodoroCompletedEventArgs>? PomodoroCompleted;
@@ -21,41 +19,32 @@ namespace DTwoMFTimerHelper.Services
         private readonly System.Windows.Forms.Timer _timer;
 
         // 时间设置
-        public TimeSettings Settings
-        {
-            get; set;
-        }
+        public TimeSettings Settings { get; set; }
 
-        public PomodoroTimerService()
-        {
+        public PomodoroTimerService() {
             Settings = new TimeSettings();
             _timer = new System.Windows.Forms.Timer { Interval = 100 };
             _timer.Tick += Timer_Tick;
             InitializeTimer();
         }
 
-        public void Start()
-        {
-            if (!_isRunning)
-            {
+        public void Start() {
+            if (!_isRunning) {
                 _isRunning = true;
                 _timer.Start();
                 OnTimerStateChanged();
             }
         }
 
-        public void Pause()
-        {
-            if (_isRunning)
-            {
+        public void Pause() {
+            if (_isRunning) {
                 _isRunning = false;
                 _timer.Stop();
                 OnTimerStateChanged();
             }
         }
 
-        public void Reset()
-        {
+        public void Reset() {
             _isRunning = false;
             _timer.Stop();
             _completedPomodoros = 0;
@@ -64,10 +53,8 @@ namespace DTwoMFTimerHelper.Services
             OnTimerStateChanged();
         }
 
-        public void SkipBreak()
-        {
-            if (_currentState != TimerState.Work)
-            {
+        public void SkipBreak() {
+            if (_currentState != TimerState.Work) {
                 _previousState = _currentState;
                 _currentState = TimerState.Work;
                 _timeLeft = GetWorkTime();
@@ -76,14 +63,11 @@ namespace DTwoMFTimerHelper.Services
             }
         }
 
-        private void Timer_Tick(object? sender, EventArgs e)
-        {
-            if (_isRunning)
-            {
+        private void Timer_Tick(object? sender, EventArgs e) {
+            if (_isRunning) {
                 _timeLeft = _timeLeft.Subtract(TimeSpan.FromMilliseconds(100));
 
-                if (_timeLeft <= TimeSpan.Zero)
-                {
+                if (_timeLeft <= TimeSpan.Zero) {
                     HandleTimerCompletion();
                 }
 
@@ -91,15 +75,13 @@ namespace DTwoMFTimerHelper.Services
             }
         }
 
-        private void HandleTimerCompletion()
-        {
+        private void HandleTimerCompletion() {
             _timeLeft = TimeSpan.Zero;
             SystemSounds.Beep.Play();
 
             _previousState = _currentState; // 保存之前的状态
 
-            switch (_currentState)
-            {
+            switch (_currentState) {
                 case TimerState.Work:
                     _completedPomodoros++;
                     var breakType = (_completedPomodoros % 4 == 0) ? BreakType.LongBreak : BreakType.ShortBreak;
@@ -127,28 +109,24 @@ namespace DTwoMFTimerHelper.Services
             OnTimerStateChanged();
         }
 
-        private void InitializeTimer()
-        {
+        private void InitializeTimer() {
             _currentState = TimerState.Work;
             _previousState = TimerState.Work;
             _timeLeft = GetWorkTime();
             _isRunning = false;
         }
 
-        private TimeSpan GetWorkTime()
-        {
+        private TimeSpan GetWorkTime() {
             return new TimeSpan(0, Settings.WorkTimeMinutes, Settings.WorkTimeSeconds);
         }
 
-        private TimeSpan GetBreakTime(BreakType breakType)
-        {
+        private TimeSpan GetBreakTime(BreakType breakType) {
             return breakType == BreakType.ShortBreak
                 ? new TimeSpan(0, Settings.ShortBreakMinutes, Settings.ShortBreakSeconds)
                 : new TimeSpan(0, Settings.LongBreakMinutes, Settings.LongBreakSeconds);
         }
 
-        private void OnTimerStateChanged()
-        {
+        private void OnTimerStateChanged() {
             TimerStateChanged?.Invoke(this, new TimerStateChangedEventArgs(_currentState, _previousState, _isRunning, _timeLeft));
         }
 
@@ -161,21 +139,18 @@ namespace DTwoMFTimerHelper.Services
     }
 
     // 枚举和事件参数类
-    public enum TimerState
-    {
+    public enum TimerState {
         Work,
         ShortBreak,
         LongBreak
     }
 
-    public enum BreakType
-    {
+    public enum BreakType {
         ShortBreak,
         LongBreak
     }
 
-    public class TimeSettings
-    {
+    public class TimeSettings {
         public int WorkTimeMinutes { get; set; } = 25;
         public int WorkTimeSeconds { get; set; } = 0;
         public int ShortBreakMinutes { get; set; } = 5;
@@ -184,27 +159,21 @@ namespace DTwoMFTimerHelper.Services
         public int LongBreakSeconds { get; set; } = 0;
     }
 
-    public class TimerStateChangedEventArgs : EventArgs
-    {
-        public TimerState State
-        {
+    public class TimerStateChangedEventArgs : EventArgs {
+        public TimerState State {
             get;
         }
-        public TimerState PreviousState
-        {
+        public TimerState PreviousState {
             get;
         }
-        public bool IsRunning
-        {
+        public bool IsRunning {
             get;
         }
-        public TimeSpan TimeLeft
-        {
+        public TimeSpan TimeLeft {
             get;
         }
 
-        public TimerStateChangedEventArgs(TimerState state, TimerState previousState, bool isRunning, TimeSpan timeLeft)
-        {
+        public TimerStateChangedEventArgs(TimerState state, TimerState previousState, bool isRunning, TimeSpan timeLeft) {
             State = state;
             PreviousState = previousState;
             IsRunning = isRunning;
@@ -212,28 +181,22 @@ namespace DTwoMFTimerHelper.Services
         }
     }
 
-    public class PomodoroCompletedEventArgs : EventArgs
-    {
-        public int CompletedPomodoros
-        {
+    public class PomodoroCompletedEventArgs : EventArgs {
+        public int CompletedPomodoros {
             get;
         }
 
-        public PomodoroCompletedEventArgs(int completedPomodoros)
-        {
+        public PomodoroCompletedEventArgs(int completedPomodoros) {
             CompletedPomodoros = completedPomodoros;
         }
     }
 
-    public class BreakStartedEventArgs : EventArgs
-    {
-        public BreakType BreakType
-        {
+    public class BreakStartedEventArgs : EventArgs {
+        public BreakType BreakType {
             get;
         }
 
-        public BreakStartedEventArgs(BreakType breakType)
-        {
+        public BreakStartedEventArgs(BreakType breakType) {
             BreakType = breakType;
         }
     }
