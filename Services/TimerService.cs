@@ -517,8 +517,8 @@ namespace DTwoMFTimerHelper.Services {
                     return;
                 }
 
-                // 使用场景shortName
-                string sceneShortName = SceneService.GetSceneShortName(sceneName);
+                // 使用场景shortName，传递角色名以确定使用中文还是英文短名称
+                string sceneShortName = SceneService.GetSceneShortName(sceneName, characterName);
                 if (string.IsNullOrEmpty(sceneShortName)) {
                     sceneShortName = "UnknownScene";
                 }

@@ -178,7 +178,7 @@ namespace DTwoMFTimerHelper.Services {
             if (string.IsNullOrEmpty(sceneName))
                 return sceneName;
 
-            string cleanSceneName = getPureSceneName(sceneName);
+            string cleanSceneName = GetPureSceneName(sceneName);
 
             // 如果已经是英文，直接返回
             if (!cleanSceneName.Any(c => c >= '\u4e00' && c <= '\u9fff'))
@@ -195,7 +195,7 @@ namespace DTwoMFTimerHelper.Services {
             return cleanSceneName;
         }
 
-        public static string getPureSceneName(string sceneName) {
+        public static string GetPureSceneName(string sceneName) {
             // 移除ACT前缀（如果有），提取纯场景名称
             string pureSceneName = sceneName;
             pureSceneName = pureSceneName.Trim('"', '\'');
@@ -207,24 +207,45 @@ namespace DTwoMFTimerHelper.Services {
             }
             return pureSceneName;
         }
-        
+
         /// <summary>
         /// 通过场景名称返回shortName
         /// </summary>
         /// <param name="sceneName">场景名称</param>
-        /// <returns>场景的shortName</returns>
-        public static string GetSceneShortName(string sceneName) {
+        /// <summary>
+        /// 根据场景名称获取场景的短名称
+        /// </summary>
+        /// <param name="sceneName">场景名称</param>
+        /// <param name="characterName">角色名称，用于判断使用中文还是英文短名称</param>
+        /// <returns>场景的短名称</returns>
+        public static string GetSceneShortName(string sceneName, string characterName = "") {
             // 先调用getPureSceneName获取纯场景名称
-            string pureSceneName = getPureSceneName(sceneName);
-            
+            string pureSceneName = GetPureSceneName(sceneName);
+
             var farmingSpots = LoadFarmingSpots();
             // 查找匹配的场景
-            var scene = farmingSpots.FirstOrDefault(s => 
+            var scene = farmingSpots.FirstOrDefault(s =>
                 string.Equals(s.EnUS, pureSceneName, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(s.ZhCN, pureSceneName, StringComparison.OrdinalIgnoreCase));
-            
-            // 如果找到场景且有shortName，则返回shortName，否则返回纯场景名称
-            return scene != null && !string.IsNullOrEmpty(scene.ShortName) ? scene.ShortName : pureSceneName;
+
+            if (scene == null) {
+                return pureSceneName;
+            }
+
+            // 判断角色名是否包含中文字符
+            bool isChineseCharacter = !string.IsNullOrEmpty(characterName) && 
+                                     characterName.Any(c => c >= 0x4e00 && c <= 0x9fff);
+
+            // 根据角色名是否为中文选择对应的短名称
+            if (isChineseCharacter) {
+                return !string.IsNullOrEmpty(scene.ShortZhCN) ? scene.ShortZhCN : 
+                       (!string.IsNullOrEmpty(scene.ShortEnName) ? scene.ShortEnName : 
+                       (!string.IsNullOrEmpty(scene.ShortName) ? scene.ShortName : pureSceneName));
+            } else {
+                return !string.IsNullOrEmpty(scene.ShortEnName) ? scene.ShortEnName : 
+                       (!string.IsNullOrEmpty(scene.ShortName) ? scene.ShortName : 
+                       (!string.IsNullOrEmpty(scene.ShortZhCN) ? scene.ShortZhCN : pureSceneName));
+            }
         }
 
         /// <summary>
@@ -236,7 +257,7 @@ namespace DTwoMFTimerHelper.Services {
                     return 0;
 
                 // 移除ACT前缀（如果有），提取纯场景名称
-                string pureSceneName = getPureSceneName(sceneName);
+                string pureSceneName = GetPureSceneName(sceneName);
 
                 // 使用SceneService获取场景到ACT值的映射
                 var sceneActMappings = SceneService.GetSceneActMappings();
