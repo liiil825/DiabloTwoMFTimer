@@ -82,7 +82,7 @@ namespace DTwoMFTimerHelper.Services {
             // 解析基本属性，支持多种属性名格式
             foreach (var node in rootNode) {
                 var keyNode = node.Key as YamlScalarNode;
-                var key = keyNode?.Value?.ToLower() ?? "";
+                string key = keyNode?.Value?.ToLower() ?? "";
                 var valueNode = node.Value as YamlScalarNode;
 
                 if (valueNode == null || string.IsNullOrEmpty(key))
@@ -91,7 +91,10 @@ namespace DTwoMFTimerHelper.Services {
                 LogManager.WriteDebugLog("YamlParser", $"解析属性: {key}, 值: {valueNode.Value}");
 
                 // 调用通用属性解析函数处理基本属性
-                ParseProfileProperty(profile, key, valueNode.Value);
+                // 确保value不为null再调用ParseProfileProperty
+                if (valueNode.Value != null) {
+                    ParseProfileProperty(profile, key, valueNode.Value);
+                }
             }
 
             // 解析records数组
@@ -109,7 +112,7 @@ namespace DTwoMFTimerHelper.Services {
 
                         foreach (var propNode in recordMapping) {
                             var keyNode = propNode.Key as YamlScalarNode;
-                            var propKey = keyNode?.Value?.ToLower() ?? "";
+                            string propKey = keyNode?.Value?.ToLower() ?? "";
                             var propValueNode = propNode.Value as YamlScalarNode;
 
                             if (propValueNode == null || string.IsNullOrEmpty(propKey))
@@ -118,7 +121,10 @@ namespace DTwoMFTimerHelper.Services {
                             LogManager.WriteDebugLog("YamlParser", $"解析记录属性: {propKey}, 值: {propValueNode.Value}");
 
                             // 调用通用属性解析函数处理记录属性
-                            ParseRecordProperty(record, propKey, propValueNode.Value);
+                            // 确保value不为null再调用ParseRecordProperty
+                            if (propValueNode.Value != null) {
+                                ParseRecordProperty(record, propKey, propValueNode.Value);
+                            }
                         }
 
                         profile.Records.Add(record);

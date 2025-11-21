@@ -26,25 +26,25 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             UpdateUI();
         }
         // 控件字段 - 使用组件容器来支持设计器
-        private IContainer components = null;
-        private Button btnCreateCharacter;
-        private Button btnSwitchCharacter;
-        private Button btnDeleteCharacter;
-        private Label lblScene;
-        private ComboBox cmbScene;
-        private Label lblDifficulty;
-        private ComboBox cmbDifficulty;
-        private Button btnStartStop;
-        private Label lblCurrentProfile;
-        private Label lblTime;
-        private Label lblStats;
+        private IContainer? components = null;
+        private Button? btnCreateCharacter = null;
+        private Button? btnSwitchCharacter = null;
+        private Button? btnDeleteCharacter = null;
+        private Label? lblScene = null;
+        private ComboBox? cmbScene = null;
+        private Label? lblDifficulty = null;
+        private ComboBox? cmbDifficulty = null;
+        private Button? btnStartStop = null;
+        private Label? lblCurrentProfile = null;
+        private Label? lblTime = null;
+        private Label? lblStats = null;
 
         // MF记录功能相关字段
-        private Models.CharacterProfile currentProfile = null;
-        private Models.MFRecord currentRecord = null;
+        private Models.CharacterProfile? currentProfile = null;
+        private Models.MFRecord? currentRecord = null;
         private List<Models.FarmingScene> farmingScenes = new List<Models.FarmingScene>();
-        public Models.CharacterProfile CurrentProfile => currentProfile;
-        public Models.MFRecord CurrentRecord => currentRecord;
+        public Models.CharacterProfile? CurrentProfile => currentProfile;
+        public Models.MFRecord? CurrentRecord => currentRecord;
 
         // 当前选中的场景
         public string CurrentScene {
@@ -309,7 +309,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             return Models.GameDifficulty.Hell;
         }
 
-        private Models.FarmingScene GetSelectedScene() {
+        private Models.FarmingScene? GetSelectedScene() {
             if (cmbScene?.SelectedIndex >= 0 && cmbScene.SelectedIndex < farmingScenes.Count)
                 return farmingScenes[cmbScene.SelectedIndex];
             return null;
@@ -437,7 +437,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
                 btnStartStop.Enabled = currentProfile != null;
         }
 
-        private void BtnCreateCharacter_Click(object sender, EventArgs e) {
+        private void BtnCreateCharacter_Click(object? sender, EventArgs e) {
             using var form = new CreateCharacterForm();
             if (form.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(form.CharacterName)) {
                 // 确保cmbScene不为null
@@ -480,7 +480,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             }
         }
 
-        private void BtnSwitchCharacter_Click(object sender, EventArgs e) {
+        private void BtnSwitchCharacter_Click(object? sender, EventArgs e) {
             using var form = new SwitchCharacterForm();
             if (form.ShowDialog() == DialogResult.OK && form.SelectedProfile != null) {
                 WriteDebugLog("开始切换角色...");
@@ -520,7 +520,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             }
         }
 
-        private void BtnDeleteCharacter_Click(object sender, EventArgs e) {
+        private void BtnDeleteCharacter_Click(object? sender, EventArgs e) {
             if (currentProfile == null)
                 return;
 
@@ -534,13 +534,13 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             }
         }
 
-        private void BtnStartStop_Click(object sender, EventArgs e) {
+        private void BtnStartStop_Click(object? sender, EventArgs e) {
             _mainServices.SetActiveTabPage(Models.TabPage.Timer);
             _timerService.HandleStartFarm();
         }
 
         // 场景选择变更事件处理
-        private void CmbScene_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbScene_SelectedIndexChanged(object? sender, EventArgs e) {
             // 当场景改变时，更新UI和ProfileService
             if (cmbScene != null) {
                 WriteDebugLog($"场景已变更为: {cmbScene.Text}");
@@ -550,7 +550,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             }
         }
 
-        private void CmbDifficulty_SelectedIndexChanged(object sender, EventArgs e) {
+        private void CmbDifficulty_SelectedIndexChanged(object? sender, EventArgs e) {
             // 当难度改变时，更新ProfileService中的CurrentDifficulty
             if (currentProfile != null && cmbDifficulty != null && cmbDifficulty.SelectedIndex >= 0) {
                 // 使用SelectedIndex而不是SelectedItem来获取难度值

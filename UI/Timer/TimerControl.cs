@@ -5,22 +5,21 @@ using System.Threading.Tasks;
 using DTwoMFTimerHelper.Services;
 using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.UI.Timer
-{
-    public partial class TimerControl : UserControl
-    {
+namespace DTwoMFTimerHelper.UI.Timer {
+    public partial class TimerControl : UserControl {
         // 服务层引用
-        private readonly ITimerService _timerService;
-        private readonly IProfileService _profileService;
-        private readonly ITimerHistoryService _historyService;
+        private readonly ITimerService? _timerService;
+        private readonly IProfileService? _profileService;
+        private readonly ITimerHistoryService? _historyService;
+        public TimerControl() {
+            InitializeComponent();
+        }
 
-        public TimerControl(IProfileService profileService, ITimerService timerService, ITimerHistoryService historyService)
-        {
+        public TimerControl(IProfileService profileService, ITimerService timerService, ITimerHistoryService historyService) : this() {
             _timerService = timerService;
             _profileService = profileService;
             _historyService = historyService;
 
-            InitializeComponent();
             // 订阅服务事件
             SubscribeToServiceEvents();
 
@@ -52,8 +51,7 @@ namespace DTwoMFTimerHelper.UI.Timer
         #endregion
 
         #region Service Event Handlers
-        private void SubscribeToServiceEvents()
-        {
+        private void SubscribeToServiceEvents() {
             // 订阅TimerService事件
             _timerService.TimeUpdatedEvent += OnTimeUpdated;
             _timerService.TimerRunningStateChangedEvent += OnTimerRunningStateChanged;
@@ -67,8 +65,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             _profileService.CurrentDifficultyChangedEvent += OnDifficultyChanged;
         }
 
-        private void UnsubscribeFromServiceEvents()
-        {
+        private void UnsubscribeFromServiceEvents() {
             // 取消订阅TimerService事件
             _timerService.TimeUpdatedEvent -= OnTimeUpdated;
             _timerService.TimerRunningStateChangedEvent -= OnTimerRunningStateChanged;
@@ -82,41 +79,33 @@ namespace DTwoMFTimerHelper.UI.Timer
             _profileService.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
         }
 
-        private void OnTimeUpdated(string timeString)
-        {
-            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired)
-            {
+        private void OnTimeUpdated(string timeString) {
+            if (_timerService == null) return; // ✅ 新增检查
+            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired) {
                 lblTimeDisplay.Invoke(new Action<string>(OnTimeUpdated), timeString);
             }
-            else if (lblTimeDisplay != null)
-            {
+            else if (lblTimeDisplay != null) {
                 lblTimeDisplay.Text = timeString;
 
                 // 根据时间长度调整字体大小
                 var elapsed = _timerService.GetElapsedTime();
-                if (elapsed.Hours > 9)
-                {
+                if (elapsed.Hours > 9) {
                     lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 24F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
                 }
-                else if (elapsed.Hours > 0)
-                {
+                else if (elapsed.Hours > 0) {
                     lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 28F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
                 }
-                else
-                {
+                else {
                     lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 30F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
                 }
             }
         }
 
-        private void OnTimerRunningStateChanged(bool isRunning)
-        {
-            if (btnStatusIndicator != null && btnStatusIndicator.InvokeRequired)
-            {
+        private void OnTimerRunningStateChanged(bool isRunning) {
+            if (btnStatusIndicator != null && btnStatusIndicator.InvokeRequired) {
                 btnStatusIndicator.Invoke(new Action<bool>(OnTimerRunningStateChanged), isRunning);
             }
-            else if (btnStatusIndicator != null)
-            {
+            else if (btnStatusIndicator != null) {
                 btnStatusIndicator.BackColor = isRunning ? Color.Green : Color.Red;
             }
 
@@ -124,35 +113,29 @@ namespace DTwoMFTimerHelper.UI.Timer
             UpdateStatistics();
         }
 
-        private void OnTimerPauseStateChanged(bool isPaused)
-        {
+        private void OnTimerPauseStateChanged(bool isPaused) {
             // 可以在这里处理暂停状态的特殊UI显示
             TimerStateChanged?.Invoke(this, EventArgs.Empty);
         }
 
         // ProfileService事件处理程序
-        private void OnProfileChanged(Models.CharacterProfile? profile)
-        {
+        private void OnProfileChanged(Models.CharacterProfile? profile) {
             LoadProfileHistoryData();
             UpdateCharacterSceneInfo();
         }
 
-        private void OnSceneChanged(string scene)
-        {
+        private void OnSceneChanged(string scene) {
             LoadProfileHistoryData();
             UpdateCharacterSceneInfo();
         }
 
-        private void OnDifficultyChanged(Models.GameDifficulty difficulty)
-        {
+        private void OnDifficultyChanged(Models.GameDifficulty difficulty) {
             LoadProfileHistoryData();
             UpdateCharacterSceneInfo();
         }
 
-        private void LoadProfileHistoryData()
-        {
-            if (historyControl != null)
-            {
+        private void LoadProfileHistoryData() {
+            if (historyControl != null) {
                 var profile = _profileService.CurrentProfile;
                 var scene = _profileService.CurrentScene;
                 var characterName = profile?.Name ?? "";
@@ -162,14 +145,11 @@ namespace DTwoMFTimerHelper.UI.Timer
             }
         }
 
-        private void OnTimerReset()
-        {
-            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired)
-            {
+        private void OnTimerReset() {
+            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired) {
                 lblTimeDisplay.Invoke(new Action(OnTimerReset));
             }
-            else if (lblTimeDisplay != null)
-            {
+            else if (lblTimeDisplay != null) {
                 lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 30F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
                 lblTimeDisplay.Text = "00:00:00:0";
             }
@@ -177,8 +157,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             UpdateStatistics();
         }
 
-        private void OnRunCompleted(TimeSpan runTime)
-        {
+        private void OnRunCompleted(TimeSpan runTime) {
             // 使用HistoryControl来记录新的运行时间
             historyControl?.AddRunRecord(runTime);
             UpdateStatistics();
@@ -189,8 +168,7 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// <summary>
         /// 通过快捷键触发开始/重新开始计时
         /// </summary>
-        public void ToggleTimer()
-        {
+        public void ToggleTimer() {
             LogManager.WriteDebugLog("TimerControl", $"ToggleTimer 调用（快捷键触发），当前状态: isTimerRunning={_timerService.IsRunning}");
             _timerService.StartOrNextRun();
         }
@@ -198,24 +176,21 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// <summary>
         /// 暂停/恢复计时
         /// </summary>
-        public void TogglePause()
-        {
+        public void TogglePause() {
             _timerService.TogglePause();
         }
 
         /// <summary>
         /// 重置计时器
         /// </summary>
-        public void HandleExternalReset()
-        {
+        public void HandleExternalReset() {
             _timerService.Reset();
         }
 
         /// <summary>
         /// 当切换到计时器Tab时调用
         /// </summary>
-        public void HandleTabSelected()
-        {
+        public void HandleTabSelected() {
             LoadProfileHistoryData();
             UpdateUI();
         }
@@ -223,8 +198,7 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// <summary>
         /// 在应用程序关闭时调用
         /// </summary>
-        public void HandleApplicationClosing()
-        {
+        public void HandleApplicationClosing() {
             _timerService.HandleApplicationClosing();
         }
 
@@ -232,10 +206,8 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// 删除选中的历史记录
         /// </summary>
         /// <returns>是否删除成功</returns>
-        public async Task<bool> DeleteSelectedRecordAsync()
-        {
-            if (historyControl != null)
-            {
+        public async Task<bool> DeleteSelectedRecordAsync() {
+            if (historyControl != null) {
                 return await historyControl.DeleteSelectedRecordAsync();
             }
             return false;
@@ -243,25 +215,20 @@ namespace DTwoMFTimerHelper.UI.Timer
         #endregion
 
         #region Private Methods
-        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e)
-        {
+        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e) {
             UpdateUI();
         }
 
-        private void UpdateUI()
-        {
+        private void UpdateUI() {
             // 更新状态指示按钮颜色
-            if (btnStatusIndicator != null)
-            {
+            if (btnStatusIndicator != null) {
                 btnStatusIndicator.BackColor = _timerService.IsRunning ? Color.Green : Color.Red;
             }
 
             // 更新时间显示
-            if (!_timerService.IsRunning && !_timerService.IsPaused)
-            {
+            if (!_timerService.IsRunning && !_timerService.IsPaused) {
                 // 只有在计时器完全停止（不是暂停）时才重置显示
-                if (lblTimeDisplay != null)
-                {
+                if (lblTimeDisplay != null) {
                     lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 30F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134)));
                     lblTimeDisplay.Text = "00:00:00:0";
                 }
@@ -274,22 +241,17 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// <summary>
         /// 公共方法，供外部调用刷新UI
         /// </summary>
-        public void RefreshUI()
-        {
-            if (this.InvokeRequired)
-            {
+        public void RefreshUI() {
+            if (this.InvokeRequired) {
                 this.Invoke(new Action(UpdateUI));
             }
-            else
-            {
+            else {
                 UpdateUI();
             }
         }
 
-        private void UpdateStatistics()
-        {
-            if (statisticsControl != null && historyControl != null)
-            {
+        private void UpdateStatistics() {
+            if (statisticsControl != null && historyControl != null) {
                 int runCount = historyControl.RunCount;
                 TimeSpan fastestTime = historyControl.FastestTime;
                 var runHistory = historyControl.RunHistory;
@@ -300,18 +262,15 @@ namespace DTwoMFTimerHelper.UI.Timer
             historyControl?.UpdateHistory(historyControl.RunHistory);
         }
 
-        private void UpdateCharacterSceneInfo()
-        {
+        private void UpdateCharacterSceneInfo() {
             characterSceneControl?.UpdateCharacterSceneInfo();
         }
         #endregion
 
         #region UI Initialization
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             // 状态指示按钮
-            btnStatusIndicator = new Button
-            {
+            btnStatusIndicator = new Button {
                 Enabled = false,
                 FlatStyle = FlatStyle.Flat,
                 Size = new Size(16, 16),
@@ -324,8 +283,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             };
 
             // 主要计时显示标签
-            lblTimeDisplay = new Label
-            {
+            lblTimeDisplay = new Label {
                 AutoSize = false,
                 Font = new Font("Microsoft YaHei UI", 30F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134))),
                 Location = new Point(15, 30),
@@ -337,8 +295,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             };
 
             // 初始化统计信息控件
-            statisticsControl = new StatisticsControl
-            {
+            statisticsControl = new StatisticsControl {
                 Location = new Point(5, 100),
                 Name = "statisticsControl",
                 Size = new Size(290, 75),
@@ -347,8 +304,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             };
 
             // 初始化历史记录控件
-            historyControl = new HistoryControl(_historyService)
-            {
+            historyControl = new HistoryControl(_historyService) {
                 Location = new Point(15, 170),
                 Name = "historyControl",
                 Size = new Size(290, 90),
@@ -357,8 +313,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             };
 
             // 初始化角色场景信息组件
-            characterSceneControl = new CharacterSceneControl(_profileService)
-            {
+            characterSceneControl = new CharacterSceneControl(_profileService) {
                 Location = new Point(15, 270),
                 Name = "characterSceneControl",
                 Size = new Size(290, 40),
@@ -381,10 +336,8 @@ namespace DTwoMFTimerHelper.UI.Timer
             PerformLayout();
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
+        protected override void Dispose(bool disposing) {
+            if (disposing) {
                 UnsubscribeFromServiceEvents();
                 LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
             }

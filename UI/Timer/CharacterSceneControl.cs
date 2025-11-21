@@ -5,14 +5,13 @@ using DTwoMFTimerHelper.Utils;
 using DTwoMFTimerHelper.Models;
 using DTwoMFTimerHelper.Services;
 
-namespace DTwoMFTimerHelper.UI.Timer
-{
-    public partial class CharacterSceneControl : UserControl
-    {
-        private readonly IProfileService _profileService;
-        public CharacterSceneControl(IProfileService profileService)
-        {
+namespace DTwoMFTimerHelper.UI.Timer {
+    public partial class CharacterSceneControl : UserControl {
+        private readonly IProfileService? _profileService;
+        public CharacterSceneControl() {
             InitializeComponent();
+        }
+        public CharacterSceneControl(IProfileService profileService) : this() {
             _profileService = profileService;
             // 注册语言变更事件
             Utils.LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
@@ -24,10 +23,11 @@ namespace DTwoMFTimerHelper.UI.Timer
         private Label? lblCharacterDisplay;
         private Label? lblSceneDisplay;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {                // 取消注册语言变更事件
+        protected override void Dispose(bool disposing) {
+            if (_profileService == null)
+                return;
+
+            if (disposing) {                // 取消注册语言变更事件
                 Utils.LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
                 // 取消注册ProfileService事件
                 _profileService.CurrentProfileChangedEvent -= OnProfileChanged;
@@ -37,26 +37,21 @@ namespace DTwoMFTimerHelper.UI.Timer
             base.Dispose(disposing);
         }
 
-        private void OnProfileChanged(CharacterProfile? profile)
-        {
+        private void OnProfileChanged(CharacterProfile? profile) {
             UpdateUI();
         }
 
-        private void OnSceneChanged(string scene)
-        {
+        private void OnSceneChanged(string scene) {
             UpdateUI();
         }
 
-        private void OnDifficultyChanged(GameDifficulty difficulty)
-        {
+        private void OnDifficultyChanged(GameDifficulty difficulty) {
             UpdateUI();
         }
 
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             // 角色显示
-            lblCharacterDisplay = new Label
-            {
+            lblCharacterDisplay = new Label {
                 BorderStyle = BorderStyle.None,
                 Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134))),
                 Location = new Point(0, 0),
@@ -68,8 +63,7 @@ namespace DTwoMFTimerHelper.UI.Timer
             };
 
             // 场景显示
-            lblSceneDisplay = new Label
-            {
+            lblSceneDisplay = new Label {
                 BorderStyle = BorderStyle.None,
                 Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(134))),
                 Location = new Point(0, 25),
@@ -87,13 +81,11 @@ namespace DTwoMFTimerHelper.UI.Timer
             Name = "CharacterSceneControl";
         }
 
-        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e)
-        {
+        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e) {
             UpdateUI();
         }
 
-        public void UpdateCharacterSceneInfo()
-        {
+        public void UpdateCharacterSceneInfo() {
             // 更新UI
             UpdateUI();
         }
@@ -103,18 +95,16 @@ namespace DTwoMFTimerHelper.UI.Timer
         /// </summary>
         /// <param name="character">角色名称</param>
         /// <param name="scene">场景名称</param>
-        public void UpdateUI()
-        {
+        public void UpdateUI() {
+            if (_profileService == null)
+                return;
             // 更新角色显示
-            if (lblCharacterDisplay != null)
-            {
+            if (lblCharacterDisplay != null) {
                 var profile = _profileService.CurrentProfile;
-                if (profile == null)
-                {
+                if (profile == null) {
                     lblCharacterDisplay.Text = "";
                 }
-                else
-                {
+                else {
                     // 获取角色职业信息
                     string characterClass = Utils.LanguageManager.GetLocalizedClassName(profile.Class);
 
@@ -124,15 +114,12 @@ namespace DTwoMFTimerHelper.UI.Timer
             }
 
             // 更新场景显示
-            if (lblSceneDisplay != null)
-            {
+            if (lblSceneDisplay != null) {
                 string currentScene = _profileService.CurrentScene;
-                if (string.IsNullOrEmpty(currentScene))
-                {
+                if (string.IsNullOrEmpty(currentScene)) {
                     lblSceneDisplay.Text = "";
                 }
-                else
-                {                    // 获取本地化的场景名称
+                else {                    // 获取本地化的场景名称
                     string localizedSceneName = Utils.LanguageManager.GetString(currentScene);
                     // 获取本地化的难度名称
                     string localizedDifficultyName = _profileService.CurrentDifficultyLocalized;
