@@ -17,7 +17,8 @@ namespace DTwoMFTimerHelper
             services.AddSingleton<IProfileService, ProfileService>();
             services.AddSingleton<ITimerHistoryService, TimerHistoryService>();
             services.AddSingleton<ITimerService, TimerService>();
-            services.AddSingleton<PomodoroTimerService>();
+            // 注册PomodoroTimerService并注入TimerService
+            services.AddSingleton<PomodoroTimerService>(sp => new PomodoroTimerService(sp.GetRequiredService<ITimerService>()));
 
             // 注册 IMainServices 接口
             services.AddSingleton<IMainServices, MainServices>();

@@ -49,6 +49,7 @@ namespace DTwoMFTimerHelper.Services {
         DateTime PauseStartTime {
             get;
         }
+        TimerStatus PreviousStatusBeforePause { get; }
 
         // 方法
         void Start();
@@ -93,6 +94,8 @@ namespace DTwoMFTimerHelper.Services {
         private TimeSpan _pausedDuration = TimeSpan.Zero;
         private DateTime _pauseStartTime = DateTime.MinValue;
         private TimerStatus _status = TimerStatus.Stopped;
+        // 记录暂停前的状态，用于番茄钟休息后恢复
+        private TimerStatus _previousStatusBeforePause = TimerStatus.Stopped;
 
         // 当前状态属性
         public bool IsRunning => _status == TimerStatus.Running;
@@ -102,6 +105,7 @@ namespace DTwoMFTimerHelper.Services {
         public DateTime StartTime => _startTime;
         public TimeSpan PausedDuration => _pausedDuration;
         public DateTime PauseStartTime => _pauseStartTime;
+        public TimerStatus PreviousStatusBeforePause => _previousStatusBeforePause;
 
         /// <summary>
         /// 开始计时
@@ -186,6 +190,8 @@ namespace DTwoMFTimerHelper.Services {
             if (!IsRunning)
                 return;
 
+            // 保存暂停前的状态
+            _previousStatusBeforePause = _status;
             _status = TimerStatus.Paused;
             DateTime now = DateTime.Now;
 
@@ -234,6 +240,7 @@ namespace DTwoMFTimerHelper.Services {
             _startTime = DateTime.MinValue;
             _pausedDuration = TimeSpan.Zero;
             _pauseStartTime = DateTime.MinValue;
+            _previousStatusBeforePause = TimerStatus.Stopped;
 
             TimerResetEvent?.Invoke();
         }
