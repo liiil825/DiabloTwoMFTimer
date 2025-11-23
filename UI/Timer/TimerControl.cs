@@ -36,13 +36,6 @@ namespace DTwoMFTimerHelper.UI.Timer {
                     btnStatusIndicator.Region = new System.Drawing.Region(path);
                 }
             }
-
-            // 初始化时隐藏掉落记录控件
-            if (lootRecordsControl != null) {
-                lootRecordsControl.Visible = false;
-                // 设置初始高度为不包含掉落记录的高度
-                this.Size = new Size(this.Width, UISizeConstants.TimerControlHeightWithoutLoot);
-            }
         }
 
         public TimerControl(IProfileService profileService, ITimerService timerService, ITimerHistoryService historyService) : this() {
@@ -69,8 +62,26 @@ namespace DTwoMFTimerHelper.UI.Timer {
             if (!DesignMode && _profileService != null) {
                 // 加载历史数据
                 LoadProfileHistoryData();
+
+                // 根据角色档案的ShowLoot设置初始化掉落记录控件的可见性
+                InitializeLootRecordsVisibility();
                 // 更新界面状态
                 UpdateUI();
+            }
+        }
+
+        private void InitializeLootRecordsVisibility() {
+            if (lootRecordsControl != null) {
+                // 根据应用设置的ShowLoot设置初始化掉落记录控件的可见性
+                var settings = Services.SettingsManager.LoadSettings();
+                lootRecordsControl.Visible = settings.ShowLoot;
+                bool isVisible = lootRecordsControl.Visible;
+
+                // 更新按钮文本
+                toggleLootButton.Text = isVisible ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落") : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
+
+                // 设置初始高度
+                this.Size = new Size(this.Width, isVisible ? UISizeConstants.TimerControlHeightWithLoot : UISizeConstants.TimerControlHeightWithoutLoot);
             }
         }
 
@@ -137,12 +148,17 @@ namespace DTwoMFTimerHelper.UI.Timer {
         }
 
         private void OnProfileChanged(Models.CharacterProfile? profile) {
+            // 在切换到新角色前，先保存当前角色的ShowLoot设置
+            SaveShowLootSetting();
+
             LoadProfileHistoryData();
             UpdateCharacterSceneInfo();
 
             // 更新掉落记录
             if (lootRecordsControl != null && profile != null) {
                 lootRecordsControl.UpdateLootRecords(profile.LootRecords);
+                // 重新初始化控件可见性（现在基于应用设置而非角色档案）
+                InitializeLootRecordsVisibility();
             }
         }
 
@@ -211,7 +227,18 @@ namespace DTwoMFTimerHelper.UI.Timer {
         }
 
         public void HandleApplicationClosing() {
+            // 保存当前角色档案的ShowLoot设置
+            SaveShowLootSetting();
             _timerService?.HandleApplicationClosing();
+        }
+
+        private void SaveShowLootSetting() {
+            // 保存应用设置的ShowLoot设置
+            if (lootRecordsControl != null) {
+                var settings = Services.SettingsManager.LoadSettings();
+                settings.ShowLoot = lootRecordsControl.Visible;
+                Services.SettingsManager.SaveSettings(settings);
+            }
         }
 
         public async Task<bool> DeleteSelectedRecordAsync() {
@@ -275,8 +302,6 @@ namespace DTwoMFTimerHelper.UI.Timer {
 
         #region UI Initialization
         private void InitializeComponent() {
-            // 设置当前控件的宽度
-            this.Width = UISizeConstants.TimerControlWidth;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimerControl));
             btnStatusIndicator = new Label();
             lblTimeDisplay = new Label();
@@ -295,7 +320,6 @@ namespace DTwoMFTimerHelper.UI.Timer {
             btnStatusIndicator.Name = "btnStatusIndicator";
             btnStatusIndicator.Size = new Size(24, 24);
             btnStatusIndicator.TabIndex = 0;
-            btnStatusIndicator.Click += btnStatusIndicator_Click;
             // 
             // lblTimeDisplay
             // 
@@ -333,15 +357,16 @@ namespace DTwoMFTimerHelper.UI.Timer {
             characterSceneControl.Location = new Point(9, 409);
             characterSceneControl.Margin = new Padding(6);
             characterSceneControl.Name = "characterSceneControl";
-            characterSceneControl.Size = new Size(213, 80);
+            characterSceneControl.Size = new Size(421, 80);
             characterSceneControl.TabIndex = 4;
             // 
             // lootRecordsControl
             // 
+            var height = UISizeConstants.LootRecordsControlHeight;
             lootRecordsControl.Location = new Point(9, 495);
             lootRecordsControl.Margin = new Padding(9, 8, 9, 8);
             lootRecordsControl.Name = "lootRecordsControl";
-            lootRecordsControl.Size = new Size(421, 219);
+            lootRecordsControl.Size = new Size(421, height);
             lootRecordsControl.TabIndex = 6;
             // 
             // labelTime1
@@ -355,7 +380,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
             // 
             // toggleLootButton
             // 
-            toggleLootButton.Location = new Point(299, 434);
+            toggleLootButton.Location = new Point(299, 414);
             toggleLootButton.Name = "toggleLootButton";
             toggleLootButton.Size = new Size(131, 40);
             toggleLootButton.TabIndex = 7;
@@ -391,10 +416,6 @@ namespace DTwoMFTimerHelper.UI.Timer {
         }
         #endregion
 
-        private void btnStatusIndicator_Click(object sender, EventArgs e) {
-
-        }
-
         private void toggleLootButton_Click(object sender, EventArgs e) {
             if (lootRecordsControl != null) {
                 // 确保状态正确切换
@@ -404,9 +425,6 @@ namespace DTwoMFTimerHelper.UI.Timer {
                 // 更新按钮文本
                 toggleLootButton.Text = isVisible ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落") : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
 
-                // 计算高度差值
-                int heightDifference = UISizeConstants.TimerControlHeightWithLoot - UISizeConstants.TimerControlHeightWithoutLoot;
-                
                 // 调整TimerControl的高度
                 int newHeight = isVisible ? UISizeConstants.TimerControlHeightWithLoot : UISizeConstants.TimerControlHeightWithoutLoot;
                 int heightChange = newHeight - this.Height;
@@ -417,6 +435,11 @@ namespace DTwoMFTimerHelper.UI.Timer {
                     int newFormHeight = this.ParentForm.ClientSize.Height + heightChange;
                     this.ParentForm.ClientSize = new Size(this.ParentForm.ClientSize.Width, newFormHeight);
                 }
+
+                // 更新应用设置的ShowLoot设置
+                var settings = Services.SettingsManager.LoadSettings();
+                settings.ShowLoot = isVisible;
+                Services.SettingsManager.SaveSettings(settings);
             }
         }
     }

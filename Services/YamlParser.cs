@@ -40,13 +40,9 @@ namespace DTwoMFTimerHelper.Services {
                 }
 
                 // 确保Records集合不为null
-                if (profile == null) {
-                    profile = new CharacterProfile { Records = new List<MFRecord>() };
-                }
+                profile ??= new CharacterProfile { Records = [] };
 
-                if (profile.Records == null) {
-                    profile.Records = new List<MFRecord>();
-                }
+                profile.Records ??= [];
 
                 // 设置默认名称
                 if (string.IsNullOrEmpty(profile.Name)) {
@@ -67,7 +63,7 @@ namespace DTwoMFTimerHelper.Services {
         /// 使用YamlDotNet的节点模型进行更灵活的解析，处理不同格式的YAML
         /// </summary>
         private static CharacterProfile ParseUsingNodeModel(string yamlContent) {
-            var profile = new CharacterProfile { Records = new List<MFRecord>() };
+            var profile = new CharacterProfile { Records = [] };
 
             var yamlStream = new YamlStream();
             yamlStream.Load(new StringReader(yamlContent));
@@ -75,17 +71,15 @@ namespace DTwoMFTimerHelper.Services {
             if (yamlStream.Documents.Count == 0)
                 return profile;
 
-            var rootNode = yamlStream.Documents[0].RootNode as YamlMappingNode;
-            if (rootNode == null)
+            if (yamlStream.Documents[0].RootNode is not YamlMappingNode rootNode)
                 return profile;
 
             // 解析基本属性，支持多种属性名格式
             foreach (var node in rootNode) {
                 var keyNode = node.Key as YamlScalarNode;
                 string key = keyNode?.Value?.ToLower() ?? "";
-                var valueNode = node.Value as YamlScalarNode;
 
-                if (valueNode == null || string.IsNullOrEmpty(key))
+                if (node.Value is not YamlScalarNode valueNode || string.IsNullOrEmpty(key))
                     continue;
 
                 LogManager.WriteDebugLog("YamlParser", $"解析属性: {key}, 值: {valueNode.Value}");
@@ -99,13 +93,11 @@ namespace DTwoMFTimerHelper.Services {
 
             // 解析records数组
             if (rootNode.Children.TryGetValue(new YamlScalarNode("records"), out var recordsNode)) {
-                var recordsSequence = recordsNode as YamlSequenceNode;
-                if (recordsSequence != null) {
+                if (recordsNode is YamlSequenceNode recordsSequence) {
                     LogManager.WriteDebugLog("YamlParser", $"开始解析records数组，共{recordsSequence.Children.Count}条记录");
 
                     foreach (var recordNode in recordsSequence.Children) {
-                        var recordMapping = recordNode as YamlMappingNode;
-                        if (recordMapping == null)
+                        if (recordNode is not YamlMappingNode recordMapping)
                             continue;
 
                         var record = new MFRecord();
@@ -113,9 +105,8 @@ namespace DTwoMFTimerHelper.Services {
                         foreach (var propNode in recordMapping) {
                             var keyNode = propNode.Key as YamlScalarNode;
                             string propKey = keyNode?.Value?.ToLower() ?? "";
-                            var propValueNode = propNode.Value as YamlScalarNode;
 
-                            if (propValueNode == null || string.IsNullOrEmpty(propKey))
+                            if (propNode.Value is not YamlScalarNode propValueNode || string.IsNullOrEmpty(propKey))
                                 continue;
 
                             LogManager.WriteDebugLog("YamlParser", $"解析记录属性: {propKey}, 值: {propValueNode.Value}");
@@ -146,7 +137,7 @@ namespace DTwoMFTimerHelper.Services {
             // 添加null检查，防止空引用
             if (profile == null || key == null || value == null)
                 return;
-                
+
             switch (key) {
                 case "name":
                 case "character":
@@ -183,7 +174,7 @@ namespace DTwoMFTimerHelper.Services {
             // 添加null检查，防止空引用
             if (record == null || key == null || value == null)
                 return;
-                
+
             switch (key) {
                 case "scenename":
                     record.SceneName = value.Trim('"', '\'');

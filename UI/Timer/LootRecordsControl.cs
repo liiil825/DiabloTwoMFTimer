@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Linq;
 using DTwoMFTimerHelper.Models;
+using DTwoMFTimerHelper.UI;
 
 namespace DTwoMFTimerHelper.UI.Timer {
     public partial class LootRecordsControl : UserControl {
@@ -26,6 +27,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
         }
 
         private void InitializeComponent() {
+            var height = UISizeConstants.LootRecordsControlHeight;
             components = new System.ComponentModel.Container();
             lootPanel = new Panel();
             lootListView = new ListView();
@@ -38,7 +40,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
             lootPanel.Dock = DockStyle.Fill;
             lootPanel.Location = new Point(0, 0);
             lootPanel.Name = "lootPanel";
-            lootPanel.Size = new Size(605, 240);
+            lootPanel.Size = new Size(605, height);
             lootPanel.TabIndex = 0;
             // 
             // lootListView
@@ -48,7 +50,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
             lootListView.LabelWrap = false;
             lootListView.Location = new Point(0, 0);
             lootListView.Name = "lootListView";
-            lootListView.Size = new Size(605, 240);
+            lootListView.Size = new Size(605, height);
             lootListView.TabIndex = 0;
             lootListView.UseCompatibleStateImageBehavior = false;
             // 
@@ -59,7 +61,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
             Controls.Add(lootPanel);
             Margin = new Padding(4);
             Name = "LootRecordsControl";
-            Size = new Size(605, 240);
+            Size = new Size(605, height);
             lootPanel.ResumeLayout(false);
             ResumeLayout(false);
         }

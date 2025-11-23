@@ -8,35 +8,50 @@ using DTwoMFTimerHelper.Utils;
 namespace DTwoMFTimerHelper.Services {
     public interface IAppSettings {
         public string WindowPosition {
-            get; set;
+            get;
+            set;
         }
         public bool AlwaysOnTop {
-            get; set;
+            get;
+            set;
         }
         public string Language {
-            get; set;
+            get;
+            set;
         }
         // 角色档案设置
         public string LastUsedProfile {
-            get; set;
+            get;
+            set;
         }
         public int WorkTimeMinutes {
-            get; set;
+            get;
+            set;
         }
         public int WorkTimeSeconds {
-            get; set;
+            get;
+            set;
         }
         public int ShortBreakMinutes {
-            get; set;
+            get;
+            set;
         }
         public int ShortBreakSeconds {
-            get; set;
+            get;
+            set;
         }
         public int LongBreakMinutes {
-            get; set;
+            get;
+            set;
         }
         public int LongBreakSeconds {
-            get; set;
+            get;
+            set;
+        }
+        // 界面设置
+        public bool ShowLoot {
+            get;
+            set;
         }
 
     }
@@ -58,6 +73,9 @@ namespace DTwoMFTimerHelper.Services {
         public int ShortBreakSeconds { get; set; } = 0;
         public int LongBreakMinutes { get; set; } = 15;
         public int LongBreakSeconds { get; set; } = 0;
+        
+        // 界面设置
+        public bool ShowLoot { get; set; } = false; // 是否显示掉落记录
     }
 
     public static class SettingsManager {

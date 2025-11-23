@@ -3,14 +3,11 @@ using System.Windows.Forms;
 using System.Drawing;
 using DTwoMFTimerHelper.Services;
 
-namespace DTwoMFTimerHelper.UI
-{
-    public partial class MainForm : Form
-    {
+namespace DTwoMFTimerHelper.UI {
+    public partial class MainForm : Form {
         // 服务实例
         private readonly IMainServices _mainServices;
-        public MainForm(IMainServices mainServices)
-        {
+        public MainForm(IMainServices mainServices) {
             // 获取服务实例并设置主窗体引用
             _mainServices = mainServices;
 
@@ -35,22 +32,22 @@ namespace DTwoMFTimerHelper.UI
         private System.Windows.Forms.TabPage? tabSettingsPage;
 
 
-        private void OnMainForm_Shown(object sender, EventArgs e)
-        {
+        private void OnMainForm_Shown(object sender, EventArgs e) {
             // 窗口显示后再次应用窗口位置设置，确保正确显示在右上角
             _mainServices.ApplyWindowSettings();
         }
 
-        private void InitializeForm()
-        {
-            this.Size = new Size(480, 600);
+        private void InitializeForm() {
+            var width = UISizeConstants.MainFormWidth;
+            var settings = Services.SettingsManager.LoadSettings();
+            var height = settings.ShowLoot ? UISizeConstants.MainFormHeightWithLoot : UISizeConstants.MainFormHeightWithoutLoot;
+            this.Size = new Size(width, height);
             this.StartPosition = FormStartPosition.Manual;
             this.ShowInTaskbar = true;
             this.Visible = true;
         }
 
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             tabControl = new TabControl();
             tabProfilePage = new System.Windows.Forms.TabPage();
             tabTimerPage = new System.Windows.Forms.TabPage();
@@ -116,14 +113,11 @@ namespace DTwoMFTimerHelper.UI
         /// <summary>
         /// 更新窗体标题（供服务类调用）
         /// </summary>
-        public void UpdateFormTitle(string title)
-        {
-            if (this.InvokeRequired)
-            {
+        public void UpdateFormTitle(string title) {
+            if (this.InvokeRequired) {
                 this.Invoke(new Action<string>(UpdateFormTitle), title);
             }
-            else
-            {
+            else {
                 this.Text = title;
             }
         }
@@ -131,24 +125,20 @@ namespace DTwoMFTimerHelper.UI
         /// <summary>
         /// 刷新UI（供外部调用）
         /// </summary>
-        public void RefreshUI()
-        {
+        public void RefreshUI() {
             _mainServices.RefreshUI();
         }
 
-        private void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
-        {
+        private void TabControl_SelectedIndexChanged(object? sender, EventArgs e) {
             _mainServices.HandleTabChanged();
         }
 
-        protected override void WndProc(ref Message m)
-        {
+        protected override void WndProc(ref Message m) {
             base.WndProc(ref m);
             _mainServices.ProcessHotKeyMessage(m);
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
+        protected override void OnFormClosing(FormClosingEventArgs e) {
             _mainServices.HandleApplicationClosing();
             base.OnFormClosing(e);
         }

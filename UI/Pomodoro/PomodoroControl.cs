@@ -39,55 +39,61 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             lblPomodoroCount = new Label();
             btnPomodoroSettings = new Button();
             SuspendLayout();
-
+            // 
             // btnPomodoroReset
-            btnPomodoroReset.Location = new Point(85, 379);
+            // 
+            btnPomodoroReset.Location = new Point(28, 376);
             btnPomodoroReset.Margin = new Padding(6);
             btnPomodoroReset.Name = "btnPomodoroReset";
-            btnPomodoroReset.Size = new Size(371, 75);
+            btnPomodoroReset.Size = new Size(205, 75);
             btnPomodoroReset.TabIndex = 4;
             btnPomodoroReset.UseVisualStyleBackColor = true;
             btnPomodoroReset.Click += BtnPomodoroReset_Click;
-
+            // 
             // btnStartPomodoro
-            btnStartPomodoro.Location = new Point(85, 211);
+            // 
+            btnStartPomodoro.Location = new Point(28, 168);
             btnStartPomodoro.Margin = new Padding(6);
             btnStartPomodoro.Name = "btnStartPomodoro";
-            btnStartPomodoro.Size = new Size(371, 75);
+            btnStartPomodoro.Size = new Size(205, 75);
             btnStartPomodoro.TabIndex = 2;
             btnStartPomodoro.UseVisualStyleBackColor = true;
             btnStartPomodoro.Click += BtnStartPomodoro_Click;
-
+            // 
             // lblPomodoroTime
+            // 
             lblPomodoroTime.AutoSize = true;
             lblPomodoroTime.Font = new Font("微软雅黑", 16F);
-            lblPomodoroTime.Location = new Point(160, 37);
+            lblPomodoroTime.Location = new Point(40, 32);
             lblPomodoroTime.Margin = new Padding(6, 0, 6, 0);
             lblPomodoroTime.Name = "lblPomodoroTime";
             lblPomodoroTime.Size = new Size(203, 50);
             lblPomodoroTime.TabIndex = 0;
             lblPomodoroTime.Text = "25:00:00:0";
-
+            // 
             // lblPomodoroCount
+            // 
             lblPomodoroCount.AutoSize = true;
             lblPomodoroCount.Font = new Font("微软雅黑", 10F);
-            lblPomodoroCount.Location = new Point(197, 112);
+            lblPomodoroCount.Location = new Point(69, 102);
             lblPomodoroCount.Margin = new Padding(6, 0, 6, 0);
             lblPomodoroCount.Name = "lblPomodoroCount";
             lblPomodoroCount.Size = new Size(124, 31);
             lblPomodoroCount.TabIndex = 1;
             lblPomodoroCount.Text = "0个大番茄";
-
+            // 
             // btnPomodoroSettings
-            btnPomodoroSettings.Location = new Point(85, 295);
+            // 
+            btnPomodoroSettings.Location = new Point(28, 277);
             btnPomodoroSettings.Margin = new Padding(6);
             btnPomodoroSettings.Name = "btnPomodoroSettings";
-            btnPomodoroSettings.Size = new Size(371, 75);
+            btnPomodoroSettings.Size = new Size(205, 75);
             btnPomodoroSettings.TabIndex = 3;
             btnPomodoroSettings.UseVisualStyleBackColor = true;
             btnPomodoroSettings.Click += BtnPomodoroSettings_Click;
-
+            // 
             // PomodoroControl
+            // 
             AutoScaleDimensions = new SizeF(13F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(lblPomodoroCount);
