@@ -111,6 +111,7 @@ namespace DTwoMFTimerHelper.Services {
                 _timeLeft = GetWorkTime();
                 BreakSkipped?.Invoke(this, EventArgs.Empty);
                 OnTimerStateChanged();
+                Toast.Success(LanguageManager.GetString("PomodoroBreakSkipped", "Break skipped"));
             }
         }
 

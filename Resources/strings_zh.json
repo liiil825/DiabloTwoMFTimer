@@ -108,5 +108,10 @@
   "HideLoot": "隐藏掉落",
   "SuccessSettingsChanged": "设置修改成功",
   "PomodoroWorkEnding60s": "工作时间将在60秒后结束",
-  "PomodoroWorkEnding3s": "工作时间将在3秒后结束"
+  "PomodoroWorkEnding3s": "工作时间将在3秒后结束",
+  "PomodoroSettingsSaved": "番茄钟设置保存成功",
+  "PomodoroReset": "番茄钟已重置",
+  "PomodoroStarted": "番茄钟已开始",
+  "PomodoroPaused": "番茄钟已暂停",
+  "PomodoroBreakSkipped": "已跳过休息"
 }

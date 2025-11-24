@@ -63,6 +63,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
                 BeginInvoke(new Action<object?, TimerStateChangedEventArgs>(OnStateChanged), sender, e);
                 return;
             }
+            UpdateDisplay();
             UpdateColor();
         }
 

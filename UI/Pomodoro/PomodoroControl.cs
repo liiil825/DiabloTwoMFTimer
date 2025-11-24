@@ -117,12 +117,19 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
 
         private void BtnStartPomodoro_Click(object sender, EventArgs e) {
             if (_timerService == null) return;
-            if (_timerService.IsRunning) _timerService.Pause();
-            else _timerService.Start();
+            if (_timerService.IsRunning) {
+                _timerService.Pause();
+                Toast.Success(LanguageManager.GetString("PomodoroPaused", "Pomodoro timer paused"));
+            }
+            else {
+                _timerService.Start();
+                Toast.Success(LanguageManager.GetString("PomodoroStarted", "Pomodoro timer started"));
+            }
         }
 
         private void BtnPomodoroReset_Click(object sender, EventArgs e) {
             _timerService?.Reset();
+            Toast.Success(LanguageManager.GetString("PomodoroReset", "Pomodoro timer reset successfully"));
         }
 
         private void BtnPomodoroSettings_Click(object sender, EventArgs e) {
@@ -147,6 +154,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
 
                 SaveSettings();
                 _timerService.Reset();
+                Toast.Success(LanguageManager.GetString("PomodoroSettingsSaved", "Pomodoro settings saved successfully"));
             }
         }
 

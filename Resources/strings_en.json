@@ -109,5 +109,10 @@
   "HideLoot": "Hide Loot",
   "SuccessSettingsChanged": "Settings modified successfully",
   "PomodoroWorkEnding60s": "Work time ending in 60 seconds",
-  "PomodoroWorkEnding3s": "Work time ending in 3 seconds"
+  "PomodoroWorkEnding3s": "Work time ending in 3 seconds",
+  "PomodoroSettingsSaved": "Pomodoro settings saved successfully",
+  "PomodoroReset": "Pomodoro timer reset successfully",
+  "PomodoroStarted": "Pomodoro timer started",
+  "PomodoroPaused": "Pomodoro timer paused",
+  "PomodoroBreakSkipped": "Break skipped"
 }
