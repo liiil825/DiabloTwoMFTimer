@@ -1,0 +1,165 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using DTwoMFTimerHelper.Models;
+
+namespace DTwoMFTimerHelper.Services {
+    // 统计结果模型：场景数据
+    public class SceneStatDto {
+        public string SceneName { get; set; } = string.Empty;
+        public int RunCount { get; set; }
+        public double AverageTimeSeconds { get; set; }
+        public double FastestTimeSeconds { get; set; }
+        public double TotalTimeSeconds { get; set; }
+    }
+
+    // 统计结果模型：掉落数据
+    public class LootStatDto {
+        public string ItemName { get; set; } = string.Empty;
+        public string SceneName { get; set; } = string.Empty;
+        public int RunNumber { get; set; } // 第几轮
+        public DateTime DropTime { get; set; }
+    }
+
+    public class StatisticsService {
+        /// <summary>
+        /// 获取指定时间段内的场景统计数据
+        /// </summary>
+        public List<SceneStatDto> GetSceneStatistics(IProfileService profileService, DateTime startTime, DateTime endTime, bool sortByCount = true) {
+            var profile = profileService.CurrentProfile;
+            if (profile == null || profile.Records == null) return new List<SceneStatDto>();
+
+            // 筛选时间段内且已完成的记录
+            var validRecords = profile.Records
+                .Where(r => r.IsCompleted && r.StartTime >= startTime && r.StartTime <= endTime)
+                .ToList();
+
+            var stats = validRecords
+                .GroupBy(r => r.SceneName)
+                .Select(g => new SceneStatDto {
+                    SceneName = g.Key,
+                    RunCount = g.Count(),
+                    TotalTimeSeconds = g.Sum(r => r.DurationSeconds),
+                    AverageTimeSeconds = Math.Round(g.Average(r => r.DurationSeconds), 1),
+                    FastestTimeSeconds = Math.Round(g.Min(r => r.DurationSeconds), 1)
+                })
+                .ToList();
+
+            // 排序
+            if (sortByCount) {
+                return stats.OrderByDescending(s => s.RunCount).ThenBy(s => s.SceneName).ToList();
+            }
+            else {
+                // 按平均时间排序
+                return stats.OrderBy(s => s.AverageTimeSeconds).ToList();
+            }
+        }
+
+        /// <summary>
+        /// 获取本周一开始的时间
+        /// </summary>
+        public DateTime GetStartOfWeek() {
+            DateTime now = DateTime.Now;
+            // DayOfWeek: Sunday=0, Monday=1...
+            int diff = (7 + (now.DayOfWeek - DayOfWeek.Monday)) % 7;
+            return now.AddDays(-1 * diff).Date;
+        }
+
+
+        /// <summary>
+        /// 获取指定时间段内的掉落记录
+        /// </summary>
+        public List<LootStatDto> GetLootStatistics(IProfileService profileService, DateTime startTime, DateTime endTime) {
+            var profile = profileService.CurrentProfile;
+            if (profile == null || profile.LootRecords == null) return new List<LootStatDto>();
+
+            return profile.LootRecords
+                .Where(l => l.DropTime >= startTime && l.DropTime <= endTime)
+                .Select(l => new LootStatDto {
+                    ItemName = l.Name,
+                    SceneName = l.SceneName,
+                    RunNumber = l.RunCount,
+                    DropTime = l.DropTime
+                })
+                .OrderByDescending(l => l.DropTime)
+                .ToList();
+        }
+
+        /// <summary>
+        /// 获取今日概览简单文本（用于BreakForm）
+        /// </summary>
+        public string GetSimpleSummary(IProfileService profileService, DateTime start, DateTime end) {
+            var profile = profileService.CurrentProfile;
+            if (profile == null) return "暂无数据";
+
+            var records = profile.Records.Where(r => r.IsCompleted && r.StartTime >= start && r.StartTime <= end).ToList();
+            if (!records.Any()) return "暂无数据";
+
+            int totalRuns = records.Count;
+            double avgTime = records.Average(r => r.DurationSeconds);
+            int loots = profile.LootRecords.Count(l => l.DropTime >= start && l.DropTime <= end);
+
+            return $"场次: {totalRuns} | 平均: {avgTime:F1}s | 掉落: {loots}";
+        }
+
+        /// <summary>
+        /// 获取详细的统计摘要（多行文本）
+        /// </summary>
+        public string GetDetailedSummary(IProfileService profileService, DateTime start, DateTime end) {
+            if (profileService.CurrentProfile == null) return "无数据";
+
+            var sb = new StringBuilder();
+            // 1. 获取场景统计
+            var validRecords = profileService.CurrentProfile.Records
+                .Where(r => r.IsCompleted && r.StartTime >= start && r.StartTime <= end)
+                .ToList();
+
+            if (validRecords.Any()) {
+                var sceneStats = validRecords
+                    .GroupBy(r => r.SceneName)
+                    .Select(g => new {
+                        Name = g.Key,
+                        Count = g.Count(),
+                        Avg = g.Average(r => r.DurationSeconds),
+                        Fastest = g.Min(r => r.DurationSeconds)
+                    })
+                    .OrderByDescending(x => x.Count) // 按次数排序
+                    .ToList();
+
+                sb.AppendLine("【场景数据】");
+                foreach (var s in sceneStats) {
+                    // 格式：崔凡客: 25次 | Avg: 45s | Best: 40s
+                    sb.AppendLine($"{s.Name}: {s.Count}次 | 均: {s.Avg:F1}s | 最快: {s.Fastest:F1}s");
+                }
+            }
+            else {
+                sb.AppendLine("【场景数据】");
+                sb.AppendLine("暂无刷图记录");
+            }
+
+            sb.AppendLine(); // 空一行
+
+            // 2. 获取掉落统计
+            var loots = profileService.CurrentProfile.LootRecords
+                .Where(l => l.DropTime >= start && l.DropTime <= end)
+                .OrderByDescending(l => l.DropTime) // 最近的在上面
+                .ToList();
+
+            if (loots.Any()) {
+                sb.AppendLine("【掉落物品】");
+                foreach (var l in loots) {
+                    // 格式：崔凡客(25): 28号符文
+                    sb.AppendLine($"{l.SceneName} (第{l.RunCount}轮): {l.Name}");
+                }
+            }
+            // 如果没有掉落，就不显示掉落栏位，或者显示"无"
+            else if (validRecords.Any()) {
+                sb.AppendLine("【掉落物品】");
+                sb.AppendLine("暂无高价值掉落");
+            }
+
+            return sb.ToString();
+        }
+    }
+}

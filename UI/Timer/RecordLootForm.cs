@@ -22,11 +22,21 @@ namespace DTwoMFTimerHelper.UI.Timer {
             _profileService = profileService;
             _timerHistoryService = timerHistoryService;
 
-            // 设置默认焦点到装备名称输入框
-            txtLootName.Focus();
+            // 设置窗口始终置顶
+            this.TopMost = true;
+            // 添加Shown事件处理，确保窗口显示后获得焦点
+            this.Shown += (sender, e) => {
+                this.Activate();
+                txtLootName.Focus();
+                txtLootName.SelectAll();
+            };
         }
 
         private void btnSave_Click(object? sender, EventArgs e) {
+            SaveLootRecord();
+        }
+
+        private void SaveLootRecord() {
             if (string.IsNullOrWhiteSpace(txtLootName.Text)) {
                 // 显示错误提示
                 Utils.Toast.Warning(LanguageManager.GetString("EnterLootNameMessage") ?? "请输入掉落名称");
@@ -54,6 +64,9 @@ namespace DTwoMFTimerHelper.UI.Timer {
                 currentProfile.LootRecords.Add(lootRecord);
                 Services.DataService.SaveProfile(currentProfile); // 保存修改
             }
+
+            // 显示保存成功的Toast通知
+            Utils.Toast.Success(LanguageManager.GetString("LootRecordSavedSuccessfully") ?? "掉落记录保存成功");
 
             // 触发记录保存成功事件
             OnLootRecordSaved(EventArgs.Empty);
@@ -157,12 +170,17 @@ namespace DTwoMFTimerHelper.UI.Timer {
             LootRecordSaved?.Invoke(this, e);
         }
 
-        // 捕获Esc键按下事件，关闭窗口
+        // 捕获键盘按键事件，处理Esc键关闭窗口和回车键保存
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             // 检查是否按下了Esc键
             if (keyData == Keys.Escape) {
                 DialogResult = DialogResult.Cancel;
                 Close();
+                return true; // 表示已处理该按键
+            }
+            // 检查是否按下了回车键
+            if (keyData == Keys.Enter) {
+                SaveLootRecord();
                 return true; // 表示已处理该按键
             }
             return base.ProcessCmdKey(ref msg, keyData);

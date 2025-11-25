@@ -114,5 +114,6 @@
   "PomodoroReset": "Pomodoro timer reset successfully",
   "PomodoroStarted": "Pomodoro timer started",
   "PomodoroPaused": "Pomodoro timer paused",
-  "PomodoroBreakSkipped": "Break skipped"
+  "PomodoroBreakSkipped": "Break skipped",
+  "LootRecordSavedSuccessfully": "Loot record saved successfully"
 }

@@ -11,14 +11,17 @@ namespace DTwoMFTimerHelper.UI.Profiles {
         private readonly ITimerService _timerService;
         private readonly IProfileService _profileService;
         private readonly IMainServices _mainServices;
+        private readonly PomodoroTimerService _pomodoroTimerService;
 
         public ProfileManager(
         IProfileService profileService,
         ITimerService timerService,
+        PomodoroTimerService pomodoroTimerService,
         IMainServices mainServices) {
             _profileService = profileService;
             _timerService = timerService;
             _mainServices = mainServices;
+            _pomodoroTimerService = pomodoroTimerService;
 
             InitializeComponent();
             LoadFarmingScenes();
@@ -35,6 +38,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
         private Label? lblDifficulty = null!;
         private ComboBox? cmbDifficulty = null!;
         private Button? btnStartStop = null!;
+        private Button? btnShowStats = null!;
         private Label? lblCurrentProfile = null!;
         private Label? lblTime = null!;
         private Label? lblStats = null!;
@@ -71,6 +75,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             lblDifficulty = new Label();
             cmbDifficulty = new ComboBox();
             btnStartStop = new Button();
+            btnShowStats = new Button();
             lblCurrentProfile = new Label();
             lblTime = new Label();
             lblStats = new Label();
@@ -156,6 +161,16 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             btnStartStop.UseVisualStyleBackColor = true;
             btnStartStop.Click += BtnStartStop_Click;
             // 
+            // btnShowStats
+            // 
+            btnShowStats.Location = new System.Drawing.Point(200, 220);
+            btnShowStats.Margin = new Padding(6);
+            btnShowStats.Name = "btnShowStats";
+            btnShowStats.Size = new System.Drawing.Size(130, 50);
+            btnShowStats.TabIndex = 8;
+            btnShowStats.Text = "全屏统计";
+            btnShowStats.Click += BtnShowStats_Click;
+            // 
             // lblCurrentProfile
             // 
             lblCurrentProfile.AutoSize = true;
@@ -187,6 +202,7 @@ namespace DTwoMFTimerHelper.UI.Profiles {
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(btnShowStats);
             Controls.Add(btnCreateCharacter);
             Controls.Add(btnSwitchCharacter);
             Controls.Add(btnDeleteCharacter);
@@ -537,6 +553,18 @@ namespace DTwoMFTimerHelper.UI.Profiles {
         private void BtnStartStop_Click(object? sender, EventArgs e) {
             _mainServices.SetActiveTabPage(Models.TabPage.Timer);
             _timerService.HandleStartFarm();
+        }
+
+        private void BtnShowStats_Click(object? sender, EventArgs e) {
+            // 创建 BreakForm，使用 StatisticsView 模式
+            // 注意：BreakType 在这里不重要，传默认值即可
+            var statsForm = new DTwoMFTimerHelper.UI.Pomodoro.BreakForm(
+                _pomodoroTimerService,
+                _profileService,
+                DTwoMFTimerHelper.UI.Pomodoro.BreakFormMode.StatisticsView // <--- 关键：指定为查看模式
+            );
+
+            statsForm.Show(); // 使用 Show() 允许非模态，或者 ShowDialog() 模态显示
         }
 
         // 场景选择变更事件处理

@@ -227,9 +227,9 @@ namespace DTwoMFTimerHelper.Services {
         #region Private Methods
         private void InitializeControlInstances() {
             // 修复：传递 this 作为 IMainServices 参数
-            _profileManager = new ProfileManager(_profileService, _timerService, this);
+            _profileManager = new ProfileManager(_profileService, _timerService, _pomodoroTimerService, this);
             _timerControl = new TimerControl(_profileService, _timerService, _timerHistoryService, _pomodoroTimerService);
-            _pomodoroControl = new PomodoroControl(_pomodoroTimerService);
+            _pomodoroControl = new PomodoroControl(_pomodoroTimerService, _profileService);
             _settingsControl = new SettingsControl();
             _appSettings ??= SettingsManager.LoadSettings();
             _settingsControl.InitializeData(_appSettings);

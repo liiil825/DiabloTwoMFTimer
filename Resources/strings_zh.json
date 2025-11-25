@@ -113,5 +113,6 @@
   "PomodoroReset": "番茄钟已重置",
   "PomodoroStarted": "番茄钟已开始",
   "PomodoroPaused": "番茄钟已暂停",
-  "PomodoroBreakSkipped": "已跳过休息"
+  "PomodoroBreakSkipped": "已跳过休息",
+  "LootRecordSavedSuccessfully": "掉落记录保存成功"
 }

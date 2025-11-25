@@ -100,9 +100,9 @@ namespace DTwoMFTimerHelper.UI.Timer {
 
             // 添加数据项，按掉落时间降序排列
             foreach (var record in recordsToDisplay.OrderByDescending(r => r.DropTime)) {
-                // 使用国际化格式字符串显示掉落记录
-                string format = LanguageManager.GetString("RunNumber");
-                lootListView.Items.Add(string.Format(format, record.RunCount, record.Name));
+                // 使用国际化格式字符串显示掉落记录，直接使用GetString的格式化功能
+                string lootText = LanguageManager.GetString("RunNumber", record.RunCount, record.Name);
+                lootListView.Items.Add(lootText);
             }
         }
 
