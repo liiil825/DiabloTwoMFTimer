@@ -11,12 +11,12 @@ namespace DTwoMFTimerHelper.UI.Profiles {
         private readonly ITimerService _timerService;
         private readonly IProfileService _profileService;
         private readonly IMainServices _mainServices;
-        private readonly PomodoroTimerService _pomodoroTimerService;
+        private readonly IPomodoroTimerService _pomodoroTimerService;
 
         public ProfileManager(
         IProfileService profileService,
         ITimerService timerService,
-        PomodoroTimerService pomodoroTimerService,
+        IPomodoroTimerService pomodoroTimerService,
         IMainServices mainServices) {
             _profileService = profileService;
             _timerService = timerService;

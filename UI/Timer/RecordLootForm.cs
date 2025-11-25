@@ -50,10 +50,11 @@ namespace DTwoMFTimerHelper.UI.Timer {
             }
 
             string sceneName = _profileService?.CurrentScene ?? "";
+            string englishSceneName = SceneService.GetEnglishSceneName(sceneName);
 
             var lootRecord = new LootRecord {
                 Name = txtLootName.Text.Trim(),
-                SceneName = sceneName,
+                SceneName = englishSceneName,
                 RunCount = runCount,
                 DropTime = DateTime.Now
             };
@@ -75,7 +76,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
             Close();
         }
 
-        private void btnCancel_Click(object? sender, EventArgs e) {
+        private void BtnCancel_Click(object? sender, EventArgs e) {
             DialogResult = DialogResult.Cancel;
             Close();
         }
@@ -136,7 +137,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
             this.btnCancel.TabIndex = 4;
             this.btnCancel.Text = LanguageManager.GetString("CancelButton");
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
             // RecordLootForm
             // 

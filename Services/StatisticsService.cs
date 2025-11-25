@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DTwoMFTimerHelper.Models;
+using DTwoMFTimerHelper.Utils;
 
 namespace DTwoMFTimerHelper.Services {
     // 统计结果模型：场景数据
@@ -91,23 +92,23 @@ namespace DTwoMFTimerHelper.Services {
         /// </summary>
         public string GetSimpleSummary(IProfileService profileService, DateTime start, DateTime end) {
             var profile = profileService.CurrentProfile;
-            if (profile == null) return "暂无数据";
+            if (profile == null) return LanguageManager.GetString("NoData");
 
             var records = profile.Records.Where(r => r.IsCompleted && r.StartTime >= start && r.StartTime <= end).ToList();
-            if (!records.Any()) return "暂无数据";
+            if (!records.Any()) return LanguageManager.GetString("NoData");
 
             int totalRuns = records.Count;
             double avgTime = records.Average(r => r.DurationSeconds);
             int loots = profile.LootRecords.Count(l => l.DropTime >= start && l.DropTime <= end);
 
-            return $"场次: {totalRuns} | 平均: {avgTime:F1}s | 掉落: {loots}";
+            return $"{LanguageManager.GetString("TotalRuns")}: {totalRuns} | {LanguageManager.GetString("Average")}: {avgTime:F1}s | {LanguageManager.GetString("Loots")}: {loots}";
         }
 
         /// <summary>
         /// 获取详细的统计摘要（多行文本）
         /// </summary>
         public string GetDetailedSummary(IProfileService profileService, DateTime start, DateTime end) {
-            if (profileService.CurrentProfile == null) return "无数据";
+            if (profileService.CurrentProfile == null) return LanguageManager.GetString("NoData");
 
             var sb = new StringBuilder();
             // 1. 获取场景统计
@@ -127,15 +128,16 @@ namespace DTwoMFTimerHelper.Services {
                     .OrderByDescending(x => x.Count) // 按次数排序
                     .ToList();
 
-                sb.AppendLine("【场景数据】");
+                sb.AppendLine($"【{LanguageManager.GetString("SceneData")}】");
                 foreach (var s in sceneStats) {
                     // 格式：崔凡客: 25次 | Avg: 45s | Best: 40s
-                    sb.AppendLine($"{s.Name}: {s.Count}次 | 均: {s.Avg:F1}s | 最快: {s.Fastest:F1}s");
+                    string localizedSceneName = SceneService.GetLocalizedShortSceneName(s.Name);
+                    sb.AppendLine($"{localizedSceneName}: {s.Count}{LanguageManager.GetString("Times")} | {LanguageManager.GetString("Avg")}: {s.Avg:F1}s | {LanguageManager.GetString("Fastest")}: {s.Fastest:F1}s");
                 }
             }
             else {
-                sb.AppendLine("【场景数据】");
-                sb.AppendLine("暂无刷图记录");
+                sb.AppendLine($"【{LanguageManager.GetString("SceneData")}】");
+                sb.AppendLine(LanguageManager.GetString("NoRunRecords"));
             }
 
             sb.AppendLine(); // 空一行
@@ -147,16 +149,17 @@ namespace DTwoMFTimerHelper.Services {
                 .ToList();
 
             if (loots.Any()) {
-                sb.AppendLine("【掉落物品】");
+                sb.AppendLine($"【{LanguageManager.GetString("LootItems")}】");
                 foreach (var l in loots) {
                     // 格式：崔凡客(25): 28号符文
-                    sb.AppendLine($"{l.SceneName} (第{l.RunCount}轮): {l.Name}");
+                    string localizedSceneName = SceneService.GetLocalizedShortSceneName(l.SceneName);
+                    sb.AppendLine($"{localizedSceneName} ({LanguageManager.GetString("Round")} {l.RunCount}): {l.Name}");
                 }
             }
             // 如果没有掉落，就不显示掉落栏位，或者显示"无"
             else if (validRecords.Any()) {
-                sb.AppendLine("【掉落物品】");
-                sb.AppendLine("暂无高价值掉落");
+                sb.AppendLine($"【{LanguageManager.GetString("LootItems")}】");
+                sb.AppendLine(LanguageManager.GetString("NoHighValueLoots"));
             }
 
             return sb.ToString();

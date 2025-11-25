@@ -43,7 +43,10 @@ namespace DTwoMFTimerHelper.Services {
     }
 
     public class ProfileService : IProfileService {
-        public ProfileService() {
+        private readonly IAppSettings _appSettings;
+
+        public ProfileService(IAppSettings appSettings) {
+            _appSettings = appSettings;
             LoadLastUsedProfile();
             LoadLastRunScene();
         }
@@ -66,9 +69,8 @@ namespace DTwoMFTimerHelper.Services {
 
                     // 保存到设置
                     if (value != null) {
-                        var settings = SettingsManager.LoadSettings();
-                        settings.LastUsedProfile = value.Name;
-                        SettingsManager.SaveSettings(settings);
+                        _appSettings.LastUsedProfile = value.Name;
+                        SettingsManager.SaveSettings(_appSettings);
                     }
                 }
             }
@@ -86,9 +88,8 @@ namespace DTwoMFTimerHelper.Services {
                     CurrentSceneChangedEvent?.Invoke(englishSceneName);
 
                     // 保存到设置
-                    var settings = SettingsManager.LoadSettings();
-                    settings.LastRunScene = englishSceneName;
-                    SettingsManager.SaveSettings(settings);
+                    _appSettings.LastRunScene = englishSceneName;
+                    SettingsManager.SaveSettings(_appSettings);
                 }
             }
         }
@@ -102,9 +103,8 @@ namespace DTwoMFTimerHelper.Services {
                     CurrentDifficultyChangedEvent?.Invoke(value);
 
                     // 保存到设置
-                    var settings = SettingsManager.LoadSettings();
-                    settings.LastUsedDifficulty = value.ToString();
-                    SettingsManager.SaveSettings(settings);
+                    _appSettings.LastUsedDifficulty = value.ToString();
+                    SettingsManager.SaveSettings(_appSettings);
                 }
             }
         }
@@ -276,8 +276,7 @@ namespace DTwoMFTimerHelper.Services {
         /// </summary>
         private void LoadLastUsedProfile() {
             LogManager.WriteDebugLog("ProfileService", "LoadLastUsedProfile 开始执行");
-            var settings = SettingsManager.LoadSettings();
-            string lastUsedProfileName = settings.LastUsedProfile;
+            string lastUsedProfileName = _appSettings.LastUsedProfile;
             LogManager.WriteDebugLog("ProfileService", $"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
             if (!string.IsNullOrWhiteSpace(lastUsedProfileName)) {
                 LogManager.WriteDebugLog("ProfileService", $"尝试加载上次使用的角色档案: {lastUsedProfileName}");
@@ -296,20 +295,18 @@ namespace DTwoMFTimerHelper.Services {
         /// 加载上次使用的场景
         /// </summary>
         private void LoadLastRunScene() {
-            var settings = SettingsManager.LoadSettings();
-
             // 优先使用当前角色档案的LastRunScene字段
             if (CurrentProfile != null && !string.IsNullOrEmpty(CurrentProfile.LastRunScene)) {
                 CurrentScene = CurrentProfile.LastRunScene;
             }
             // 如果角色档案没有保存场景，则回退到全局设置
-            else if (!string.IsNullOrEmpty(settings.LastRunScene)) {
-                CurrentScene = settings.LastRunScene;
+            else if (!string.IsNullOrEmpty(_appSettings.LastRunScene)) {
+                CurrentScene = _appSettings.LastRunScene;
             }
 
             // 加载上次使用的难度
-            if (!string.IsNullOrEmpty(settings.LastUsedDifficulty) &&
-                Enum.TryParse<GameDifficulty>(settings.LastUsedDifficulty, out var difficulty)) {
+            if (!string.IsNullOrEmpty(_appSettings.LastUsedDifficulty) &&
+                Enum.TryParse<GameDifficulty>(_appSettings.LastUsedDifficulty, out var difficulty)) {
                 CurrentDifficulty = difficulty;
             }
         }

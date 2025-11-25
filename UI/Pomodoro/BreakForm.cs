@@ -19,9 +19,9 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
     }
 
     public partial class BreakForm : Form {
-        private readonly PomodoroTimerService _timerService;
+        private readonly IPomodoroTimerService _timerService;
         private readonly BreakType _breakType;
-        private readonly IProfileService _profileService;
+        private readonly IProfileService? _profileService;
         private readonly TimeSettings _timeSettings;
         private readonly StatisticsService _statsService;
         private readonly BreakFormMode _mode; // 当前窗口模式
@@ -30,20 +30,20 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         private bool _isAutoClosed = false;
 
         // UI控件
-        private Panel pnlHeader;      // 顶部区域（放标题和切换按钮）
-        private Label lblTitle;       // 标题
-        private FlowLayoutPanel pnlToggles; // 切换按钮容器
+        private Panel pnlHeader = null!;      // 顶部区域（放标题和切换按钮）
+        private Label lblTitle = null!;       // 标题
+        private FlowLayoutPanel pnlToggles = null!; // 切换按钮容器
 
-        private Button btnToggleSession;
-        private Button btnToggleToday;
-        private Button btnToggleWeek;
+        private Button btnToggleSession = null!;
+        private Button btnToggleToday = null!;
+        private Button btnToggleWeek = null!;
 
-        private Label lblMessage;     // 提示语 (休息模式显示，查看模式隐藏)
-        private Label lblStats;       // 统计内容 (多行)
-        private Label lblTimer;       // 倒计时 (查看模式隐藏)
+        private Label lblMessage = null!;     // 提示语 (休息模式显示，查看模式隐藏)
+        private Label lblStats = null!;       // 统计内容 (多行)
+        private Label lblTimer = null!;       // 倒计时 (查看模式隐藏)
 
-        private Button btnClose;
-        private Button btnSkip;       // 跳过 (查看模式隐藏)
+        private Button btnClose = null!;
+        private Button btnSkip = null!;       // 跳过 (查看模式隐藏)
 
         private readonly List<string> _shortBreakMessages = new List<string>
         {
@@ -55,7 +55,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         };
 
         // 构造函数
-        public BreakForm(PomodoroTimerService timerService, IProfileService profileService, BreakFormMode mode, BreakType breakType = BreakType.ShortBreak) {
+        public BreakForm(IPomodoroTimerService timerService, IProfileService? profileService, BreakFormMode mode, BreakType breakType = BreakType.ShortBreak) {
             _timerService = timerService;
             _profileService = profileService;
             _mode = mode;
@@ -209,18 +209,22 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         // 根据模式控制控件的显示/隐藏
         private void UpdateLayoutState() {
             if (_mode == BreakFormMode.StatisticsView) {
-                lblMessage.Visible = false; // 查看模式不显示“休息一下”
-                lblTimer.Visible = false;   // 查看模式不显示倒计时
-                btnSkip.Visible = false;    // 查看模式不需要跳过
-                btnToggleSession.Visible = false; // 查看模式下，通常看今日/本周，"本轮"概念较弱，也可保留
+                lblMessage.Visible = false;
+                lblTimer.Visible = false;
+                btnSkip.Visible = false;
+
+                // 关键点：查看模式下，"本轮战况" 意义不大，隐藏它
+                btnToggleSession.Visible = true;
             }
             else {
-                // 休息模式全显
                 lblMessage.Visible = true;
                 lblTimer.Visible = true;
                 btnSkip.Visible = true;
                 btnToggleSession.Visible = true;
             }
+
+            // 触发一次布局重算
+            this.PerformLayout();
         }
 
         private void SwitchView(StatViewType type) {
@@ -235,7 +239,9 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             HighlightButton(btnToggleWeek, _currentViewType == StatViewType.Week);
         }
 
-        private void HighlightButton(Button btn, bool isActive) {
+        private void HighlightButton(Button? btn, bool isActive) {
+            if (btn == null) return;
+
             if (isActive) {
                 btn.BackColor = Color.Gray;
                 btn.ForeColor = Color.White;
@@ -250,7 +256,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
 
         private void UpdateContent() {
             // 只有休息模式需要随机提示语
-            if (_mode == BreakFormMode.PomodoroBreak) {
+            if (_mode == BreakFormMode.PomodoroBreak && lblMessage != null) {
                 var rnd = new Random();
                 var list = _breakType == BreakType.ShortBreak ? _shortBreakMessages : _longBreakMessages;
                 lblMessage.Text = list[rnd.Next(list.Count)];
@@ -261,7 +267,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             UpdateButtonStyles();
 
             if (_profileService == null || _profileService.CurrentProfile == null) {
-                lblStats.Text = "暂无角色数据";
+                if (lblStats != null) lblStats.Text = "暂无角色数据";
                 return;
             }
 
@@ -293,52 +299,95 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
                     break;
             }
 
-            lblStats.Text = $"{title}\n\n{content}";
+            if (lblStats != null) lblStats.Text = $"{title}\n\n{content}";
         }
 
         // 布局逻辑 (根据模式动态调整)
         private void BreakForm_SizeChanged(object? sender, EventArgs e) {
+            if (pnlHeader == null) return; // 防止初始化前的空引用
+
             int cx = this.ClientSize.Width / 2;
             int totalH = this.ClientSize.Height;
+            int totalW = this.ClientSize.Width;
 
-            // 1. Header (始终在顶部)
-            // pnlHeader.Width = this.ClientSize.Width; // Dock Top 自动处理了
-            // 调整 Toggle Buttons 居中
-            pnlToggles.Left = (this.ClientSize.Width - pnlToggles.Width) / 2;
+            // 1. 顶部 Header 区域
+            // 强制刷新 FlowLayoutPanel 的布局，确保隐藏按钮后 Width 是准确的
+            pnlToggles.PerformLayout();
+            pnlToggles.Left = (totalW - pnlToggles.Width) / 2; // 重新计算居中
 
-            int currentY = 120; // Header 下方的起始位置
+            int currentY = 120; // 内容起始 Y 坐标
 
             // 2. 提示语 (仅休息模式)
             if (_mode == BreakFormMode.PomodoroBreak) {
-                lblMessage.Width = this.ClientSize.Width - 100;
+                lblMessage.Width = totalW - 100;
                 lblMessage.Location = new Point(50, currentY);
-                currentY = lblMessage.Bottom + 20;
+                currentY = lblMessage.Bottom + 10;
             }
             else {
-                currentY += 40; // 查看模式稍微留点空
+                currentY += 20;
             }
 
-            // 3. 统计内容 (占据主要空间)
-            lblStats.Width = this.ClientSize.Width - 100;
-            // 动态计算高度：底部留给按钮和倒计时
-            int bottomMargin = 150;
-            lblStats.Height = totalH - currentY - bottomMargin;
-            lblStats.Location = new Point(50, currentY);
+            // --- 从底部向上布局，防止重叠 ---
 
-            // 4. 倒计时 & 按钮
+            // 5. 底部按钮位置 (固定在底部 100px 处)
             int btnY = totalH - 100;
 
+            // 按钮布局
             if (_mode == BreakFormMode.PomodoroBreak) {
-                lblTimer.Location = new Point(cx - (lblTimer.Width / 2), lblStats.Bottom + 10);
-
                 int spacing = 40;
                 int totalBtnW = btnClose.Width + btnSkip.Width + spacing;
                 btnSkip.Location = new Point(cx - (totalBtnW / 2), btnY);
                 btnClose.Location = new Point(btnSkip.Right + spacing, btnY);
             }
             else {
-                // 查看模式只有一个关闭按钮，居中
                 btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
+            }
+
+            // 4. 倒计时 (仅休息模式)
+            // 放在按钮上方 60px 处
+            int statsBottomLimit;
+
+            if (_mode == BreakFormMode.PomodoroBreak) {
+                int timerY = btnY - 60;
+                lblTimer.Location = new Point(cx - (lblTimer.Width / 2), timerY);
+                // 统计区域的底部界限 = 倒计时上方再留 20px
+                statsBottomLimit = timerY - 20;
+            }
+            else {
+                // 查看模式下，统计区域底部界限 = 按钮上方再留 40px
+                statsBottomLimit = btnY - 40;
+            }
+
+            // 3. 统计内容 (填充中间剩余空间)
+            // 高度 = 底部界限 - 当前Y坐标
+            int statsHeight = statsBottomLimit - currentY;
+            if (statsHeight < 100) statsHeight = 100; // 最小高度保护
+
+            lblStats.Width = totalW - 100;
+            lblStats.Height = statsHeight;
+            lblStats.Location = new Point(50, currentY);
+        }
+
+        private void TimerService_TimerStateChanged(object? sender, TimerStateChangedEventArgs e) {
+            // 只有在休息模式下才处理自动关闭逻辑
+            if (_mode == BreakFormMode.PomodoroBreak) {
+                // 如果状态从休息切换到工作，自动关闭窗口
+                // 逻辑：当前是 Work 状态，且上一个状态是对应的休息状态
+                if (e.State == TimerState.Work &&
+                   ((_breakType == BreakType.ShortBreak && e.PreviousState == TimerState.ShortBreak) ||
+                    (_breakType == BreakType.LongBreak && e.PreviousState == TimerState.LongBreak))) {
+                    AutoCloseForm();
+                }
+            }
+        }
+
+        private void CheckBreakTimeEnded() {
+            // 只有在休息模式下才检查
+            if (_mode == BreakFormMode.PomodoroBreak) {
+                // 双重保险：如果倒计时归零，且服务状态已经是 Work（通常 TimerStateChanged 会先触发，这里是兜底）
+                if (_timerService.TimeLeft <= TimeSpan.Zero && _timerService.CurrentState == TimerState.Work) {
+                    AutoCloseForm();
+                }
             }
         }
 
@@ -346,20 +395,8 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         private void TimerService_TimeUpdated(object? sender, EventArgs e) {
             if (InvokeRequired) { Invoke(new Action<object?, EventArgs>(TimerService_TimeUpdated), sender, e); return; }
             var t = _timerService.TimeLeft;
-            lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
+            if (lblTimer != null) lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
             CheckBreakTimeEnded();
-        }
-
-        // ... 其他方法保持不变 ...
-        private void TimerService_TimerStateChanged(object? sender, TimerStateChangedEventArgs e) {
-            // 只有在休息模式才自动关闭
-            if (_mode == BreakFormMode.PomodoroBreak) { /* ...原逻辑... */ }
-        }
-
-        private void CheckBreakTimeEnded() {
-            if (_timerService.TimeLeft <= TimeSpan.Zero && _timerService.CurrentState == TimerState.Work) {
-                AutoCloseForm();
-            }
         }
 
         private void AutoCloseForm() {

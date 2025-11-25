@@ -233,17 +233,18 @@ namespace DTwoMFTimerHelper.Services {
             }
 
             // 判断角色名是否包含中文字符
-            bool isChineseCharacter = !string.IsNullOrEmpty(characterName) && 
+            bool isChineseCharacter = !string.IsNullOrEmpty(characterName) &&
                                      characterName.Any(c => c >= 0x4e00 && c <= 0x9fff);
 
             // 根据角色名是否为中文选择对应的短名称
             if (isChineseCharacter) {
-                return !string.IsNullOrEmpty(scene.ShortZhCN) ? scene.ShortZhCN : 
-                       (!string.IsNullOrEmpty(scene.ShortEnName) ? scene.ShortEnName : 
+                return !string.IsNullOrEmpty(scene.ShortZhCN) ? scene.ShortZhCN :
+                       (!string.IsNullOrEmpty(scene.ShortEnName) ? scene.ShortEnName :
                        (!string.IsNullOrEmpty(scene.ShortName) ? scene.ShortName : pureSceneName));
-            } else {
-                return !string.IsNullOrEmpty(scene.ShortEnName) ? scene.ShortEnName : 
-                       (!string.IsNullOrEmpty(scene.ShortName) ? scene.ShortName : 
+            }
+            else {
+                return !string.IsNullOrEmpty(scene.ShortEnName) ? scene.ShortEnName :
+                       (!string.IsNullOrEmpty(scene.ShortName) ? scene.ShortName :
                        (!string.IsNullOrEmpty(scene.ShortZhCN) ? scene.ShortZhCN : pureSceneName));
             }
         }
@@ -292,6 +293,20 @@ namespace DTwoMFTimerHelper.Services {
             string language = System.Threading.Thread.CurrentThread.CurrentUICulture.Name.StartsWith("zh") ? "Chinese" : "English";
             string name = scene.GetSceneName(language);
             return $"{actText}: {name}";
+        }
+
+        public static string GetLocalizedShortSceneName(string scene) {
+            _cachedFarmingSpots ??= LoadFarmingSpots();
+            string language = System.Threading.Thread.CurrentThread.CurrentUICulture.Name.StartsWith("zh") ? "Chinese" : "English";
+            string pureEnglishSceneName = GetPureSceneName(scene);
+
+            FarmingScene? farmingScene = _cachedFarmingSpots.FirstOrDefault(s =>
+                string.Equals(s.EnUS, pureEnglishSceneName, StringComparison.OrdinalIgnoreCase));
+            return language switch {
+                "Chinese" => farmingScene?.ShortZhCN ?? pureEnglishSceneName,
+                "English" => farmingScene?.ShortEnName ?? pureEnglishSceneName,
+                _ => pureEnglishSceneName,
+            };
         }
 
         /// <summary>

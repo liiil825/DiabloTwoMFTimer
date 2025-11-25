@@ -5,7 +5,7 @@ using DTwoMFTimerHelper.Services;
 
 namespace DTwoMFTimerHelper.UI.Pomodoro {
     public class PomodoroTimeDisplayLabel : Label {
-        private PomodoroTimerService? _timerService;
+        private IPomodoroTimerService? _timerService;
         private bool _showMilliseconds = true; // 默认显示毫秒
 
         public PomodoroTimeDisplayLabel() {
@@ -29,7 +29,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             }
         }
 
-        public void BindService(PomodoroTimerService service) {
+        public void BindService(IPomodoroTimerService service) {
             // 解绑旧服务
             if (_timerService != null) {
                 _timerService.TimeUpdated -= OnTimeUpdated;

@@ -178,8 +178,8 @@ namespace DTwoMFTimerHelper.UI.Settings {
             PerformLayout();
         }
 
-        public void LoadSettings(AppSettings settings) {
-            if (this.InvokeRequired) { this.Invoke(new Action<AppSettings>(LoadSettings), settings); return; }
+        public void LoadSettings(Services.IAppSettings settings) {
+            if (this.InvokeRequired) { this.Invoke(new Action<Services.IAppSettings>(LoadSettings), settings); return; }
 
             // 1. 设置“总在最前”
             if (alwaysOnTopCheckBox != null) {

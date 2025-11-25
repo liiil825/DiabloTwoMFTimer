@@ -14,7 +14,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
         private readonly ITimerService? _timerService;
         private readonly IProfileService? _profileService;
         private readonly ITimerHistoryService? _historyService;
-        private readonly PomodoroTimerService? _pomodoroTimerService;
+        private readonly IPomodoroTimerService? _pomodoroTimerService;
 
         // 组件引用 (这里去掉初始化，统一在 InitializeComponent 中处理)
         private StatisticsControl? statisticsControl;
@@ -66,7 +66,7 @@ namespace DTwoMFTimerHelper.UI.Timer {
         /// <param name="timerService"></param>
         /// <param name="historyService"></param>
         /// <param name="pomodoroTimerService"></param>
-        public TimerControl(IProfileService profileService, ITimerService timerService, ITimerHistoryService historyService, PomodoroTimerService pomodoroTimerService) : this(profileService, timerService, historyService) {
+        public TimerControl(IProfileService profileService, ITimerService timerService, ITimerHistoryService historyService, IPomodoroTimerService pomodoroTimerService) : this(profileService, timerService, historyService) {
             _pomodoroTimerService = pomodoroTimerService;
         }
 

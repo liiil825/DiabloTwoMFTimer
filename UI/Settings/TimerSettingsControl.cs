@@ -104,7 +104,7 @@ namespace DTwoMFTimerHelper.UI.Settings {
         }
 
         // 加载设置
-        public void LoadSettings(Services.AppSettings settings) {
+        public void LoadSettings(Services.IAppSettings settings) {
             TimerShowPomodoro = settings.TimerShowPomodoro;
             TimerShowLootDrops = settings.TimerShowLootDrops;
             TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro;

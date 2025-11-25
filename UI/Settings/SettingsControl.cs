@@ -170,7 +170,7 @@ namespace DTwoMFTimerHelper.UI.Settings {
             timerSettings.RefreshUI();
         }
 
-        public void InitializeData(Services.AppSettings settings) {
+        public void InitializeData(Services.IAppSettings settings) {
             generalSettings.LoadSettings(settings);
             hotkeySettings.LoadHotkeys(settings);
             timerSettings.LoadSettings(settings);

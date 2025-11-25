@@ -25,6 +25,14 @@ namespace DTwoMFTimerHelper.Services {
             get;
             set;
         }
+        public string LastRunScene {
+            get;
+            set;
+        }
+        public string LastUsedDifficulty {
+            get;
+            set;
+        }
         public int WorkTimeMinutes {
             get;
             set;
@@ -62,7 +70,23 @@ namespace DTwoMFTimerHelper.Services {
             get;
             set;
         }
-
+        // 热键设置
+        public Keys HotkeyStartOrNext {
+            get;
+            set;
+        }
+        public Keys HotkeyPause {
+            get;
+            set;
+        }
+        public Keys HotkeyDeleteHistory {
+            get;
+            set;
+        }
+        public Keys HotkeyRecordLoot {
+            get;
+            set;
+        }
     }
     public class AppSettings : IAppSettings {
         // 窗口设置
@@ -117,10 +141,10 @@ namespace DTwoMFTimerHelper.Services {
                 if (directory != null) {
                     Directory.CreateDirectory(directory);
                 }
-
                 if (File.Exists(ConfigFilePath)) {
                     var yaml = File.ReadAllText(ConfigFilePath);
-                    return deserializer.Deserialize<AppSettings>(yaml);
+                    var settings = deserializer.Deserialize<AppSettings>(yaml);
+                    return settings;
                 }
             }
             catch (Exception ex) {
@@ -128,11 +152,12 @@ namespace DTwoMFTimerHelper.Services {
             }
 
             // 返回默认设置
+            LogManager.WriteDebugLog("SettingsManager", "返回默认设置");
             return new AppSettings();
         }
 
         // 保存设置
-        public static void SaveSettings(AppSettings settings) {
+        public static void SaveSettings(IAppSettings settings) {
             try {
                 // 确保目录存在 - 添加null检查以修复CS8604警告
                 string? directory = Path.GetDirectoryName(ConfigFilePath);
@@ -140,7 +165,30 @@ namespace DTwoMFTimerHelper.Services {
                     Directory.CreateDirectory(directory);
                 }
 
-                var yaml = serializer.Serialize(settings);
+                // 将IAppSettings转换为AppSettings对象进行序列化
+                var appSettings = settings as AppSettings ?? new AppSettings {
+                    WindowPosition = settings.WindowPosition,
+                    AlwaysOnTop = settings.AlwaysOnTop,
+                    Language = settings.Language,
+                    LastUsedProfile = settings.LastUsedProfile,
+                    LastRunScene = settings.LastRunScene,
+                    LastUsedDifficulty = settings.LastUsedDifficulty,
+                    WorkTimeMinutes = settings.WorkTimeMinutes,
+                    WorkTimeSeconds = settings.WorkTimeSeconds,
+                    ShortBreakMinutes = settings.ShortBreakMinutes,
+                    ShortBreakSeconds = settings.ShortBreakSeconds,
+                    LongBreakMinutes = settings.LongBreakMinutes,
+                    LongBreakSeconds = settings.LongBreakSeconds,
+                    TimerShowLootDrops = settings.TimerShowLootDrops,
+                    TimerShowPomodoro = settings.TimerShowPomodoro,
+                    TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro,
+                    HotkeyStartOrNext = settings.HotkeyStartOrNext,
+                    HotkeyPause = settings.HotkeyPause,
+                    HotkeyDeleteHistory = settings.HotkeyDeleteHistory,
+                    HotkeyRecordLoot = settings.HotkeyRecordLoot
+                };
+
+                var yaml = serializer.Serialize(appSettings);
                 File.WriteAllText(ConfigFilePath, yaml);
             }
             catch (Exception ex) {

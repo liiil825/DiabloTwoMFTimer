@@ -24,20 +24,21 @@ namespace DTwoMFTimerHelper.Services {
         IProfileService profileService,
         ITimerService timerService,
         ITimerHistoryService timerHistoryService,
-        PomodoroTimerService pomodoroTimerService) : IMainServices, IDisposable {
+        IPomodoroTimerService pomodoroTimerService,
+        IAppSettings appSettings) : IMainServices, IDisposable {
 
         #region Fields and Properties
         private readonly IProfileService _profileService = profileService;
         private readonly ITimerService _timerService = timerService;
         private readonly ITimerHistoryService _timerHistoryService = timerHistoryService;
-        private readonly PomodoroTimerService _pomodoroTimerService = pomodoroTimerService;
+        private readonly IPomodoroTimerService _pomodoroTimerService = pomodoroTimerService;
+        private readonly IAppSettings _appSettings = appSettings;
 
         private MainForm? _mainForm;
         private ProfileManager? _profileManager;
         private PomodoroControl? _pomodoroControl;
         private TimerControl? _timerControl;
         private SettingsControl? _settingsControl;
-        private AppSettings? _appSettings;
 
         // 热键相关
         private const int WM_HOTKEY = 0x0312;
@@ -92,22 +93,11 @@ namespace DTwoMFTimerHelper.Services {
         /// 初始化应用程序
         /// </summary>
         public void InitializeApplication() {
-            LoadSettings();
             // 1. 从配置中初始化当前热键变量
-            if (_appSettings != null) {
-                _currentStartOrNextRunHotkey = _appSettings.HotkeyStartOrNext;
-                _currentPauseHotkey = _appSettings.HotkeyPause;
-                _currentDeleteHistoryHotkey = _appSettings.HotkeyDeleteHistory;
-                _currentRecordLootHotkey = _appSettings.HotkeyRecordLoot;
-            }
-            else {
-                // 默认值兜底
-                _currentStartOrNextRunHotkey = Keys.Q | Keys.Alt;
-                _currentPauseHotkey = Keys.Space | Keys.Control;
-                _currentDeleteHistoryHotkey = Keys.D | Keys.Control;
-                _currentRecordLootHotkey = Keys.A | Keys.Alt;
-                // ... 其他默认值
-            }
+            _currentStartOrNextRunHotkey = _appSettings.HotkeyStartOrNext;
+            _currentPauseHotkey = _appSettings.HotkeyPause;
+            _currentDeleteHistoryHotkey = _appSettings.HotkeyDeleteHistory;
+            _currentRecordLootHotkey = _appSettings.HotkeyRecordLoot;
 
             InitializeLanguageSupport();
             ApplyWindowSettings();
@@ -231,7 +221,6 @@ namespace DTwoMFTimerHelper.Services {
             _timerControl = new TimerControl(_profileService, _timerService, _timerHistoryService, _pomodoroTimerService);
             _pomodoroControl = new PomodoroControl(_pomodoroTimerService, _profileService);
             _settingsControl = new SettingsControl();
-            _appSettings ??= SettingsManager.LoadSettings();
             _settingsControl.InitializeData(_appSettings);
         }
 
@@ -270,8 +259,10 @@ namespace DTwoMFTimerHelper.Services {
             }
         }
 
+        /// <summary>
+        /// 加载设置到番茄钟服务
+        /// </summary>
         private void LoadSettings() {
-            _appSettings = SettingsManager.LoadSettings();
             _pomodoroTimerService.LoadSettings(_appSettings);
         }
 

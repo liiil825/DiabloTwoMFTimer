@@ -261,7 +261,7 @@ namespace DTwoMFTimerHelper.UI.Settings {
             return converter.ConvertToString(key) ?? "None";
         }
 
-        public void LoadHotkeys(Services.AppSettings settings) {
+        public void LoadHotkeys(Services.IAppSettings settings) {
             StartOrNextRunHotkey = settings.HotkeyStartOrNext;
             PauseHotkey = settings.HotkeyPause;
             DeleteHistoryHotkey = settings.HotkeyDeleteHistory;
