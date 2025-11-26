@@ -7,7 +7,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
     public partial class PomodoroControl : UserControl {
         // 注意：这里我们声明为可空，因为无参构造函数中它尚未赋值
         // 但在运行时使用带参构造后，它将不为空
-        private IPomodoroTimerService? _timerService;
+        private readonly IPomodoroTimerService? _timerService;
         private BreakForm? _breakForm;
         private readonly IProfileService? _profileService;
 

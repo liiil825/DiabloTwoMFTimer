@@ -46,9 +46,9 @@
   "BottomRight": "右下",
   "Settings": "设置",
   "PomodoroSettings": "番茄时钟设置",
-  "WorkTime": "工作时间(分钟):",
-  "ShortBreakTime": "短休息时间(分钟):",
-  "LongBreakTime": "长休息时间(分钟):",
+  "WorkTime": "工作时间:",
+  "ShortBreakTime": "短休息时间:",
+  "LongBreakTime": "长休息时间:",
   "Save": "保存",
   "Cancel": "取消",
   "BreakTime": "休息时间",
@@ -126,5 +126,7 @@
   "PomodoroStarted": "番茄钟已开始",
   "PomodoroPaused": "番茄钟已暂停",
   "PomodoroBreakSkipped": "已跳过休息",
+  "Minutes": "分",
+  "Seconds": "秒",
   "LootRecordSavedSuccessfully": "掉落记录保存成功"
 }

@@ -46,9 +46,9 @@
   "BottomRight": "Bottom Right",
   "Settings": "Settings",
   "PomodoroSettings": "Pomodoro Settings",
-  "WorkTime": "Work Time (minutes):",
-  "ShortBreakTime": "Short Break (minutes):",
-  "LongBreakTime": "Long Break (minutes):",
+  "WorkTime": "Work Time:",
+  "ShortBreakTime": "Short Break:",
+  "LongBreakTime": "Long Break:",
   "Save": "Save",
   "Cancel": "Cancel",
   "BreakTime": "Break Time",
@@ -127,5 +127,7 @@
   "PomodoroStarted": "Pomodoro timer started",
   "PomodoroPaused": "Pomodoro timer paused",
   "PomodoroBreakSkipped": "Break skipped",
-  "LootRecordSavedSuccessfully": "Loot record saved successfully"
+  "LootRecordSavedSuccessfully": "Loot record saved successfully",
+  "Minutes": "min",
+  "Seconds": "sec"
 }
