@@ -129,5 +129,7 @@
   "Minutes": "分",
   "Seconds": "秒",
   "FullScreenStatistics": "全屏统计",
+  "TimerSyncPausePomodoro": "同步暂停番茄钟",
+  "TimerGenerateRoomName": "生成房间名称",
   "LootRecordSavedSuccessfully": "掉落记录保存成功"
 }

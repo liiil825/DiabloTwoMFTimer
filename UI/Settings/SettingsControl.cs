@@ -203,6 +203,8 @@ namespace DTwoMFTimerHelper.UI.Settings {
             _appSettings.TimerShowPomodoro = timerSettings.TimerShowPomodoro;
             _appSettings.TimerShowLootDrops = timerSettings.TimerShowLootDrops;
             _appSettings.TimerSyncStartPomodoro = timerSettings.TimerSyncStartPomodoro;
+            _appSettings.TimerSyncPausePomodoro = timerSettings.TimerSyncPausePomodoro;
+            _appSettings.GenerateRoomName = timerSettings.GenerateRoomName;
 
             // 保存设置
             SettingsManager.SaveSettings(_appSettings);
@@ -223,7 +225,9 @@ namespace DTwoMFTimerHelper.UI.Settings {
             TimerSettingsChanged?.Invoke(this, new TimerSettingsChangedEventArgs(
                 timerSettings.TimerShowPomodoro,
                 timerSettings.TimerShowLootDrops,
-                timerSettings.TimerSyncStartPomodoro
+                timerSettings.TimerSyncStartPomodoro,
+                timerSettings.TimerSyncPausePomodoro,
+                timerSettings.GenerateRoomName
             ));
         }
 
@@ -266,10 +270,12 @@ namespace DTwoMFTimerHelper.UI.Settings {
         public class HotkeyChangedEventArgs(Keys hotkey) : EventArgs { public Keys Hotkey { get; } = hotkey; }
 
         // 新增：计时器设置事件参数类
-        public class TimerSettingsChangedEventArgs(bool showPomodoro, bool showLootDrops, bool syncStartPomodoro) : EventArgs {
+        public class TimerSettingsChangedEventArgs(bool showPomodoro, bool showLootDrops, bool syncStartPomodoro, bool syncPausePomodoro, bool generateRoomName) : EventArgs {
             public bool ShowPomodoro { get; } = showPomodoro;
             public bool ShowLootDrops { get; } = showLootDrops;
             public bool SyncStartPomodoro { get; } = syncStartPomodoro;
+            public bool SyncPausePomodoro { get; } = syncPausePomodoro;
+            public bool GenerateRoomName { get; } = generateRoomName;
         }
     }
 }

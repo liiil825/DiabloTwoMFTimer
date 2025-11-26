@@ -81,7 +81,16 @@ namespace DTwoMFTimerHelper.Services {
 
         // 处理计时器暂停状态变化事件
         private void OnTimerPauseStateChanged(bool isPaused) {
-            TriggerStartFromTimer();
+            if (isPaused) {
+                // 当计时器暂停时，如果番茄钟正在运行且设置了同步暂停，则暂停番茄钟
+                IAppSettings? appSettings = SettingsManager.LoadSettings();
+                if (appSettings.TimerSyncPausePomodoro && _isRunning) {
+                    Pause();
+                }
+            }
+            else {
+                TriggerStartFromTimer();
+            }
         }
 
         public void Start() {

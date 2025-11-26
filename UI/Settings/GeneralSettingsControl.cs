@@ -147,7 +147,7 @@ namespace DTwoMFTimerHelper.UI.Settings {
             alwaysOnTopCheckBox.AutoSize = true;
             alwaysOnTopCheckBox.Checked = true;
             alwaysOnTopCheckBox.CheckState = CheckState.Checked;
-            alwaysOnTopCheckBox.Location = new Point(125, 211);
+            alwaysOnTopCheckBox.Location = new Point(23, 211);
             alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
             alwaysOnTopCheckBox.Size = new Size(22, 21);
             alwaysOnTopCheckBox.TabIndex = 3;
@@ -155,7 +155,7 @@ namespace DTwoMFTimerHelper.UI.Settings {
             // alwaysOnTopLabel
             // 
             alwaysOnTopLabel.AutoSize = true;
-            alwaysOnTopLabel.Location = new Point(23, 206);
+            alwaysOnTopLabel.Location = new Point(51, 206);
             alwaysOnTopLabel.Name = "alwaysOnTopLabel";
             alwaysOnTopLabel.Size = new Size(96, 28);
             alwaysOnTopLabel.TabIndex = 2;

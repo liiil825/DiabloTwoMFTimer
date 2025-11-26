@@ -378,6 +378,8 @@ namespace DTwoMFTimerHelper.Services {
                 _appSettings.TimerShowPomodoro = e.ShowPomodoro;
                 _appSettings.TimerShowLootDrops = e.ShowLootDrops;
                 _appSettings.TimerSyncStartPomodoro = e.SyncStartPomodoro;
+                _appSettings.TimerSyncPausePomodoro = e.SyncPausePomodoro;
+                _appSettings.GenerateRoomName = e.GenerateRoomName;
             }
 
             // 应用掉落记录显示设置到UI

@@ -129,6 +129,8 @@
   "PomodoroBreakSkipped": "Break skipped",
   "LootRecordSavedSuccessfully": "Loot record saved successfully",
   "FullScreenStatistics": "Statistics",
+  "TimerSyncPausePomodoro": "Sync Pause Pomodoro",
+  "TimerGenerateRoomName": "Generate Room Name",
   "Minutes": "min",
   "Seconds": "sec"
 }

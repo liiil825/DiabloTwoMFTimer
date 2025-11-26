@@ -12,19 +12,12 @@ namespace DTwoMFTimerHelper {
 
             // 注册服务 - 使用SettingsManager.LoadSettings()从配置文件加载设置
             services.AddSingleton<IAppSettings>(_ => SettingsManager.LoadSettings());
-            services.AddSingleton<IProfileService, ProfileService>(sp => new ProfileService(sp.GetRequiredService<IAppSettings>()));
-            services.AddSingleton<ITimerService, TimerService>();
+            services.AddSingleton<IProfileService, ProfileService>();
             services.AddSingleton<ITimerHistoryService, TimerHistoryService>();
-            // 注册PomodoroTimerService并注入TimerService
-            services.AddSingleton<IPomodoroTimerService, PomodoroTimerService>(sp => new PomodoroTimerService(sp.GetRequiredService<ITimerService>()));
+            services.AddSingleton<ITimerService, TimerService>();
+            services.AddSingleton<IPomodoroTimerService, PomodoroTimerService>();
             // 注册MainServices
-            services.AddSingleton<IMainServices, MainServices>(sp => new MainServices(
-                sp.GetRequiredService<IProfileService>(),
-                sp.GetRequiredService<ITimerService>(),
-                sp.GetRequiredService<ITimerHistoryService>(),
-                sp.GetRequiredService<IPomodoroTimerService>(),
-                sp.GetRequiredService<IAppSettings>()
-            ));
+            services.AddSingleton<IMainServices, MainServices>();
 
             // 注册UI组件
             services.AddTransient<MainForm>();

@@ -70,6 +70,14 @@ namespace DTwoMFTimerHelper.Services {
             get;
             set;
         }
+        public bool TimerSyncPausePomodoro {
+            get;
+            set;
+        }
+        public bool GenerateRoomName {
+            get;
+            set;
+        }
         // 热键设置
         public Keys HotkeyStartOrNext {
             get;
@@ -111,6 +119,8 @@ namespace DTwoMFTimerHelper.Services {
         public bool TimerShowLootDrops { get; set; } = false; // 是否显示掉落记录
         public bool TimerShowPomodoro { get; set; } = true; // 是否显示番茄钟
         public bool TimerSyncStartPomodoro { get; set; } = false; // 开启计时器时是否同步开启番茄钟
+        public bool TimerSyncPausePomodoro { get; set; } = false; // 暂停计时器时是否同步暂停番茄钟
+        public bool GenerateRoomName { get; set; } = true; // 是否生成房间名称
 
         public Keys HotkeyStartOrNext { get; set; } = Keys.Q | Keys.Alt;
         public Keys HotkeyPause { get; set; } = Keys.Space | Keys.Control;
@@ -182,6 +192,8 @@ namespace DTwoMFTimerHelper.Services {
                     TimerShowLootDrops = settings.TimerShowLootDrops,
                     TimerShowPomodoro = settings.TimerShowPomodoro,
                     TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro,
+                    TimerSyncPausePomodoro = settings.TimerSyncPausePomodoro,
+                    GenerateRoomName = settings.GenerateRoomName,
                     HotkeyStartOrNext = settings.HotkeyStartOrNext,
                     HotkeyPause = settings.HotkeyPause,
                     HotkeyDeleteHistory = settings.HotkeyDeleteHistory,

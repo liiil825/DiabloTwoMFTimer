@@ -69,10 +69,12 @@ namespace DTwoMFTimerHelper.Services {
     public class TimerService : ITimerService {
         private readonly IProfileService _profileService;
         private readonly ITimerHistoryService _historyService;
+        private readonly IAppSettings _settings;
 
-        public TimerService(IProfileService profileService, ITimerHistoryService historyService) {
+        public TimerService(IProfileService profileService, ITimerHistoryService historyService, IAppSettings settings) {
             _profileService = profileService;
             _historyService = historyService;
+            _settings = settings;
             _timer = new System.Timers.Timer(100); // 100毫秒间隔
             _timer.Elapsed += OnTimerElapsed;
             // 监听 ProfileService 的事件
@@ -415,8 +417,10 @@ namespace DTwoMFTimerHelper.Services {
             }
 
 
-            // 保存数据后生成并复制房间名称
-            GenerateAndCopyRoomName();
+            // 保存数据后生成并复制房间名称（如果设置启用）
+            if (_settings.GenerateRoomName) {
+                GenerateAndCopyRoomName();
+            }
         }
 
         /// <summary>
