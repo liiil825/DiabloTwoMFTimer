@@ -478,8 +478,8 @@ namespace DTwoMFTimerHelper.UI.Profiles {
                 // 显式转换为Models命名空间下的CharacterClass
                 Models.CharacterClass charClass = selectedClass.Value;
 
-                // 创建新角色档案
-                currentProfile = DataHelper.CreateNewProfile(characterName, charClass);
+                // 使用ProfileService创建新角色档案
+                currentProfile = _profileService.CreateCharacter(characterName, charClass);
 
                 // 验证创建结果
                 if (currentProfile == null) {
@@ -487,11 +487,6 @@ namespace DTwoMFTimerHelper.UI.Profiles {
                 }
 
                 WriteDebugLog($"角色创建成功: {currentProfile.Name}");
-
-                // 更新上次使用的角色档案设置
-                var settings = Services.SettingsManager.LoadSettings();
-                settings.LastUsedProfile = currentProfile.Name;
-                Services.SettingsManager.SaveSettings(settings);
 
                 // 清除当前记录并更新UI
                 currentRecord = null;
@@ -548,11 +543,15 @@ namespace DTwoMFTimerHelper.UI.Profiles {
 
             string confirmMsg = $"确定要删除角色: {currentProfile.Name}?";
             if (MessageBox.Show(confirmMsg, "删除角色", MessageBoxButtons.YesNo) == DialogResult.Yes) {
-                // 删除角色档案
-                DataHelper.DeleteProfile(currentProfile);
-                currentProfile = null;
-                currentRecord = null;
-                UpdateUI();
+                // 使用ProfileService删除角色档案
+                bool deleteResult = _profileService.DeleteCharacter(currentProfile);
+                if (deleteResult) {
+                    currentProfile = null;
+                    currentRecord = null;
+                    UpdateUI();
+                    // 显示成功提示
+                    Utils.Toast.Success($"已成功删除角色");
+                }
             }
         }
 
