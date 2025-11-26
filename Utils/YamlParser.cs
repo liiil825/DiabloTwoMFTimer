@@ -5,19 +5,23 @@ using DTwoMFTimerHelper.Models;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Serialization;
 
-namespace DTwoMFTimerHelper.Utils {
+namespace DTwoMFTimerHelper.Utils
+{
     /// <summary>
     /// YAML解析器，使用YamlDotNet库解析角色档案的YAML内容
     /// </summary>
-    public static class YamlParser {
+    public static class YamlParser
+    {
         /// <summary>
         /// 使用YamlDotNet解析YAML内容，支持灵活的属性名格式
         /// </summary>
         /// <param name="yamlContent">YAML内容字符串</param>
         /// <param name="filePath">文件路径，用于日志记录</param>
         /// <returns>解析后的角色档案对象，如果解析失败则返回默认对象</returns>
-        public static CharacterProfile? ParseYamlManually(string yamlContent, string filePath) {
-            try {
+        public static CharacterProfile? ParseYamlManually(string yamlContent, string filePath)
+        {
+            try
+            {
                 LogManager.WriteDebugLog("YamlParser", $"开始使用YamlDotNet解析文件: {Path.GetFileName(filePath)}");
 
                 // 创建序列化配置，支持不区分大小写的属性匹配
@@ -28,11 +32,13 @@ namespace DTwoMFTimerHelper.Utils {
 
                 // 首先尝试直接反序列化
                 CharacterProfile? profile;
-                try {
+                try
+                {
                     profile = deserializer.Deserialize<CharacterProfile>(yamlContent);
                     LogManager.WriteDebugLog("YamlParser", "直接反序列化成功");
                 }
-                catch (Exception) {
+                catch (Exception)
+                {
                     // 如果直接反序列化失败，使用更灵活的节点解析方式
                     LogManager.WriteDebugLog("YamlParser", "直接反序列化失败，使用节点解析方式");
                     profile = ParseUsingNodeModel(yamlContent);
@@ -44,7 +50,8 @@ namespace DTwoMFTimerHelper.Utils {
                 profile.Records ??= [];
 
                 // 设置默认名称
-                if (string.IsNullOrEmpty(profile.Name)) {
+                if (string.IsNullOrEmpty(profile.Name))
+                {
                     profile.Name = "未命名角色";
                     LogManager.WriteDebugLog("YamlParser", $"未找到名称，设置为默认值: {profile.Name}");
                 }
@@ -52,7 +59,8 @@ namespace DTwoMFTimerHelper.Utils {
                 LogManager.WriteDebugLog("YamlParser", $"解析完成，成功加载 {profile.Records.Count} 条记录");
                 return profile;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 LogManager.WriteErrorLog("YamlParser", $"解析失败", ex);
                 return new CharacterProfile() { Name = "解析失败角色" };
             }
@@ -61,7 +69,8 @@ namespace DTwoMFTimerHelper.Utils {
         /// <summary>
         /// 使用YamlDotNet的节点模型进行更灵活的解析，处理不同格式的YAML
         /// </summary>
-        private static CharacterProfile ParseUsingNodeModel(string yamlContent) {
+        private static CharacterProfile ParseUsingNodeModel(string yamlContent)
+        {
             var profile = new CharacterProfile { Records = [] };
 
             var yamlStream = new YamlStream();
@@ -74,7 +83,8 @@ namespace DTwoMFTimerHelper.Utils {
                 return profile;
 
             // 解析基本属性，支持多种属性名格式
-            foreach (var node in rootNode) {
+            foreach (var node in rootNode)
+            {
                 var keyNode = node.Key as YamlScalarNode;
                 string key = keyNode?.Value?.ToLower() ?? "";
 
@@ -85,34 +95,46 @@ namespace DTwoMFTimerHelper.Utils {
 
                 // 调用通用属性解析函数处理基本属性
                 // 确保value不为null再调用ParseProfileProperty
-                if (valueNode.Value != null) {
+                if (valueNode.Value != null)
+                {
                     ParseProfileProperty(profile, key, valueNode.Value);
                 }
             }
 
             // 解析records数组
-            if (rootNode.Children.TryGetValue(new YamlScalarNode("records"), out var recordsNode)) {
-                if (recordsNode is YamlSequenceNode recordsSequence) {
-                    LogManager.WriteDebugLog("YamlParser", $"开始解析records数组，共{recordsSequence.Children.Count}条记录");
+            if (rootNode.Children.TryGetValue(new YamlScalarNode("records"), out var recordsNode))
+            {
+                if (recordsNode is YamlSequenceNode recordsSequence)
+                {
+                    LogManager.WriteDebugLog(
+                        "YamlParser",
+                        $"开始解析records数组，共{recordsSequence.Children.Count}条记录"
+                    );
 
-                    foreach (var recordNode in recordsSequence.Children) {
+                    foreach (var recordNode in recordsSequence.Children)
+                    {
                         if (recordNode is not YamlMappingNode recordMapping)
                             continue;
 
                         var record = new MFRecord();
 
-                        foreach (var propNode in recordMapping) {
+                        foreach (var propNode in recordMapping)
+                        {
                             var keyNode = propNode.Key as YamlScalarNode;
                             string propKey = keyNode?.Value?.ToLower() ?? "";
 
                             if (propNode.Value is not YamlScalarNode propValueNode || string.IsNullOrEmpty(propKey))
                                 continue;
 
-                            LogManager.WriteDebugLog("YamlParser", $"解析记录属性: {propKey}, 值: {propValueNode.Value}");
+                            LogManager.WriteDebugLog(
+                                "YamlParser",
+                                $"解析记录属性: {propKey}, 值: {propValueNode.Value}"
+                            );
 
                             // 调用通用属性解析函数处理记录属性
                             // 确保value不为null再调用ParseRecordProperty
-                            if (propValueNode.Value != null) {
+                            if (propValueNode.Value != null)
+                            {
                                 ParseRecordProperty(record, propKey, propValueNode.Value);
                             }
                         }
@@ -132,12 +154,14 @@ namespace DTwoMFTimerHelper.Utils {
         /// <param name="profile">角色档案对象</param>
         /// <param name="key">属性名（已转换为小写）</param>
         /// <param name="value">属性值</param>
-        private static void ParseProfileProperty(CharacterProfile profile, string key, string value) {
+        private static void ParseProfileProperty(CharacterProfile profile, string key, string value)
+        {
             // 添加null检查，防止空引用
             if (profile == null || key == null || value == null)
                 return;
 
-            switch (key) {
+            switch (key)
+            {
                 case "name":
                 case "character":
                     profile.Name = value.Trim('"', '\'');
@@ -145,7 +169,8 @@ namespace DTwoMFTimerHelper.Utils {
                     break;
                 case "class":
                 case "characterclass":
-                    if (Enum.TryParse<CharacterClass>(value, true, out var charClass)) {
+                    if (Enum.TryParse<CharacterClass>(value, true, out var charClass))
+                    {
                         profile.Class = charClass;
                         LogManager.WriteDebugLog("YamlParser", $"解析到Class: {profile.Class}");
                     }
@@ -155,7 +180,8 @@ namespace DTwoMFTimerHelper.Utils {
                     LogManager.WriteDebugLog("YamlParser", $"解析到LastRunScene: {profile.LastRunScene}");
                     break;
                 case "lastrundifficulty":
-                    if (Enum.TryParse<GameDifficulty>(value, true, out var runDifficulty)) {
+                    if (Enum.TryParse<GameDifficulty>(value, true, out var runDifficulty))
+                    {
                         profile.LastRunDifficulty = runDifficulty;
                         LogManager.WriteDebugLog("YamlParser", $"解析到LastRunDifficulty: {profile.LastRunDifficulty}");
                     }
@@ -169,12 +195,14 @@ namespace DTwoMFTimerHelper.Utils {
         /// <param name="record">MF记录对象</param>
         /// <param name="key">属性名（已转换为小写）</param>
         /// <param name="value">属性值</param>
-        private static void ParseRecordProperty(MFRecord record, string key, string value) {
+        private static void ParseRecordProperty(MFRecord record, string key, string value)
+        {
             // 添加null检查，防止空引用
             if (record == null || key == null || value == null)
                 return;
 
-            switch (key) {
+            switch (key)
+            {
                 case "scenename":
                     record.SceneName = value.Trim('"', '\'');
                     break;

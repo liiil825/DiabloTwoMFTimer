@@ -2,11 +2,13 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using DTwoMFTimerHelper.Services;
-using DTwoMFTimerHelper.Utils;
 using DTwoMFTimerHelper.UI.Common;
+using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.UI.Pomodoro {
-    public class PomodoroSettingsForm : BaseForm {
+namespace DTwoMFTimerHelper.UI.Pomodoro
+{
+    public class PomodoroSettingsForm : BaseForm
+    {
         // 主要标签
         private Label lblWorkTime = null!;
         private Label lblShortBreakTime = null!;
@@ -24,10 +26,12 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         private NumericUpDown nudShortBreakTimeSec = null!;
         private NumericUpDown nudLongBreakTimeMin = null!;
         private NumericUpDown nudLongBreakTimeSec = null!;
+
         // 单位标签 (秒)
         private Label lblWorkSecUnit = null!;
         private Label lblShortBreakSecUnit = null!;
         private Label lblLongBreakSecUnit = null!;
+
         // 控件声明
         private Label lblWarningLongTime = null!;
         private Label lblWarningShortTime = null!;
@@ -49,11 +53,24 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         public int WarningLongTime { get; private set; }
         public int WarningShortTime { get; private set; }
 
-        public PomodoroSettingsForm() {
+        public PomodoroSettingsForm()
+        {
             InitializeComponent();
         }
 
-        public PomodoroSettingsForm(IAppSettings appSettings, int workTimeMinutes, int workTimeSeconds, int shortBreakMinutes, int shortBreakSeconds, int longBreakMinutes, int longBreakSeconds, int warningLongTime, int warningShortTime) : this() {
+        public PomodoroSettingsForm(
+            IAppSettings appSettings,
+            int workTimeMinutes,
+            int workTimeSeconds,
+            int shortBreakMinutes,
+            int shortBreakSeconds,
+            int longBreakMinutes,
+            int longBreakSeconds,
+            int warningLongTime,
+            int warningShortTime
+        )
+            : this()
+        {
             _appSettings = appSettings;
 
             WorkTimeMinutes = workTimeMinutes;
@@ -66,18 +83,22 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             WarningShortTime = warningShortTime;
         }
 
-        protected override void OnLoad(EventArgs e) {
+        protected override void OnLoad(EventArgs e)
+        {
             base.OnLoad(e);
-            if (!this.DesignMode) {
+            if (!this.DesignMode)
+            {
                 // 如果是默认初始化（全0），尝试加载配置
-                if (WorkTimeMinutes == 0 && ShortBreakMinutes == 0 && LongBreakMinutes == 0) {
+                if (WorkTimeMinutes == 0 && ShortBreakMinutes == 0 && LongBreakMinutes == 0)
+                {
                     LoadSettings();
                 }
                 UpdateUI();
             }
         }
 
-        private void LoadSettings() {
+        private void LoadSettings()
+        {
             WorkTimeMinutes = _appSettings.WorkTimeMinutes;
             WorkTimeSeconds = _appSettings.WorkTimeSeconds;
             ShortBreakMinutes = _appSettings.ShortBreakMinutes;
@@ -88,7 +109,8 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             WarningShortTime = _appSettings.PomodoroWarningShortTime;
         }
 
-        private void InitializeComponent() {
+        private void InitializeComponent()
+        {
             // 初始化控件
             this.lblWorkTime = new System.Windows.Forms.Label();
             this.lblShortBreakTime = new System.Windows.Forms.Label();
@@ -129,19 +151,19 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             this.SuspendLayout();
 
             // 布局常量
-            int labelX = 30;         // 标题X坐标
-            int inputMinX = 140;     // 分钟输入框X坐标
-            int labelMinX = 215;     // "分"字X坐标
-            int inputSecX = 250;     // 秒输入框X坐标
-            int labelSecX = 325;     // "秒"字X坐标
+            int labelX = 30; // 标题X坐标
+            int inputMinX = 140; // 分钟输入框X坐标
+            int labelMinX = 215; // "分"字X坐标
+            int inputSecX = 250; // 秒输入框X坐标
+            int labelSecX = 325; // "秒"字X坐标
             int inputWarningX = 140; // 提示时间输入框X坐标
             int labelWarningX = 215; // 提示时间单位X坐标
 
-            int row1Y = 30;          // 第一行Y
-            int row2Y = 70;          // 第二行Y
-            int row3Y = 110;         // 第三行Y
-            int row4Y = 150;         // 第四行Y
-            int row5Y = 190;         // 第五行Y
+            int row1Y = 30; // 第一行Y
+            int row2Y = 70; // 第二行Y
+            int row3Y = 110; // 第三行Y
+            int row4Y = 150; // 第四行Y
+            int row5Y = 190; // 第五行Y
 
             // 文本对齐偏移量：Label通常比InputBox位置要靠下一点点才能视觉居中
             int textOffsetY = 4;
@@ -324,21 +346,40 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             this.PerformLayout();
         }
 
-        protected override void UpdateUI() {
+        protected override void UpdateUI()
+        {
             base.UpdateUI();
 
             // 1. 设置数值
             nudWorkTimeMin.Value = Math.Max(nudWorkTimeMin.Minimum, Math.Min(nudWorkTimeMin.Maximum, WorkTimeMinutes));
             nudWorkTimeSec.Value = Math.Max(nudWorkTimeSec.Minimum, Math.Min(nudWorkTimeSec.Maximum, WorkTimeSeconds));
 
-            nudShortBreakTimeMin.Value = Math.Max(nudShortBreakTimeMin.Minimum, Math.Min(nudShortBreakTimeMin.Maximum, ShortBreakMinutes));
-            nudShortBreakTimeSec.Value = Math.Max(nudShortBreakTimeSec.Minimum, Math.Min(nudShortBreakTimeSec.Maximum, ShortBreakSeconds));
+            nudShortBreakTimeMin.Value = Math.Max(
+                nudShortBreakTimeMin.Minimum,
+                Math.Min(nudShortBreakTimeMin.Maximum, ShortBreakMinutes)
+            );
+            nudShortBreakTimeSec.Value = Math.Max(
+                nudShortBreakTimeSec.Minimum,
+                Math.Min(nudShortBreakTimeSec.Maximum, ShortBreakSeconds)
+            );
 
-            nudLongBreakTimeMin.Value = Math.Max(nudLongBreakTimeMin.Minimum, Math.Min(nudLongBreakTimeMin.Maximum, LongBreakMinutes));
-            nudLongBreakTimeSec.Value = Math.Max(nudLongBreakTimeSec.Minimum, Math.Min(nudLongBreakTimeSec.Maximum, LongBreakSeconds));
+            nudLongBreakTimeMin.Value = Math.Max(
+                nudLongBreakTimeMin.Minimum,
+                Math.Min(nudLongBreakTimeMin.Maximum, LongBreakMinutes)
+            );
+            nudLongBreakTimeSec.Value = Math.Max(
+                nudLongBreakTimeSec.Minimum,
+                Math.Min(nudLongBreakTimeSec.Maximum, LongBreakSeconds)
+            );
 
-            nudWarningLongTime.Value = Math.Max(nudWarningLongTime.Minimum, Math.Min(nudWarningLongTime.Maximum, WarningLongTime));
-            nudWarningShortTime.Value = Math.Max(nudWarningShortTime.Minimum, Math.Min(nudWarningShortTime.Maximum, WarningShortTime));
+            nudWarningLongTime.Value = Math.Max(
+                nudWarningLongTime.Minimum,
+                Math.Min(nudWarningLongTime.Maximum, WarningLongTime)
+            );
+            nudWarningShortTime.Value = Math.Max(
+                nudWarningShortTime.Minimum,
+                Math.Min(nudWarningShortTime.Maximum, WarningShortTime)
+            );
 
             // 2. 本地化文本 - 所有 Label 都需要更新
             this.Text = LanguageManager.GetString("PomodoroSettings") ?? "番茄时钟设置";
@@ -365,11 +406,14 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             lblWarningShortTimeUnit.Text = strSec;
 
             // 按钮
-            if (btnConfirm != null) btnConfirm.Text = LanguageManager.GetString("Save") ?? "保存";
-            if (btnCancel != null) btnCancel.Text = LanguageManager.GetString("Cancel") ?? "取消";
+            if (btnConfirm != null)
+                btnConfirm.Text = LanguageManager.GetString("Save") ?? "保存";
+            if (btnCancel != null)
+                btnCancel.Text = LanguageManager.GetString("Cancel") ?? "取消";
         }
 
-        protected override void BtnConfirm_Click(object? sender, EventArgs e) {
+        protected override void BtnConfirm_Click(object? sender, EventArgs e)
+        {
             WorkTimeMinutes = (int)nudWorkTimeMin.Value;
             WorkTimeSeconds = (int)nudWorkTimeSec.Value;
             ShortBreakMinutes = (int)nudShortBreakTimeMin.Value;
@@ -392,9 +436,10 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             base.BtnConfirm_Click(sender, e);
         }
 
-
-        protected override void Dispose(bool disposing) {
-            if (disposing && (components != null)) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
                 components.Dispose();
             }
             base.Dispose(disposing);

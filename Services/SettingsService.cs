@@ -1,111 +1,50 @@
 using System;
 using System.IO;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
+using System.Windows.Forms;
 using DTwoMFTimerHelper.UI.Settings;
 using DTwoMFTimerHelper.Utils;
-using System.Windows.Forms;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
-namespace DTwoMFTimerHelper.Services {
-    public interface IAppSettings {
-        public string WindowPosition {
-            get;
-            set;
-        }
-        public bool AlwaysOnTop {
-            get;
-            set;
-        }
-        public string Language {
-            get;
-            set;
-        }
+namespace DTwoMFTimerHelper.Services
+{
+    public interface IAppSettings
+    {
+        public string WindowPosition { get; set; }
+        public bool AlwaysOnTop { get; set; }
+        public string Language { get; set; }
+
         // 角色档案设置
-        public string LastUsedProfile {
-            get;
-            set;
-        }
-        public string LastRunScene {
-            get;
-            set;
-        }
-        public string LastUsedDifficulty {
-            get;
-            set;
-        }
-        public int WorkTimeMinutes {
-            get;
-            set;
-        }
-        public int WorkTimeSeconds {
-            get;
-            set;
-        }
-        public int ShortBreakMinutes {
-            get;
-            set;
-        }
-        public int ShortBreakSeconds {
-            get;
-            set;
-        }
-        public int LongBreakMinutes {
-            get;
-            set;
-        }
-        public int LongBreakSeconds {
-            get;
-            set;
-        }
+        public string LastUsedProfile { get; set; }
+        public string LastRunScene { get; set; }
+        public string LastUsedDifficulty { get; set; }
+        public int WorkTimeMinutes { get; set; }
+        public int WorkTimeSeconds { get; set; }
+        public int ShortBreakMinutes { get; set; }
+        public int ShortBreakSeconds { get; set; }
+        public int LongBreakMinutes { get; set; }
+        public int LongBreakSeconds { get; set; }
+
         // 界面设置
-        public bool TimerShowLootDrops {
-            get;
-            set;
-        }
-        public bool TimerShowPomodoro {
-            get;
-            set;
-        }
-        public bool TimerSyncStartPomodoro {
-            get;
-            set;
-        }
-        public bool TimerSyncPausePomodoro {
-            get;
-            set;
-        }
+        public bool TimerShowLootDrops { get; set; }
+        public bool TimerShowPomodoro { get; set; }
+        public bool TimerSyncStartPomodoro { get; set; }
+        public bool TimerSyncPausePomodoro { get; set; }
+
         // 番茄钟提示时间设置
-        public int PomodoroWarningLongTime {
-            get;
-            set;
-        }
-        public int PomodoroWarningShortTime {
-            get;
-            set;
-        }
-        public bool GenerateRoomName {
-            get;
-            set;
-        }
+        public int PomodoroWarningLongTime { get; set; }
+        public int PomodoroWarningShortTime { get; set; }
+        public bool GenerateRoomName { get; set; }
+
         // 热键设置
-        public Keys HotkeyStartOrNext {
-            get;
-            set;
-        }
-        public Keys HotkeyPause {
-            get;
-            set;
-        }
-        public Keys HotkeyDeleteHistory {
-            get;
-            set;
-        }
-        public Keys HotkeyRecordLoot {
-            get;
-            set;
-        }
+        public Keys HotkeyStartOrNext { get; set; }
+        public Keys HotkeyPause { get; set; }
+        public Keys HotkeyDeleteHistory { get; set; }
+        public Keys HotkeyRecordLoot { get; set; }
     }
-    public class AppSettings : IAppSettings {
+
+    public class AppSettings : IAppSettings
+    {
         // 窗口设置
         public string WindowPosition { get; set; } = "TopLeft";
         public bool AlwaysOnTop { get; set; } = true;
@@ -139,11 +78,13 @@ namespace DTwoMFTimerHelper.Services {
         public Keys HotkeyRecordLoot { get; set; } = Keys.A | Keys.Alt;
     }
 
-    public static class SettingsManager {
+    public static class SettingsManager
+    {
         private static readonly string ConfigFilePath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "mf-time-helper",
-            "config.yaml");
+            "config.yaml"
+        );
 
         private static readonly ISerializer serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -155,20 +96,25 @@ namespace DTwoMFTimerHelper.Services {
             .Build();
 
         // 加载设置
-        public static AppSettings LoadSettings() {
-            try {
+        public static AppSettings LoadSettings()
+        {
+            try
+            {
                 // 确保目录存在 - 添加null检查以修复CS8604警告
                 string? directory = Path.GetDirectoryName(ConfigFilePath);
-                if (directory != null) {
+                if (directory != null)
+                {
                     Directory.CreateDirectory(directory);
                 }
-                if (File.Exists(ConfigFilePath)) {
+                if (File.Exists(ConfigFilePath))
+                {
                     var yaml = File.ReadAllText(ConfigFilePath);
                     var settings = deserializer.Deserialize<AppSettings>(yaml);
                     return settings;
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 LogManager.WriteErrorLog("SettingsManager", $"加载设置失败", ex);
             }
 
@@ -178,70 +124,83 @@ namespace DTwoMFTimerHelper.Services {
         }
 
         // 保存设置
-        public static void SaveSettings(IAppSettings settings) {
-            try {
+        public static void SaveSettings(IAppSettings settings)
+        {
+            try
+            {
                 // 确保目录存在 - 添加null检查以修复CS8604警告
                 string? directory = Path.GetDirectoryName(ConfigFilePath);
-                if (directory != null) {
+                if (directory != null)
+                {
                     Directory.CreateDirectory(directory);
                 }
 
                 // 将IAppSettings转换为AppSettings对象进行序列化
-                var appSettings = settings as AppSettings ?? new AppSettings {
-                    WindowPosition = settings.WindowPosition,
-                    AlwaysOnTop = settings.AlwaysOnTop,
-                    Language = settings.Language,
-                    LastUsedProfile = settings.LastUsedProfile,
-                    LastRunScene = settings.LastRunScene,
-                    LastUsedDifficulty = settings.LastUsedDifficulty,
-                    WorkTimeMinutes = settings.WorkTimeMinutes,
-                    WorkTimeSeconds = settings.WorkTimeSeconds,
-                    ShortBreakMinutes = settings.ShortBreakMinutes,
-                    ShortBreakSeconds = settings.ShortBreakSeconds,
-                    LongBreakMinutes = settings.LongBreakMinutes,
-                    LongBreakSeconds = settings.LongBreakSeconds,
-                    TimerShowLootDrops = settings.TimerShowLootDrops,
-                    TimerShowPomodoro = settings.TimerShowPomodoro,
-                    TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro,
-                    TimerSyncPausePomodoro = settings.TimerSyncPausePomodoro,
-                    PomodoroWarningLongTime = settings.PomodoroWarningLongTime,
-                    PomodoroWarningShortTime = settings.PomodoroWarningShortTime,
-                    GenerateRoomName = settings.GenerateRoomName,
-                    HotkeyStartOrNext = settings.HotkeyStartOrNext,
-                    HotkeyPause = settings.HotkeyPause,
-                    HotkeyDeleteHistory = settings.HotkeyDeleteHistory,
-                    HotkeyRecordLoot = settings.HotkeyRecordLoot
-                };
+                var appSettings =
+                    settings as AppSettings
+                    ?? new AppSettings
+                    {
+                        WindowPosition = settings.WindowPosition,
+                        AlwaysOnTop = settings.AlwaysOnTop,
+                        Language = settings.Language,
+                        LastUsedProfile = settings.LastUsedProfile,
+                        LastRunScene = settings.LastRunScene,
+                        LastUsedDifficulty = settings.LastUsedDifficulty,
+                        WorkTimeMinutes = settings.WorkTimeMinutes,
+                        WorkTimeSeconds = settings.WorkTimeSeconds,
+                        ShortBreakMinutes = settings.ShortBreakMinutes,
+                        ShortBreakSeconds = settings.ShortBreakSeconds,
+                        LongBreakMinutes = settings.LongBreakMinutes,
+                        LongBreakSeconds = settings.LongBreakSeconds,
+                        TimerShowLootDrops = settings.TimerShowLootDrops,
+                        TimerShowPomodoro = settings.TimerShowPomodoro,
+                        TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro,
+                        TimerSyncPausePomodoro = settings.TimerSyncPausePomodoro,
+                        PomodoroWarningLongTime = settings.PomodoroWarningLongTime,
+                        PomodoroWarningShortTime = settings.PomodoroWarningShortTime,
+                        GenerateRoomName = settings.GenerateRoomName,
+                        HotkeyStartOrNext = settings.HotkeyStartOrNext,
+                        HotkeyPause = settings.HotkeyPause,
+                        HotkeyDeleteHistory = settings.HotkeyDeleteHistory,
+                        HotkeyRecordLoot = settings.HotkeyRecordLoot,
+                    };
 
                 var yaml = serializer.Serialize(appSettings);
                 File.WriteAllText(ConfigFilePath, yaml);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 LogManager.WriteErrorLog("SettingsManager", $"保存设置失败", ex);
             }
         }
 
         // 将设置窗口的位置枚举转换为字符串
-        public static string WindowPositionToString(SettingsControl.WindowPosition position) {
+        public static string WindowPositionToString(SettingsControl.WindowPosition position)
+        {
             return position.ToString();
         }
 
         // 将字符串转换为设置窗口的位置枚举
-        public static SettingsControl.WindowPosition StringToWindowPosition(string positionStr) {
-            if (Enum.TryParse<SettingsControl.WindowPosition>(positionStr, out var position)) {
+        public static SettingsControl.WindowPosition StringToWindowPosition(string positionStr)
+        {
+            if (Enum.TryParse<SettingsControl.WindowPosition>(positionStr, out var position))
+            {
                 return position;
             }
             return SettingsControl.WindowPosition.TopLeft;
         }
 
         // 将语言选项转换为字符串
-        public static string LanguageToString(SettingsControl.LanguageOption language) {
+        public static string LanguageToString(SettingsControl.LanguageOption language)
+        {
             return language.ToString();
         }
 
         // 将字符串转换为语言选项
-        public static SettingsControl.LanguageOption StringToLanguage(string languageStr) {
-            if (Enum.TryParse<SettingsControl.LanguageOption>(languageStr, out var language)) {
+        public static SettingsControl.LanguageOption StringToLanguage(string languageStr)
+        {
+            if (Enum.TryParse<SettingsControl.LanguageOption>(languageStr, out var language))
+            {
                 return language;
             }
             return SettingsControl.LanguageOption.Chinese;

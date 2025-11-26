@@ -2,8 +2,10 @@ using System;
 using System.Media;
 using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.Services {
-    public interface IPomodoroTimerService {
+namespace DTwoMFTimerHelper.Services
+{
+    public interface IPomodoroTimerService
+    {
         // 事件定义
         event EventHandler<TimerStateChangedEventArgs>? TimerStateChanged;
         event EventHandler<PomodoroCompletedEventArgs>? PomodoroCompleted;
@@ -27,7 +29,8 @@ namespace DTwoMFTimerHelper.Services {
         void SkipBreak();
     }
 
-    public class PomodoroTimerService : IPomodoroTimerService {
+    public class PomodoroTimerService : IPomodoroTimerService
+    {
         // 事件定义
         public event EventHandler<TimerStateChangedEventArgs>? TimerStateChanged;
         public event EventHandler<PomodoroCompletedEventArgs>? PomodoroCompleted;
@@ -51,10 +54,11 @@ namespace DTwoMFTimerHelper.Services {
         // 时间设置
         public TimeSettings Settings { get; set; }
 
-        public PomodoroTimerService() : this(null) {
-        }
+        public PomodoroTimerService()
+            : this(null) { }
 
-        public PomodoroTimerService(ITimerService? timerService) {
+        public PomodoroTimerService(ITimerService? timerService)
+        {
             _timerService = timerService;
             Settings = new TimeSettings();
             _timer = new System.Windows.Forms.Timer { Interval = 100 };
@@ -62,55 +66,68 @@ namespace DTwoMFTimerHelper.Services {
             InitializeTimer();
 
             // 订阅计时器服务的事件
-            if (_timerService != null) {
+            if (_timerService != null)
+            {
                 _timerService.TimerRunningStateChangedEvent += OnTimerRunningStateChanged;
                 _timerService.TimerPauseStateChangedEvent += OnTimerPauseStateChanged;
             }
         }
 
-        private void TriggerStartFromTimer() {
-            if (!_isRunning && _timerService != null && _timerService.IsRunning) {
+        private void TriggerStartFromTimer()
+        {
+            if (!_isRunning && _timerService != null && _timerService.IsRunning)
+            {
                 Start();
             }
         }
 
         // 处理计时器运行状态变化事件
-        private void OnTimerRunningStateChanged(bool isRunning) {
+        private void OnTimerRunningStateChanged(bool isRunning)
+        {
             // 当计时器开启时，如果番茄时钟启动则启动番茄时钟（如果番茄时钟已经开启则不处理）
             TriggerStartFromTimer();
         }
 
         // 处理计时器暂停状态变化事件
-        private void OnTimerPauseStateChanged(bool isPaused) {
-            if (isPaused) {
+        private void OnTimerPauseStateChanged(bool isPaused)
+        {
+            if (isPaused)
+            {
                 // 当计时器暂停时，如果番茄钟正在运行且设置了同步暂停，则暂停番茄钟
                 IAppSettings? appSettings = SettingsManager.LoadSettings();
-                if (appSettings.TimerSyncPausePomodoro && _isRunning) {
+                if (appSettings.TimerSyncPausePomodoro && _isRunning)
+                {
                     Pause();
                 }
             }
-            else {
+            else
+            {
                 TriggerStartFromTimer();
             }
         }
 
-        public void Start() {
-            if (!_isRunning) {
+        public void Start()
+        {
+            if (!_isRunning)
+            {
                 _isRunning = true;
                 _timer.Start();
                 OnTimerStateChanged();
             }
         }
 
-        public void Pause() {
-            if (_isRunning) {
+        public void Pause()
+        {
+            if (_isRunning)
+            {
                 _isRunning = false;
                 _timer.Stop();
                 OnTimerStateChanged();
             }
         }
 
-        public void Reset() {
+        public void Reset()
+        {
             _isRunning = false;
             _timer.Stop();
             _completedPomodoros = 0;
@@ -119,7 +136,8 @@ namespace DTwoMFTimerHelper.Services {
             OnTimerStateChanged();
         }
 
-        public void LoadSettings(IAppSettings appSettings) {
+        public void LoadSettings(IAppSettings appSettings)
+        {
             _appSettings = appSettings;
             Settings.WorkTimeMinutes = appSettings.WorkTimeMinutes;
             Settings.WorkTimeSeconds = appSettings.WorkTimeSeconds;
@@ -130,11 +148,15 @@ namespace DTwoMFTimerHelper.Services {
             Reset();
         }
 
-        public void SkipBreak() {
-            if (_currentState != TimerState.Work) {
+        public void SkipBreak()
+        {
+            if (_currentState != TimerState.Work)
+            {
                 // 如果跳过休息，也需要检查是否需要恢复计时器
-                if (_timerService != null) {
-                    if (!_timerWasPausedBeforeBreak && _timerService.PreviousStatusBeforePause == TimerStatus.Running) {
+                if (_timerService != null)
+                {
+                    if (!_timerWasPausedBeforeBreak && _timerService.PreviousStatusBeforePause == TimerStatus.Running)
+                    {
                         _timerService.Resume();
                     }
                     _timerWasPausedBeforeBreak = false;
@@ -149,31 +171,55 @@ namespace DTwoMFTimerHelper.Services {
             }
         }
 
-        private void Timer_Tick(object? sender, EventArgs e) {
-            if (_isRunning) {
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            if (_isRunning)
+            {
                 // 记录当前时间，用于比较
                 var currentTime = _timeLeft;
                 _timeLeft = _timeLeft.Subtract(TimeSpan.FromMilliseconds(100));
 
                 // 检查是否需要显示提示
-                if (_currentState == TimerState.Work) {
+                if (_currentState == TimerState.Work)
+                {
                     // 获取配置的提示时间，默认值分别为60秒和3秒
                     int warningLongTime = _appSettings?.PomodoroWarningLongTime ?? 60;
                     int warningShortTime = _appSettings?.PomodoroWarningShortTime ?? 3;
 
                     // 当时间从warningLongTime+1秒变为warningLongTime秒时显示提示
-                    if (currentTime.TotalSeconds > warningLongTime && _timeLeft.TotalSeconds <= warningLongTime && _timeLeft.TotalSeconds > warningLongTime - 0.1) {
+                    if (
+                        currentTime.TotalSeconds > warningLongTime
+                        && _timeLeft.TotalSeconds <= warningLongTime
+                        && _timeLeft.TotalSeconds > warningLongTime - 0.1
+                    )
+                    {
                         // 自定义秒数提示
-                        Toast.Info(LanguageManager.GetString("PomodoroWorkEndingLong", $"Work time ending in {warningLongTime} seconds"));
+                        Toast.Info(
+                            LanguageManager.GetString(
+                                "PomodoroWorkEndingLong",
+                                $"Work time ending in {warningLongTime} seconds"
+                            )
+                        );
                     }
                     // 当时间从warningShortTime+1秒变为warningShortTime秒时显示提示
-                    else if (currentTime.TotalSeconds > warningShortTime && _timeLeft.TotalSeconds <= warningShortTime && _timeLeft.TotalSeconds > warningShortTime - 0.1) {
+                    else if (
+                        currentTime.TotalSeconds > warningShortTime
+                        && _timeLeft.TotalSeconds <= warningShortTime
+                        && _timeLeft.TotalSeconds > warningShortTime - 0.1
+                    )
+                    {
                         // 自定义秒数提示
-                        Toast.Info(LanguageManager.GetString("PomodoroWorkEndingShort", $"Work time ending in {warningShortTime} seconds"));
+                        Toast.Info(
+                            LanguageManager.GetString(
+                                "PomodoroWorkEndingShort",
+                                $"Work time ending in {warningShortTime} seconds"
+                            )
+                        );
                     }
                 }
 
-                if (_timeLeft <= TimeSpan.Zero) {
+                if (_timeLeft <= TimeSpan.Zero)
+                {
                     HandleTimerCompletion();
                 }
 
@@ -181,13 +227,15 @@ namespace DTwoMFTimerHelper.Services {
             }
         }
 
-        private void HandleTimerCompletion() {
+        private void HandleTimerCompletion()
+        {
             _timeLeft = TimeSpan.Zero;
             SystemSounds.Beep.Play();
 
             _previousState = _currentState; // 保存之前的状态
 
-            switch (_currentState) {
+            switch (_currentState)
+            {
                 case TimerState.Work:
                     _completedPomodoros++;
                     var breakType = (_completedPomodoros % 4 == 0) ? BreakType.LongBreak : BreakType.ShortBreak;
@@ -196,10 +244,12 @@ namespace DTwoMFTimerHelper.Services {
                     PomodoroCompleted?.Invoke(this, new PomodoroCompletedEventArgs(_completedPomodoros));
 
                     // 如果有计时器服务，检查并暂停计时器
-                    if (_timerService != null) {
+                    if (_timerService != null)
+                    {
                         _timerWasPausedBeforeBreak = _timerService.IsPaused;
                         // 只有当计时器正在运行时才暂停它
-                        if (_timerService.IsRunning) {
+                        if (_timerService.IsRunning)
+                        {
                             _timerService.Pause();
                         }
                     }
@@ -215,9 +265,14 @@ namespace DTwoMFTimerHelper.Services {
                 case TimerState.ShortBreak:
                 case TimerState.LongBreak:
                     // 休息结束，检查是否需要恢复计时器
-                    if (_timerService != null) {
+                    if (_timerService != null)
+                    {
                         // 只有当计时器不是之前就暂停的，并且暂停前的状态是Running时才恢复
-                        if (!_timerWasPausedBeforeBreak && _timerService.PreviousStatusBeforePause == TimerStatus.Running) {
+                        if (
+                            !_timerWasPausedBeforeBreak
+                            && _timerService.PreviousStatusBeforePause == TimerStatus.Running
+                        )
+                        {
                             _timerService.Resume();
                         }
                         // 重置标记
@@ -234,7 +289,8 @@ namespace DTwoMFTimerHelper.Services {
             OnTimerStateChanged();
         }
 
-        private void InitializeTimer() {
+        private void InitializeTimer()
+        {
             _currentState = TimerState.Work;
             _previousState = TimerState.Work;
             _timeLeft = GetWorkTime();
@@ -242,18 +298,24 @@ namespace DTwoMFTimerHelper.Services {
             _timerWasPausedBeforeBreak = false;
         }
 
-        private TimeSpan GetWorkTime() {
+        private TimeSpan GetWorkTime()
+        {
             return new TimeSpan(0, Settings.WorkTimeMinutes, Settings.WorkTimeSeconds);
         }
 
-        private TimeSpan GetBreakTime(BreakType breakType) {
+        private TimeSpan GetBreakTime(BreakType breakType)
+        {
             return breakType == BreakType.ShortBreak
                 ? new TimeSpan(0, Settings.ShortBreakMinutes, Settings.ShortBreakSeconds)
                 : new TimeSpan(0, Settings.LongBreakMinutes, Settings.LongBreakSeconds);
         }
 
-        private void OnTimerStateChanged() {
-            TimerStateChanged?.Invoke(this, new TimerStateChangedEventArgs(_currentState, _previousState, _isRunning, _timeLeft));
+        private void OnTimerStateChanged()
+        {
+            TimerStateChanged?.Invoke(
+                this,
+                new TimerStateChangedEventArgs(_currentState, _previousState, _isRunning, _timeLeft)
+            );
         }
 
         // 公共属性
@@ -265,18 +327,21 @@ namespace DTwoMFTimerHelper.Services {
     }
 
     // 枚举和事件参数类
-    public enum TimerState {
+    public enum TimerState
+    {
         Work,
         ShortBreak,
-        LongBreak
+        LongBreak,
     }
 
-    public enum BreakType {
+    public enum BreakType
+    {
         ShortBreak,
-        LongBreak
+        LongBreak,
     }
 
-    public class TimeSettings {
+    public class TimeSettings
+    {
         public int WorkTimeMinutes { get; set; } = 25;
         public int WorkTimeSeconds { get; set; } = 0;
         public int ShortBreakMinutes { get; set; } = 5;
@@ -285,21 +350,15 @@ namespace DTwoMFTimerHelper.Services {
         public int LongBreakSeconds { get; set; } = 0;
     }
 
-    public class TimerStateChangedEventArgs : EventArgs {
-        public TimerState State {
-            get;
-        }
-        public TimerState PreviousState {
-            get;
-        }
-        public bool IsRunning {
-            get;
-        }
-        public TimeSpan TimeLeft {
-            get;
-        }
+    public class TimerStateChangedEventArgs : EventArgs
+    {
+        public TimerState State { get; }
+        public TimerState PreviousState { get; }
+        public bool IsRunning { get; }
+        public TimeSpan TimeLeft { get; }
 
-        public TimerStateChangedEventArgs(TimerState state, TimerState previousState, bool isRunning, TimeSpan timeLeft) {
+        public TimerStateChangedEventArgs(TimerState state, TimerState previousState, bool isRunning, TimeSpan timeLeft)
+        {
             State = state;
             PreviousState = previousState;
             IsRunning = isRunning;
@@ -307,22 +366,22 @@ namespace DTwoMFTimerHelper.Services {
         }
     }
 
-    public class PomodoroCompletedEventArgs : EventArgs {
-        public int CompletedPomodoros {
-            get;
-        }
+    public class PomodoroCompletedEventArgs : EventArgs
+    {
+        public int CompletedPomodoros { get; }
 
-        public PomodoroCompletedEventArgs(int completedPomodoros) {
+        public PomodoroCompletedEventArgs(int completedPomodoros)
+        {
             CompletedPomodoros = completedPomodoros;
         }
     }
 
-    public class BreakStartedEventArgs : EventArgs {
-        public BreakType BreakType {
-            get;
-        }
+    public class BreakStartedEventArgs : EventArgs
+    {
+        public BreakType BreakType { get; }
 
-        public BreakStartedEventArgs(BreakType breakType) {
+        public BreakStartedEventArgs(BreakType breakType)
+        {
             BreakType = breakType;
         }
     }

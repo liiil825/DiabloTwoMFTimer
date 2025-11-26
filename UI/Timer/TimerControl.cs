@@ -1,14 +1,16 @@
 using System;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using DTwoMFTimerHelper.Services;
-using DTwoMFTimerHelper.UI.Settings;
 using DTwoMFTimerHelper.UI.Pomodoro;
+using DTwoMFTimerHelper.UI.Settings;
 using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.UI.Timer {
-    public partial class TimerControl : UserControl {
+namespace DTwoMFTimerHelper.UI.Timer
+{
+    public partial class TimerControl : UserControl
+    {
         // 服务层引用
         private readonly ITimerService _timerService = null!;
         private readonly IProfileService _profileService = null!;
@@ -29,12 +31,14 @@ namespace DTwoMFTimerHelper.UI.Timer {
         private PomodoroTimeDisplayLabel pomodoroTime = null!;
         private Label lblTimeDisplay = null!;
 
-        public TimerControl() {
+        public TimerControl()
+        {
             InitializeComponent();
 
             // 设置圆形指示器
             // 建议放在构造函数末尾，确保控件尺寸已初始化
-            if (btnStatusIndicator != null) {
+            if (btnStatusIndicator != null)
+            {
                 using System.Drawing.Drawing2D.GraphicsPath path = new();
                 path.AddEllipse(0, 0, btnStatusIndicator.Width, btnStatusIndicator.Height);
                 btnStatusIndicator.Region = new System.Drawing.Region(path);
@@ -48,10 +52,14 @@ namespace DTwoMFTimerHelper.UI.Timer {
         /// <param name="timerService"></param>
         /// <param name="historyService"></param>
         /// <param name="pomodoroTimerService"></param>
-        public TimerControl(IProfileService profileService,
-        ITimerService timerService,
-        ITimerHistoryService historyService,
-        IPomodoroTimerService pomodoroTimerService) : this() {
+        public TimerControl(
+            IProfileService profileService,
+            ITimerService timerService,
+            ITimerHistoryService historyService,
+            IPomodoroTimerService pomodoroTimerService
+        )
+            : this()
+        {
             _timerService = timerService;
             _profileService = profileService;
             _historyService = historyService;
@@ -68,10 +76,12 @@ namespace DTwoMFTimerHelper.UI.Timer {
             LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
         }
 
-        protected override void OnLoad(EventArgs e) {
+        protected override void OnLoad(EventArgs e)
+        {
             base.OnLoad(e);
 
-            if (!DesignMode) {
+            if (!DesignMode)
+            {
                 LoadProfileHistoryData();
 
                 // 根据角色档案的ShowLoot设置初始化掉落记录控件的可见性
@@ -85,24 +95,34 @@ namespace DTwoMFTimerHelper.UI.Timer {
             pomodoroTime.BindService(_pomodoroTimerService);
         }
 
-        private void InitializePomodoroVisibility() {
+        private void InitializePomodoroVisibility()
+        {
             // 根据应用设置的TimerShowPomodoro设置初始化番茄时间控件的可见性
             var settings = Services.SettingsManager.LoadSettings();
             pomodoroTime.Visible = settings.TimerShowPomodoro;
         }
 
-        private void InitializeLootRecordsVisibility() {
-            if (lootRecordsControl != null) {
+        private void InitializeLootRecordsVisibility()
+        {
+            if (lootRecordsControl != null)
+            {
                 // 根据应用设置的ShowLoot设置初始化掉落记录控件的可见性
                 var settings = Services.SettingsManager.LoadSettings();
                 lootRecordsControl.Visible = settings.TimerShowLootDrops;
                 bool isVisible = lootRecordsControl.Visible;
 
                 // 更新按钮文本
-                toggleLootButton.Text = isVisible ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落") : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
+                toggleLootButton.Text = isVisible
+                    ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落")
+                    : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
 
                 // 设置初始高度
-                this.Size = new Size(this.Width, isVisible ? UISizeConstants.TimerControlHeightWithLoot : UISizeConstants.TimerControlHeightWithoutLoot);
+                this.Size = new Size(
+                    this.Width,
+                    isVisible
+                        ? UISizeConstants.TimerControlHeightWithLoot
+                        : UISizeConstants.TimerControlHeightWithoutLoot
+                );
             }
         }
 
@@ -112,8 +132,10 @@ namespace DTwoMFTimerHelper.UI.Timer {
         public bool IsTimerRunning => _timerService?.IsRunning ?? false;
 
         #region Service Event Handlers
-        private void SubscribeToServiceEvents() {
-            if (_timerService == null || _profileService == null) return;
+        private void SubscribeToServiceEvents()
+        {
+            if (_timerService == null || _profileService == null)
+                return;
             // 订阅TimerService事件
             _timerService.TimeUpdatedEvent += OnTimeUpdated;
             _timerService.TimerRunningStateChangedEvent += OnTimerRunningStateChanged;
@@ -127,8 +149,10 @@ namespace DTwoMFTimerHelper.UI.Timer {
             _profileService.CurrentDifficultyChangedEvent += OnDifficultyChanged;
         }
 
-        private void UnsubscribeFromServiceEvents() {
-            if (_timerService == null || _profileService == null) return;
+        private void UnsubscribeFromServiceEvents()
+        {
+            if (_timerService == null || _profileService == null)
+                return;
 
             _timerService.TimeUpdatedEvent -= OnTimeUpdated;
             _timerService.TimerRunningStateChangedEvent -= OnTimerRunningStateChanged;
@@ -141,24 +165,29 @@ namespace DTwoMFTimerHelper.UI.Timer {
             _profileService.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
         }
 
-        private void OnTimeUpdated(string timeString) {
-            if (_timerService == null) return;
+        private void OnTimeUpdated(string timeString)
+        {
+            if (_timerService == null)
+                return;
 
-            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired) {
+            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired)
+            {
                 lblTimeDisplay.Invoke(new Action<string>(OnTimeUpdated), timeString);
             }
-            else if (lblTimeDisplay != null) {
+            else if (lblTimeDisplay != null)
+            {
                 lblTimeDisplay.Text = timeString;
             }
         }
 
-
-
-        private void OnTimerRunningStateChanged(bool isRunning) {
-            if (btnStatusIndicator != null && btnStatusIndicator.InvokeRequired) {
+        private void OnTimerRunningStateChanged(bool isRunning)
+        {
+            if (btnStatusIndicator != null && btnStatusIndicator.InvokeRequired)
+            {
                 btnStatusIndicator.Invoke(new Action<bool>(OnTimerRunningStateChanged), isRunning);
             }
-            else if (btnStatusIndicator != null) {
+            else if (btnStatusIndicator != null)
+            {
                 btnStatusIndicator.BackColor = isRunning ? Color.Green : Color.Red;
             }
 
@@ -168,13 +197,13 @@ namespace DTwoMFTimerHelper.UI.Timer {
             UpdateStatistics();
         }
 
-
-
-        private void OnTimerPauseStateChanged(bool isPaused) {
+        private void OnTimerPauseStateChanged(bool isPaused)
+        {
             TimerStateChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnProfileChanged(Models.CharacterProfile? profile) {
+        private void OnProfileChanged(Models.CharacterProfile? profile)
+        {
             // 在切换到新角色前，先保存当前角色的ShowLoot设置
             SaveShowLootSetting();
 
@@ -182,7 +211,8 @@ namespace DTwoMFTimerHelper.UI.Timer {
             UpdateCharacterSceneInfo();
 
             // 更新掉落记录
-            if (lootRecordsControl != null && profile != null && _profileService != null) {
+            if (lootRecordsControl != null && profile != null && _profileService != null)
+            {
                 string currentScene = _profileService.CurrentScene ?? string.Empty;
                 lootRecordsControl.UpdateLootRecords(profile.LootRecords, currentScene);
                 // 重新初始化控件可见性（现在基于应用设置而非角色档案）
@@ -190,88 +220,109 @@ namespace DTwoMFTimerHelper.UI.Timer {
             }
         }
 
-        private void OnSceneChanged(string scene) {
+        private void OnSceneChanged(string scene)
+        {
             LoadProfileHistoryData();
             UpdateCharacterSceneInfo();
         }
 
-        private void OnDifficultyChanged(Models.GameDifficulty difficulty) {
+        private void OnDifficultyChanged(Models.GameDifficulty difficulty)
+        {
             LoadProfileHistoryData();
             UpdateCharacterSceneInfo();
         }
 
         // 【关键修复】确保加载后刷新列表
-        private void LoadProfileHistoryData() {
+        private void LoadProfileHistoryData()
+        {
             LogManager.WriteDebugLog("TimerControl", "LoadProfileHistoryData");
-            if (historyControl != null && _profileService != null) {
+            if (historyControl != null && _profileService != null)
+            {
                 var profile = _profileService.CurrentProfile;
                 var scene = _profileService.CurrentScene;
                 var characterName = profile?.Name ?? "";
                 var difficulty = _profileService.CurrentDifficulty;
-                LogManager.WriteDebugLog("TimerControl", $"LoadProfileHistoryData: profile={profile?.Name}, scene={scene}, characterName={characterName}, difficulty={difficulty}");
+                LogManager.WriteDebugLog(
+                    "TimerControl",
+                    $"LoadProfileHistoryData: profile={profile?.Name}, scene={scene}, characterName={characterName}, difficulty={difficulty}"
+                );
 
                 // 1. 尝试加载数据
                 historyControl.LoadProfileHistoryData(profile, scene, characterName, difficulty);
 
                 // 2. 更新掉落记录
-                if (lootRecordsControl != null && profile != null) {
+                if (lootRecordsControl != null && profile != null)
+                {
                     string currentScene = _profileService.CurrentScene ?? string.Empty;
                     lootRecordsControl.UpdateLootRecords(profile.LootRecords, currentScene);
                 }
             }
         }
 
-        private void OnTimerReset() {
-            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired) {
+        private void OnTimerReset()
+        {
+            if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired)
+            {
                 lblTimeDisplay.Invoke(new Action(OnTimerReset));
             }
-            else if (lblTimeDisplay != null) {
+            else if (lblTimeDisplay != null)
+            {
                 lblTimeDisplay.Text = "00:00:00.0";
             }
             UpdateStatistics();
         }
 
-        private void OnRunCompleted(TimeSpan runTime) {
+        private void OnRunCompleted(TimeSpan runTime)
+        {
             historyControl?.AddRunRecord(runTime);
             UpdateStatistics();
         }
         #endregion
 
         #region Public Methods
-        public void ToggleTimer() {
+        public void ToggleTimer()
+        {
             _timerService?.StartOrNextRun();
         }
 
-        public void TogglePause() {
+        public void TogglePause()
+        {
             _timerService?.TogglePause();
         }
 
-        public void HandleExternalReset() {
+        public void HandleExternalReset()
+        {
             _timerService?.Reset();
         }
 
-        public void HandleTabSelected() {
+        public void HandleTabSelected()
+        {
             LoadProfileHistoryData();
             UpdateUI();
         }
 
-        public void HandleApplicationClosing() {
+        public void HandleApplicationClosing()
+        {
             // 保存当前角色档案的ShowLoot设置
             SaveShowLootSetting();
             _timerService?.HandleApplicationClosing();
         }
 
-        private void SaveShowLootSetting() {
+        private void SaveShowLootSetting()
+        {
             // 保存应用设置的TimerShowLootDrops设置
-            if (lootRecordsControl != null) {
+            if (lootRecordsControl != null)
+            {
                 var settings = Services.SettingsManager.LoadSettings();
                 settings.TimerShowLootDrops = lootRecordsControl.Visible;
                 Services.SettingsManager.SaveSettings(settings);
             }
         }
 
-        public async Task<bool> DeleteSelectedRecordAsync() {
-            if (historyControl != null) {
+        public async Task<bool> DeleteSelectedRecordAsync()
+        {
+            if (historyControl != null)
+            {
                 return await historyControl.DeleteSelectedRecordAsync();
             }
             return false;
@@ -279,23 +330,29 @@ namespace DTwoMFTimerHelper.UI.Timer {
         #endregion
 
         #region Private Methods
-        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e) {
+        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e)
+        {
             UpdateUI();
         }
 
-        private void UpdateUI() {
-            if (btnStatusIndicator != null && _timerService != null) {
+        private void UpdateUI()
+        {
+            if (btnStatusIndicator != null && _timerService != null)
+            {
                 btnStatusIndicator.BackColor = _timerService.IsRunning ? Color.Green : Color.Red;
             }
 
-            if (_timerService != null && !_timerService.IsRunning && !_timerService.IsPaused) {
-                if (lblTimeDisplay != null) {
+            if (_timerService != null && !_timerService.IsRunning && !_timerService.IsPaused)
+            {
+                if (lblTimeDisplay != null)
+                {
                     lblTimeDisplay.Text = "00:00:00.0";
                 }
             }
 
             // 根据设置更新番茄时间显示
-            if (pomodoroTime != null) {
+            if (pomodoroTime != null)
+            {
                 var settings = Services.SettingsManager.LoadSettings();
                 pomodoroTime.Visible = settings.TimerShowPomodoro;
             }
@@ -305,20 +362,26 @@ namespace DTwoMFTimerHelper.UI.Timer {
             UpdateLootRecords();
         }
 
-        public void RefreshUI() {
-            if (this.InvokeRequired) {
+        public void RefreshUI()
+        {
+            if (this.InvokeRequired)
+            {
                 this.Invoke(new Action(UpdateUI));
             }
-            else {
+            else
+            {
                 UpdateUI();
             }
         }
 
-        private void UpdateStatistics() {
-            if (statisticsControl != null && historyControl != null) {
+        private void UpdateStatistics()
+        {
+            if (statisticsControl != null && historyControl != null)
+            {
                 int runCount = historyControl.RunCount;
                 // 如果计时器正在运行，说明已经添加了一条未完成的记录，所以显示次数+1
-                if (_timerService.IsRunning) {
+                if (_timerService.IsRunning)
+                {
                     runCount++;
                 }
                 TimeSpan fastestTime = historyControl.FastestTime;
@@ -328,12 +391,15 @@ namespace DTwoMFTimerHelper.UI.Timer {
             historyControl?.UpdateHistory(historyControl.RunHistory);
         }
 
-        private void UpdateCharacterSceneInfo() {
+        private void UpdateCharacterSceneInfo()
+        {
             characterSceneControl?.UpdateCharacterSceneInfo();
         }
 
-        private void UpdateLootRecords() {
-            if (lootRecordsControl != null && _profileService != null && _profileService.CurrentProfile != null) {
+        private void UpdateLootRecords()
+        {
+            if (lootRecordsControl != null && _profileService != null && _profileService.CurrentProfile != null)
+            {
                 string currentScene = _profileService.CurrentScene ?? string.Empty;
                 lootRecordsControl.UpdateLootRecords(_profileService.CurrentProfile.LootRecords, currentScene);
             }
@@ -341,8 +407,10 @@ namespace DTwoMFTimerHelper.UI.Timer {
         #endregion
 
         #region UI Initialization
-        private void InitializeComponent() {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TimerControl));
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources =
+                new System.ComponentModel.ComponentResourceManager(typeof(TimerControl));
             btnStatusIndicator = new Label();
             lblTimeDisplay = new Label();
             statisticsControl = new StatisticsControl();
@@ -353,17 +421,17 @@ namespace DTwoMFTimerHelper.UI.Timer {
             toggleLootButton = new Button();
             pomodoroTime = new PomodoroTimeDisplayLabel();
             SuspendLayout();
-            // 
+            //
             // btnStatusIndicator
-            // 
+            //
             btnStatusIndicator.Location = new Point(15, 19);
             btnStatusIndicator.Margin = new Padding(6);
             btnStatusIndicator.Name = "btnStatusIndicator";
             btnStatusIndicator.Size = new Size(24, 24);
             btnStatusIndicator.TabIndex = 0;
-            // 
+            //
             // lblTimeDisplay
-            // 
+            //
             lblTimeDisplay.AutoSize = true;
             lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 28F, FontStyle.Regular, GraphicsUnit.Point, 134);
             lblTimeDisplay.Location = new Point(20, 61);
@@ -373,9 +441,9 @@ namespace DTwoMFTimerHelper.UI.Timer {
             lblTimeDisplay.TabIndex = 1;
             lblTimeDisplay.Text = "00:00:00";
             lblTimeDisplay.TextAlign = ContentAlignment.MiddleLeft;
-            // 
+            //
             // statisticsControl
-            // 
+            //
             statisticsControl.AverageTime = TimeSpan.Parse("00:00:00");
             statisticsControl.FastestTime = TimeSpan.Parse("00:00:00");
             statisticsControl.Location = new Point(9, 157);
@@ -384,42 +452,42 @@ namespace DTwoMFTimerHelper.UI.Timer {
             statisticsControl.RunCount = 0;
             statisticsControl.Size = new Size(421, 116);
             statisticsControl.TabIndex = 2;
-            // 
+            //
             // historyControl
-            // 
+            //
             historyControl.Location = new Point(9, 289);
             historyControl.Margin = new Padding(9, 8, 9, 8);
             historyControl.Name = "historyControl";
             historyControl.Size = new Size(421, 117);
             historyControl.TabIndex = 3;
-            // 
+            //
             // characterSceneControl
-            // 
+            //
             characterSceneControl.Location = new Point(9, 409);
             characterSceneControl.Margin = new Padding(6);
             characterSceneControl.Name = "characterSceneControl";
             characterSceneControl.Size = new Size(421, 80);
             characterSceneControl.TabIndex = 4;
-            // 
+            //
             // lootRecordsControl
-            // 
+            //
             lootRecordsControl.Location = new Point(9, 495);
             lootRecordsControl.Margin = new Padding(9, 8, 9, 8);
             lootRecordsControl.Name = "lootRecordsControl";
             lootRecordsControl.Size = new Size(421, 100);
             lootRecordsControl.TabIndex = 6;
-            // 
+            //
             // labelTime1
-            // 
+            //
             labelTime1.Location = new Point(60, 9);
             labelTime1.Name = "labelTime1";
             labelTime1.ShowTime = false;
             labelTime1.Size = new Size(135, 40);
             labelTime1.TabIndex = 5;
             labelTime1.Text = "labelTime1";
-            // 
+            //
             // toggleLootButton
-            // 
+            //
             toggleLootButton.Location = new Point(299, 414);
             toggleLootButton.Name = "toggleLootButton";
             toggleLootButton.Size = new Size(131, 40);
@@ -427,9 +495,9 @@ namespace DTwoMFTimerHelper.UI.Timer {
             toggleLootButton.Text = "ShowLoot";
             toggleLootButton.UseVisualStyleBackColor = true;
             toggleLootButton.Click += ToggleLootButton_Click;
-            // 
+            //
             // pomodoroTime
-            // 
+            //
             pomodoroTime.AutoSize = true;
             pomodoroTime.Font = new Font("微软雅黑", 16F, FontStyle.Bold);
             pomodoroTime.Location = new Point(299, 9);
@@ -438,9 +506,9 @@ namespace DTwoMFTimerHelper.UI.Timer {
             pomodoroTime.Size = new Size(125, 50);
             pomodoroTime.TabIndex = 8;
             pomodoroTime.Text = "00:00";
-            // 
+            //
             // TimerControl
-            // 
+            //
             AutoScaleDimensions = new SizeF(13F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(pomodoroTime);
@@ -459,8 +527,10 @@ namespace DTwoMFTimerHelper.UI.Timer {
             PerformLayout();
         }
 
-        protected override void Dispose(bool disposing) {
-            if (disposing) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
                 UnsubscribeFromServiceEvents();
                 LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
             }
@@ -472,42 +542,55 @@ namespace DTwoMFTimerHelper.UI.Timer {
         /// 设置掉落记录控件的可见性，并调整相关UI元素
         /// </summary>
         /// <param name="isVisible">是否可见</param>
-        public void SetLootRecordsVisible(bool isVisible) {
-            if (lootRecordsControl != null) {
+        public void SetLootRecordsVisible(bool isVisible)
+        {
+            if (lootRecordsControl != null)
+            {
                 // 设置可见性
                 lootRecordsControl.Visible = isVisible;
 
                 // 更新按钮文本
-                toggleLootButton.Text = isVisible ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落") : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
+                toggleLootButton.Text = isVisible
+                    ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落")
+                    : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
 
                 // 调整TimerControl的高度
-                int newHeight = isVisible ? UISizeConstants.TimerControlHeightWithLoot : UISizeConstants.TimerControlHeightWithoutLoot;
+                int newHeight = isVisible
+                    ? UISizeConstants.TimerControlHeightWithLoot
+                    : UISizeConstants.TimerControlHeightWithoutLoot;
                 int heightChange = newHeight - this.Height;
                 this.Size = new Size(this.Width, newHeight);
 
                 // 调整父窗体（MainForm）的高度
-                if (this.ParentForm != null) {
+                if (this.ParentForm != null)
+                {
                     int newFormHeight = this.ParentForm.ClientSize.Height + heightChange;
                     this.ParentForm.ClientSize = new Size(this.ParentForm.ClientSize.Width, newFormHeight);
 
                     // 如果窗口位置设置为下方，重新应用窗口位置以保持在底部
                     var settings = Services.SettingsManager.LoadSettings();
                     var windowPosition = SettingsControl.WindowPosition.BottomLeft; // 默认位置
-                    if (!string.IsNullOrEmpty(settings.WindowPosition)) {
+                    if (!string.IsNullOrEmpty(settings.WindowPosition))
+                    {
                         windowPosition = Services.SettingsManager.StringToWindowPosition(settings.WindowPosition);
                     }
 
-                    if (windowPosition == SettingsControl.WindowPosition.BottomLeft ||
-                        windowPosition == SettingsControl.WindowPosition.BottomCenter ||
-                        windowPosition == SettingsControl.WindowPosition.BottomRight) {
+                    if (
+                        windowPosition == SettingsControl.WindowPosition.BottomLeft
+                        || windowPosition == SettingsControl.WindowPosition.BottomCenter
+                        || windowPosition == SettingsControl.WindowPosition.BottomRight
+                    )
+                    {
                         SettingsControl.MoveWindowToPosition(this.ParentForm, windowPosition);
                     }
                 }
             }
         }
 
-        private void ToggleLootButton_Click(object? sender, EventArgs e) {
-            if (lootRecordsControl != null) {
+        private void ToggleLootButton_Click(object? sender, EventArgs e)
+        {
+            if (lootRecordsControl != null)
+            {
                 // 切换可见性
                 bool isVisible = !lootRecordsControl.Visible;
 

@@ -1,21 +1,25 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using System.ComponentModel;
 
-namespace DTwoMFTimerHelper.UI {
-    public enum ToastType {
+namespace DTwoMFTimerHelper.UI
+{
+    public enum ToastType
+    {
         Info,
         Success,
         Warning,
-        Error
+        Error,
     }
 
-    public class ToastForm : Form {
+    public class ToastForm : Form
+    {
         private System.Windows.Forms.Timer _timerLife = null!;
         private System.Windows.Forms.Timer _timerAnim = null!;
         private int _lifeTime = 3000; // 默认显示3秒
         private bool _isClosing = false;
+
         // private double _targetOpacity = 1.0;
 
         // UI 组件
@@ -23,7 +27,8 @@ namespace DTwoMFTimerHelper.UI {
         private Label? lblMessage;
         private Panel? pnlColorStrip;
 
-        public ToastForm(string message, ToastType type, string title = "") {
+        public ToastForm(string message, ToastType type, string title = "")
+        {
             this.StartPosition = FormStartPosition.Manual;
 
             // 基础窗体设置
@@ -35,7 +40,8 @@ namespace DTwoMFTimerHelper.UI {
             this.Opacity = 0;
 
             // 绘制边框（可选，简单的灰色边框）
-            this.Paint += (s, e) => {
+            this.Paint += (s, e) =>
+            {
                 ControlPaint.DrawBorder(e.Graphics, this.ClientRectangle, Color.LightGray, ButtonBorderStyle.Solid);
             };
 
@@ -46,46 +52,62 @@ namespace DTwoMFTimerHelper.UI {
             _timerAnim.Tick += TimerAnim_Tick;
 
             _timerLife = new System.Windows.Forms.Timer { Interval = _lifeTime };
-            _timerLife.Tick += (s, e) => { CloseToast(); };
+            _timerLife.Tick += (s, e) =>
+            {
+                CloseToast();
+            };
         }
 
         // 核心：防止窗体显示时抢占焦点
         protected override bool ShowWithoutActivation => true;
 
-        private void InitializeControls(string message, ToastType type, string title) {
+        private void InitializeControls(string message, ToastType type, string title)
+        {
             // 设置颜色
             Color typeColor = Color.Gray;
-            switch (type) {
-                case ToastType.Success: typeColor = Color.FromArgb(82, 196, 26); break; // AntD Green
-                case ToastType.Error: typeColor = Color.FromArgb(255, 77, 79); break;   // AntD Red
-                case ToastType.Warning: typeColor = Color.FromArgb(250, 173, 20); break; // AntD Orange
-                case ToastType.Info: typeColor = Color.FromArgb(24, 144, 255); break;   // AntD Blue
+            switch (type)
+            {
+                case ToastType.Success:
+                    typeColor = Color.FromArgb(82, 196, 26);
+                    break; // AntD Green
+                case ToastType.Error:
+                    typeColor = Color.FromArgb(255, 77, 79);
+                    break; // AntD Red
+                case ToastType.Warning:
+                    typeColor = Color.FromArgb(250, 173, 20);
+                    break; // AntD Orange
+                case ToastType.Info:
+                    typeColor = Color.FromArgb(24, 144, 255);
+                    break; // AntD Blue
             }
 
             // 左侧色条
-            pnlColorStrip = new Panel {
+            pnlColorStrip = new Panel
+            {
                 Dock = DockStyle.Left,
                 Width = 5,
-                BackColor = typeColor
+                BackColor = typeColor,
             };
 
             // 标题
-            lblTitle = new Label {
+            lblTitle = new Label
+            {
                 Text = string.IsNullOrEmpty(title) ? type.ToString() : title,
                 Font = new Font("Segoe UI", 10, FontStyle.Bold),
                 Location = new Point(15, 10),
                 AutoSize = true,
-                ForeColor = Color.FromArgb(64, 64, 64)
+                ForeColor = Color.FromArgb(64, 64, 64),
             };
 
             // 内容
-            lblMessage = new Label {
+            lblMessage = new Label
+            {
                 Text = message,
                 Font = new Font("Segoe UI", 9, FontStyle.Regular),
                 Location = new Point(15, 35),
                 Size = new Size(270, 40),
                 TextAlign = ContentAlignment.TopLeft,
-                ForeColor = Color.FromArgb(100, 100, 100)
+                ForeColor = Color.FromArgb(100, 100, 100),
             };
 
             // 点击任意位置关闭
@@ -98,7 +120,8 @@ namespace DTwoMFTimerHelper.UI {
             this.Controls.Add(pnlColorStrip);
         }
 
-        protected override void OnLoad(EventArgs e) {
+        protected override void OnLoad(EventArgs e)
+        {
             base.OnLoad(e);
             // 定位到屏幕右下角 (或者右上角)
             // var screen = Screen.PrimaryScreen.WorkingArea;
@@ -111,16 +134,20 @@ namespace DTwoMFTimerHelper.UI {
             _timerLife.Start(); // 开始倒计时
         }
 
-        private void TimerAnim_Tick(object? sender, EventArgs e) {
-            if (_isClosing) {
+        private void TimerAnim_Tick(object? sender, EventArgs e)
+        {
+            if (_isClosing)
+            {
                 // 淡出
                 this.Opacity -= 0.1;
-                if (this.Opacity <= 0) {
+                if (this.Opacity <= 0)
+                {
                     _timerAnim.Stop();
                     this.Close();
                 }
             }
-            else {
+            else
+            {
                 // 淡入
                 if (this.Opacity < 1)
                     this.Opacity += 0.1;
@@ -129,7 +156,8 @@ namespace DTwoMFTimerHelper.UI {
             }
         }
 
-        private void CloseToast() {
+        private void CloseToast()
+        {
             _isClosing = true;
             _timerLife.Stop();
             _timerAnim.Start();

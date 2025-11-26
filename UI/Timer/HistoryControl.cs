@@ -1,15 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Forms;
-using System.Threading.Tasks;
 using System.Linq;
-using DTwoMFTimerHelper.Utils;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using DTwoMFTimerHelper.Models;
 using DTwoMFTimerHelper.Services;
+using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.UI.Timer {
-    public partial class HistoryControl : UserControl {
+namespace DTwoMFTimerHelper.UI.Timer
+{
+    public partial class HistoryControl : UserControl
+    {
         private System.Windows.Forms.ListBox lstRunHistory = null!;
         private System.Windows.Forms.Label _loadingIndicator = null!;
 
@@ -30,24 +32,30 @@ namespace DTwoMFTimerHelper.UI.Timer {
         public TimeSpan AverageTime => _historyService?.AverageTime ?? TimeSpan.Zero;
         public List<TimeSpan> RunHistory => _historyService?.RunHistory ?? new List<TimeSpan>();
 
-        public HistoryControl() {
+        public HistoryControl()
+        {
             InitializeComponent();
             // 【新增】确保控件已创建
-            if (!this.DesignMode) {
+            if (!this.DesignMode)
+            {
                 this.Load += HistoryControl_Load;
             }
         }
 
         // 【新增】控件加载完成事件
-        private void HistoryControl_Load(object? sender, EventArgs e) {
+        private void HistoryControl_Load(object? sender, EventArgs e)
+        {
             // 确保控件句柄已创建
-            if (lstRunHistory != null && lstRunHistory.IsHandleCreated) {
+            if (lstRunHistory != null && lstRunHistory.IsHandleCreated)
+            {
                 // 可以在这里执行一些初始化后的操作
             }
         }
 
-        public void Initialize(ITimerHistoryService historyService) {
-            if (_isInitialized || historyService == null) return;
+        public void Initialize(ITimerHistoryService historyService)
+        {
+            if (_isInitialized || historyService == null)
+                return;
 
             _historyService = historyService;
             _isInitialized = true;
@@ -56,7 +64,8 @@ namespace DTwoMFTimerHelper.UI.Timer {
             _historyService.HistoryDataChanged += OnHistoryDataChanged;
         }
 
-        private void InitializeComponent() {
+        private void InitializeComponent()
+        {
             this.lstRunHistory = new System.Windows.Forms.ListBox();
             this._loadingIndicator = new System.Windows.Forms.Label();
             this.SuspendLayout();
@@ -75,7 +84,13 @@ namespace DTwoMFTimerHelper.UI.Timer {
             this._loadingIndicator.AutoSize = true;
             this._loadingIndicator.BackColor = System.Drawing.Color.Transparent;
             this._loadingIndicator.Dock = System.Windows.Forms.DockStyle.Top;
-            this._loadingIndicator.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this._loadingIndicator.Font = new System.Drawing.Font(
+                "Microsoft YaHei UI",
+                9F,
+                System.Drawing.FontStyle.Bold,
+                System.Drawing.GraphicsUnit.Point,
+                ((byte)(134))
+            );
             this._loadingIndicator.Location = new System.Drawing.Point(0, 0);
             this._loadingIndicator.Name = "_loadingIndicator";
             this._loadingIndicator.Padding = new System.Windows.Forms.Padding(0, 5, 0, 0);
@@ -96,36 +111,49 @@ namespace DTwoMFTimerHelper.UI.Timer {
             this.PerformLayout();
         }
 
-        public void AddRunRecord(TimeSpan runTime) {
-            if (_historyService == null) return;
+        public void AddRunRecord(TimeSpan runTime)
+        {
+            if (_historyService == null)
+                return;
             _historyService.AddRunRecord(runTime);
         }
 
-        public void UpdateHistory(List<TimeSpan> runHistory) {
-            if (_historyService == null) return;
+        public void UpdateHistory(List<TimeSpan> runHistory)
+        {
+            if (_historyService == null)
+                return;
             _historyService.UpdateHistory(runHistory);
         }
 
-        public async Task<bool> DeleteSelectedRecordAsync() {
-            if (_historyService == null) return false;
+        public async Task<bool> DeleteSelectedRecordAsync()
+        {
+            if (_historyService == null)
+                return false;
 
             if (lstRunHistory == null || lstRunHistory.SelectedIndex == -1 || _currentProfile == null)
                 return false;
 
-            try {
+            try
+            {
                 _isLoading = true;
                 int actualIndex = _displayStartIndex + lstRunHistory.SelectedIndex;
 
-                if (actualIndex >= 0 && actualIndex < _historyService.RunHistory.Count && _currentScene != null) {
+                if (actualIndex >= 0 && actualIndex < _historyService.RunHistory.Count && _currentScene != null)
+                {
                     bool deleteSuccess = _historyService.DeleteHistoryRecordByIndex(
                         _currentProfile,
                         _currentScene,
                         _currentDifficulty,
-                        actualIndex);
+                        actualIndex
+                    );
 
-                    if (deleteSuccess) {
+                    if (deleteSuccess)
+                    {
                         Utils.DataHelper.SaveProfile(_currentProfile);
-                        _displayStartIndex = Math.Max(0, Math.Min(_displayStartIndex, _historyService.RunHistory.Count - 1));
+                        _displayStartIndex = Math.Max(
+                            0,
+                            Math.Min(_displayStartIndex, _historyService.RunHistory.Count - 1)
+                        );
                         _isLoading = false;
                         await UpdateUIAsync();
                         return true;
@@ -133,28 +161,38 @@ namespace DTwoMFTimerHelper.UI.Timer {
                 }
                 return false;
             }
-            finally {
+            finally
+            {
                 _isLoading = false;
             }
         }
 
         public async Task<bool> LoadProfileHistoryDataAsync(
-            CharacterProfile? profile, string scene, string characterName, GameDifficulty difficulty) {
-            if (_historyService == null) return false;
+            CharacterProfile? profile,
+            string scene,
+            string characterName,
+            GameDifficulty difficulty
+        )
+        {
+            if (_historyService == null)
+                return false;
 
             // 【修改】防止重复加载
-            if (_isLoading) return false;
+            if (_isLoading)
+                return false;
 
             _isLoading = true;
             ShowLoadingIndicator(true);
 
-            try {
+            try
+            {
                 _currentProfile = profile;
                 _currentScene = scene;
                 _currentDifficulty = difficulty;
 
                 bool result = _historyService.LoadProfileHistoryData(profile, scene, characterName, difficulty);
-                if (result) {
+                if (result)
+                {
                     // 【修改】重置显示起始位置，确保显示最新数据
                     int totalCount = _historyService.RunHistory.Count;
                     _displayStartIndex = Math.Max(0, totalCount - PageSize);
@@ -164,7 +202,8 @@ namespace DTwoMFTimerHelper.UI.Timer {
                 }
                 return result;
             }
-            finally {
+            finally
+            {
                 _isLoading = false;
                 ShowLoadingIndicator(false);
                 // 初始化完成
@@ -172,20 +211,26 @@ namespace DTwoMFTimerHelper.UI.Timer {
         }
 
         // 【新增】强制刷新UI方法
-        private async Task ForceRefreshUIAsync() {
-            if (_historyService == null || lstRunHistory == null) return;
+        private async Task ForceRefreshUIAsync()
+        {
+            if (_historyService == null || lstRunHistory == null)
+                return;
 
-            await SafeInvokeAsync(() => {
+            await SafeInvokeAsync(() =>
+            {
                 lstRunHistory.Items.Clear();
 
                 var currentHistory = _historyService.RunHistory;
-                if (currentHistory == null || currentHistory.Count == 0) return;
+                if (currentHistory == null || currentHistory.Count == 0)
+                    return;
 
                 _displayStartIndex = Math.Max(0, currentHistory.Count - PageSize);
                 int displayCount = Math.Min(currentHistory.Count - _displayStartIndex, PageSize);
 
-                for (int i = _displayStartIndex; i < _displayStartIndex + displayCount; i++) {
-                    if (i >= 0 && i < currentHistory.Count) {
+                for (int i = _displayStartIndex; i < _displayStartIndex + displayCount; i++)
+                {
+                    if (i >= 0 && i < currentHistory.Count)
+                    {
                         var time = currentHistory[i];
                         string timeFormatted = FormatTime(time);
                         string runText = GetRunText(i + 1, timeFormatted);
@@ -194,45 +239,65 @@ namespace DTwoMFTimerHelper.UI.Timer {
                 }
 
                 // 【修改】确保滚动到底部
-                if (lstRunHistory.Items.Count > 0) {
+                if (lstRunHistory.Items.Count > 0)
+                {
                     lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
-                    lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - (lstRunHistory.Height / lstRunHistory.ItemHeight));
+                    lstRunHistory.TopIndex = Math.Max(
+                        0,
+                        lstRunHistory.Items.Count - (lstRunHistory.Height / lstRunHistory.ItemHeight)
+                    );
                 }
             });
         }
 
         // 【新增】安全的UI调用方法
-        private async Task SafeInvokeAsync(Action action) {
-            if (lstRunHistory == null) return;
+        private async Task SafeInvokeAsync(Action action)
+        {
+            if (lstRunHistory == null)
+                return;
 
-            try {
-                if (lstRunHistory.InvokeRequired) {
+            try
+            {
+                if (lstRunHistory.InvokeRequired)
+                {
                     await Task.Run(() => lstRunHistory.Invoke(action));
                 }
-                else {
+                else
+                {
                     action();
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 // 【新增】记录异常以便调试
                 System.Diagnostics.Debug.WriteLine($"[HistoryControl] UI更新异常: {ex.Message}");
             }
         }
 
         // 【新增】显示/隐藏加载指示器
-        private void ShowLoadingIndicator(bool show) {
-            if (_loadingIndicator == null) return;
+        private void ShowLoadingIndicator(bool show)
+        {
+            if (_loadingIndicator == null)
+                return;
 
-            if (_loadingIndicator.InvokeRequired) {
+            if (_loadingIndicator.InvokeRequired)
+            {
                 _loadingIndicator.Invoke(new Action<bool>(ShowLoadingIndicator), show);
             }
-            else {
+            else
+            {
                 _loadingIndicator.Visible = show;
                 _loadingIndicator.BringToFront();
             }
         }
 
-        public bool LoadProfileHistoryData(CharacterProfile? profile, string scene, string characterName, GameDifficulty difficulty) {
+        public bool LoadProfileHistoryData(
+            CharacterProfile? profile,
+            string scene,
+            string characterName,
+            GameDifficulty difficulty
+        )
+        {
             // 【修改】同步方法也使用异步方式
             return LoadProfileHistoryDataAsync(profile, scene, characterName, difficulty)
                 .ConfigureAwait(false)
@@ -240,24 +305,32 @@ namespace DTwoMFTimerHelper.UI.Timer {
                 .GetResult();
         }
 
-        private async Task UpdateUIAsync() {
-            if (_historyService == null || lstRunHistory == null) return;
-            if (_isLoading) return;
+        private async Task UpdateUIAsync()
+        {
+            if (_historyService == null || lstRunHistory == null)
+                return;
+            if (_isLoading)
+                return;
 
             _isLoading = true;
 
-            try {
-                await SafeInvokeAsync(() => {
+            try
+            {
+                await SafeInvokeAsync(() =>
+                {
                     lstRunHistory.Items.Clear();
 
                     var currentHistory = _historyService.RunHistory;
-                    if (currentHistory == null) return;
+                    if (currentHistory == null)
+                        return;
 
                     _displayStartIndex = Math.Max(0, Math.Min(_displayStartIndex, currentHistory.Count - 1));
                     int displayCount = Math.Min(currentHistory.Count - _displayStartIndex, PageSize);
 
-                    for (int i = _displayStartIndex; i < _displayStartIndex + displayCount; i++) {
-                        if (i >= 0 && i < currentHistory.Count) {
+                    for (int i = _displayStartIndex; i < _displayStartIndex + displayCount; i++)
+                    {
+                        if (i >= 0 && i < currentHistory.Count)
+                        {
                             var time = currentHistory[i];
                             string timeFormatted = FormatTime(time);
                             string runText = GetRunText(i + 1, timeFormatted);
@@ -265,34 +338,44 @@ namespace DTwoMFTimerHelper.UI.Timer {
                         }
                     }
 
-                    if (lstRunHistory.Items.Count > 0) {
+                    if (lstRunHistory.Items.Count > 0)
+                    {
                         lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
                         lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
                     }
                 });
             }
-            finally {
+            finally
+            {
                 _isLoading = false;
             }
         }
 
-        private void ScrollToBottom() {
-            if (lstRunHistory != null && lstRunHistory.Items.Count > 0 && lstRunHistory.IsHandleCreated) {
+        private void ScrollToBottom()
+        {
+            if (lstRunHistory != null && lstRunHistory.Items.Count > 0 && lstRunHistory.IsHandleCreated)
+            {
                 lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
                 lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
             }
         }
 
-        public async Task RefreshUIAsync() {
-            if (_historyService == null || lstRunHistory == null) return;
+        public async Task RefreshUIAsync()
+        {
+            if (_historyService == null || lstRunHistory == null)
+                return;
             await ForceRefreshUIAsync();
         }
 
-        private void UpdateListItems(List<TimeSpan> currentHistory) {
-            if (_historyService == null || lstRunHistory == null) return;
-            for (int i = 0; i < lstRunHistory.Items.Count; i++) {
+        private void UpdateListItems(List<TimeSpan> currentHistory)
+        {
+            if (_historyService == null || lstRunHistory == null)
+                return;
+            for (int i = 0; i < lstRunHistory.Items.Count; i++)
+            {
                 int actualIndex = _displayStartIndex + i;
-                if (actualIndex < currentHistory.Count) {
+                if (actualIndex < currentHistory.Count)
+                {
                     var time = currentHistory[actualIndex];
                     string timeFormatted = FormatTime(time);
                     string runText = GetRunText(actualIndex + 1, timeFormatted);
@@ -303,10 +386,13 @@ namespace DTwoMFTimerHelper.UI.Timer {
 
         public void RefreshUI() => _ = RefreshUIAsync();
 
-        private void AddSingleRunRecord(TimeSpan runTime) {
-            if (_historyService == null || lstRunHistory == null) return;
+        private void AddSingleRunRecord(TimeSpan runTime)
+        {
+            if (_historyService == null || lstRunHistory == null)
+                return;
             var currentHistory = _historyService.RunHistory;
-            if (currentHistory == null) return;
+            if (currentHistory == null)
+                return;
 
             int newIndex = currentHistory.Count - 1;
             _displayStartIndex = Math.Max(0, newIndex - PageSize + 1);
@@ -314,39 +400,57 @@ namespace DTwoMFTimerHelper.UI.Timer {
             string timeFormatted = FormatTime(runTime);
             string runText = GetRunText(newIndex + 1, timeFormatted);
 
-            SafeInvokeAsync(() => {
-                if (lstRunHistory.Items.Count >= PageSize)
-                    lstRunHistory.Items.RemoveAt(0);
+            SafeInvokeAsync(() =>
+                {
+                    if (lstRunHistory.Items.Count >= PageSize)
+                        lstRunHistory.Items.RemoveAt(0);
 
-                lstRunHistory.Items.Add(runText);
-                lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
-                lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
-            }).ConfigureAwait(false);
+                    lstRunHistory.Items.Add(runText);
+                    lstRunHistory.SelectedIndex = lstRunHistory.Items.Count - 1;
+                    lstRunHistory.TopIndex = Math.Max(0, lstRunHistory.Items.Count - 1);
+                })
+                .ConfigureAwait(false);
         }
 
-        private async void LstRunHistory_MouseWheel(object? sender, MouseEventArgs e) {
-            if (_historyService == null || lstRunHistory == null) return;
-            if (e != null && e.Delta > 0 && _displayStartIndex > 0 && !_isLoading && lstRunHistory.TopIndex < 5) {
+        private async void LstRunHistory_MouseWheel(object? sender, MouseEventArgs e)
+        {
+            if (_historyService == null || lstRunHistory == null)
+                return;
+            if (e != null && e.Delta > 0 && _displayStartIndex > 0 && !_isLoading && lstRunHistory.TopIndex < 5)
+            {
                 await LoadMoreHistoryAsync();
             }
         }
 
-        private async Task LoadMoreHistoryAsync() {
-            if (_historyService == null || lstRunHistory == null || _loadingIndicator == null || _displayStartIndex <= 0 || _isLoading) return;
+        private async Task LoadMoreHistoryAsync()
+        {
+            if (
+                _historyService == null
+                || lstRunHistory == null
+                || _loadingIndicator == null
+                || _displayStartIndex <= 0
+                || _isLoading
+            )
+                return;
 
             _isLoading = true;
             ShowLoadingIndicator(true);
 
-            try {
+            try
+            {
                 int newStartIndex = Math.Max(0, _displayStartIndex - PageSize);
                 int addedCount = _displayStartIndex - newStartIndex;
                 var currentHistory = _historyService.RunHistory;
-                if (currentHistory == null || currentHistory.Count == 0) return;
+                if (currentHistory == null || currentHistory.Count == 0)
+                    return;
 
-                await SafeInvokeAsync(() => {
+                await SafeInvokeAsync(() =>
+                {
                     var newItems = new List<string>(addedCount);
-                    for (int i = newStartIndex; i < _displayStartIndex; i++) {
-                        if (i >= 0 && i < currentHistory.Count) {
+                    for (int i = newStartIndex; i < _displayStartIndex; i++)
+                    {
+                        if (i >= 0 && i < currentHistory.Count)
+                        {
                             var time = currentHistory[i];
                             string timeFormatted = FormatTime(time);
                             string runText = GetRunText(i + 1, timeFormatted);
@@ -354,7 +458,8 @@ namespace DTwoMFTimerHelper.UI.Timer {
                         }
                     }
 
-                    if (newItems.Count == 0) return;
+                    if (newItems.Count == 0)
+                        return;
                     _displayStartIndex = newStartIndex;
 
                     var currentDisplayItems = new List<string>();
@@ -362,88 +467,117 @@ namespace DTwoMFTimerHelper.UI.Timer {
                         currentDisplayItems.Add(item?.ToString() ?? string.Empty);
 
                     lstRunHistory.Items.Clear();
-                    foreach (var item in newItems) lstRunHistory.Items.Add(item);
-                    foreach (var item in currentDisplayItems) lstRunHistory.Items.Add(item);
+                    foreach (var item in newItems)
+                        lstRunHistory.Items.Add(item);
+                    foreach (var item in currentDisplayItems)
+                        lstRunHistory.Items.Add(item);
 
-                    if (newItems.Count > 0) {
+                    if (newItems.Count > 0)
+                    {
                         lstRunHistory.TopIndex = 0;
                         lstRunHistory.SelectedIndex = -1;
                     }
                 });
             }
-            finally {
+            finally
+            {
                 _isLoading = false;
                 ShowLoadingIndicator(false);
             }
         }
 
-        private string FormatTime(TimeSpan time) {
-            return string.Format("{0:00}:{1:00}:{2:00}.{3}",
-                time.Hours, time.Minutes, time.Seconds,
-                (int)(time.Milliseconds / 100));
+        private string FormatTime(TimeSpan time)
+        {
+            return string.Format(
+                "{0:00}:{1:00}:{2:00}.{3}",
+                time.Hours,
+                time.Minutes,
+                time.Seconds,
+                (int)(time.Milliseconds / 100)
+            );
         }
 
-        private string GetRunText(int runNumber, string timeFormatted) {
+        private string GetRunText(int runNumber, string timeFormatted)
+        {
             string runText = Utils.LanguageManager.GetString("RunNumber", runNumber, timeFormatted);
-            if (string.IsNullOrEmpty(runText) || runText == "RunNumber") {
+            if (string.IsNullOrEmpty(runText) || runText == "RunNumber")
+            {
                 runText = $"Run {runNumber}: {timeFormatted}";
             }
             return runText;
         }
 
-        private void OnHistoryDataChanged(object? sender, HistoryChangedEventArgs e) {
-            if (e == null) return;
+        private void OnHistoryDataChanged(object? sender, HistoryChangedEventArgs e)
+        {
+            if (e == null)
+                return;
 
             // 【修改】增加调试日志
             System.Diagnostics.Debug.WriteLine($"[HistoryControl] 收到历史数据变更事件: {e.ChangeType}");
 
-            if (InvokeRequired) {
+            if (InvokeRequired)
+            {
                 BeginInvoke(new Action<HistoryChangedEventArgs>(ProcessHistoryChange), e);
             }
-            else {
+            else
+            {
                 ProcessHistoryChange(e);
             }
         }
 
-        private async void ProcessHistoryChange(HistoryChangedEventArgs e) {
-            if (e == null) return;
-            if (_isProcessingHistoryChange) return;
+        private async void ProcessHistoryChange(HistoryChangedEventArgs e)
+        {
+            if (e == null)
+                return;
+            if (_isProcessingHistoryChange)
+                return;
 
             _isProcessingHistoryChange = true;
-            try {
+            try
+            {
                 System.Diagnostics.Debug.WriteLine($"[HistoryControl] 处理历史数据变更: {e.ChangeType}");
 
-                switch (e.ChangeType) {
+                switch (e.ChangeType)
+                {
                     case HistoryChangeType.Add:
-                        if (e.AddedRecord.HasValue) {
+                        if (e.AddedRecord.HasValue)
+                        {
                             AddSingleRunRecord(e.AddedRecord.Value);
                         }
                         break;
                     case HistoryChangeType.FullRefresh:
                     default:
                         _isLoading = false;
-                        if (_historyService != null && _historyService.RunHistory != null) {
+                        if (_historyService != null && _historyService.RunHistory != null)
+                        {
                             _displayStartIndex = Math.Max(0, _historyService.RunHistory.Count - PageSize);
                             await ForceRefreshUIAsync();
                         }
                         break;
                 }
             }
-            finally {
+            finally
+            {
                 _isProcessingHistoryChange = false;
             }
         }
 
-        private async void LanguageManager_OnLanguageChanged(object? sender, EventArgs e) {
-            if (e == null) return;
+        private async void LanguageManager_OnLanguageChanged(object? sender, EventArgs e)
+        {
+            if (e == null)
+                return;
             await RefreshUIAsync();
         }
 
-        protected override void Dispose(bool disposing) {
-            if (disposing) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
                 LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
-                if (_historyService != null) _historyService.HistoryDataChanged -= OnHistoryDataChanged;
-                if (lstRunHistory != null) lstRunHistory.MouseWheel -= LstRunHistory_MouseWheel;
+                if (_historyService != null)
+                    _historyService.HistoryDataChanged -= OnHistoryDataChanged;
+                if (lstRunHistory != null)
+                    lstRunHistory.MouseWheel -= LstRunHistory_MouseWheel;
                 this.Load -= HistoryControl_Load;
             }
             base.Dispose(disposing);

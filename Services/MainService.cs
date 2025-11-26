@@ -1,15 +1,17 @@
 using System;
-using System.Windows.Forms;
 using System.Runtime.InteropServices;
-using DTwoMFTimerHelper.Utils;
+using System.Windows.Forms;
 using DTwoMFTimerHelper.UI;
-using DTwoMFTimerHelper.UI.Timer;
 using DTwoMFTimerHelper.UI.Pomodoro;
-using DTwoMFTimerHelper.UI.Settings;
 using DTwoMFTimerHelper.UI.Profiles;
+using DTwoMFTimerHelper.UI.Settings;
+using DTwoMFTimerHelper.UI.Timer;
+using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.Services {
-    public interface IMainServices {
+namespace DTwoMFTimerHelper.Services
+{
+    public interface IMainServices
+    {
         void InitializeMainForm(MainForm mainForm);
         void HandleTabChanged();
         void RefreshUI();
@@ -25,8 +27,9 @@ namespace DTwoMFTimerHelper.Services {
         ITimerService timerService,
         ITimerHistoryService timerHistoryService,
         IPomodoroTimerService pomodoroTimerService,
-        IAppSettings appSettings) : IMainServices, IDisposable {
-
+        IAppSettings appSettings
+    ) : IMainServices, IDisposable
+    {
         #region Fields and Properties
         private readonly IProfileService _profileService = profileService;
         private readonly ITimerService _timerService = timerService;
@@ -71,7 +74,8 @@ namespace DTwoMFTimerHelper.Services {
         /// 初始化主窗体引用和相关组件
         /// 程序第一层加载时调用
         /// </summary>
-        public void InitializeMainForm(MainForm mainForm) {
+        public void InitializeMainForm(MainForm mainForm)
+        {
             _mainForm = mainForm;
             InitializeControlInstances(); // 在这里初始化控件实例
             InitializeControls();
@@ -80,10 +84,13 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 切换到指定的Tab页
         /// </summary>
-        public void SetActiveTabPage(Models.TabPage tabPage) {
-            if (_mainForm?.TabControl != null) {
+        public void SetActiveTabPage(Models.TabPage tabPage)
+        {
+            if (_mainForm?.TabControl != null)
+            {
                 int tabIndex = (int)tabPage;
-                if (tabIndex >= 0 && tabIndex < _mainForm.TabControl.TabCount) {
+                if (tabIndex >= 0 && tabIndex < _mainForm.TabControl.TabCount)
+                {
                     _mainForm.TabControl.SelectedIndex = tabIndex;
                 }
             }
@@ -92,7 +99,8 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 初始化应用程序
         /// </summary>
-        public void InitializeApplication() {
+        public void InitializeApplication()
+        {
             // 1. 从配置中初始化当前热键变量
             _currentStartOrNextRunHotkey = _appSettings.HotkeyStartOrNext;
             _currentPauseHotkey = _appSettings.HotkeyPause;
@@ -114,23 +122,33 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 处理热键消息
         /// </summary>
-        public void ProcessHotKeyMessage(Message m) {
-            if (m.Msg == WM_HOTKEY) {
+        public void ProcessHotKeyMessage(Message m)
+        {
+            if (m.Msg == WM_HOTKEY)
+            {
                 int id = m.WParam.ToInt32();
 
-                switch (id) {
+                switch (id)
+                {
                     case HOTKEY_ID_STARTSTOP:
-                        if (_mainForm?.TabControl != null && _mainForm.TabControl.SelectedIndex != (int)Models.TabPage.Timer) {
+                        if (
+                            _mainForm?.TabControl != null
+                            && _mainForm.TabControl.SelectedIndex != (int)Models.TabPage.Timer
+                        )
+                        {
                             SetActiveTabPage(Models.TabPage.Timer);
                             bool hasIncompleteRecord = _profileService?.HasIncompleteRecord() ?? false;
-                            if (hasIncompleteRecord) {
+                            if (hasIncompleteRecord)
+                            {
                                 _timerControl?.TogglePause();
                             }
-                            else {
+                            else
+                            {
                                 _timerControl?.ToggleTimer();
                             }
                         }
-                        else {
+                        else
+                        {
                             _timerControl?.ToggleTimer();
                         }
 
@@ -140,9 +158,13 @@ namespace DTwoMFTimerHelper.Services {
                         _timerControl?.TogglePause();
                         break;
                     case HOTKEY_ID_DELETE_HISTORY:
-                        if (_timerControl != null && _mainForm != null &&
-                        _mainForm.TabControl != null &&
-                         _mainForm.TabControl.SelectedIndex == (int)Models.TabPage.Timer) {
+                        if (
+                            _timerControl != null
+                            && _mainForm != null
+                            && _mainForm.TabControl != null
+                            && _mainForm.TabControl.SelectedIndex == (int)Models.TabPage.Timer
+                        )
+                        {
                             // 异步调用删除选中记录的方法
                             _ = _timerControl.DeleteSelectedRecordAsync();
                         }
@@ -151,7 +173,8 @@ namespace DTwoMFTimerHelper.Services {
                         // 切换到计时界面
                         SetActiveTabPage(Models.TabPage.Timer);
                         // 显示掉落记录弹窗
-                        if (_mainForm != null) {
+                        if (_mainForm != null)
+                        {
                             using var lootForm = new UI.Timer.RecordLootForm(_profileService, _timerHistoryService);
                             // 订阅掉落记录保存成功事件
                             lootForm.LootRecordSaved += OnLootRecordSaved;
@@ -165,15 +188,22 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 处理标签页切换
         /// </summary>
-        public void HandleTabChanged() {
+        public void HandleTabChanged()
+        {
             UpdateUI();
 
             // 当切换到计时器标签页时，调用OnTabSelected方法以加载角色档案数据
-            if (TabControl != null && _timerControl != null && TabControl.SelectedIndex == (int)Models.TabPage.Timer) {
+            if (TabControl != null && _timerControl != null && TabControl.SelectedIndex == (int)Models.TabPage.Timer)
+            {
                 _timerControl.HandleTabSelected();
             }
             // 当切换到档案标签页时，重新刷新ProfileManager的UI，确保按钮文本根据最新的计时器状态正确显示
-            else if (TabControl != null && _profileManager != null && TabControl.SelectedIndex == (int)Models.TabPage.Profile) {
+            else if (
+                TabControl != null
+                && _profileManager != null
+                && TabControl.SelectedIndex == (int)Models.TabPage.Profile
+            )
+            {
                 _profileManager.RefreshUI();
             }
         }
@@ -181,14 +211,16 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 刷新UI
         /// </summary>
-        public void RefreshUI() {
+        public void RefreshUI()
+        {
             UpdateUI();
         }
 
         /// <summary>
         /// 当掉落记录保存成功时触发的事件处理程序
         /// </summary>
-        private void OnLootRecordSaved(object? sender, EventArgs e) {
+        private void OnLootRecordSaved(object? sender, EventArgs e)
+        {
             // 刷新UI以显示新添加的掉落记录
             UpdateUI();
         }
@@ -196,7 +228,8 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 处理应用程序关闭
         /// </summary>
-        public void HandleApplicationClosing() {
+        public void HandleApplicationClosing()
+        {
             _timerControl?.HandleApplicationClosing();
             UnregisterHotKeys();
         }
@@ -204,8 +237,10 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 应用窗口设置
         /// </summary>
-        public void ApplyWindowSettings() {
-            if (_mainForm != null && _appSettings != null && Screen.PrimaryScreen != null) {
+        public void ApplyWindowSettings()
+        {
+            if (_mainForm != null && _appSettings != null && Screen.PrimaryScreen != null)
+            {
                 _mainForm.TopMost = _appSettings.AlwaysOnTop;
 
                 var position = SettingsManager.StringToWindowPosition(_appSettings.WindowPosition);
@@ -215,17 +250,36 @@ namespace DTwoMFTimerHelper.Services {
         #endregion
 
         #region Private Methods
-        private void InitializeControlInstances() {
+        private void InitializeControlInstances()
+        {
             // 修复：传递 this 作为 IMainServices 参数
-            _profileManager = new ProfileManager(_profileService, _appSettings, _timerService, _pomodoroTimerService, this);
-            _timerControl = new TimerControl(_profileService, _timerService, _timerHistoryService, _pomodoroTimerService);
+            _profileManager = new ProfileManager(
+                _profileService,
+                _appSettings,
+                _timerService,
+                _pomodoroTimerService,
+                this
+            );
+            _timerControl = new TimerControl(
+                _profileService,
+                _timerService,
+                _timerHistoryService,
+                _pomodoroTimerService
+            );
             _pomodoroControl = new PomodoroControl(_pomodoroTimerService, _appSettings, _profileService);
             _settingsControl = new SettingsControl(_appSettings);
             _settingsControl.InitializeData(_appSettings);
         }
 
-        private void InitializeControls() {
-            if (_mainForm == null || _profileManager == null || _timerControl == null || _pomodoroControl == null || _settingsControl == null)
+        private void InitializeControls()
+        {
+            if (
+                _mainForm == null
+                || _profileManager == null
+                || _timerControl == null
+                || _pomodoroControl == null
+                || _settingsControl == null
+            )
                 return;
 
             // 设置控件的Dock属性
@@ -244,13 +298,16 @@ namespace DTwoMFTimerHelper.Services {
             SubscribeToEvents();
         }
 
-        private void SubscribeToEvents() {
+        private void SubscribeToEvents()
+        {
             // 订阅计时器事件
-            if (_timerControl != null) {
+            if (_timerControl != null)
+            {
                 _timerControl.TimerStateChanged += OnTimerTimerStateChanged;
             }
             // 订阅设置事件
-            if (_settingsControl != null) {
+            if (_settingsControl != null)
+            {
                 _settingsControl.WindowPositionChanged += OnWindowPositionChanged;
                 _settingsControl.LanguageChanged += OnLanguageChanged;
                 _settingsControl.AlwaysOnTopChanged += OnAlwaysOnTopChanged;
@@ -262,28 +319,40 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 加载设置到番茄钟服务
         /// </summary>
-        private void LoadSettings() {
+        private void LoadSettings()
+        {
             _pomodoroTimerService.LoadSettings(_appSettings);
         }
 
-        private void InitializeLanguageSupport() {
+        private void InitializeLanguageSupport()
+        {
             // 在应用启动时，根据IAppSettings中的Language设置来切换语言
-            LanguageManager.SwitchLanguage(_appSettings.Language == "Chinese" ? LanguageManager.Chinese : LanguageManager.English);
+            LanguageManager.SwitchLanguage(
+                _appSettings.Language == "Chinese" ? LanguageManager.Chinese : LanguageManager.English
+            );
             LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
         }
 
-        private void UpdateUI() {
+        private void UpdateUI()
+        {
             if (_mainForm == null)
                 return;
 
             _mainForm.UpdateFormTitle(LanguageManager.GetString("FormTitle"));
 
             // 更新选项卡标题
-            if (_mainForm.TabControl != null && _mainForm.TabControl.TabPages.Count >= 4) {
-                _mainForm.TabControl.TabPages[(int)Models.TabPage.Profile].Text = LanguageManager.GetString("TabProfile");
+            if (_mainForm.TabControl != null && _mainForm.TabControl.TabPages.Count >= 4)
+            {
+                _mainForm.TabControl.TabPages[(int)Models.TabPage.Profile].Text = LanguageManager.GetString(
+                    "TabProfile"
+                );
                 _mainForm.TabControl.TabPages[(int)Models.TabPage.Timer].Text = LanguageManager.GetString("TabTimer");
-                _mainForm.TabControl.TabPages[(int)Models.TabPage.Pomodoro].Text = LanguageManager.GetString("TabPomodoro");
-                _mainForm.TabControl.TabPages[(int)Models.TabPage.Settings].Text = LanguageManager.GetString("TabSettings");
+                _mainForm.TabControl.TabPages[(int)Models.TabPage.Pomodoro].Text = LanguageManager.GetString(
+                    "TabPomodoro"
+                );
+                _mainForm.TabControl.TabPages[(int)Models.TabPage.Settings].Text = LanguageManager.GetString(
+                    "TabSettings"
+                );
             }
 
             // 更新各功能控件的UI
@@ -293,7 +362,8 @@ namespace DTwoMFTimerHelper.Services {
             _settingsControl?.RefreshUI();
         }
 
-        private void RegisterHotkeys() {
+        private void RegisterHotkeys()
+        {
             UnregisterHotKeys();
 
             RegisterHotKey(_currentStartOrNextRunHotkey, HOTKEY_ID_STARTSTOP);
@@ -303,8 +373,10 @@ namespace DTwoMFTimerHelper.Services {
             // 不再注册删除历史和记录战利品的热键，因为它们未被使用
         }
 
-        private void UnregisterHotKeys() {
-            if (_mainForm != null && !_mainForm.IsDisposed && _mainForm.IsHandleCreated) {
+        private void UnregisterHotKeys()
+        {
+            if (_mainForm != null && !_mainForm.IsDisposed && _mainForm.IsHandleCreated)
+            {
                 UnregisterHotKey(_mainForm.Handle, HOTKEY_ID_STARTSTOP);
                 UnregisterHotKey(_mainForm.Handle, HOTKEY_ID_PAUSE);
                 UnregisterHotKey(_mainForm.Handle, HOTKEY_ID_DELETE_HISTORY);
@@ -312,7 +384,8 @@ namespace DTwoMFTimerHelper.Services {
             }
         }
 
-        private void RegisterHotKey(Keys keys, int id) {
+        private void RegisterHotKey(Keys keys, int id)
+        {
             if (_mainForm == null || _mainForm.IsDisposed || !_mainForm.IsHandleCreated)
                 return;
 
@@ -332,36 +405,45 @@ namespace DTwoMFTimerHelper.Services {
         #endregion
 
         #region Event Handlers
-        private void OnTimerTimerStateChanged(object? sender, EventArgs e) {
+        private void OnTimerTimerStateChanged(object? sender, EventArgs e)
+        {
             UpdateUI();
         }
 
-        private void OnLanguageChanged(object? sender, SettingsControl.LanguageChangedEventArgs e) {
+        private void OnLanguageChanged(object? sender, SettingsControl.LanguageChangedEventArgs e)
+        {
             // 先更新IAppSettings中的Language属性
-            if (_appSettings != null) {
+            if (_appSettings != null)
+            {
                 _appSettings.Language = SettingsManager.LanguageToString(e.Language);
             }
 
             // 再调用LanguageManager.SwitchLanguage触发语言变更事件
-            if (e.Language == SettingsControl.LanguageOption.Chinese) {
+            if (e.Language == SettingsControl.LanguageOption.Chinese)
+            {
                 LanguageManager.SwitchLanguage(LanguageManager.Chinese);
             }
-            else {
+            else
+            {
                 LanguageManager.SwitchLanguage(LanguageManager.English);
             }
         }
 
-        private void OnAlwaysOnTopChanged(object? sender, SettingsControl.AlwaysOnTopChangedEventArgs e) {
-            if (_mainForm != null) {
+        private void OnAlwaysOnTopChanged(object? sender, SettingsControl.AlwaysOnTopChangedEventArgs e)
+        {
+            if (_mainForm != null)
+            {
                 _mainForm.TopMost = e.IsAlwaysOnTop;
             }
 
-            if (_appSettings != null) {
+            if (_appSettings != null)
+            {
                 _appSettings.AlwaysOnTop = e.IsAlwaysOnTop;
             }
         }
 
-        private void OnHotkeysChanged(object? sender, SettingsControl.AllHotkeysChangedEventArgs e) {
+        private void OnHotkeysChanged(object? sender, SettingsControl.AllHotkeysChangedEventArgs e)
+        {
             // 更新内存变量
             _currentStartOrNextRunHotkey = e.StartHotkey;
             _currentPauseHotkey = e.PauseHotkey;
@@ -372,9 +454,11 @@ namespace DTwoMFTimerHelper.Services {
             RegisterHotkeys();
         }
 
-        private void OnTimerSettingsChanged(object? sender, SettingsControl.TimerSettingsChangedEventArgs e) {
+        private void OnTimerSettingsChanged(object? sender, SettingsControl.TimerSettingsChangedEventArgs e)
+        {
             // 更新配置文件中的计时器设置
-            if (_appSettings != null) {
+            if (_appSettings != null)
+            {
                 _appSettings.TimerShowPomodoro = e.ShowPomodoro;
                 _appSettings.TimerShowLootDrops = e.ShowLootDrops;
                 _appSettings.TimerSyncStartPomodoro = e.SyncStartPomodoro;
@@ -383,7 +467,8 @@ namespace DTwoMFTimerHelper.Services {
             }
 
             // 应用掉落记录显示设置到UI
-            if (_timerControl != null) {
+            if (_timerControl != null)
+            {
                 _timerControl.SetLootRecordsVisible(e.ShowLootDrops);
             }
 
@@ -394,30 +479,37 @@ namespace DTwoMFTimerHelper.Services {
             SetActiveTabPage(Models.TabPage.Timer);
         }
 
-        private void OnWindowPositionChanged(object? sender, SettingsControl.WindowPositionChangedEventArgs e) {
-            if (_mainForm != null) {
+        private void OnWindowPositionChanged(object? sender, SettingsControl.WindowPositionChangedEventArgs e)
+        {
+            if (_mainForm != null)
+            {
                 SettingsControl.MoveWindowToPosition(_mainForm, e.Position);
             }
 
-            if (_appSettings != null) {
+            if (_appSettings != null)
+            {
                 _appSettings.WindowPosition = SettingsManager.WindowPositionToString(e.Position);
                 SettingsManager.SaveSettings(_appSettings);
             }
         }
 
-        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e) {
+        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e)
+        {
             UpdateUI();
         }
         #endregion
 
         #region IDisposable Implementation
-        public void Dispose() {
+        public void Dispose()
+        {
             UnregisterHotKeys();
 
-            if (_timerControl != null) {
+            if (_timerControl != null)
+            {
                 _timerControl.TimerStateChanged -= OnTimerTimerStateChanged;
             }
-            if (_settingsControl != null) {
+            if (_settingsControl != null)
+            {
                 _settingsControl.WindowPositionChanged -= OnWindowPositionChanged;
                 _settingsControl.LanguageChanged -= OnLanguageChanged;
                 _settingsControl.AlwaysOnTopChanged -= OnAlwaysOnTopChanged;

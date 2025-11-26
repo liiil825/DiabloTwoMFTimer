@@ -4,28 +4,20 @@ using System.Linq;
 using DTwoMFTimerHelper.Models;
 using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.Services {
-    public interface IProfileService {
+namespace DTwoMFTimerHelper.Services
+{
+    public interface IProfileService
+    {
         event Action<CharacterProfile?>? CurrentProfileChangedEvent;
         event Action<string>? CurrentSceneChangedEvent;
         event Action<GameDifficulty>? CurrentDifficultyChangedEvent;
         event Action? ProfileListChangedEvent;
 
-        CharacterProfile? CurrentProfile {
-            get; set;
-        }
-        string CurrentScene {
-            get; set;
-        }
-        GameDifficulty CurrentDifficulty {
-            get; set;
-        }
-        string CurrentDifficultyLocalized {
-            get;
-        }
-        List<FarmingScene> FarmingScenes {
-            get;
-        }
+        CharacterProfile? CurrentProfile { get; set; }
+        string CurrentScene { get; set; }
+        GameDifficulty CurrentDifficulty { get; set; }
+        string CurrentDifficultyLocalized { get; }
+        List<FarmingScene> FarmingScenes { get; }
 
         void LoadFarmingScenes();
         CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass);
@@ -42,10 +34,12 @@ namespace DTwoMFTimerHelper.Services {
         int GetDifficultyIndex(GameDifficulty difficulty);
     }
 
-    public class ProfileService : IProfileService {
+    public class ProfileService : IProfileService
+    {
         private readonly IAppSettings _appSettings;
 
-        public ProfileService(IAppSettings appSettings) {
+        public ProfileService(IAppSettings appSettings)
+        {
             _appSettings = appSettings;
             LoadLastUsedProfile();
             LoadLastRunScene();
@@ -60,15 +54,19 @@ namespace DTwoMFTimerHelper.Services {
 
         #region Properties
         private CharacterProfile? _currentProfile;
-        public CharacterProfile? CurrentProfile {
+        public CharacterProfile? CurrentProfile
+        {
             get => _currentProfile;
-            set {
-                if (_currentProfile != value) {
+            set
+            {
+                if (_currentProfile != value)
+                {
                     _currentProfile = value;
                     CurrentProfileChangedEvent?.Invoke(value);
 
                     // 保存到设置
-                    if (value != null) {
+                    if (value != null)
+                    {
                         _appSettings.LastUsedProfile = value.Name;
                         SettingsManager.SaveSettings(_appSettings);
                     }
@@ -77,13 +75,16 @@ namespace DTwoMFTimerHelper.Services {
         }
 
         private string _currentScene = string.Empty;
-        public string CurrentScene {
+        public string CurrentScene
+        {
             get => LanguageManager.GetString(_currentScene);
-            set {
+            set
+            {
                 // 确保保存时使用英文场景名称
                 string englishSceneName = SceneHelper.GetEnglishSceneName(value);
 
-                if (_currentScene != englishSceneName) {
+                if (_currentScene != englishSceneName)
+                {
                     _currentScene = englishSceneName;
                     CurrentSceneChangedEvent?.Invoke(englishSceneName);
 
@@ -95,10 +96,13 @@ namespace DTwoMFTimerHelper.Services {
         }
 
         private GameDifficulty _currentDifficulty = GameDifficulty.Hell;
-        public GameDifficulty CurrentDifficulty {
+        public GameDifficulty CurrentDifficulty
+        {
             get => _currentDifficulty;
-            set {
-                if (_currentDifficulty != value) {
+            set
+            {
+                if (_currentDifficulty != value)
+                {
                     _currentDifficulty = value;
                     CurrentDifficultyChangedEvent?.Invoke(value);
 
@@ -109,8 +113,7 @@ namespace DTwoMFTimerHelper.Services {
             }
         }
 
-        public string CurrentDifficultyLocalized =>
-             Utils.LanguageManager.GetString($"Difficulty{_currentDifficulty}");
+        public string CurrentDifficultyLocalized => Utils.LanguageManager.GetString($"Difficulty{_currentDifficulty}");
 
         public List<FarmingScene> FarmingScenes { get; private set; } = [];
         #endregion
@@ -119,7 +122,8 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 加载所有耕作场景
         /// </summary>
-        public void LoadFarmingScenes() {
+        public void LoadFarmingScenes()
+        {
             FarmingScenes = SceneHelper.LoadFarmingSpots();
             // 加载上次使用的场景
             LoadLastRunScene();
@@ -128,11 +132,14 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 创建新角色
         /// </summary>
-        public CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass) {
-            try {
+        public CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass)
+        {
+            try
+            {
                 LogManager.WriteDebugLog("ProfileService", $"开始创建新角色: {characterName}, 职业: {characterClass}");
                 var profile = DataHelper.CreateNewProfile(characterName, characterClass);
-                if (profile == null) {
+                if (profile == null)
+                {
                     LogManager.WriteDebugLog("ProfileService", "创建角色失败，返回的配置文件为null");
                     return null;
                 }
@@ -144,7 +151,8 @@ namespace DTwoMFTimerHelper.Services {
 
                 return profile;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 LogManager.WriteErrorLog("ProfileService", $"创建角色失败", ex);
                 return null;
             }
@@ -153,11 +161,13 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 切换角色
         /// </summary>
-        public bool SwitchCharacter(CharacterProfile profile) {
+        public bool SwitchCharacter(CharacterProfile profile)
+        {
             LogManager.WriteDebugLog("ProfileService", $"开始切换角色到: {profile.Name}");
 
             // 验证角色数据
-            if (profile == null || string.IsNullOrWhiteSpace(profile.Name)) {
+            if (profile == null || string.IsNullOrWhiteSpace(profile.Name))
+            {
                 LogManager.WriteDebugLog("ProfileService", "无效的角色数据");
                 return false;
             }
@@ -170,11 +180,13 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 删除角色
         /// </summary>
-        public bool DeleteCharacter(CharacterProfile profile) {
+        public bool DeleteCharacter(CharacterProfile profile)
+        {
             LogManager.WriteDebugLog("ProfileService", $"开始删除角色: {profile.Name}");
             DataHelper.DeleteProfile(profile);
             // 如果删除的是当前角色，清空当前角色
-            if (CurrentProfile?.Name == profile.Name) {
+            if (CurrentProfile?.Name == profile.Name)
+            {
                 CurrentProfile = null;
             }
 
@@ -189,21 +201,24 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 获取所有角色档案
         /// </summary>
-        public List<CharacterProfile> GetAllProfiles() {
+        public List<CharacterProfile> GetAllProfiles()
+        {
             return DataHelper.LoadAllProfiles();
         }
 
         /// <summary>
         /// 根据名称查找角色档案
         /// </summary>
-        public CharacterProfile? FindProfileByName(string name) {
+        public CharacterProfile? FindProfileByName(string name)
+        {
             return DataHelper.FindProfileByName(name);
         }
 
         /// <summary>
         /// 检查当前场景和难度是否有未完成记录
         /// </summary>
-        public bool HasIncompleteRecord() {
+        public bool HasIncompleteRecord()
+        {
             if (CurrentProfile == null || string.IsNullOrEmpty(CurrentScene))
                 return false;
 
@@ -211,9 +226,8 @@ namespace DTwoMFTimerHelper.Services {
             string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(CurrentScene);
             // 查找同场景、同难度、未完成的记录
             bool hasIncompleteRecord = CurrentProfile.Records.Any(r =>
-                r.SceneName == pureEnglishSceneName &&
-                r.Difficulty == CurrentDifficulty &&
-                !r.IsCompleted);
+                r.SceneName == pureEnglishSceneName && r.Difficulty == CurrentDifficulty && !r.IsCompleted
+            );
 
             LogManager.WriteDebugLog("ProfileService", $"是否存在未完成记录: {hasIncompleteRecord}");
             return hasIncompleteRecord;
@@ -222,7 +236,8 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 获取开始按钮的显示文本
         /// </summary>
-        public string GetStartButtonText() {
+        public string GetStartButtonText()
+        {
             bool hasIncompleteRecord = HasIncompleteRecord();
             string key = hasIncompleteRecord ? "ContinueFarm" : "StartTimer";
             return LanguageManager.GetString(key);
@@ -231,31 +246,39 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 获取场景显示名称列表
         /// </summary>
-        public List<string> GetSceneDisplayNames() {
+        public List<string> GetSceneDisplayNames()
+        {
             return FarmingScenes.Select(scene => SceneHelper.GetSceneDisplayName(scene, _appSettings)).ToList();
         }
 
         /// <summary>
         /// 根据显示名称获取场景对象
         /// </summary>
-        public FarmingScene? GetSceneByDisplayName(string displayName) {
+        public FarmingScene? GetSceneByDisplayName(string displayName)
+        {
             return FarmingScenes.FirstOrDefault(scene =>
-                SceneHelper.GetSceneDisplayName(scene, _appSettings) == displayName);
+                SceneHelper.GetSceneDisplayName(scene, _appSettings) == displayName
+            );
         }
 
         /// <summary>
         /// 获取本地化的难度名称列表
         /// </summary>
-        public List<string> GetLocalizedDifficultyNames() {
-            return [.. Enum.GetValues(typeof(GameDifficulty))
-                      .Cast<GameDifficulty>()
-                      .Select(d => SceneHelper.GetLocalizedDifficultyName(d))];
+        public List<string> GetLocalizedDifficultyNames()
+        {
+            return
+            [
+                .. Enum.GetValues(typeof(GameDifficulty))
+                    .Cast<GameDifficulty>()
+                    .Select(d => SceneHelper.GetLocalizedDifficultyName(d)),
+            ];
         }
 
         /// <summary>
         /// 根据索引获取难度
         /// </summary>
-        public GameDifficulty GetDifficultyByIndex(int index) {
+        public GameDifficulty GetDifficultyByIndex(int index)
+        {
             var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
             return index >= 0 && index < difficulties.Count ? difficulties[index] : GameDifficulty.Hell;
         }
@@ -263,7 +286,8 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 根据难度获取索引
         /// </summary>
-        public int GetDifficultyIndex(GameDifficulty difficulty) {
+        public int GetDifficultyIndex(GameDifficulty difficulty)
+        {
             var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
             return difficulties.IndexOf(difficulty);
         }
@@ -274,19 +298,23 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 加载上次使用的角色档案
         /// </summary>
-        private void LoadLastUsedProfile() {
+        private void LoadLastUsedProfile()
+        {
             LogManager.WriteDebugLog("ProfileService", "LoadLastUsedProfile 开始执行");
             string lastUsedProfileName = _appSettings.LastUsedProfile;
             LogManager.WriteDebugLog("ProfileService", $"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
-            if (!string.IsNullOrWhiteSpace(lastUsedProfileName)) {
+            if (!string.IsNullOrWhiteSpace(lastUsedProfileName))
+            {
                 LogManager.WriteDebugLog("ProfileService", $"尝试加载上次使用的角色档案: {lastUsedProfileName}");
                 var profile = FindProfileByName(lastUsedProfileName);
-                if (profile != null) {
+                if (profile != null)
+                {
                     CurrentProfile = profile;
                     LogManager.WriteDebugLog("ProfileService", $"成功加载上次使用的角色档案: {lastUsedProfileName}");
                 }
             }
-            else {
+            else
+            {
                 LogManager.WriteDebugLog("ProfileService", "没有保存的上次使用角色档案");
             }
         }
@@ -294,19 +322,25 @@ namespace DTwoMFTimerHelper.Services {
         /// <summary>
         /// 加载上次使用的场景
         /// </summary>
-        private void LoadLastRunScene() {
+        private void LoadLastRunScene()
+        {
             // 优先使用当前角色档案的LastRunScene字段
-            if (CurrentProfile != null && !string.IsNullOrEmpty(CurrentProfile.LastRunScene)) {
+            if (CurrentProfile != null && !string.IsNullOrEmpty(CurrentProfile.LastRunScene))
+            {
                 CurrentScene = CurrentProfile.LastRunScene;
             }
             // 如果角色档案没有保存场景，则回退到全局设置
-            else if (!string.IsNullOrEmpty(_appSettings.LastRunScene)) {
+            else if (!string.IsNullOrEmpty(_appSettings.LastRunScene))
+            {
                 CurrentScene = _appSettings.LastRunScene;
             }
 
             // 加载上次使用的难度
-            if (!string.IsNullOrEmpty(_appSettings.LastUsedDifficulty) &&
-                Enum.TryParse<GameDifficulty>(_appSettings.LastUsedDifficulty, out var difficulty)) {
+            if (
+                !string.IsNullOrEmpty(_appSettings.LastUsedDifficulty)
+                && Enum.TryParse<GameDifficulty>(_appSettings.LastUsedDifficulty, out var difficulty)
+            )
+            {
                 CurrentDifficulty = difficulty;
             }
         }

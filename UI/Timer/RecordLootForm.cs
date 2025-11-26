@@ -3,11 +3,13 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using DTwoMFTimerHelper.Models;
 using DTwoMFTimerHelper.Services;
-using DTwoMFTimerHelper.Utils;
 using DTwoMFTimerHelper.UI.Common;
+using DTwoMFTimerHelper.Utils;
 
-namespace DTwoMFTimerHelper.UI.Timer {
-    public partial class RecordLootForm : BaseForm {
+namespace DTwoMFTimerHelper.UI.Timer
+{
+    public partial class RecordLootForm : BaseForm
+    {
         private TextBox txtLootName = null!;
         private Label label1 = null!;
         private CheckBox chkPreviousRun = null!;
@@ -19,59 +21,73 @@ namespace DTwoMFTimerHelper.UI.Timer {
         public event EventHandler? LootRecordSaved;
 
         // 1. 无参构造函数 (VS设计器专用)
-        public RecordLootForm() {
+        public RecordLootForm()
+        {
             InitializeComponent();
         }
 
         // 2. 依赖注入构造函数 (运行时专用)
-        public RecordLootForm(IProfileService profileService, ITimerHistoryService timerHistoryService) : this() {
+        public RecordLootForm(IProfileService profileService, ITimerHistoryService timerHistoryService)
+            : this()
+        {
             _profileService = profileService;
             _timerHistoryService = timerHistoryService;
         }
 
-        protected override void OnLoad(EventArgs e) {
+        protected override void OnLoad(EventArgs e)
+        {
             base.OnLoad(e);
-            if (!this.DesignMode) {
+            if (!this.DesignMode)
+            {
                 UpdateUI();
             }
         }
 
         // 添加 OnShown 覆盖代替构造函数里的事件绑定
-        protected override void OnShown(EventArgs e) {
+        protected override void OnShown(EventArgs e)
+        {
             base.OnShown(e);
-            if (!this.DesignMode) {
+            if (!this.DesignMode)
+            {
                 this.Activate();
                 txtLootName.Focus();
                 txtLootName.SelectAll();
             }
         }
 
-        private void InitializeComponent() {
+        private void InitializeComponent()
+        {
             this.txtLootName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.chkPreviousRun = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
-            // 
+            //
             // txtLootName
-            // 
-            this.txtLootName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            //
+            this.txtLootName.Anchor = (
+                (System.Windows.Forms.AnchorStyles)(
+                    (
+                        (System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right
+                    )
+                )
+            );
             this.txtLootName.Location = new System.Drawing.Point(12, 29);
             this.txtLootName.Name = "txtLootName";
             this.txtLootName.Size = new System.Drawing.Size(356, 25);
             this.txtLootName.TabIndex = 0;
-            // 
+            //
             // label1
-            // 
+            //
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 11);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(79, 15);
             this.label1.TabIndex = 1;
             this.label1.Text = "Loot Name";
-            // 
+            //
             // chkPreviousRun
-            // 
+            //
             this.chkPreviousRun.AutoSize = true;
             this.chkPreviousRun.Location = new System.Drawing.Point(12, 67);
             this.chkPreviousRun.Name = "chkPreviousRun";
@@ -79,23 +95,31 @@ namespace DTwoMFTimerHelper.UI.Timer {
             this.chkPreviousRun.TabIndex = 2;
             this.chkPreviousRun.Text = "Previous Run";
             this.chkPreviousRun.UseVisualStyleBackColor = true;
-            // 
+            //
             // btnConfirm (Inherited)
-            // 
-            this.btnConfirm.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            //
+            this.btnConfirm.Anchor = (
+                (System.Windows.Forms.AnchorStyles)(
+                    (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)
+                )
+            );
             this.btnConfirm.Location = new System.Drawing.Point(212, 92);
             this.btnConfirm.Size = new System.Drawing.Size(75, 23);
             this.btnConfirm.Text = "保存";
-            // 
+            //
             // btnCancel (Inherited)
-            // 
-            this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            //
+            this.btnCancel.Anchor = (
+                (System.Windows.Forms.AnchorStyles)(
+                    (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)
+                )
+            );
             this.btnCancel.Location = new System.Drawing.Point(293, 92);
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
 
-            // 
+            //
             // RecordLootForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(380, 127);
@@ -115,42 +139,50 @@ namespace DTwoMFTimerHelper.UI.Timer {
             this.PerformLayout();
         }
 
-        protected override void UpdateUI() {
+        protected override void UpdateUI()
+        {
             base.UpdateUI();
             this.Text = LanguageManager.GetString("RecordLoot") ?? "记录掉落";
             txtLootName.PlaceholderText = LanguageManager.GetString("EnterLootName") ?? "输入掉落名称";
             label1.Text = LanguageManager.GetString("LootNameLabel") ?? "掉落名称:";
             chkPreviousRun.Text = LanguageManager.GetString("UsePreviousRun") ?? "使用上一次符文掉落";
-            if (btnConfirm != null) btnConfirm.Text = LanguageManager.GetString("Save") ?? "保存";
+            if (btnConfirm != null)
+                btnConfirm.Text = LanguageManager.GetString("Save") ?? "保存";
         }
 
-        protected override void BtnConfirm_Click(object? sender, EventArgs e) {
+        protected override void BtnConfirm_Click(object? sender, EventArgs e)
+        {
             SaveLootRecord();
         }
 
-        private void SaveLootRecord() {
-            if (string.IsNullOrWhiteSpace(txtLootName.Text)) {
+        private void SaveLootRecord()
+        {
+            if (string.IsNullOrWhiteSpace(txtLootName.Text))
+            {
                 Utils.Toast.Warning(LanguageManager.GetString("EnterLootNameMessage") ?? "请输入掉落名称");
                 return;
             }
 
             int runCount = _timerHistoryService.RunCount + 1;
-            if (chkPreviousRun.Checked) {
+            if (chkPreviousRun.Checked)
+            {
                 runCount = Math.Max(0, runCount - 1);
             }
 
             string sceneName = _profileService.CurrentScene ?? "";
             string englishSceneName = SceneHelper.GetEnglishSceneName(sceneName);
 
-            var lootRecord = new LootRecord {
+            var lootRecord = new LootRecord
+            {
                 Name = txtLootName.Text.Trim(),
                 SceneName = englishSceneName,
                 RunCount = runCount,
-                DropTime = DateTime.Now
+                DropTime = DateTime.Now,
             };
 
             var currentProfile = _profileService.CurrentProfile;
-            if (currentProfile != null) {
+            if (currentProfile != null)
+            {
                 currentProfile.LootRecords.Add(lootRecord);
                 DataHelper.SaveProfile(currentProfile);
             }
@@ -162,12 +194,15 @@ namespace DTwoMFTimerHelper.UI.Timer {
             Close();
         }
 
-        protected virtual void OnLootRecordSaved(EventArgs e) {
+        protected virtual void OnLootRecordSaved(EventArgs e)
+        {
             LootRecordSaved?.Invoke(this, e);
         }
 
-        protected override void Dispose(bool disposing) {
-            if (disposing && (components != null)) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
                 components.Dispose();
             }
             base.Dispose(disposing);

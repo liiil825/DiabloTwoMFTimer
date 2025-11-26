@@ -2,23 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using DTwoMFTimerHelper.Services;
 using DTwoMFTimerHelper.Models;
+using DTwoMFTimerHelper.Services;
 
-namespace DTwoMFTimerHelper.UI.Pomodoro {
+namespace DTwoMFTimerHelper.UI.Pomodoro
+{
     // 定义窗口模式
-    public enum BreakFormMode {
+    public enum BreakFormMode
+    {
         PomodoroBreak, // 休息模式：有倒计时，有Session统计
-        StatisticsView // 查看模式：无倒计时，仅查看数据
+        StatisticsView, // 查看模式：无倒计时，仅查看数据
     }
 
-    public enum StatViewType {
+    public enum StatViewType
+    {
         Session, // 刚才/本轮
-        Today,   // 今日
-        Week     // 本周
+        Today, // 今日
+        Week, // 本周
     }
 
-    public partial class BreakForm : Form {
+    public partial class BreakForm : Form
+    {
         private readonly IPomodoroTimerService _timerService;
         private readonly IAppSettings _appSettings;
         private readonly BreakType _breakType;
@@ -31,32 +35,44 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         private bool _isAutoClosed = false;
 
         // UI控件
-        private Panel pnlHeader = null!;      // 顶部区域（放标题和切换按钮）
-        private Label lblTitle = null!;       // 标题
+        private Panel pnlHeader = null!; // 顶部区域（放标题和切换按钮）
+        private Label lblTitle = null!; // 标题
         private FlowLayoutPanel pnlToggles = null!; // 切换按钮容器
 
         private Button btnToggleSession = null!;
         private Button btnToggleToday = null!;
         private Button btnToggleWeek = null!;
 
-        private Label lblMessage = null!;     // 提示语 (休息模式显示，查看模式隐藏)
-        private Label lblStats = null!;       // 统计内容 (多行)
-        private Label lblTimer = null!;       // 倒计时 (查看模式隐藏)
+        private Label lblMessage = null!; // 提示语 (休息模式显示，查看模式隐藏)
+        private Label lblStats = null!; // 统计内容 (多行)
+        private Label lblTimer = null!; // 倒计时 (查看模式隐藏)
 
         private Button btnClose = null!;
-        private Button btnSkip = null!;       // 跳过 (查看模式隐藏)
+        private Button btnSkip = null!; // 跳过 (查看模式隐藏)
 
-        private readonly List<string> _shortBreakMessages = new() {
-            "站起来走两步，活动一下筋骨", "眺望远方，放松一下眼睛", "喝口水，补充水分", "深呼吸，放松肩膀"
+        private readonly List<string> _shortBreakMessages = new()
+        {
+            "站起来走两步，活动一下筋骨",
+            "眺望远方，放松一下眼睛",
+            "喝口水，补充水分",
+            "深呼吸，放松肩膀",
         };
-        private readonly List<string> _longBreakMessages = new() {
-            "休息时间长一点，去吃点水果吧", "这一轮辛苦了，彻底放松一下", "即使是奈非天也需要休息"
+        private readonly List<string> _longBreakMessages = new()
+        {
+            "休息时间长一点，去吃点水果吧",
+            "这一轮辛苦了，彻底放松一下",
+            "即使是奈非天也需要休息",
         };
 
         // 构造函数
-        public BreakForm(IPomodoroTimerService timerService,
-        IAppSettings appSettings, IProfileService? profileService,
-         BreakFormMode mode, BreakType breakType = BreakType.ShortBreak) {
+        public BreakForm(
+            IPomodoroTimerService timerService,
+            IAppSettings appSettings,
+            IProfileService? profileService,
+            BreakFormMode mode,
+            BreakType breakType = BreakType.ShortBreak
+        )
+        {
             _timerService = timerService;
             _appSettings = appSettings;
             _profileService = profileService;
@@ -79,37 +95,46 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             RefreshStatistics();
 
             // 仅在休息模式下订阅计时事件
-            if (_mode == BreakFormMode.PomodoroBreak) {
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
                 _timerService.TimeUpdated += TimerService_TimeUpdated;
                 _timerService.TimerStateChanged += TimerService_TimerStateChanged;
             }
         }
 
-        private void InitializeComponent() {
+        private void InitializeComponent()
+        {
             this.AutoScaleMode = AutoScaleMode.Font;
             this.ClientSize = new Size(1024, 768);
             this.Name = "BreakForm";
             this.Text = "统计信息";
 
             // 1. 顶部 Header 区域
-            pnlHeader = new Panel { Dock = DockStyle.Top, Height = 100, BackColor = Color.Transparent };
+            pnlHeader = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 100,
+                BackColor = Color.Transparent,
+            };
 
-            lblTitle = new Label {
+            lblTitle = new Label
+            {
                 AutoSize = false,
                 Size = new Size(300, 40),
                 Font = new Font("微软雅黑", 14F, FontStyle.Bold),
                 ForeColor = Color.Gray,
                 TextAlign = ContentAlignment.MiddleLeft,
                 Text = _mode == BreakFormMode.PomodoroBreak ? "REST & RECOVER" : "STATISTICS",
-                Location = new Point(20, 20)
+                Location = new Point(20, 20),
             };
 
             // 切换按钮容器
-            pnlToggles = new FlowLayoutPanel {
+            pnlToggles = new FlowLayoutPanel
+            {
                 AutoSize = true,
                 FlowDirection = FlowDirection.LeftToRight,
                 BackColor = Color.Transparent,
-                Location = new Point(20, 60) // 在标题下方
+                Location = new Point(20, 60), // 在标题下方
             };
 
             btnToggleSession = CreateToggleButton("本轮战况", StatViewType.Session);
@@ -124,32 +149,35 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             pnlHeader.Controls.Add(pnlToggles);
 
             // 2. 提示语 (仅休息模式)
-            lblMessage = new Label {
+            lblMessage = new Label
+            {
                 AutoSize = false,
                 Size = new Size(800, 80),
                 Font = new Font("微软雅黑", 24F, FontStyle.Bold),
                 ForeColor = Color.White,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Text = "休息一下"
+                Text = "休息一下",
             };
 
             // 3. 统计内容 (核心区域)
-            lblStats = new Label {
+            lblStats = new Label
+            {
                 AutoSize = false,
                 Size = new Size(800, 400),
                 Font = new Font("Consolas", 12F),
                 ForeColor = Color.Gold,
                 TextAlign = ContentAlignment.TopCenter,
-                Text = "Loading..."
+                Text = "Loading...",
             };
 
             // 4. 倒计时
-            lblTimer = new Label {
+            lblTimer = new Label
+            {
                 AutoSize = true,
                 Font = new Font("Consolas", 20F, FontStyle.Bold),
                 ForeColor = Color.LightGreen,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Text = "00:00"
+                Text = "00:00",
             };
 
             // 5. 底部按钮
@@ -157,7 +185,11 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             btnClose.Click += (s, e) => this.Close();
 
             btnSkip = CreateFlatButton("跳过休息", Color.SteelBlue);
-            btnSkip.Click += (s, e) => { _timerService.SkipBreak(); this.Close(); };
+            btnSkip.Click += (s, e) =>
+            {
+                _timerService.SkipBreak();
+                this.Close();
+            };
 
             // 添加控件
             this.Controls.Add(pnlHeader);
@@ -171,36 +203,41 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             this.SizeChanged += BreakForm_SizeChanged;
         }
 
-        private Button CreateToggleButton(string text, StatViewType type) {
-            var btn = new Button {
+        private Button CreateToggleButton(string text, StatViewType type)
+        {
+            var btn = new Button
+            {
                 Text = text,
                 Size = new Size(120, 35),
                 Font = new Font("微软雅黑", 10F),
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
-                Tag = type // 存储类型
+                Tag = type, // 存储类型
             };
             btn.FlatAppearance.BorderSize = 1;
             btn.Click += (s, e) => SwitchView(type);
             return btn;
         }
 
-        private Button CreateFlatButton(string text, Color hoverColor) {
-            var btn = new Button {
+        private Button CreateFlatButton(string text, Color hoverColor)
+        {
+            var btn = new Button
+            {
                 Text = text,
                 Size = new Size(160, 50),
                 Font = new Font("微软雅黑", 11F),
                 FlatStyle = FlatStyle.Flat,
                 ForeColor = Color.White,
                 Cursor = Cursors.Hand,
-                BackColor = Color.FromArgb(60, 60, 60)
+                BackColor = Color.FromArgb(60, 60, 60),
             };
             btn.FlatAppearance.BorderSize = 0;
             btn.FlatAppearance.MouseOverBackColor = hoverColor;
             return btn;
         }
 
-        private void SetupForm() {
+        private void SetupForm()
+        {
             this.StartPosition = FormStartPosition.CenterScreen;
             this.WindowState = FormWindowState.Maximized;
             this.FormBorderStyle = FormBorderStyle.None;
@@ -209,8 +246,10 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         }
 
         // 根据模式控制控件的显示/隐藏
-        private void UpdateLayoutState() {
-            if (_mode == BreakFormMode.StatisticsView) {
+        private void UpdateLayoutState()
+        {
+            if (_mode == BreakFormMode.StatisticsView)
+            {
                 lblMessage.Visible = false;
                 lblTimer.Visible = false;
                 btnSkip.Visible = false;
@@ -218,7 +257,8 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
                 // 关键点：查看模式下，"本轮战况" 意义不大，隐藏它
                 btnToggleSession.Visible = true;
             }
-            else {
+            else
+            {
                 lblMessage.Visible = true;
                 lblTimer.Visible = true;
                 btnSkip.Visible = true;
@@ -229,84 +269,115 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             this.PerformLayout();
         }
 
-        private void SwitchView(StatViewType type) {
+        private void SwitchView(StatViewType type)
+        {
             _currentViewType = type;
             RefreshStatistics();
         }
 
-        private void UpdateButtonStyles() {
+        private void UpdateButtonStyles()
+        {
             // 高亮当前选中的按钮
             HighlightButton(btnToggleSession, _currentViewType == StatViewType.Session);
             HighlightButton(btnToggleToday, _currentViewType == StatViewType.Today);
             HighlightButton(btnToggleWeek, _currentViewType == StatViewType.Week);
         }
 
-        private void HighlightButton(Button? btn, bool isActive) {
-            if (btn == null) return;
+        private void HighlightButton(Button? btn, bool isActive)
+        {
+            if (btn == null)
+                return;
 
-            if (isActive) {
+            if (isActive)
+            {
                 btn.BackColor = Color.Gray;
                 btn.ForeColor = Color.White;
                 btn.FlatAppearance.BorderColor = Color.White;
             }
-            else {
+            else
+            {
                 btn.BackColor = Color.Transparent;
                 btn.ForeColor = Color.Gray;
                 btn.FlatAppearance.BorderColor = Color.Gray;
             }
         }
 
-        private void UpdateContent() {
+        private void UpdateContent()
+        {
             // 只有休息模式需要随机提示语
-            if (_mode == BreakFormMode.PomodoroBreak && lblMessage != null) {
+            if (_mode == BreakFormMode.PomodoroBreak && lblMessage != null)
+            {
                 var rnd = new Random();
                 var list = _breakType == BreakType.ShortBreak ? _shortBreakMessages : _longBreakMessages;
                 lblMessage.Text = list[rnd.Next(list.Count)];
             }
         }
 
-        private void RefreshStatistics() {
+        private void RefreshStatistics()
+        {
             UpdateButtonStyles();
 
-            if (_profileService == null || _profileService.CurrentProfile == null) {
-                if (lblStats != null) lblStats.Text = "暂无角色数据";
+            if (_profileService == null || _profileService.CurrentProfile == null)
+            {
+                if (lblStats != null)
+                    lblStats.Text = "暂无角色数据";
                 return;
             }
 
             string title = "";
             string content = "";
 
-            switch (_currentViewType) {
+            switch (_currentViewType)
+            {
                 case StatViewType.Session:
                     // 计算Session时间
                     DateTime sessionStart;
                     if (_breakType == BreakType.ShortBreak)
                         sessionStart = DateTime.Now.AddMinutes(-_timeSettings.WorkTimeMinutes - 5);
-                    else {
+                    else
+                    {
                         int cycleMins = (_timeSettings.WorkTimeMinutes * 4) + (_timeSettings.ShortBreakMinutes * 3);
                         sessionStart = DateTime.Now.AddMinutes(-cycleMins - 10);
                     }
                     title = ">>> 本轮战况 <<<";
-                    content = _statsService.GetDetailedSummary(_profileService, _appSettings, sessionStart, DateTime.Now);
+                    content = _statsService.GetDetailedSummary(
+                        _profileService,
+                        _appSettings,
+                        sessionStart,
+                        DateTime.Now
+                    );
                     break;
 
                 case StatViewType.Today:
                     title = ">>> 今日战况 <<<";
-                    content = _statsService.GetDetailedSummary(_profileService, _appSettings, DateTime.Today, DateTime.Now);
+                    content = _statsService.GetDetailedSummary(
+                        _profileService,
+                        _appSettings,
+                        DateTime.Today,
+                        DateTime.Now
+                    );
                     break;
 
                 case StatViewType.Week:
                     title = ">>> 本周战况 <<<";
-                    content = _statsService.GetDetailedSummary(_profileService, _appSettings, _statsService.GetStartOfWeek(), DateTime.Now);
+                    content = _statsService.GetDetailedSummary(
+                        _profileService,
+                        _appSettings,
+                        _statsService.GetStartOfWeek(),
+                        DateTime.Now
+                    );
                     break;
             }
 
-            if (lblStats != null) lblStats.Text = $"{title}\n\n{content}";
+            if (lblStats != null)
+                lblStats.Text = $"{title}\n\n{content}";
         }
 
         // 布局逻辑 (根据模式动态调整)
-        private void BreakForm_SizeChanged(object? sender, EventArgs e) {
-            if (pnlHeader == null) return; // 防止初始化前的空引用
+        private void BreakForm_SizeChanged(object? sender, EventArgs e)
+        {
+            if (pnlHeader == null)
+                return; // 防止初始化前的空引用
 
             int cx = this.ClientSize.Width / 2;
             int totalH = this.ClientSize.Height;
@@ -320,12 +391,14 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             int currentY = 120; // 内容起始 Y 坐标
 
             // 2. 提示语 (仅休息模式)
-            if (_mode == BreakFormMode.PomodoroBreak) {
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
                 lblMessage.Width = totalW - 100;
                 lblMessage.Location = new Point(50, currentY);
                 currentY = lblMessage.Bottom + 10;
             }
-            else {
+            else
+            {
                 currentY += 20;
             }
 
@@ -335,13 +408,15 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             int btnY = totalH - 100;
 
             // 按钮布局
-            if (_mode == BreakFormMode.PomodoroBreak) {
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
                 int spacing = 40;
                 int totalBtnW = btnClose.Width + btnSkip.Width + spacing;
                 btnSkip.Location = new Point(cx - (totalBtnW / 2), btnY);
                 btnClose.Location = new Point(btnSkip.Right + spacing, btnY);
             }
-            else {
+            else
+            {
                 btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
             }
 
@@ -349,13 +424,15 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             // 放在按钮上方 60px 处
             int statsBottomLimit;
 
-            if (_mode == BreakFormMode.PomodoroBreak) {
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
                 int timerY = btnY - 60;
                 lblTimer.Location = new Point(cx - (lblTimer.Width / 2), timerY);
                 // 统计区域的底部界限 = 倒计时上方再留 20px
                 statsBottomLimit = timerY - 20;
             }
-            else {
+            else
+            {
                 // 查看模式下，统计区域底部界限 = 按钮上方再留 40px
                 statsBottomLimit = btnY - 40;
             }
@@ -363,53 +440,75 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
             // 3. 统计内容 (填充中间剩余空间)
             // 高度 = 底部界限 - 当前Y坐标
             int statsHeight = statsBottomLimit - currentY;
-            if (statsHeight < 100) statsHeight = 100; // 最小高度保护
+            if (statsHeight < 100)
+                statsHeight = 100; // 最小高度保护
 
             lblStats.Width = totalW - 100;
             lblStats.Height = statsHeight;
             lblStats.Location = new Point(50, currentY);
         }
 
-        private void TimerService_TimerStateChanged(object? sender, TimerStateChangedEventArgs e) {
+        private void TimerService_TimerStateChanged(object? sender, TimerStateChangedEventArgs e)
+        {
             // 只有在休息模式下才处理自动关闭逻辑
-            if (_mode == BreakFormMode.PomodoroBreak) {
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
                 // 如果状态从休息切换到工作，自动关闭窗口
                 // 逻辑：当前是 Work 状态，且上一个状态是对应的休息状态
-                if (e.State == TimerState.Work &&
-                   ((_breakType == BreakType.ShortBreak && e.PreviousState == TimerState.ShortBreak) ||
-                    (_breakType == BreakType.LongBreak && e.PreviousState == TimerState.LongBreak))) {
+                if (
+                    e.State == TimerState.Work
+                    && (
+                        (_breakType == BreakType.ShortBreak && e.PreviousState == TimerState.ShortBreak)
+                        || (_breakType == BreakType.LongBreak && e.PreviousState == TimerState.LongBreak)
+                    )
+                )
+                {
                     AutoCloseForm();
                 }
             }
         }
 
-        private void CheckBreakTimeEnded() {
+        private void CheckBreakTimeEnded()
+        {
             // 只有在休息模式下才检查
-            if (_mode == BreakFormMode.PomodoroBreak) {
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
                 // 双重保险：如果倒计时归零，且服务状态已经是 Work（通常 TimerStateChanged 会先触发，这里是兜底）
-                if (_timerService.TimeLeft <= TimeSpan.Zero && _timerService.CurrentState == TimerState.Work) {
+                if (_timerService.TimeLeft <= TimeSpan.Zero && _timerService.CurrentState == TimerState.Work)
+                {
                     AutoCloseForm();
                 }
             }
         }
 
         // ... Timer 事件处理保持不变 ...
-        private void TimerService_TimeUpdated(object? sender, EventArgs e) {
-            if (InvokeRequired) { Invoke(new Action<object?, EventArgs>(TimerService_TimeUpdated), sender, e); return; }
+        private void TimerService_TimeUpdated(object? sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object?, EventArgs>(TimerService_TimeUpdated), sender, e);
+                return;
+            }
             var t = _timerService.TimeLeft;
-            if (lblTimer != null) lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
+            if (lblTimer != null)
+                lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
             CheckBreakTimeEnded();
         }
 
-        private void AutoCloseForm() {
-            if (!_isAutoClosed && !this.IsDisposed) {
+        private void AutoCloseForm()
+        {
+            if (!_isAutoClosed && !this.IsDisposed)
+            {
                 _isAutoClosed = true;
-                if (this.InvokeRequired) this.Invoke(new Action(() => this.Close()));
-                else this.Close();
+                if (this.InvokeRequired)
+                    this.Invoke(new Action(() => this.Close()));
+                else
+                    this.Close();
             }
         }
 
-        private void BreakForm_FormClosing(object? sender, FormClosingEventArgs e) {
+        private void BreakForm_FormClosing(object? sender, FormClosingEventArgs e)
+        {
             _timerService.TimeUpdated -= TimerService_TimeUpdated;
             _timerService.TimerStateChanged -= TimerService_TimerStateChanged;
         }

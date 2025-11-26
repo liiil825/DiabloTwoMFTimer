@@ -13,18 +13,9 @@ namespace DTwoMFTimerHelper.UI.Timer
         private Label lblAverageTime = null!;
 
         // 统计数据属性
-        public int RunCount
-        {
-            get; set;
-        }
-        public TimeSpan FastestTime
-        {
-            get; set;
-        }
-        public TimeSpan AverageTime
-        {
-            get; set;
-        }
+        public int RunCount { get; set; }
+        public TimeSpan FastestTime { get; set; }
+        public TimeSpan AverageTime { get; set; }
 
         public StatisticsControl()
         {
@@ -33,14 +24,15 @@ namespace DTwoMFTimerHelper.UI.Timer
             Utils.LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
         }
 
-        private void InitializeComponent() {
+        private void InitializeComponent()
+        {
             lblRunCount = new Label();
             lblFastestTime = new Label();
             lblAverageTime = new Label();
             SuspendLayout();
-            // 
+            //
             // lblRunCount
-            // 
+            //
             lblRunCount.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
             lblRunCount.Location = new Point(0, 0);
             lblRunCount.Margin = new Padding(4, 0, 4, 0);
@@ -49,9 +41,9 @@ namespace DTwoMFTimerHelper.UI.Timer
             lblRunCount.TabIndex = 0;
             lblRunCount.Text = "--- Run count 0 ---";
             lblRunCount.TextAlign = ContentAlignment.MiddleLeft;
-            // 
+            //
             // lblFastestTime
-            // 
+            //
             lblFastestTime.AutoSize = true;
             lblFastestTime.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 134);
             lblFastestTime.Location = new Point(0, 42);
@@ -60,9 +52,9 @@ namespace DTwoMFTimerHelper.UI.Timer
             lblFastestTime.Size = new Size(253, 31);
             lblFastestTime.TabIndex = 1;
             lblFastestTime.Text = "Fastest time: --:--:--.-";
-            // 
+            //
             // lblAverageTime
-            // 
+            //
             lblAverageTime.AutoSize = true;
             lblAverageTime.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 134);
             lblAverageTime.Location = new Point(0, 77);
@@ -71,9 +63,9 @@ namespace DTwoMFTimerHelper.UI.Timer
             lblAverageTime.Size = new Size(268, 31);
             lblAverageTime.TabIndex = 2;
             lblAverageTime.Text = "Average time: --:--:--.-";
-            // 
+            //
             // StatisticsControl
-            // 
+            //
             AutoScaleDimensions = new SizeF(13F, 28F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(lblAverageTime);
@@ -139,9 +131,13 @@ namespace DTwoMFTimerHelper.UI.Timer
             {
                 if (RunCount > 0 && FastestTime != TimeSpan.MaxValue && FastestTime > TimeSpan.Zero)
                 {
-                    string fastestFormatted = string.Format("{0:00}:{1:00}:{2:00}.{3}",
-                        FastestTime.Hours, FastestTime.Minutes, FastestTime.Seconds,
-                        (int)(FastestTime.Milliseconds / 100));
+                    string fastestFormatted = string.Format(
+                        "{0:00}:{1:00}:{2:00}.{3}",
+                        FastestTime.Hours,
+                        FastestTime.Minutes,
+                        FastestTime.Seconds,
+                        (int)(FastestTime.Milliseconds / 100)
+                    );
 
                     string fastestTimeText = Utils.LanguageManager.GetString("FastestTime", fastestFormatted);
                     if (string.IsNullOrEmpty(fastestTimeText) || fastestTimeText == "FastestTime")
@@ -167,9 +163,13 @@ namespace DTwoMFTimerHelper.UI.Timer
             {
                 if (RunCount > 0)
                 {
-                    string averageFormatted = string.Format("{0:00}:{1:00}:{2:00}.{3}",
-                        AverageTime.Hours, AverageTime.Minutes, AverageTime.Seconds,
-                        (int)(AverageTime.Milliseconds / 100));
+                    string averageFormatted = string.Format(
+                        "{0:00}:{1:00}:{2:00}.{3}",
+                        AverageTime.Hours,
+                        AverageTime.Minutes,
+                        AverageTime.Seconds,
+                        (int)(AverageTime.Milliseconds / 100)
+                    );
 
                     string averageTimeText = Utils.LanguageManager.GetString("AverageTime", averageFormatted);
                     if (string.IsNullOrEmpty(averageTimeText) || averageTimeText == "AverageTime")

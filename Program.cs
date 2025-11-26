@@ -1,13 +1,16 @@
 using System;
-using System.Windows.Forms;
 using System.IO;
-using Microsoft.Extensions.DependencyInjection;
+using System.Windows.Forms;
 using DTwoMFTimerHelper.Services;
 using DTwoMFTimerHelper.UI;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace DTwoMFTimerHelper {
-    public static class ServiceConfiguration {
-        public static IServiceProvider ConfigureServices() {
+namespace DTwoMFTimerHelper
+{
+    public static class ServiceConfiguration
+    {
+        public static IServiceProvider ConfigureServices()
+        {
             var services = new ServiceCollection();
 
             // 注册服务 - 使用SettingsManager.LoadSettings()从配置文件加载设置
@@ -32,29 +35,37 @@ namespace DTwoMFTimerHelper {
         }
     }
 
-    static class Program {
+    static class Program
+    {
         private static IServiceProvider? _serviceProvider;
 
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
-        static void Main(string[] args) {
+        static void Main(string[] args)
+        {
             // 添加全局异常处理
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-            Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(
+                Application_ThreadException
+            );
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(
+                CurrentDomain_UnhandledException
+            );
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             // 只在提供--debug参数时才启用调试日志
-            if (args.Length > 0 && args[0].Equals("--debug", StringComparison.CurrentCultureIgnoreCase)) {
+            if (args.Length > 0 && args[0].Equals("--debug", StringComparison.CurrentCultureIgnoreCase))
+            {
                 Utils.LogManager.IsDebugEnabled = true;
             }
 
-            try {
+            try
+            {
                 // 配置依赖注入
                 _serviceProvider = ServiceConfiguration.ConfigureServices();
 
@@ -72,20 +83,33 @@ namespace DTwoMFTimerHelper {
 
                 Application.Run(mainForm);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 string errorLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error_log.txt");
                 File.WriteAllText(errorLogPath, ex.ToString());
-                MessageBox.Show($"发生未处理的异常。错误详情已保存到 {errorLogPath}", "应用程序错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    $"发生未处理的异常。错误详情已保存到 {errorLogPath}",
+                    "应用程序错误",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
         }
 
-        private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e) {
+        private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        {
             string errorLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "thread_error_log.txt");
             File.WriteAllText(errorLogPath, e.Exception.ToString());
-            MessageBox.Show($"发生线程异常。错误详情已保存到 {errorLogPath}", "应用程序错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(
+                $"发生线程异常。错误详情已保存到 {errorLogPath}",
+                "应用程序错误",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error
+            );
         }
 
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) {
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
             string errorLogPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "domain_error_log.txt");
             File.WriteAllText(errorLogPath, e.ExceptionObject.ToString());
             // 主线程异常可能导致应用程序崩溃，所以这里只记录日志
