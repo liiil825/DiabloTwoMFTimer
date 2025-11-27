@@ -118,13 +118,7 @@ namespace DTwoMFTimerHelper.UI.Pomodoro
         private void UpdateCountDisplay()
         {
             int completed = _timerService.CompletedPomodoros;
-            int bigPomodoros = completed / 4;
-            int smallPomodoros = completed % 4;
-
-            string countText =
-                smallPomodoros == 0 ? $"{bigPomodoros}个大番茄" : $"{bigPomodoros}个大番茄，{smallPomodoros}个小番茄";
-
-            lblPomodoroCount.Text = countText;
+            pomodoroStatusDisplay1.TotalCompletedCount = completed;
         }
 
         #endregion

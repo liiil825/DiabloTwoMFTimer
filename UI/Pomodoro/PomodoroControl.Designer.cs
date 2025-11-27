@@ -1,16 +1,21 @@
-namespace DTwoMFTimerHelper.UI.Pomodoro {
-    partial class PomodoroControl {
+using DTwoMFTimerHelper.UI.Components;
+
+namespace DTwoMFTimerHelper.UI.Pomodoro
+{
+    partial class PomodoroControl
+    {
         /// <summary> 
         /// 必需的设计器变量。
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
         /// <summary> 
         /// 清理所有正在使用的资源。
         /// </summary>
         /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
-        protected override void Dispose(bool disposing) {
-            if (disposing && (components != null)) {
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -22,89 +27,91 @@ namespace DTwoMFTimerHelper.UI.Pomodoro {
         /// 设计器支持所需的方法 - 不要修改
         /// 使用代码编辑器修改此方法的内容。
         /// </summary>
-        private void InitializeComponent() {
-            this.btnPomodoroReset = new System.Windows.Forms.Button();
-            this.btnStartPomodoro = new System.Windows.Forms.Button();
-            this.btnPomodoroSettings = new System.Windows.Forms.Button();
-            this.lblPomodoroCount = new System.Windows.Forms.Label();
-            // 实例化我们自定义的 Label
-            this.lblPomodoroTime = new PomodoroTimeDisplayLabel();
-
-            this.SuspendLayout();
+        private void InitializeComponent()
+        {
+            btnPomodoroReset = new System.Windows.Forms.Button();
+            btnStartPomodoro = new System.Windows.Forms.Button();
+            btnPomodoroSettings = new System.Windows.Forms.Button();
+            lblPomodoroTime = new PomodoroTimeDisplayLabel();
+            pomodoroStatusDisplay1 = new PomodoroStatusDisplay();
+            SuspendLayout();
             // 
             // btnPomodoroReset
             // 
-            this.btnPomodoroReset.Location = new System.Drawing.Point(28, 376);
-            this.btnPomodoroReset.Name = "btnPomodoroReset";
-            this.btnPomodoroReset.Size = new System.Drawing.Size(205, 75);
-            this.btnPomodoroReset.TabIndex = 4;
-            this.btnPomodoroReset.Text = "重置";
-            this.btnPomodoroReset.UseVisualStyleBackColor = true;
-            this.btnPomodoroReset.Click += new System.EventHandler(this.BtnPomodoroReset_Click);
+            btnPomodoroReset.Location = new System.Drawing.Point(111, 385);
+            btnPomodoroReset.Name = "btnPomodoroReset";
+            btnPomodoroReset.Size = new System.Drawing.Size(205, 75);
+            btnPomodoroReset.TabIndex = 4;
+            btnPomodoroReset.Text = "重置";
+            btnPomodoroReset.UseVisualStyleBackColor = true;
+            btnPomodoroReset.Click += BtnPomodoroReset_Click;
             // 
             // btnStartPomodoro
             // 
-            this.btnStartPomodoro.Location = new System.Drawing.Point(28, 168);
-            this.btnStartPomodoro.Name = "btnStartPomodoro";
-            this.btnStartPomodoro.Size = new System.Drawing.Size(205, 75);
-            this.btnStartPomodoro.TabIndex = 2;
-            this.btnStartPomodoro.Text = "开始";
-            this.btnStartPomodoro.UseVisualStyleBackColor = true;
-            this.btnStartPomodoro.Click += new System.EventHandler(this.BtnStartPomodoro_Click);
+            btnStartPomodoro.Location = new System.Drawing.Point(111, 171);
+            btnStartPomodoro.Name = "btnStartPomodoro";
+            btnStartPomodoro.Size = new System.Drawing.Size(205, 75);
+            btnStartPomodoro.TabIndex = 2;
+            btnStartPomodoro.Text = "开始";
+            btnStartPomodoro.UseVisualStyleBackColor = true;
+            btnStartPomodoro.Click += BtnStartPomodoro_Click;
             // 
             // btnPomodoroSettings
             // 
-            this.btnPomodoroSettings.Location = new System.Drawing.Point(28, 277);
-            this.btnPomodoroSettings.Name = "btnPomodoroSettings";
-            this.btnPomodoroSettings.Size = new System.Drawing.Size(205, 75);
-            this.btnPomodoroSettings.TabIndex = 3;
-            this.btnPomodoroSettings.Text = "设置";
-            this.btnPomodoroSettings.UseVisualStyleBackColor = true;
-            this.btnPomodoroSettings.Click += new System.EventHandler(this.BtnPomodoroSettings_Click);
+            btnPomodoroSettings.Location = new System.Drawing.Point(111, 279);
+            btnPomodoroSettings.Name = "btnPomodoroSettings";
+            btnPomodoroSettings.Size = new System.Drawing.Size(205, 75);
+            btnPomodoroSettings.TabIndex = 3;
+            btnPomodoroSettings.Text = "设置";
+            btnPomodoroSettings.UseVisualStyleBackColor = true;
+            btnPomodoroSettings.Click += BtnPomodoroSettings_Click;
             // 
-            // lblPomodoroCount
+            // lblPomodoroTime
             // 
-            this.lblPomodoroCount.AutoSize = true;
-            this.lblPomodoroCount.Font = new System.Drawing.Font("微软雅黑", 10F);
-            this.lblPomodoroCount.Location = new System.Drawing.Point(69, 102);
-            this.lblPomodoroCount.Name = "lblPomodoroCount";
-            this.lblPomodoroCount.Size = new System.Drawing.Size(124, 31);
-            this.lblPomodoroCount.TabIndex = 1;
-            this.lblPomodoroCount.Text = "0个大番茄";
+            lblPomodoroTime.AutoSize = true;
+            lblPomodoroTime.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold);
+            lblPomodoroTime.Location = new System.Drawing.Point(111, 29);
+            lblPomodoroTime.Name = "lblPomodoroTime";
+            lblPomodoroTime.ShowMilliseconds = true;
+            lblPomodoroTime.Size = new System.Drawing.Size(216, 50);
+            lblPomodoroTime.TabIndex = 0;
+            lblPomodoroTime.Text = "25:00:00:0";
             // 
-            // lblPomodoroTime (自定义组件)
+            // pomodoroStatusDisplay1
             // 
-            this.lblPomodoroTime.AutoSize = true;
-            this.lblPomodoroTime.Font = new System.Drawing.Font("微软雅黑", 16F, System.Drawing.FontStyle.Bold);
-            this.lblPomodoroTime.Location = new System.Drawing.Point(40, 32);
-            this.lblPomodoroTime.Name = "lblPomodoroTime";
-            this.lblPomodoroTime.Size = new System.Drawing.Size(203, 50);
-            this.lblPomodoroTime.TabIndex = 0;
-            this.lblPomodoroTime.Text = "25:00:00:0";
+            this.pomodoroStatusDisplay1.BackColor = System.Drawing.Color.Transparent; // 修改1：透明背景
+            this.pomodoroStatusDisplay1.BigIconImage = null;
+            this.pomodoroStatusDisplay1.IconSize = 28;
+            this.pomodoroStatusDisplay1.IconSpacing = 6;
+            // 修改2 & 3：位置从0开始，宽度占满父容器 (549是父容器宽度)
+            this.pomodoroStatusDisplay1.Location = new System.Drawing.Point(0, 100);
+            this.pomodoroStatusDisplay1.Name = "pomodoroStatusDisplay1";
+            this.pomodoroStatusDisplay1.Size = new System.Drawing.Size(549, 40);
+            this.pomodoroStatusDisplay1.SmallIconImage = null;
+            this.pomodoroStatusDisplay1.TabIndex = 6;
+            this.pomodoroStatusDisplay1.TotalCompletedCount = 0;
             // 
             // PomodoroControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.lblPomodoroCount);
-            this.Controls.Add(this.btnPomodoroSettings);
-            this.Controls.Add(this.btnPomodoroReset);
-            this.Controls.Add(this.btnStartPomodoro);
-            this.Controls.Add(this.lblPomodoroTime);
-            this.Margin = new System.Windows.Forms.Padding(6);
-            this.Name = "PomodoroControl";
-            this.Size = new System.Drawing.Size(549, 562);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            Controls.Add(pomodoroStatusDisplay1);
+            Controls.Add(btnPomodoroSettings);
+            Controls.Add(btnPomodoroReset);
+            Controls.Add(btnStartPomodoro);
+            Controls.Add(lblPomodoroTime);
+            Margin = new System.Windows.Forms.Padding(6);
+            Name = "PomodoroControl";
+            Size = new System.Drawing.Size(549, 562);
+            ResumeLayout(false);
+            PerformLayout();
         }
-
         #endregion
 
         private System.Windows.Forms.Button btnPomodoroReset;
         private System.Windows.Forms.Button btnStartPomodoro;
         private System.Windows.Forms.Button btnPomodoroSettings;
-        private System.Windows.Forms.Label lblPomodoroCount;
-        // 关键：声明类型为我们自定义的 PomodoroTimeDisplayLabel
         private PomodoroTimeDisplayLabel lblPomodoroTime;
+        private DTwoMFTimerHelper.UI.Components.PomodoroStatusDisplay pomodoroStatusDisplay1;
     }
 }

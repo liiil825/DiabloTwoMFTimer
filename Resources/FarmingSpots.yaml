@@ -34,6 +34,11 @@ farmingSpots:
     zhCN: "召唤者与神秘避难所"
     shortEnName: "Summon"
     shortZhCN: "召唤者"
+  - ACT: 2
+    enUS: "Tal Rasha's Tombs"
+    zhCN: "塔·拉夏之墓"
+    shortEnName: "Tal"
+    shortZhCN: "塔·拉夏之墓"
   - ACT: 3
     enUS: "Arachnid Lair"
     zhCN: "蜘蛛巢穴"
