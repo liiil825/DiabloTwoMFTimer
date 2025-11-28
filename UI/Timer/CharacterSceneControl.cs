@@ -10,6 +10,7 @@ namespace DiabloTwoMFTimer.UI.Timer
     public partial class CharacterSceneControl : UserControl
     {
         private IProfileService? _profileService;
+        private IAppSettings _appSettings = null!;
         private bool _isInitialized = false; // 用于防止重复订阅
 
         public CharacterSceneControl()
@@ -17,13 +18,14 @@ namespace DiabloTwoMFTimer.UI.Timer
             InitializeComponent();
         }
 
-        public void Initialize(IProfileService profileService)
+        public void Initialize(IProfileService profileService, IAppSettings appSettings)
         {
             if (_isInitialized || profileService == null)
                 return;
 
             // 赋值服务
             _profileService = profileService;
+            _appSettings = appSettings;
 
             // 注册语言变更事件（LanguageManager 假设是静态的，设计器中可能也需要）
             Utils.LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
@@ -93,7 +95,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             }
             else
             {
-                string localizedSceneName = Utils.LanguageManager.GetString(currentScene);
+                string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(currentScene, _appSettings);
                 string localizedDifficultyName = _profileService.CurrentDifficultyLocalized;
                 this.lblSceneDisplay.Text = $"{localizedDifficultyName} {localizedSceneName}";
             }

@@ -57,7 +57,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             _appSettings = appSettings;
 
             // 初始化子控件的服务引用
-            characterSceneControl?.Initialize(_profileService);
+            characterSceneControl?.Initialize(_profileService, _appSettings);
             historyControl?.Initialize(_historyService);
 
             // 订阅服务事件
