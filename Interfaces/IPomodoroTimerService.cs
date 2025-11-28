@@ -1,23 +1,24 @@
 using System;
+using DiabloTwoMFTimer.Models;
 
 namespace DiabloTwoMFTimer.Services;
 
 public interface IPomodoroTimerService
 {
     // 事件定义
-    event EventHandler<TimerStateChangedEventArgs>? TimerStateChanged;
+    event EventHandler<PomodoroTimerStateChangedEventArgs>? PomodoroTimerStateChanged;
     event EventHandler<PomodoroCompletedEventArgs>? PomodoroCompleted;
-    event EventHandler<BreakStartedEventArgs>? BreakStarted;
-    event EventHandler? BreakSkipped;
+    event EventHandler<PomodoroBreakStartedEventArgs>? PomodoroBreakStarted;
+    event EventHandler? PomodoroBreakSkipped;
     event EventHandler? TimeUpdated;
 
     // 属性
-    TimeSettings Settings { get; set; }
+    PomodoroTimeSettings Settings { get; set; }
     bool IsRunning { get; }
     TimeSpan TimeLeft { get; }
     int CompletedPomodoros { get; }
-    TimerState CurrentState { get; }
-    TimerState PreviousState { get; }
+    PomodoroTimerState CurrentState { get; }
+    PomodoroTimerState PreviousState { get; }
 
     // 方法
     void Start();

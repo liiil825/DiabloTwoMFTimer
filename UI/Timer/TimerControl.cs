@@ -17,6 +17,8 @@ namespace DiabloTwoMFTimer.UI.Timer
         private readonly ITimerHistoryService _historyService = null!;
         private readonly IPomodoroTimerService _pomodoroTimerService = null!;
 
+        private readonly IAppSettings _appSettings = null!;
+
         public TimerControl()
         {
             InitializeComponent();
@@ -43,7 +45,8 @@ namespace DiabloTwoMFTimer.UI.Timer
             IProfileService profileService,
             ITimerService timerService,
             ITimerHistoryService historyService,
-            IPomodoroTimerService pomodoroTimerService
+            IPomodoroTimerService pomodoroTimerService,
+            IAppSettings appSettings
         )
             : this()
         {
@@ -51,6 +54,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             _profileService = profileService;
             _historyService = historyService;
             _pomodoroTimerService = pomodoroTimerService;
+            _appSettings = appSettings;
 
             // 初始化子控件的服务引用
             characterSceneControl?.Initialize(_profileService);
@@ -96,8 +100,7 @@ namespace DiabloTwoMFTimer.UI.Timer
         private void InitializePomodoroVisibility()
         {
             // 根据应用设置的TimerShowPomodoro设置初始化番茄时间控件的可见性
-            var settings = Services.SettingsManager.LoadSettings();
-            pomodoroTime.Visible = settings.TimerShowPomodoro;
+            pomodoroTime.Visible = _appSettings.TimerShowPomodoro;
         }
 
         private void InitializeLootRecordsVisibility()
@@ -105,8 +108,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             if (lootRecordsControl != null)
             {
                 // 根据应用设置的TimerShowLootDrops设置初始化掉落记录控件的可见性
-                var settings = Services.SettingsManager.LoadSettings();
-                lootRecordsControl.Visible = settings.TimerShowLootDrops;
+                lootRecordsControl.Visible = _appSettings.TimerShowLootDrops;
                 bool isVisible = lootRecordsControl.Visible;
 
                 // 更新按钮文本
@@ -380,9 +382,8 @@ namespace DiabloTwoMFTimer.UI.Timer
             // 保存应用设置的TimerShowLootDrops设置
             if (lootRecordsControl != null)
             {
-                var settings = Services.SettingsManager.LoadSettings();
-                settings.TimerShowLootDrops = lootRecordsControl.Visible;
-                Services.SettingsManager.SaveSettings(settings);
+                _appSettings.TimerShowLootDrops = lootRecordsControl.Visible;
+                Services.SettingsManager.SaveSettings(_appSettings);
             }
         }
         #endregion
@@ -411,8 +412,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             // 根据设置更新番茄时间显示
             if (pomodoroTime != null)
             {
-                var settings = Services.SettingsManager.LoadSettings();
-                pomodoroTime.Visible = settings.TimerShowPomodoro;
+                pomodoroTime.Visible = _appSettings.TimerShowPomodoro;
             }
 
             UpdateStatistics();
@@ -485,11 +485,10 @@ namespace DiabloTwoMFTimer.UI.Timer
                     this.ParentForm.ClientSize = new Size(this.ParentForm.ClientSize.Width, newFormHeight);
 
                     // 如果窗口位置设置为下方，重新应用窗口位置以保持在底部
-                    var settings = Services.SettingsManager.LoadSettings();
                     var windowPosition = SettingsControl.WindowPosition.BottomLeft; // 默认位置
-                    if (!string.IsNullOrEmpty(settings.WindowPosition))
+                    if (!string.IsNullOrEmpty(_appSettings.WindowPosition))
                     {
-                        windowPosition = Services.SettingsManager.StringToWindowPosition(settings.WindowPosition);
+                        windowPosition = Services.SettingsManager.StringToWindowPosition(_appSettings.WindowPosition);
                     }
 
                     if (
@@ -515,10 +514,9 @@ namespace DiabloTwoMFTimer.UI.Timer
                 SetLootRecordsVisible(isVisible);
 
                 // 更新应用设置
-                var settings = Services.SettingsManager.LoadSettings();
 
-                settings.TimerShowLootDrops = isVisible;
-                Services.SettingsManager.SaveSettings(settings);
+                _appSettings.TimerShowLootDrops = isVisible;
+                Services.SettingsManager.SaveSettings(_appSettings);
             }
         }
     }

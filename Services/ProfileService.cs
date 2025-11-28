@@ -4,346 +4,317 @@ using System.Linq;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
 
-namespace DiabloTwoMFTimer.Services
+namespace DiabloTwoMFTimer.Services;
+
+public class ProfileService : IProfileService
 {
-    public interface IProfileService
+    private readonly IAppSettings _appSettings;
+
+    public ProfileService(IAppSettings appSettings)
     {
-        event Action<CharacterProfile?>? CurrentProfileChangedEvent;
-        event Action<string>? CurrentSceneChangedEvent;
-        event Action<GameDifficulty>? CurrentDifficultyChangedEvent;
-        event Action? ProfileListChangedEvent;
-
-        CharacterProfile? CurrentProfile { get; set; }
-        string CurrentScene { get; set; }
-        GameDifficulty CurrentDifficulty { get; set; }
-        string CurrentDifficultyLocalized { get; }
-        List<FarmingScene> FarmingScenes { get; }
-
-        void LoadFarmingScenes();
-        CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass);
-        bool SwitchCharacter(CharacterProfile profile);
-        bool DeleteCharacter(CharacterProfile profile);
-        List<CharacterProfile> GetAllProfiles();
-        CharacterProfile? FindProfileByName(string name);
-        bool HasIncompleteRecord();
-        string GetStartButtonText();
-        List<string> GetSceneDisplayNames();
-        FarmingScene? GetSceneByDisplayName(string displayName);
-        List<string> GetLocalizedDifficultyNames();
-        GameDifficulty GetDifficultyByIndex(int index);
-        int GetDifficultyIndex(GameDifficulty difficulty);
+        _appSettings = appSettings;
+        LoadLastUsedProfile();
+        LoadLastRunScene();
     }
 
-    public class ProfileService : IProfileService
+    #region Events for UI Communication
+    public event Action<CharacterProfile?>? CurrentProfileChangedEvent;
+    public event Action<string>? CurrentSceneChangedEvent;
+    public event Action<GameDifficulty>? CurrentDifficultyChangedEvent;
+    public event Action? ProfileListChangedEvent;
+    #endregion
+
+    #region Properties
+    private CharacterProfile? _currentProfile;
+    public CharacterProfile? CurrentProfile
     {
-        private readonly IAppSettings _appSettings;
-
-        public ProfileService(IAppSettings appSettings)
+        get => _currentProfile;
+        set
         {
-            _appSettings = appSettings;
-            LoadLastUsedProfile();
-            LoadLastRunScene();
-        }
-
-        #region Events for UI Communication
-        public event Action<CharacterProfile?>? CurrentProfileChangedEvent;
-        public event Action<string>? CurrentSceneChangedEvent;
-        public event Action<GameDifficulty>? CurrentDifficultyChangedEvent;
-        public event Action? ProfileListChangedEvent;
-        #endregion
-
-        #region Properties
-        private CharacterProfile? _currentProfile;
-        public CharacterProfile? CurrentProfile
-        {
-            get => _currentProfile;
-            set
+            if (_currentProfile != value)
             {
-                if (_currentProfile != value)
+                _currentProfile = value;
+                CurrentProfileChangedEvent?.Invoke(value);
+
+                // 保存到设置
+                if (value != null)
                 {
-                    _currentProfile = value;
-                    CurrentProfileChangedEvent?.Invoke(value);
-
-                    // 保存到设置
-                    if (value != null)
-                    {
-                        _appSettings.LastUsedProfile = value.Name;
-                        SettingsManager.SaveSettings(_appSettings);
-                    }
-                }
-            }
-        }
-
-        private string _currentScene = string.Empty;
-        public string CurrentScene
-        {
-            get => LanguageManager.GetString(_currentScene);
-            set
-            {
-                // 确保保存时使用英文场景名称
-                string englishSceneName = SceneHelper.GetEnglishSceneName(value);
-
-                if (_currentScene != englishSceneName)
-                {
-                    _currentScene = englishSceneName;
-                    CurrentSceneChangedEvent?.Invoke(englishSceneName);
-
-                    // 保存到设置
-                    _appSettings.LastRunScene = englishSceneName;
+                    _appSettings.LastUsedProfile = value.Name;
                     SettingsManager.SaveSettings(_appSettings);
                 }
             }
         }
+    }
 
-        private GameDifficulty _currentDifficulty = GameDifficulty.Hell;
-        public GameDifficulty CurrentDifficulty
+    private string _currentScene = string.Empty;
+    public string CurrentScene
+    {
+        get => LanguageManager.GetString(_currentScene);
+        set
         {
-            get => _currentDifficulty;
-            set
-            {
-                if (_currentDifficulty != value)
-                {
-                    _currentDifficulty = value;
-                    CurrentDifficultyChangedEvent?.Invoke(value);
+            // 确保保存时使用英文场景名称
+            string englishSceneName = SceneHelper.GetEnglishSceneName(value);
 
-                    // 保存到设置
-                    _appSettings.LastUsedDifficulty = value.ToString();
-                    SettingsManager.SaveSettings(_appSettings);
-                }
+            if (_currentScene != englishSceneName)
+            {
+                _currentScene = englishSceneName;
+                CurrentSceneChangedEvent?.Invoke(englishSceneName);
+
+                // 保存到设置
+                _appSettings.LastRunScene = englishSceneName;
+                SettingsManager.SaveSettings(_appSettings);
             }
         }
+    }
 
-        public string CurrentDifficultyLocalized => Utils.LanguageManager.GetString($"Difficulty{_currentDifficulty}");
-
-        public List<FarmingScene> FarmingScenes { get; private set; } = [];
-        #endregion
-
-        #region Public Methods
-        /// <summary>
-        /// 加载所有耕作场景
-        /// </summary>
-        public void LoadFarmingScenes()
+    private GameDifficulty _currentDifficulty = GameDifficulty.Hell;
+    public GameDifficulty CurrentDifficulty
+    {
+        get => _currentDifficulty;
+        set
         {
-            FarmingScenes = SceneHelper.LoadFarmingSpots();
-            // 加载上次使用的场景
-            LoadLastRunScene();
-        }
-
-        /// <summary>
-        /// 创建新角色
-        /// </summary>
-        public CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass)
-        {
-            try
+            if (_currentDifficulty != value)
             {
-                LogManager.WriteDebugLog("ProfileService", $"开始创建新角色: {characterName}, 职业: {characterClass}");
-                var profile = DataHelper.CreateNewProfile(characterName, characterClass);
-                if (profile == null)
-                {
-                    LogManager.WriteDebugLog("ProfileService", "创建角色失败，返回的配置文件为null");
-                    return null;
-                }
-                LogManager.WriteDebugLog("ProfileService", $"角色创建成功: {profile.Name}");
+                _currentDifficulty = value;
+                CurrentDifficultyChangedEvent?.Invoke(value);
 
-                // 设置为当前角色
-                CurrentProfile = profile;
-                ProfileListChangedEvent?.Invoke();
-
-                return profile;
+                // 保存到设置
+                _appSettings.LastUsedDifficulty = value.ToString();
+                SettingsManager.SaveSettings(_appSettings);
             }
-            catch (Exception ex)
+        }
+    }
+
+    public string CurrentDifficultyLocalized => Utils.LanguageManager.GetString($"Difficulty{_currentDifficulty}");
+
+    public List<FarmingScene> FarmingScenes { get; private set; } = [];
+    #endregion
+
+    #region Public Methods
+    /// <summary>
+    /// 加载所有耕作场景
+    /// </summary>
+    public void LoadFarmingScenes()
+    {
+        FarmingScenes = SceneHelper.LoadFarmingSpots();
+        // 加载上次使用的场景
+        LoadLastRunScene();
+    }
+
+    /// <summary>
+    /// 创建新角色
+    /// </summary>
+    public CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass)
+    {
+        try
+        {
+            LogManager.WriteDebugLog("ProfileService", $"开始创建新角色: {characterName}, 职业: {characterClass}");
+            var profile = DataHelper.CreateNewProfile(characterName, characterClass);
+            if (profile == null)
             {
-                LogManager.WriteErrorLog("ProfileService", $"创建角色失败", ex);
+                LogManager.WriteDebugLog("ProfileService", "创建角色失败，返回的配置文件为null");
                 return null;
             }
-        }
+            LogManager.WriteDebugLog("ProfileService", $"角色创建成功: {profile.Name}");
 
-        /// <summary>
-        /// 切换角色
-        /// </summary>
-        public bool SwitchCharacter(CharacterProfile profile)
-        {
-            LogManager.WriteDebugLog("ProfileService", $"开始切换角色到: {profile.Name}");
-
-            // 验证角色数据
-            if (profile == null || string.IsNullOrWhiteSpace(profile.Name))
-            {
-                LogManager.WriteDebugLog("ProfileService", "无效的角色数据");
-                return false;
-            }
-
+            // 设置为当前角色
             CurrentProfile = profile;
-            LogManager.WriteDebugLog("ProfileService", $"成功切换到角色: {profile.Name}");
-            return true;
-        }
-
-        /// <summary>
-        /// 删除角色
-        /// </summary>
-        public bool DeleteCharacter(CharacterProfile profile)
-        {
-            LogManager.WriteDebugLog("ProfileService", $"开始删除角色: {profile.Name}");
-            DataHelper.DeleteProfile(profile);
-            // 如果删除的是当前角色，清空当前角色
-            if (CurrentProfile?.Name == profile.Name)
-            {
-                CurrentProfile = null;
-            }
-
             ProfileListChangedEvent?.Invoke();
-            // 触发重置定时器事件
-            // _timerService.ResetTimerRequested();
-            LogManager.WriteDebugLog("ProfileService", $"成功删除角色: {profile.Name}");
 
-            return true;
+            return profile;
         }
-
-        /// <summary>
-        /// 获取所有角色档案
-        /// </summary>
-        public List<CharacterProfile> GetAllProfiles()
+        catch (Exception ex)
         {
-            return DataHelper.LoadAllProfiles();
+            LogManager.WriteErrorLog("ProfileService", $"创建角色失败", ex);
+            return null;
         }
-
-        /// <summary>
-        /// 根据名称查找角色档案
-        /// </summary>
-        public CharacterProfile? FindProfileByName(string name)
-        {
-            return DataHelper.FindProfileByName(name);
-        }
-
-        /// <summary>
-        /// 检查当前场景和难度是否有未完成记录
-        /// </summary>
-        public bool HasIncompleteRecord()
-        {
-            if (CurrentProfile == null || string.IsNullOrEmpty(CurrentScene))
-                return false;
-
-            // 获取场景的纯英文名称（与记录存储格式一致）
-            string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(CurrentScene);
-            // 查找同场景、同难度、未完成的记录
-            bool hasIncompleteRecord = CurrentProfile.Records.Any(r =>
-                r.SceneName == pureEnglishSceneName && r.Difficulty == CurrentDifficulty && !r.IsCompleted
-            );
-
-            LogManager.WriteDebugLog("ProfileService", $"是否存在未完成记录: {hasIncompleteRecord}");
-            return hasIncompleteRecord;
-        }
-
-        /// <summary>
-        /// 获取开始按钮的显示文本
-        /// </summary>
-        public string GetStartButtonText()
-        {
-            bool hasIncompleteRecord = HasIncompleteRecord();
-            string key = hasIncompleteRecord ? "ContinueFarm" : "StartTimer";
-            return LanguageManager.GetString(key);
-        }
-
-        /// <summary>
-        /// 获取场景显示名称列表
-        /// </summary>
-        public List<string> GetSceneDisplayNames()
-        {
-            return FarmingScenes.Select(scene => SceneHelper.GetSceneDisplayName(scene, _appSettings)).ToList();
-        }
-
-        /// <summary>
-        /// 根据显示名称获取场景对象
-        /// </summary>
-        public FarmingScene? GetSceneByDisplayName(string displayName)
-        {
-            return FarmingScenes.FirstOrDefault(scene =>
-                SceneHelper.GetSceneDisplayName(scene, _appSettings) == displayName
-            );
-        }
-
-        /// <summary>
-        /// 获取本地化的难度名称列表
-        /// </summary>
-        public List<string> GetLocalizedDifficultyNames()
-        {
-            return
-            [
-                .. Enum.GetValues(typeof(GameDifficulty))
-                    .Cast<GameDifficulty>()
-                    .Select(d => SceneHelper.GetLocalizedDifficultyName(d)),
-            ];
-        }
-
-        /// <summary>
-        /// 根据索引获取难度
-        /// </summary>
-        public GameDifficulty GetDifficultyByIndex(int index)
-        {
-            var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
-            return index >= 0 && index < difficulties.Count ? difficulties[index] : GameDifficulty.Hell;
-        }
-
-        /// <summary>
-        /// 根据难度获取索引
-        /// </summary>
-        public int GetDifficultyIndex(GameDifficulty difficulty)
-        {
-            var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
-            return difficulties.IndexOf(difficulty);
-        }
-
-        #endregion
-
-        #region Private Methods
-        /// <summary>
-        /// 加载上次使用的角色档案
-        /// </summary>
-        private void LoadLastUsedProfile()
-        {
-            LogManager.WriteDebugLog("ProfileService", "LoadLastUsedProfile 开始执行");
-            string lastUsedProfileName = _appSettings.LastUsedProfile;
-            LogManager.WriteDebugLog("ProfileService", $"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
-            if (!string.IsNullOrWhiteSpace(lastUsedProfileName))
-            {
-                LogManager.WriteDebugLog("ProfileService", $"尝试加载上次使用的角色档案: {lastUsedProfileName}");
-                var profile = FindProfileByName(lastUsedProfileName);
-                if (profile != null)
-                {
-                    CurrentProfile = profile;
-                    LogManager.WriteDebugLog("ProfileService", $"成功加载上次使用的角色档案: {lastUsedProfileName}");
-                }
-            }
-            else
-            {
-                LogManager.WriteDebugLog("ProfileService", "没有保存的上次使用角色档案");
-            }
-        }
-
-        /// <summary>
-        /// 加载上次使用的场景
-        /// </summary>
-        private void LoadLastRunScene()
-        {
-            // 优先使用当前角色档案的LastRunScene字段
-            if (CurrentProfile != null && !string.IsNullOrEmpty(CurrentProfile.LastRunScene))
-            {
-                CurrentScene = CurrentProfile.LastRunScene;
-            }
-            // 如果角色档案没有保存场景，则回退到全局设置
-            else if (!string.IsNullOrEmpty(_appSettings.LastRunScene))
-            {
-                CurrentScene = _appSettings.LastRunScene;
-            }
-
-            // 加载上次使用的难度
-            if (
-                !string.IsNullOrEmpty(_appSettings.LastUsedDifficulty)
-                && Enum.TryParse<GameDifficulty>(_appSettings.LastUsedDifficulty, out var difficulty)
-            )
-            {
-                CurrentDifficulty = difficulty;
-            }
-        }
-        #endregion
     }
+
+    /// <summary>
+    /// 切换角色
+    /// </summary>
+    public bool SwitchCharacter(CharacterProfile profile)
+    {
+        LogManager.WriteDebugLog("ProfileService", $"开始切换角色到: {profile.Name}");
+
+        // 验证角色数据
+        if (profile == null || string.IsNullOrWhiteSpace(profile.Name))
+        {
+            LogManager.WriteDebugLog("ProfileService", "无效的角色数据");
+            return false;
+        }
+
+        CurrentProfile = profile;
+        LogManager.WriteDebugLog("ProfileService", $"成功切换到角色: {profile.Name}");
+        return true;
+    }
+
+    /// <summary>
+    /// 删除角色
+    /// </summary>
+    public bool DeleteCharacter(CharacterProfile profile)
+    {
+        LogManager.WriteDebugLog("ProfileService", $"开始删除角色: {profile.Name}");
+        DataHelper.DeleteProfile(profile);
+        // 如果删除的是当前角色，清空当前角色
+        if (CurrentProfile?.Name == profile.Name)
+        {
+            CurrentProfile = null;
+        }
+
+        ProfileListChangedEvent?.Invoke();
+        // 触发重置定时器事件
+        // _timerService.ResetTimerRequested();
+        LogManager.WriteDebugLog("ProfileService", $"成功删除角色: {profile.Name}");
+
+        return true;
+    }
+
+    /// <summary>
+    /// 获取所有角色档案
+    /// </summary>
+    public List<CharacterProfile> GetAllProfiles()
+    {
+        return DataHelper.LoadAllProfiles();
+    }
+
+    /// <summary>
+    /// 根据名称查找角色档案
+    /// </summary>
+    public CharacterProfile? FindProfileByName(string name)
+    {
+        return DataHelper.FindProfileByName(name);
+    }
+
+    /// <summary>
+    /// 检查当前场景和难度是否有未完成记录
+    /// </summary>
+    public bool HasIncompleteRecord()
+    {
+        if (CurrentProfile == null || string.IsNullOrEmpty(CurrentScene))
+            return false;
+
+        // 获取场景的纯英文名称（与记录存储格式一致）
+        string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(CurrentScene);
+        // 查找同场景、同难度、未完成的记录
+        bool hasIncompleteRecord = CurrentProfile.Records.Any(r =>
+            r.SceneName == pureEnglishSceneName && r.Difficulty == CurrentDifficulty && !r.IsCompleted
+        );
+
+        LogManager.WriteDebugLog("ProfileService", $"是否存在未完成记录: {hasIncompleteRecord}");
+        return hasIncompleteRecord;
+    }
+
+    /// <summary>
+    /// 获取开始按钮的显示文本
+    /// </summary>
+    public string GetStartButtonText()
+    {
+        bool hasIncompleteRecord = HasIncompleteRecord();
+        string key = hasIncompleteRecord ? "ContinueFarm" : "StartTimer";
+        return LanguageManager.GetString(key);
+    }
+
+    /// <summary>
+    /// 获取场景显示名称列表
+    /// </summary>
+    public List<string> GetSceneDisplayNames()
+    {
+        return FarmingScenes.Select(scene => SceneHelper.GetSceneDisplayName(scene, _appSettings)).ToList();
+    }
+
+    /// <summary>
+    /// 根据显示名称获取场景对象
+    /// </summary>
+    public FarmingScene? GetSceneByDisplayName(string displayName)
+    {
+        return FarmingScenes.FirstOrDefault(scene =>
+            SceneHelper.GetSceneDisplayName(scene, _appSettings) == displayName
+        );
+    }
+
+    /// <summary>
+    /// 获取本地化的难度名称列表
+    /// </summary>
+    public List<string> GetLocalizedDifficultyNames()
+    {
+        return
+        [
+            .. Enum.GetValues(typeof(GameDifficulty))
+                .Cast<GameDifficulty>()
+                .Select(d => SceneHelper.GetLocalizedDifficultyName(d)),
+        ];
+    }
+
+    /// <summary>
+    /// 根据索引获取难度
+    /// </summary>
+    public GameDifficulty GetDifficultyByIndex(int index)
+    {
+        var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
+        return index >= 0 && index < difficulties.Count ? difficulties[index] : GameDifficulty.Hell;
+    }
+
+    /// <summary>
+    /// 根据难度获取索引
+    /// </summary>
+    public int GetDifficultyIndex(GameDifficulty difficulty)
+    {
+        var difficulties = Enum.GetValues(typeof(GameDifficulty)).Cast<GameDifficulty>().ToList();
+        return difficulties.IndexOf(difficulty);
+    }
+
+    #endregion
+
+    #region Private Methods
+    /// <summary>
+    /// 加载上次使用的角色档案
+    /// </summary>
+    private void LoadLastUsedProfile()
+    {
+        LogManager.WriteDebugLog("ProfileService", "LoadLastUsedProfile 开始执行");
+        string lastUsedProfileName = _appSettings.LastUsedProfile;
+        LogManager.WriteDebugLog("ProfileService", $"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
+        if (!string.IsNullOrWhiteSpace(lastUsedProfileName))
+        {
+            LogManager.WriteDebugLog("ProfileService", $"尝试加载上次使用的角色档案: {lastUsedProfileName}");
+            var profile = FindProfileByName(lastUsedProfileName);
+            if (profile != null)
+            {
+                CurrentProfile = profile;
+                LogManager.WriteDebugLog("ProfileService", $"成功加载上次使用的角色档案: {lastUsedProfileName}");
+            }
+        }
+        else
+        {
+            LogManager.WriteDebugLog("ProfileService", "没有保存的上次使用角色档案");
+        }
+    }
+
+    /// <summary>
+    /// 加载上次使用的场景
+    /// </summary>
+    private void LoadLastRunScene()
+    {
+        // 优先使用当前角色档案的LastRunScene字段
+        if (CurrentProfile != null && !string.IsNullOrEmpty(CurrentProfile.LastRunScene))
+        {
+            CurrentScene = CurrentProfile.LastRunScene;
+        }
+        // 如果角色档案没有保存场景，则回退到全局设置
+        else if (!string.IsNullOrEmpty(_appSettings.LastRunScene))
+        {
+            CurrentScene = _appSettings.LastRunScene;
+        }
+
+        // 加载上次使用的难度
+        if (
+            !string.IsNullOrEmpty(_appSettings.LastUsedDifficulty)
+            && Enum.TryParse<GameDifficulty>(_appSettings.LastUsedDifficulty, out var difficulty)
+        )
+        {
+            CurrentDifficulty = difficulty;
+        }
+    }
+    #endregion
 }

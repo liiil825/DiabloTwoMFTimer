@@ -6,204 +6,168 @@ using DiabloTwoMFTimer.Utils;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
-namespace DiabloTwoMFTimer.Services
+namespace DiabloTwoMFTimer.Services;
+
+public class AppSettings : IAppSettings
 {
-    public interface IAppSettings
+    // 窗口设置
+    public string WindowPosition { get; set; } = "TopLeft";
+    public bool AlwaysOnTop { get; set; } = true;
+    public string Language { get; set; } = "Chinese";
+
+    // 角色档案设置
+    public string LastUsedProfile { get; set; } = "";
+    public string LastRunScene { get; set; } = "";
+    public string LastUsedDifficulty { get; set; } = "";
+
+    // 番茄时钟设置
+    public int WorkTimeMinutes { get; set; } = 25;
+    public int WorkTimeSeconds { get; set; } = 0;
+    public int ShortBreakMinutes { get; set; } = 5;
+    public int ShortBreakSeconds { get; set; } = 0;
+    public int LongBreakMinutes { get; set; } = 15;
+    public int LongBreakSeconds { get; set; } = 0;
+
+    // 界面设置
+    public bool TimerShowLootDrops { get; set; } = false; // 是否显示掉落记录
+    public bool TimerShowPomodoro { get; set; } = true; // 是否显示番茄钟
+    public bool TimerSyncStartPomodoro { get; set; } = false; // 开启计时器时是否同步开启番茄钟
+    public bool TimerSyncPausePomodoro { get; set; } = false; // 暂停计时器时是否同步暂停番茄钟
+    public int PomodoroWarningLongTime { get; set; } = 60; // 番茄钟长时间提示（实际值）
+    public int PomodoroWarningShortTime { get; set; } = 3; // 番茄钟短时间提示（实际值）
+    public bool GenerateRoomName { get; set; } = true; // 是否生成房间名称
+
+    public Keys HotkeyStartOrNext { get; set; } = Keys.Q | Keys.Alt;
+    public Keys HotkeyPause { get; set; } = Keys.Space | Keys.Control;
+    public Keys HotkeyDeleteHistory { get; set; } = Keys.D | Keys.Control;
+    public Keys HotkeyRecordLoot { get; set; } = Keys.A | Keys.Alt;
+}
+
+public static class SettingsManager
+{
+    private static readonly string ConfigFilePath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "DiabloTwoMFTimer",
+        "config.yaml"
+    );
+
+    private static readonly ISerializer serializer = new SerializerBuilder()
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .Build();
+
+    private static readonly IDeserializer deserializer = new DeserializerBuilder()
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .IgnoreUnmatchedProperties()
+        .Build();
+
+    // 加载设置
+    public static AppSettings LoadSettings()
     {
-        public string WindowPosition { get; set; }
-        public bool AlwaysOnTop { get; set; }
-        public string Language { get; set; }
+        try
+        {
+            // 确保目录存在 - 添加null检查以修复CS8604警告
+            string? directory = Path.GetDirectoryName(ConfigFilePath);
+            if (directory != null)
+            {
+                Directory.CreateDirectory(directory);
+            }
+            if (File.Exists(ConfigFilePath))
+            {
+                var yaml = File.ReadAllText(ConfigFilePath);
+                var settings = deserializer.Deserialize<AppSettings>(yaml);
+                return settings;
+            }
+        }
+        catch (Exception ex)
+        {
+            LogManager.WriteErrorLog("SettingsManager", $"加载设置失败", ex);
+        }
 
-        // 角色档案设置
-        public string LastUsedProfile { get; set; }
-        public string LastRunScene { get; set; }
-        public string LastUsedDifficulty { get; set; }
-        public int WorkTimeMinutes { get; set; }
-        public int WorkTimeSeconds { get; set; }
-        public int ShortBreakMinutes { get; set; }
-        public int ShortBreakSeconds { get; set; }
-        public int LongBreakMinutes { get; set; }
-        public int LongBreakSeconds { get; set; }
-
-        // 界面设置
-        public bool TimerShowLootDrops { get; set; }
-        public bool TimerShowPomodoro { get; set; }
-        public bool TimerSyncStartPomodoro { get; set; }
-        public bool TimerSyncPausePomodoro { get; set; }
-
-        // 番茄钟提示时间设置
-        public int PomodoroWarningLongTime { get; set; }
-        public int PomodoroWarningShortTime { get; set; }
-        public bool GenerateRoomName { get; set; }
-
-        // 热键设置
-        public Keys HotkeyStartOrNext { get; set; }
-        public Keys HotkeyPause { get; set; }
-        public Keys HotkeyDeleteHistory { get; set; }
-        public Keys HotkeyRecordLoot { get; set; }
+        // 返回默认设置
+        LogManager.WriteDebugLog("SettingsManager", "返回默认设置");
+        return new AppSettings();
     }
 
-    public class AppSettings : IAppSettings
+    // 保存设置
+    public static void SaveSettings(IAppSettings settings)
     {
-        // 窗口设置
-        public string WindowPosition { get; set; } = "TopLeft";
-        public bool AlwaysOnTop { get; set; } = true;
-        public string Language { get; set; } = "Chinese";
+        try
+        {
+            // 确保目录存在 - 添加null检查以修复CS8604警告
+            string? directory = Path.GetDirectoryName(ConfigFilePath);
+            if (directory != null)
+            {
+                Directory.CreateDirectory(directory);
+            }
 
-        // 角色档案设置
-        public string LastUsedProfile { get; set; } = "";
-        public string LastRunScene { get; set; } = "";
-        public string LastUsedDifficulty { get; set; } = "";
+            // 将IAppSettings转换为AppSettings对象进行序列化
+            var appSettings =
+                settings as AppSettings
+                ?? new AppSettings
+                {
+                    WindowPosition = settings.WindowPosition,
+                    AlwaysOnTop = settings.AlwaysOnTop,
+                    Language = settings.Language,
+                    LastUsedProfile = settings.LastUsedProfile,
+                    LastRunScene = settings.LastRunScene,
+                    LastUsedDifficulty = settings.LastUsedDifficulty,
+                    WorkTimeMinutes = settings.WorkTimeMinutes,
+                    WorkTimeSeconds = settings.WorkTimeSeconds,
+                    ShortBreakMinutes = settings.ShortBreakMinutes,
+                    ShortBreakSeconds = settings.ShortBreakSeconds,
+                    LongBreakMinutes = settings.LongBreakMinutes,
+                    LongBreakSeconds = settings.LongBreakSeconds,
+                    TimerShowLootDrops = settings.TimerShowLootDrops,
+                    TimerShowPomodoro = settings.TimerShowPomodoro,
+                    TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro,
+                    TimerSyncPausePomodoro = settings.TimerSyncPausePomodoro,
+                    PomodoroWarningLongTime = settings.PomodoroWarningLongTime,
+                    PomodoroWarningShortTime = settings.PomodoroWarningShortTime,
+                    GenerateRoomName = settings.GenerateRoomName,
+                    HotkeyStartOrNext = settings.HotkeyStartOrNext,
+                    HotkeyPause = settings.HotkeyPause,
+                    HotkeyDeleteHistory = settings.HotkeyDeleteHistory,
+                    HotkeyRecordLoot = settings.HotkeyRecordLoot,
+                };
 
-        // 番茄时钟设置
-        public int WorkTimeMinutes { get; set; } = 25;
-        public int WorkTimeSeconds { get; set; } = 0;
-        public int ShortBreakMinutes { get; set; } = 5;
-        public int ShortBreakSeconds { get; set; } = 0;
-        public int LongBreakMinutes { get; set; } = 15;
-        public int LongBreakSeconds { get; set; } = 0;
-
-        // 界面设置
-        public bool TimerShowLootDrops { get; set; } = false; // 是否显示掉落记录
-        public bool TimerShowPomodoro { get; set; } = true; // 是否显示番茄钟
-        public bool TimerSyncStartPomodoro { get; set; } = false; // 开启计时器时是否同步开启番茄钟
-        public bool TimerSyncPausePomodoro { get; set; } = false; // 暂停计时器时是否同步暂停番茄钟
-        public int PomodoroWarningLongTime { get; set; } = 60; // 番茄钟长时间提示（实际值）
-        public int PomodoroWarningShortTime { get; set; } = 3; // 番茄钟短时间提示（实际值）
-        public bool GenerateRoomName { get; set; } = true; // 是否生成房间名称
-
-        public Keys HotkeyStartOrNext { get; set; } = Keys.Q | Keys.Alt;
-        public Keys HotkeyPause { get; set; } = Keys.Space | Keys.Control;
-        public Keys HotkeyDeleteHistory { get; set; } = Keys.D | Keys.Control;
-        public Keys HotkeyRecordLoot { get; set; } = Keys.A | Keys.Alt;
+            var yaml = serializer.Serialize(appSettings);
+            File.WriteAllText(ConfigFilePath, yaml);
+        }
+        catch (Exception ex)
+        {
+            LogManager.WriteErrorLog("SettingsManager", $"保存设置失败", ex);
+        }
     }
 
-    public static class SettingsManager
+    // 将设置窗口的位置枚举转换为字符串
+    public static string WindowPositionToString(SettingsControl.WindowPosition position)
     {
-        private static readonly string ConfigFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "mf-time-helper",
-            "config.yaml"
-        );
+        return position.ToString();
+    }
 
-        private static readonly ISerializer serializer = new SerializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .Build();
-
-        private static readonly IDeserializer deserializer = new DeserializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
-
-        // 加载设置
-        public static AppSettings LoadSettings()
+    // 将字符串转换为设置窗口的位置枚举
+    public static SettingsControl.WindowPosition StringToWindowPosition(string positionStr)
+    {
+        if (Enum.TryParse<SettingsControl.WindowPosition>(positionStr, out var position))
         {
-            try
-            {
-                // 确保目录存在 - 添加null检查以修复CS8604警告
-                string? directory = Path.GetDirectoryName(ConfigFilePath);
-                if (directory != null)
-                {
-                    Directory.CreateDirectory(directory);
-                }
-                if (File.Exists(ConfigFilePath))
-                {
-                    var yaml = File.ReadAllText(ConfigFilePath);
-                    var settings = deserializer.Deserialize<AppSettings>(yaml);
-                    return settings;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogManager.WriteErrorLog("SettingsManager", $"加载设置失败", ex);
-            }
-
-            // 返回默认设置
-            LogManager.WriteDebugLog("SettingsManager", "返回默认设置");
-            return new AppSettings();
+            return position;
         }
+        return SettingsControl.WindowPosition.TopLeft;
+    }
 
-        // 保存设置
-        public static void SaveSettings(IAppSettings settings)
+    // 将语言选项转换为字符串
+    public static string LanguageToString(SettingsControl.LanguageOption language)
+    {
+        return language.ToString();
+    }
+
+    // 将字符串转换为语言选项
+    public static SettingsControl.LanguageOption StringToLanguage(string languageStr)
+    {
+        if (Enum.TryParse<SettingsControl.LanguageOption>(languageStr, out var language))
         {
-            try
-            {
-                // 确保目录存在 - 添加null检查以修复CS8604警告
-                string? directory = Path.GetDirectoryName(ConfigFilePath);
-                if (directory != null)
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                // 将IAppSettings转换为AppSettings对象进行序列化
-                var appSettings =
-                    settings as AppSettings
-                    ?? new AppSettings
-                    {
-                        WindowPosition = settings.WindowPosition,
-                        AlwaysOnTop = settings.AlwaysOnTop,
-                        Language = settings.Language,
-                        LastUsedProfile = settings.LastUsedProfile,
-                        LastRunScene = settings.LastRunScene,
-                        LastUsedDifficulty = settings.LastUsedDifficulty,
-                        WorkTimeMinutes = settings.WorkTimeMinutes,
-                        WorkTimeSeconds = settings.WorkTimeSeconds,
-                        ShortBreakMinutes = settings.ShortBreakMinutes,
-                        ShortBreakSeconds = settings.ShortBreakSeconds,
-                        LongBreakMinutes = settings.LongBreakMinutes,
-                        LongBreakSeconds = settings.LongBreakSeconds,
-                        TimerShowLootDrops = settings.TimerShowLootDrops,
-                        TimerShowPomodoro = settings.TimerShowPomodoro,
-                        TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro,
-                        TimerSyncPausePomodoro = settings.TimerSyncPausePomodoro,
-                        PomodoroWarningLongTime = settings.PomodoroWarningLongTime,
-                        PomodoroWarningShortTime = settings.PomodoroWarningShortTime,
-                        GenerateRoomName = settings.GenerateRoomName,
-                        HotkeyStartOrNext = settings.HotkeyStartOrNext,
-                        HotkeyPause = settings.HotkeyPause,
-                        HotkeyDeleteHistory = settings.HotkeyDeleteHistory,
-                        HotkeyRecordLoot = settings.HotkeyRecordLoot,
-                    };
-
-                var yaml = serializer.Serialize(appSettings);
-                File.WriteAllText(ConfigFilePath, yaml);
-            }
-            catch (Exception ex)
-            {
-                LogManager.WriteErrorLog("SettingsManager", $"保存设置失败", ex);
-            }
+            return language;
         }
-
-        // 将设置窗口的位置枚举转换为字符串
-        public static string WindowPositionToString(SettingsControl.WindowPosition position)
-        {
-            return position.ToString();
-        }
-
-        // 将字符串转换为设置窗口的位置枚举
-        public static SettingsControl.WindowPosition StringToWindowPosition(string positionStr)
-        {
-            if (Enum.TryParse<SettingsControl.WindowPosition>(positionStr, out var position))
-            {
-                return position;
-            }
-            return SettingsControl.WindowPosition.TopLeft;
-        }
-
-        // 将语言选项转换为字符串
-        public static string LanguageToString(SettingsControl.LanguageOption language)
-        {
-            return language.ToString();
-        }
-
-        // 将字符串转换为语言选项
-        public static SettingsControl.LanguageOption StringToLanguage(string languageStr)
-        {
-            if (Enum.TryParse<SettingsControl.LanguageOption>(languageStr, out var language))
-            {
-                return language;
-            }
-            return SettingsControl.LanguageOption.Chinese;
-        }
+        return SettingsControl.LanguageOption.Chinese;
     }
 }

@@ -8,11 +8,13 @@ public partial class MainForm : Form
 {
     // 服务实例
     private readonly IMainServices _mainServices;
+    private readonly IAppSettings _settings;
 
-    public MainForm(IMainServices mainServices)
+    public MainForm(IMainServices mainServices, IAppSettings settings)
     {
         // 获取服务实例并设置主窗体引用
         _mainServices = mainServices;
+        _settings = settings;
 
         InitializeComponent();
         // 设置窗体属性
@@ -37,8 +39,7 @@ public partial class MainForm : Form
     private void InitializeForm()
     {
         var width = UISizeConstants.MainFormWidth;
-        var settings = Services.SettingsManager.LoadSettings();
-        var height = settings.TimerShowLootDrops
+        var height = _settings.TimerShowLootDrops
             ? UISizeConstants.MainFormHeightWithLoot
             : UISizeConstants.MainFormHeightWithoutLoot;
         this.Size = new Size(width, height);

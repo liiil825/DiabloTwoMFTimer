@@ -184,11 +184,10 @@ namespace DiabloTwoMFTimer.UI.Profiles
                 }
             }
 
-            var settings = Services.SettingsManager.LoadSettings();
             // 尝试加载上次使用的角色档案
-            if (!string.IsNullOrEmpty(settings.LastUsedProfile))
+            if (!string.IsNullOrEmpty(_appSettings.LastUsedProfile))
             {
-                var profile = Utils.DataHelper.FindProfileByName(settings.LastUsedProfile);
+                var profile = Utils.DataHelper.FindProfileByName(_appSettings.LastUsedProfile);
                 if (profile != null)
                 {
                     currentProfile = profile;
@@ -420,9 +419,8 @@ namespace DiabloTwoMFTimer.UI.Profiles
                     WriteDebugLog($"成功切换到角色: {currentProfile.Name}");
 
                     // 更新LastUsedProfile设置
-                    var settings = Services.SettingsManager.LoadSettings();
-                    settings.LastUsedProfile = selectedProfile.Name;
-                    SettingsManager.SaveSettings(settings);
+                    _appSettings.LastUsedProfile = selectedProfile.Name;
+                    SettingsManager.SaveSettings(_appSettings);
                     WriteDebugLog($"更新LastUsedProfile为: {selectedProfile.Name}");
                     LoadLastRunSettings();
                     // 更新UI显示新角色信息
@@ -517,8 +515,7 @@ namespace DiabloTwoMFTimer.UI.Profiles
         public void LoadLastUsedProfile()
         {
             WriteDebugLog("LoadLastUsedProfile 开始执行");
-            var settings = SettingsManager.LoadSettings();
-            string lastUsedProfileName = settings.LastUsedProfile;
+            string lastUsedProfileName = _appSettings.LastUsedProfile;
             WriteDebugLog($"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
 
             if (!string.IsNullOrWhiteSpace(lastUsedProfileName))

@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.Utils;
 
@@ -47,26 +48,26 @@ public partial class PomodoroControl : UserControl
 
     private void SubscribeEvents()
     {
-        _timerService.TimerStateChanged += TimerService_TimerStateChanged;
+        _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
         _timerService.PomodoroCompleted += TimerService_PomodoroCompleted;
-        _timerService.BreakStarted += TimerService_BreakStarted;
-        _timerService.BreakSkipped += TimerService_BreakSkipped;
+        _timerService.PomodoroBreakStarted += TimerService_PomodoroBreakStarted;
+        _timerService.PomodoroBreakSkipped += TimerService_PomodoroBreakSkipped;
         // 注意：不需要订阅 TimeUpdated，那是 Label 的事
     }
 
     // 清理资源：重写 OnHandleDestroyed 或 Dispose 来取消订阅
     protected override void OnHandleDestroyed(EventArgs e)
     {
-        _timerService.TimerStateChanged -= TimerService_TimerStateChanged;
+        _timerService.PomodoroTimerStateChanged -= TimerService_PomodoroTimerStateChanged;
         _timerService.PomodoroCompleted -= TimerService_PomodoroCompleted;
-        _timerService.BreakStarted -= TimerService_BreakStarted;
-        _timerService.BreakSkipped -= TimerService_BreakSkipped;
+        _timerService.PomodoroBreakStarted -= TimerService_PomodoroBreakStarted;
+        _timerService.PomodoroBreakSkipped -= TimerService_PomodoroBreakSkipped;
         base.OnHandleDestroyed(e);
     }
 
     #region 事件处理
 
-    private void TimerService_TimerStateChanged(object? sender, TimerStateChangedEventArgs e)
+    private void TimerService_PomodoroTimerStateChanged(object? sender, PomodoroTimerStateChangedEventArgs e)
     {
         // Service 可能在后台线程触发，必须 Invoke
         if (InvokeRequired)
@@ -77,7 +78,7 @@ public partial class PomodoroControl : UserControl
         UpdateUI();
     }
 
-    private void TimerService_BreakStarted(object? sender, BreakStartedEventArgs e)
+    private void TimerService_PomodoroBreakStarted(object? sender, PomodoroBreakStartedEventArgs e)
     {
         if (InvokeRequired)
         {
@@ -92,7 +93,7 @@ public partial class PomodoroControl : UserControl
         // 如果需要在番茄钟完成时播放音效或弹通知，写在这里
     }
 
-    private void TimerService_BreakSkipped(object? sender, EventArgs e)
+    private void TimerService_PomodoroBreakSkipped(object? sender, EventArgs e)
     {
         // 跳过休息的逻辑
     }
@@ -181,7 +182,7 @@ public partial class PomodoroControl : UserControl
         }
     }
 
-    private void ShowBreakForm(BreakType breakType)
+    private void ShowBreakForm(PomodoroBreakType breakType)
     {
         if (_breakForm != null && !_breakForm.IsDisposed)
         {
