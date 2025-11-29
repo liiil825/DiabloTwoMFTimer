@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
 
@@ -40,12 +41,9 @@ public interface ITimerHistoryService
     void UpdateHistory(List<TimeSpan> runHistory);
 }
 
-public class TimerHistoryService : ITimerHistoryService
+public class TimerHistoryService(ISceneService sceneService) : ITimerHistoryService
 {
-    public TimerHistoryService()
-    {
-        RunHistory = [];
-    }
+    private readonly ISceneService _sceneService = sceneService;
 
     // 使用更具体的事件参数
     public event EventHandler<HistoryChangedEventArgs>? HistoryDataChanged;
@@ -60,7 +58,7 @@ public class TimerHistoryService : ITimerHistoryService
     }
 
     // 历史记录数据
-    public List<TimeSpan> RunHistory { get; private set; }
+    public List<TimeSpan> RunHistory { get; private set; } = [];
 
     // 历史记录统计信息
     public int RunCount { get; private set; } = 0;
@@ -74,13 +72,13 @@ public class TimerHistoryService : ITimerHistoryService
     /// <param name="scene">场景名称</param>
     /// <param name="difficulty">游戏难度</param>
     /// <returns>符合条件的记录列表</returns>
-    private static List<MFRecord> GetSceneRecords(CharacterProfile? profile, string scene, GameDifficulty difficulty)
+    private List<MFRecord> GetSceneRecords(CharacterProfile? profile, string scene, GameDifficulty difficulty)
     {
         if (profile == null || string.IsNullOrEmpty(scene))
             return [];
 
-        // 使用SceneHelper获取英文场景名称进行匹配
-        string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(scene);
+        // 使用ISceneService获取英文场景名称进行匹配
+        string pureEnglishSceneName = _sceneService.GetEnglishSceneName(scene);
 
         // 过滤条件：匹配场景名称、已完成、指定难度
         return profile

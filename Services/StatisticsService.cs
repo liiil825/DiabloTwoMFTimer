@@ -8,10 +8,11 @@ using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.Services;
 
-public class StatisticsService(IProfileService profileService, IAppSettings appSettings) : IStatisticsService
+public class StatisticsService(IProfileService profileService, IAppSettings appSettings, ISceneService sceneService) : IStatisticsService
 {
     private readonly IProfileService _profileService = profileService;
     private readonly IAppSettings _appSettings = appSettings;
+    private readonly ISceneService _sceneService = sceneService;
     /// <summary>
     /// 获取指定时间段内的场景统计数据
     /// </summary>
@@ -144,7 +145,7 @@ public class StatisticsService(IProfileService profileService, IAppSettings appS
             foreach (var s in sceneStats)
             {
                 // 格式：崔凡客: 25次 | Avg: 45s | Best: 40s
-                string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(s.Name, _appSettings);
+                string localizedSceneName = _sceneService.GetLocalizedShortSceneName(s.Name);
                 sb.AppendLine(
                     $"{localizedSceneName}: {s.Count}{LanguageManager.GetString("Times")} | {LanguageManager.GetString("Avg")}: {s.Avg:F1}s | {LanguageManager.GetString("Fastest")}: {s.Fastest:F1}s"
                 );
@@ -170,7 +171,7 @@ public class StatisticsService(IProfileService profileService, IAppSettings appS
             foreach (var l in loots)
             {
                 // 格式：崔凡客(25): 28号符文
-                string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(l.SceneName, _appSettings);
+                string localizedSceneName = _sceneService.GetLocalizedShortSceneName(l.SceneName);
                 sb.AppendLine(
                     $"{localizedSceneName} ({LanguageManager.GetString("Round")} {l.RunCount}): {l.Name}"
                 );

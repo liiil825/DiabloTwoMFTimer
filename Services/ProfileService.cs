@@ -12,11 +12,14 @@ public class ProfileService : IProfileService
     private readonly IAppSettings _appSettings;
     private readonly IProfileRepository _repository; // 新增：数据仓库依赖
 
+    private readonly ISceneService _sceneService;
+
     // 构造函数注入 Repository
-    public ProfileService(IAppSettings appSettings, IProfileRepository repository)
+    public ProfileService(IAppSettings appSettings, IProfileRepository repository, ISceneService sceneService)
     {
         _appSettings = appSettings;
         _repository = repository;
+        _sceneService = sceneService;
 
         LoadFarmingScenes(); // 确保场景数据已加载
         LoadLastUsedProfile(); // 加载上次使用的角色
@@ -58,7 +61,7 @@ public class ProfileService : IProfileService
         set
         {
             // 确保保存时使用英文场景名称
-            string englishSceneName = SceneHelper.GetEnglishSceneName(value);
+            string englishSceneName = _sceneService.GetEnglishSceneName(value);
 
             if (_currentScene != englishSceneName)
             {
@@ -101,7 +104,7 @@ public class ProfileService : IProfileService
     /// </summary>
     public void LoadFarmingScenes()
     {
-        FarmingScenes = SceneHelper.LoadFarmingSpots();
+        FarmingScenes = _sceneService.FarmingScenes;
         // 加载上次使用的场景
         LoadLastRunScene();
     }
@@ -227,7 +230,7 @@ public class ProfileService : IProfileService
         if (CurrentProfile == null || string.IsNullOrEmpty(CurrentScene))
             return false;
 
-        string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(CurrentScene);
+        string pureEnglishSceneName = _sceneService.GetEnglishSceneName(CurrentScene);
 
         // 注意：这里我们假设 CurrentProfile 已经在内存中是最新的
         // 如果是多开程序，可能需要从 Repository 重新加载
@@ -251,7 +254,7 @@ public class ProfileService : IProfileService
     /// </summary>
     public List<string> GetSceneDisplayNames()
     {
-        return FarmingScenes.Select(scene => SceneHelper.GetSceneDisplayName(scene, _appSettings)).ToList();
+        return FarmingScenes.Select(scene => _sceneService.GetSceneDisplayName(scene)).ToList();
     }
 
     /// <summary>
@@ -260,7 +263,7 @@ public class ProfileService : IProfileService
     public FarmingScene? GetSceneByDisplayName(string displayName)
     {
         return FarmingScenes.FirstOrDefault(scene =>
-            SceneHelper.GetSceneDisplayName(scene, _appSettings) == displayName
+            _sceneService.GetSceneDisplayName(scene) == displayName
         );
     }
 
@@ -271,7 +274,7 @@ public class ProfileService : IProfileService
     {
         return Enum.GetValues(typeof(GameDifficulty))
             .Cast<GameDifficulty>()
-            .Select(d => SceneHelper.GetLocalizedDifficultyName(d))
+            .Select(d => _sceneService.GetLocalizedDifficultyName(d))
             .ToList();
     }
 

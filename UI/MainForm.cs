@@ -22,6 +22,7 @@ public partial class MainForm : Form
     private readonly IProfileService _profileService;
     private readonly ITimerHistoryService _timerHistoryService;
     private readonly IMessenger _messenger;
+    private readonly ISceneService _sceneService;
 
     // 子控件引用 (用于后续的方法调用)
     private readonly ProfileManager _profileManager;
@@ -35,6 +36,7 @@ public partial class MainForm : Form
         IAppSettings settings,
         IProfileService profileService,
         ITimerHistoryService timerHistoryService,
+        ISceneService sceneService,
         IMessenger messenger,
         ProfileManager profileManager,
         TimerControl timerControl,
@@ -46,6 +48,7 @@ public partial class MainForm : Form
         _appSettings = settings;
         _profileService = profileService;
         _timerHistoryService = timerHistoryService;
+        _sceneService = sceneService;
 
         _profileManager = profileManager;
         _timerControl = timerControl;
@@ -218,7 +221,7 @@ public partial class MainForm : Form
     {
         // 这里需要创建 RecordLootForm，它是一个瞬态窗口
         // 使用注入到 MainForm 的 Service 来创建它
-        using var lootForm = new UI.Timer.RecordLootForm(_profileService, _timerHistoryService);
+        using var lootForm = new UI.Timer.RecordLootForm(_profileService, _timerHistoryService, _sceneService);
 
         // 订阅保存成功事件，刷新 TimerControl 的显示
         lootForm.LootRecordSaved += (s, e) => _timerControl.RefreshUI();

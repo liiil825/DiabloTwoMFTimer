@@ -13,6 +13,7 @@ public class TimerService : ITimerService
     private readonly IProfileService _profileService;
     private readonly ITimerHistoryService _historyService;
     private readonly IAppSettings _settings;
+    private readonly ISceneService _sceneService;
 
     private readonly System.Timers.Timer _timer;
     private DateTime _startTime = DateTime.MinValue;
@@ -23,11 +24,12 @@ public class TimerService : ITimerService
     // 记录暂停前的状态，用于番茄钟休息后恢复
     private TimerStatus _previousStatusBeforePause = TimerStatus.Stopped;
 
-    public TimerService(IProfileService profileService, ITimerHistoryService historyService, IAppSettings settings)
+    public TimerService(IProfileService profileService, ITimerHistoryService historyService, IAppSettings settings, ISceneService sceneService)
     {
         _profileService = profileService;
         _historyService = historyService;
         _settings = settings;
+        _sceneService = sceneService;
 
         _timer = new System.Timers.Timer(100); // 100毫秒间隔
         _timer.Elapsed += OnTimerElapsed;
@@ -254,8 +256,8 @@ public class TimerService : ITimerService
 
         if (currentProfile == null || string.IsNullOrEmpty(currentScene)) return;
 
-        int actValue = SceneHelper.GetSceneActValue(currentScene);
-        string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(currentScene);
+        int actValue = _sceneService.GetSceneActValue(currentScene);
+        string pureEnglishSceneName = _sceneService.GetEnglishSceneName(currentScene);
         var difficulty = _profileService.CurrentDifficulty;
 
         if (string.IsNullOrEmpty(pureEnglishSceneName)) pureEnglishSceneName = "UnknownScene";
@@ -305,10 +307,10 @@ public class TimerService : ITimerService
 
         if (currentProfile == null || string.IsNullOrEmpty(currentScene)) return;
 
-        int actValue = SceneHelper.GetSceneActValue(currentScene);
+        int actValue = _sceneService.GetSceneActValue(currentScene);
         var difficulty = _profileService.CurrentDifficulty;
         double durationSeconds = GetElapsedTime().TotalSeconds;
-        string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(currentScene);
+        string pureEnglishSceneName = _sceneService.GetEnglishSceneName(currentScene);
 
         if (string.IsNullOrEmpty(pureEnglishSceneName)) pureEnglishSceneName = "UnknownScene";
 
@@ -371,7 +373,7 @@ public class TimerService : ITimerService
         if (_profileService.CurrentProfile == null || _profileService.CurrentScene == null)
             return null;
 
-        string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(_profileService.CurrentScene);
+        string pureEnglishSceneName = _sceneService.GetEnglishSceneName(_profileService.CurrentScene);
 
         return _profileService.CurrentProfile.Records
             .Where(r => r.SceneName == pureEnglishSceneName
@@ -427,7 +429,7 @@ public class TimerService : ITimerService
 
             if (string.IsNullOrEmpty(characterName) || string.IsNullOrEmpty(sceneName)) return;
 
-            string sceneShortName = SceneHelper.GetSceneShortName(sceneName, characterName);
+            string sceneShortName = _sceneService.GetSceneShortName(sceneName, characterName);
             if (string.IsNullOrEmpty(sceneShortName)) sceneShortName = "UnknownScene";
 
             string roomName = $"{characterName}{sceneShortName}{runCount}";

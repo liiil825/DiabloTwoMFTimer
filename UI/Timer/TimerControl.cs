@@ -18,9 +18,9 @@ public partial class TimerControl : UserControl
     private readonly IProfileService _profileService = null!;
     private readonly ITimerHistoryService _historyService = null!;
     private readonly IPomodoroTimerService _pomodoroTimerService = null!;
-    private readonly IMessenger _messenger = null!; // 新增字段
-
+    private readonly IMessenger _messenger = null!;
     private readonly IAppSettings _appSettings = null!;
+    private readonly ISceneService _sceneService = null!;
 
     public TimerControl()
     {
@@ -50,6 +50,7 @@ public partial class TimerControl : UserControl
         ITimerHistoryService historyService,
         IPomodoroTimerService pomodoroTimerService,
         IAppSettings appSettings,
+        ISceneService sceneService,
         IMessenger messenger // 新增参数
     )
         : this()
@@ -60,11 +61,12 @@ public partial class TimerControl : UserControl
         _pomodoroTimerService = pomodoroTimerService;
         _appSettings = appSettings;
         _messenger = messenger; // 赋值新增字段
+        _sceneService = sceneService;
 
         // 初始化子控件的服务引用
-        characterSceneControl?.Initialize(_profileService, _appSettings);
+        characterSceneControl?.Initialize(_profileService, _appSettings, _sceneService);
         historyControl?.Initialize(_historyService, _profileService);
-        lootRecordsControl?.Initialize(_profileService);
+        lootRecordsControl?.Initialize(_profileService, _sceneService);
 
         // 订阅服务事件
         SubscribeToServiceEvents();

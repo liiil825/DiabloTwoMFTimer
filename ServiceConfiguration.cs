@@ -17,6 +17,7 @@ public static class ServiceConfiguration
         // 注册 Repository (必须是 Singleton 以保持缓存状态)
         services.AddSingleton<IProfileRepository, Repositories.YamlProfileRepository>();
         services.AddSingleton<IMessenger, Messenger>();
+        services.AddSingleton<ISceneService, SceneService>();
 
         // 2. 注册核心业务服务 (单例)
         services.AddSingleton<IProfileService, ProfileService>();

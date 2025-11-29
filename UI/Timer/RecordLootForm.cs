@@ -13,6 +13,7 @@ public partial class RecordLootForm : BaseForm
 {
     private readonly IProfileService _profileService = null!;
     private readonly ITimerHistoryService _timerHistoryService = null!;
+    private readonly ISceneService _sceneService = null!;
 
     public event EventHandler? LootRecordSaved;
 
@@ -23,11 +24,12 @@ public partial class RecordLootForm : BaseForm
     }
 
     // 2. 依赖注入构造函数 (运行时专用)
-    public RecordLootForm(IProfileService profileService, ITimerHistoryService timerHistoryService)
+    public RecordLootForm(IProfileService profileService, ITimerHistoryService timerHistoryService, ISceneService sceneService)
         : this()
     {
         _profileService = profileService;
         _timerHistoryService = timerHistoryService;
+        _sceneService = sceneService;
     }
 
     protected override void OnLoad(EventArgs e)
@@ -82,7 +84,7 @@ public partial class RecordLootForm : BaseForm
         }
 
         string sceneName = _profileService.CurrentScene ?? "";
-        string englishSceneName = SceneHelper.GetEnglishSceneName(sceneName);
+        string englishSceneName = _sceneService.GetEnglishSceneName(sceneName);
 
         var lootRecord = new LootRecord
         {
@@ -110,6 +112,4 @@ public partial class RecordLootForm : BaseForm
     {
         LootRecordSaved?.Invoke(this, e);
     }
-
-
 }

@@ -14,6 +14,7 @@ public partial class LootRecordsControl : UserControl
 {
     private CharacterProfile? _currentProfile;
     private IProfileService _profileService = null!;
+    private ISceneService _sceneService = null!;
 
     private List<LootRecord> _displayRecords = [];
     private string _currentScene = string.Empty;
@@ -25,9 +26,10 @@ public partial class LootRecordsControl : UserControl
         InitializeComponent();
     }
 
-    public void Initialize(IProfileService profileService)
+    public void Initialize(IProfileService profileService, ISceneService sceneService)
     {
         _profileService = profileService;
+        _sceneService = sceneService;
     }
 
     private void GridLoot_CellValueNeeded(object? sender, DataGridViewCellValueEventArgs e)
@@ -55,7 +57,7 @@ public partial class LootRecordsControl : UserControl
             return;
         }
 
-        string pureEnglishCurrentScene = SceneHelper.GetEnglishSceneName(_currentScene);
+        string pureEnglishCurrentScene = _sceneService.GetEnglishSceneName(_currentScene);
 
         var query = string.IsNullOrEmpty(_currentScene)
             ? _currentProfile.LootRecords

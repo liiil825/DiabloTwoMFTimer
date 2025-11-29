@@ -11,6 +11,7 @@ public partial class CharacterSceneControl : UserControl
 {
     private IProfileService? _profileService;
     private IAppSettings _appSettings = null!;
+    private ISceneService _sceneService = null!;
     private bool _isInitialized = false; // 用于防止重复订阅
 
     public CharacterSceneControl()
@@ -18,7 +19,7 @@ public partial class CharacterSceneControl : UserControl
         InitializeComponent();
     }
 
-    public void Initialize(IProfileService profileService, IAppSettings appSettings)
+    public void Initialize(IProfileService profileService, IAppSettings appSettings, ISceneService sceneService)
     {
         if (_isInitialized || profileService == null)
             return;
@@ -26,6 +27,7 @@ public partial class CharacterSceneControl : UserControl
         // 赋值服务
         _profileService = profileService;
         _appSettings = appSettings;
+        _sceneService = sceneService;
 
         // 注册语言变更事件（LanguageManager 假设是静态的，设计器中可能也需要）
         Utils.LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
@@ -95,7 +97,7 @@ public partial class CharacterSceneControl : UserControl
         }
         else
         {
-            string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(currentScene, _appSettings);
+            string localizedSceneName = _sceneService.GetLocalizedShortSceneName(currentScene);
             string localizedDifficultyName = _profileService.CurrentDifficultyLocalized;
             this.lblSceneDisplay.Text = $"{localizedDifficultyName} {localizedSceneName}";
         }

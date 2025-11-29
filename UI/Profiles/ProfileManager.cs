@@ -16,6 +16,7 @@ public partial class ProfileManager : UserControl
     private readonly IMainService _mainService;
     private readonly IPomodoroTimerService _pomodoroTimerService;
     private readonly IStatisticsService _statisticsService;
+    private readonly ISceneService _sceneService;
 
     public ProfileManager(
         IProfileService profileService,
@@ -23,7 +24,8 @@ public partial class ProfileManager : UserControl
         ITimerService timerService,
         IPomodoroTimerService pomodoroTimerService,
         IMainService mainService,
-        IStatisticsService statisticsService
+        IStatisticsService statisticsService,
+        ISceneService sceneService
     )
     {
         _profileService = profileService;
@@ -32,6 +34,7 @@ public partial class ProfileManager : UserControl
         _mainService = mainService;
         _statisticsService = statisticsService;
         _pomodoroTimerService = pomodoroTimerService;
+        _sceneService = sceneService;
 
         InitializeComponent();
         // 注册语言变更事件
@@ -74,7 +77,7 @@ public partial class ProfileManager : UserControl
         {
             cmbDifficulty.Items.Clear();
             foreach (Models.GameDifficulty difficulty in Enum.GetValues(typeof(Models.GameDifficulty)))
-                cmbDifficulty.Items.Add(SceneHelper.GetLocalizedDifficultyName(difficulty));
+                cmbDifficulty.Items.Add(_sceneService.GetLocalizedDifficultyName(difficulty));
 
             if (cmbDifficulty.Items.Count > 0)
                 cmbDifficulty.SelectedIndex = 2; // 默认地狱难度
@@ -95,7 +98,7 @@ public partial class ProfileManager : UserControl
             currentSceneName = selectedScene.EnUS;
         }
 
-        farmingScenes = SceneHelper.LoadFarmingSpots();
+        farmingScenes = _sceneService.FarmingScenes;
 
         cmbScene?.Items.Clear();
 
@@ -114,7 +117,7 @@ public partial class ProfileManager : UserControl
             for (int i = 0; i < farmingScenes.Count; i++)
             {
                 var scene = farmingScenes[i];
-                string displayName = SceneHelper.GetSceneDisplayName(scene, _appSettings);
+                string displayName = _sceneService.GetSceneDisplayName(scene);
                 cmbScene?.Items.Add(displayName);
 
                 // 如果当前场景是之前选中的场景，保存索引
@@ -209,7 +212,7 @@ public partial class ProfileManager : UserControl
     {
         if (cmbDifficulty?.SelectedIndex >= 0)
         {
-            return SceneHelper.GetDifficultyByIndex(cmbDifficulty.SelectedIndex);
+            return _sceneService.GetDifficultyByIndex(cmbDifficulty.SelectedIndex);
         }
         return Models.GameDifficulty.Hell;
     }
@@ -264,10 +267,10 @@ public partial class ProfileManager : UserControl
                     WriteDebugLog($"选中难度: {difficulty}");
 
                     // 获取场景的纯英文名称（与记录存储格式一致）
-                    string sceneDisplayName = SceneHelper.GetSceneDisplayName(selectedScene, _appSettings);
+                    string sceneDisplayName = _sceneService.GetSceneDisplayName(selectedScene);
                     WriteDebugLog($"场景显示名称: {sceneDisplayName}");
 
-                    string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(sceneDisplayName);
+                    string pureEnglishSceneName = _sceneService.GetEnglishSceneName(sceneDisplayName);
                     WriteDebugLog($"获取纯英文场景名称: {pureEnglishSceneName}");
 
                     // 记录当前配置文件中的记录数量
@@ -502,7 +505,7 @@ public partial class ProfileManager : UserControl
             WriteDebugLog($"难度索引已变更为: {selectedIndex}，显示文本: {selectedDifficultyText}");
 
             // 使用SceneService中的GetDifficultyByIndex方法获取对应的GameDifficulty枚举值
-            Models.GameDifficulty difficulty = Utils.SceneHelper.GetDifficultyByIndex(selectedIndex);
+            Models.GameDifficulty difficulty = _sceneService.GetDifficultyByIndex(selectedIndex);
 
             _profileService.CurrentDifficulty = difficulty;
             // 更新UI - TimerControl会通过事件监听自动更新
