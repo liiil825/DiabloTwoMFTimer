@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Settings;
@@ -154,7 +155,7 @@ public partial class HotkeySettingsControl : UserControl
         return converter.ConvertToString(key) ?? "None";
     }
 
-    public void LoadHotkeys(Services.IAppSettings settings)
+    public void LoadHotkeys(IAppSettings settings)
     {
         StartOrNextRunHotkey = settings.HotkeyStartOrNext;
         PauseHotkey = settings.HotkeyPause;

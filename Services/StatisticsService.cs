@@ -2,42 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DiabloTwoMFTimer.Interfaces;
+using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.Services;
 
-// 统计结果模型：场景数据
-public class SceneStatDto
+public class StatisticsService(IProfileService profileService, IAppSettings appSettings) : IStatisticsService
 {
-    public string SceneName { get; set; } = string.Empty;
-    public int RunCount { get; set; }
-    public double AverageTimeSeconds { get; set; }
-    public double FastestTimeSeconds { get; set; }
-    public double TotalTimeSeconds { get; set; }
-}
-
-// 统计结果模型：掉落数据
-public class LootStatDto
-{
-    public string ItemName { get; set; } = string.Empty;
-    public string SceneName { get; set; } = string.Empty;
-    public int RunNumber { get; set; } // 第几轮
-    public DateTime DropTime { get; set; }
-}
-
-public class StatisticsService
-{
+    private readonly IProfileService _profileService = profileService;
+    private readonly IAppSettings _appSettings = appSettings;
     /// <summary>
     /// 获取指定时间段内的场景统计数据
     /// </summary>
     public List<SceneStatDto> GetSceneStatistics(
-        IProfileService profileService,
         DateTime startTime,
         DateTime endTime,
         bool sortByCount = true
     )
     {
-        var profile = profileService.CurrentProfile;
+        var profile = _profileService.CurrentProfile;
         if (profile == null || profile.Records == null)
             return [];
 
@@ -84,11 +68,11 @@ public class StatisticsService
     /// <summary>
     /// 获取指定时间段内的掉落记录
     /// </summary>
-    public List<LootStatDto> GetLootStatistics(IProfileService profileService, DateTime startTime, DateTime endTime)
+    public List<LootStatDto> GetLootStatistics(DateTime startTime, DateTime endTime)
     {
-        var profile = profileService.CurrentProfile;
+        var profile = _profileService.CurrentProfile;
         if (profile == null || profile.LootRecords == null)
-            return new List<LootStatDto>();
+            return [];
 
         return profile
             .LootRecords.Where(l => l.DropTime >= startTime && l.DropTime <= endTime)
@@ -106,9 +90,9 @@ public class StatisticsService
     /// <summary>
     /// 获取今日概览简单文本（用于BreakForm）
     /// </summary>
-    public string GetSimpleSummary(IProfileService profileService, DateTime start, DateTime end)
+    public string GetSimpleSummary(DateTime start, DateTime end)
     {
-        var profile = profileService.CurrentProfile;
+        var profile = _profileService.CurrentProfile;
         if (profile == null)
             return LanguageManager.GetString("NoData");
 
@@ -129,18 +113,16 @@ public class StatisticsService
     /// 获取详细的统计摘要（多行文本）
     /// </summary>
     public string GetDetailedSummary(
-        IProfileService profileService,
-        IAppSettings appSettings,
         DateTime start,
         DateTime end
     )
     {
-        if (profileService.CurrentProfile == null)
+        if (_profileService.CurrentProfile == null)
             return LanguageManager.GetString("NoData");
 
         var sb = new StringBuilder();
         // 1. 获取场景统计
-        var validRecords = profileService
+        var validRecords = _profileService
             .CurrentProfile.Records.Where(r => r.IsCompleted && r.StartTime >= start && r.StartTime <= end)
             .ToList();
 
@@ -162,7 +144,7 @@ public class StatisticsService
             foreach (var s in sceneStats)
             {
                 // 格式：崔凡客: 25次 | Avg: 45s | Best: 40s
-                string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(s.Name, appSettings);
+                string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(s.Name, _appSettings);
                 sb.AppendLine(
                     $"{localizedSceneName}: {s.Count}{LanguageManager.GetString("Times")} | {LanguageManager.GetString("Avg")}: {s.Avg:F1}s | {LanguageManager.GetString("Fastest")}: {s.Fastest:F1}s"
                 );
@@ -177,7 +159,7 @@ public class StatisticsService
         sb.AppendLine(); // 空一行
 
         // 2. 获取掉落统计
-        var loots = profileService
+        var loots = _profileService
             .CurrentProfile.LootRecords.Where(l => l.DropTime >= start && l.DropTime <= end)
             .OrderByDescending(l => l.DropTime) // 最近的在上面
             .ToList();
@@ -188,7 +170,7 @@ public class StatisticsService
             foreach (var l in loots)
             {
                 // 格式：崔凡客(25): 28号符文
-                string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(l.SceneName, appSettings);
+                string localizedSceneName = SceneHelper.GetLocalizedShortSceneName(l.SceneName, _appSettings);
                 sb.AppendLine(
                     $"{localizedSceneName} ({LanguageManager.GetString("Round")} {l.RunCount}): {l.Name}"
                 );

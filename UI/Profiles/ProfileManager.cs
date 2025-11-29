@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.Utils;
 
@@ -13,21 +13,24 @@ public partial class ProfileManager : UserControl
     private readonly ITimerService _timerService;
     private readonly IProfileService _profileService;
     private readonly IAppSettings _appSettings;
-    private readonly IMainServices _mainServices;
+    private readonly IMainService _mainService;
     private readonly IPomodoroTimerService _pomodoroTimerService;
+    private readonly IStatisticsService _statisticsService;
 
     public ProfileManager(
         IProfileService profileService,
         IAppSettings appSettings,
         ITimerService timerService,
         IPomodoroTimerService pomodoroTimerService,
-        IMainServices mainServices
+        IMainService mainService,
+        IStatisticsService statisticsService
     )
     {
         _profileService = profileService;
         _timerService = timerService;
         _appSettings = appSettings;
-        _mainServices = mainServices;
+        _mainService = mainService;
+        _statisticsService = statisticsService;
         _pomodoroTimerService = pomodoroTimerService;
 
         InitializeComponent();
@@ -420,7 +423,7 @@ public partial class ProfileManager : UserControl
 
                 // 更新LastUsedProfile设置
                 _appSettings.LastUsedProfile = selectedProfile.Name;
-                SettingsManager.SaveSettings(_appSettings);
+                _appSettings.Save();
                 WriteDebugLog($"更新LastUsedProfile为: {selectedProfile.Name}");
                 LoadLastRunSettings();
                 // 更新UI显示新角色信息
@@ -460,7 +463,7 @@ public partial class ProfileManager : UserControl
     private void BtnStartFarm_Click(object? sender, EventArgs e)
     {
         // 调用 Service 请求切换 Tab，Service 会触发事件，MainForm 再响应切换
-        _mainServices.SetActiveTabPage(Models.TabPage.Timer);
+        _mainService.SetActiveTabPage(Models.TabPage.Timer);
         _timerService.HandleStartFarm();
     }
 
@@ -472,6 +475,7 @@ public partial class ProfileManager : UserControl
             _pomodoroTimerService,
             _appSettings,
             _profileService,
+            _statisticsService,
             DiabloTwoMFTimer.UI.Pomodoro.BreakFormMode.StatisticsView // <--- 关键：指定为查看模式
         );
 

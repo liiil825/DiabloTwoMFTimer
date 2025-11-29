@@ -1,5 +1,6 @@
 using System;
 using System.Media;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
 

@@ -1,7 +1,7 @@
 using System;
 using DiabloTwoMFTimer.Models;
 
-namespace DiabloTwoMFTimer.Services;
+namespace DiabloTwoMFTimer.Interfaces;
 
 public interface ITimerService : IDisposable
 {

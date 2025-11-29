@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
 
@@ -40,7 +41,7 @@ public class ProfileService : IProfileService
                 if (value != null)
                 {
                     _appSettings.LastUsedProfile = value.Name;
-                    SettingsManager.SaveSettings(_appSettings);
+                    _appSettings.Save();
                 }
             }
         }
@@ -62,7 +63,7 @@ public class ProfileService : IProfileService
 
                 // 保存到设置
                 _appSettings.LastRunScene = englishSceneName;
-                SettingsManager.SaveSettings(_appSettings);
+                _appSettings.Save();
             }
         }
     }
@@ -80,7 +81,7 @@ public class ProfileService : IProfileService
 
                 // 保存到设置
                 _appSettings.LastUsedDifficulty = value.ToString();
-                SettingsManager.SaveSettings(_appSettings);
+                _appSettings.Save();
             }
         }
     }

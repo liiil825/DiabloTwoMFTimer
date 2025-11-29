@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
-using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Pomodoro;
@@ -13,6 +13,7 @@ public partial class PomodoroControl : UserControl
     private readonly IPomodoroTimerService _timerService = null!;
     private readonly IAppSettings _appSettings = null!;
     private readonly IProfileService _profileService = null!;
+    private readonly IStatisticsService _statsService = null!;
 
     private BreakForm? _breakForm;
 
@@ -26,13 +27,15 @@ public partial class PomodoroControl : UserControl
     public PomodoroControl(
         IPomodoroTimerService timerService,
         IAppSettings appSettings,
-        IProfileService profileService
+        IProfileService profileService,
+        IStatisticsService statsService
     )
         : this()
     {
         _timerService = timerService;
         _appSettings = appSettings;
         _profileService = profileService;
+        _statsService = statsService;
 
         // 加载设置并刷新一次静态UI
         LoadSettings();
@@ -193,6 +196,7 @@ public partial class PomodoroControl : UserControl
             _timerService,
             _appSettings,
             _profileService,
+            _statsService,
             BreakFormMode.PomodoroBreak,
             breakType
         );
@@ -223,7 +227,7 @@ public partial class PomodoroControl : UserControl
         _appSettings.ShortBreakSeconds = _timerService.Settings.ShortBreakSeconds;
         _appSettings.LongBreakMinutes = _timerService.Settings.LongBreakMinutes;
         _appSettings.LongBreakSeconds = _timerService.Settings.LongBreakSeconds;
-        SettingsManager.SaveSettings(_appSettings);
+        _appSettings.Save();
     }
 
     public void RefreshUI()

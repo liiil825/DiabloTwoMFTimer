@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Timers;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
 

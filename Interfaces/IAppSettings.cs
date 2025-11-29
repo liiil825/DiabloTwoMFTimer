@@ -1,6 +1,6 @@
 using System.Windows.Forms;
 
-namespace DiabloTwoMFTimer.Services;
+namespace DiabloTwoMFTimer.Interfaces;
 
 public interface IAppSettings
 {
@@ -35,4 +35,7 @@ public interface IAppSettings
     public Keys HotkeyPause { get; set; }
     public Keys HotkeyDeleteHistory { get; set; }
     public Keys HotkeyRecordLoot { get; set; }
+
+    // 方法
+    void Save();
 }

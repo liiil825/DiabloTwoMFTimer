@@ -7,156 +7,155 @@ using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.Utils;
 
-namespace DiabloTwoMFTimer.UI.Timer
+namespace DiabloTwoMFTimer.UI.Timer;
+
+public partial class HistoryControl : UserControl
 {
-    public partial class HistoryControl : UserControl
+    private ITimerHistoryService? _historyService;
+    private bool _isInitialized = false;
+
+    private CharacterProfile? _currentProfile = null;
+    private string? _currentScene = null;
+    private GameDifficulty _currentDifficulty = GameDifficulty.Hell;
+
+    // 【新功能】暴露交互事件
+    public event EventHandler? InteractionOccurred;
+
+    // 属性保持不变...
+    public int RunCount => _historyService?.RunCount ?? 0;
+    public TimeSpan FastestTime => _historyService?.FastestTime ?? TimeSpan.Zero;
+    public TimeSpan AverageTime => _historyService?.AverageTime ?? TimeSpan.Zero;
+    public List<TimeSpan> RunHistory => _historyService?.RunHistory ?? [];
+
+    public HistoryControl()
     {
-        private ITimerHistoryService? _historyService;
-        private bool _isInitialized = false;
+        InitializeComponent();
+    }
 
-        private CharacterProfile? _currentProfile = null;
-        private string? _currentScene = null;
-        private GameDifficulty _currentDifficulty = GameDifficulty.Hell;
+    // Initialize, GridRunHistory_CellValueNeeded 等方法保持不变 ...
+    public void Initialize(ITimerHistoryService historyService)
+    {
+        if (_isInitialized || historyService == null) return;
+        _historyService = historyService;
+        _isInitialized = true;
+        LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
+        _historyService.HistoryDataChanged += OnHistoryDataChanged;
+        UpdateColumnHeaderLanguage();
+    }
 
-        // 【新功能】暴露交互事件
-        public event EventHandler? InteractionOccurred;
-
-        // 属性保持不变...
-        public int RunCount => _historyService?.RunCount ?? 0;
-        public TimeSpan FastestTime => _historyService?.FastestTime ?? TimeSpan.Zero;
-        public TimeSpan AverageTime => _historyService?.AverageTime ?? TimeSpan.Zero;
-        public List<TimeSpan> RunHistory => _historyService?.RunHistory ?? new List<TimeSpan>();
-
-        public HistoryControl()
+    private void GridRunHistory_CellValueNeeded(object? sender, DataGridViewCellValueEventArgs e)
+    {
+        if (_historyService == null || _historyService.RunHistory == null) return;
+        if (e.RowIndex >= 0 && e.RowIndex < _historyService.RunHistory.Count)
         {
-            InitializeComponent();
+            if (e.ColumnIndex == 0) e.Value = (e.RowIndex + 1).ToString();
+            else if (e.ColumnIndex == 1) e.Value = FormatTime(_historyService.RunHistory[e.RowIndex]);
+        }
+    }
+
+    // ... LoadProfileHistoryData, RefreshGridRowCount, DeleteSelectedRecordAsync 保持不变 ...
+    public bool LoadProfileHistoryData(CharacterProfile? profile, string scene, string characterName, GameDifficulty difficulty)
+    {
+        if (_historyService == null) return false;
+        _currentProfile = profile;
+        _currentScene = scene;
+        _currentDifficulty = difficulty;
+        bool result = _historyService.LoadProfileHistoryData(profile, scene, characterName, difficulty);
+        if (result) RefreshGridRowCount();
+        return result;
+    }
+    private void RefreshGridRowCount()
+    {
+        if (gridRunHistory.InvokeRequired)
+        {
+            gridRunHistory.Invoke(new Action(RefreshGridRowCount));
+            return;
+        }
+        var count = _historyService?.RunHistory?.Count ?? 0;
+        gridRunHistory.RowCount = count;
+        gridRunHistory.Invalidate();
+    }
+
+    public void SelectLastRow()
+    {
+        if (gridRunHistory.InvokeRequired)
+        {
+            gridRunHistory.Invoke(new Action(SelectLastRow));
+            return;
         }
 
-        // Initialize, GridRunHistory_CellValueNeeded 等方法保持不变 ...
-        public void Initialize(ITimerHistoryService historyService)
+        // 同步行数防止异步问题
+        if (_historyService != null && gridRunHistory.RowCount != _historyService.RunHistory.Count)
         {
-            if (_isInitialized || historyService == null) return;
-            _historyService = historyService;
-            _isInitialized = true;
-            LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
-            _historyService.HistoryDataChanged += OnHistoryDataChanged;
-            UpdateColumnHeaderLanguage();
+            gridRunHistory.RowCount = _historyService.RunHistory.Count;
         }
 
-        private void GridRunHistory_CellValueNeeded(object? sender, DataGridViewCellValueEventArgs e)
+        if (gridRunHistory.RowCount > 0)
         {
-            if (_historyService == null || _historyService.RunHistory == null) return;
-            if (e.RowIndex >= 0 && e.RowIndex < _historyService.RunHistory.Count)
-            {
-                if (e.ColumnIndex == 0) e.Value = (e.RowIndex + 1).ToString();
-                else if (e.ColumnIndex == 1) e.Value = FormatTime(_historyService.RunHistory[e.RowIndex]);
-            }
+            int lastIndex = gridRunHistory.RowCount - 1;
+            // 1. 强制获得焦点 (这会触发 InteractionOccurred -> 清除 Loot 选中)
+            gridRunHistory.Focus();
+            // 2. 滚动
+            gridRunHistory.FirstDisplayedScrollingRowIndex = lastIndex;
+            // 3. 选中
+            gridRunHistory.CurrentCell = gridRunHistory.Rows[lastIndex].Cells[0];
+            gridRunHistory.Rows[lastIndex].Selected = true;
         }
+    }
 
-        // ... LoadProfileHistoryData, RefreshGridRowCount, DeleteSelectedRecordAsync 保持不变 ...
-        public bool LoadProfileHistoryData(CharacterProfile? profile, string scene, string characterName, GameDifficulty difficulty)
+    public void ClearSelection()
+    {
+        if (gridRunHistory.InvokeRequired)
         {
-            if (_historyService == null) return false;
-            _currentProfile = profile;
-            _currentScene = scene;
-            _currentDifficulty = difficulty;
-            bool result = _historyService.LoadProfileHistoryData(profile, scene, characterName, difficulty);
-            if (result) RefreshGridRowCount();
-            return result;
+            gridRunHistory.Invoke(new Action(ClearSelection));
+            return;
         }
-        private void RefreshGridRowCount()
+        gridRunHistory.ClearSelection();
+        gridRunHistory.CurrentCell = null;
+    }
+
+    // ... 其他辅助方法保持不变 ...
+
+    public async Task<bool> DeleteSelectedRecordAsync()
+    {
+        if (_historyService == null || gridRunHistory.SelectedRows.Count == 0 || _currentProfile == null)
+            return false;
+        int index = gridRunHistory.SelectedRows[0].Index;
+        bool success = _historyService.DeleteHistoryRecordByIndex(_currentProfile, _currentScene!, _currentDifficulty, index);
+        if (success)
         {
-            if (gridRunHistory.InvokeRequired)
-            {
-                gridRunHistory.Invoke(new Action(RefreshGridRowCount));
-                return;
-            }
-            var count = _historyService?.RunHistory?.Count ?? 0;
-            gridRunHistory.RowCount = count;
-            gridRunHistory.Invalidate();
+            Utils.DataHelper.SaveProfile(_currentProfile);
+            RefreshGridRowCount();
         }
+        return await Task.FromResult(success);
+    }
 
-        public void SelectLastRow()
+    // 响应 Service 数据变更
+    private void OnHistoryDataChanged(object? sender, HistoryChangedEventArgs e)
+    {
+        if (e == null) return;
+        switch (e.ChangeType)
         {
-            if (gridRunHistory.InvokeRequired)
-            {
-                gridRunHistory.Invoke(new Action(SelectLastRow));
-                return;
-            }
-
-            // 同步行数防止异步问题
-            if (_historyService != null && gridRunHistory.RowCount != _historyService.RunHistory.Count)
-            {
-                gridRunHistory.RowCount = _historyService.RunHistory.Count;
-            }
-
-            if (gridRunHistory.RowCount > 0)
-            {
-                int lastIndex = gridRunHistory.RowCount - 1;
-                // 1. 强制获得焦点 (这会触发 InteractionOccurred -> 清除 Loot 选中)
-                gridRunHistory.Focus();
-                // 2. 滚动
-                gridRunHistory.FirstDisplayedScrollingRowIndex = lastIndex;
-                // 3. 选中
-                gridRunHistory.CurrentCell = gridRunHistory.Rows[lastIndex].Cells[0];
-                gridRunHistory.Rows[lastIndex].Selected = true;
-            }
-        }
-
-        public void ClearSelection()
-        {
-            if (gridRunHistory.InvokeRequired)
-            {
-                gridRunHistory.Invoke(new Action(ClearSelection));
-                return;
-            }
-            gridRunHistory.ClearSelection();
-            gridRunHistory.CurrentCell = null;
-        }
-
-        // ... 其他辅助方法保持不变 ...
-
-        public async Task<bool> DeleteSelectedRecordAsync()
-        {
-            if (_historyService == null || gridRunHistory.SelectedRows.Count == 0 || _currentProfile == null)
-                return false;
-            int index = gridRunHistory.SelectedRows[0].Index;
-            bool success = _historyService.DeleteHistoryRecordByIndex(_currentProfile, _currentScene!, _currentDifficulty, index);
-            if (success)
-            {
-                Utils.DataHelper.SaveProfile(_currentProfile);
+            // 注意：这里我们不再在 Add 事件里处理 SelectLastRow，
+            // 因为我们希望由 TimerControl 统一调度（添加后，清除Loot选中，再选中History），
+            // 避免事件冲突。所以这里只负责更新行数。
+            case HistoryChangeType.Add:
+            case HistoryChangeType.FullRefresh:
+            default:
                 RefreshGridRowCount();
-            }
-            return await Task.FromResult(success);
+                break;
         }
+    }
 
-        // 响应 Service 数据变更
-        private void OnHistoryDataChanged(object? sender, HistoryChangedEventArgs e)
-        {
-            if (e == null) return;
-            switch (e.ChangeType)
-            {
-                // 注意：这里我们不再在 Add 事件里处理 SelectLastRow，
-                // 因为我们希望由 TimerControl 统一调度（添加后，清除Loot选中，再选中History），
-                // 避免事件冲突。所以这里只负责更新行数。
-                case HistoryChangeType.Add:
-                case HistoryChangeType.FullRefresh:
-                default:
-                    RefreshGridRowCount();
-                    break;
-            }
-        }
-
-        private string FormatTime(TimeSpan time) => string.Format("{0:00}:{1:00}:{2:00}.{3}", time.Hours, time.Minutes, time.Seconds, (int)(time.Milliseconds / 100));
-        private void UpdateColumnHeaderLanguage() { if (gridRunHistory.Columns.Count > 1) gridRunHistory.Columns[1].HeaderText = Utils.LanguageManager.GetString("Time", "Time"); }
-        private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e) { UpdateColumnHeaderLanguage(); gridRunHistory.Invalidate(); }
-        public void AddRunRecord(TimeSpan runTime) => _historyService?.AddRunRecord(runTime);
-        public void UpdateHistory(List<TimeSpan> runHistory) => _historyService?.UpdateHistory(runHistory);
-        public void RefreshUI() => RefreshGridRowCount();
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing) { LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged; if (_historyService != null) _historyService.HistoryDataChanged -= OnHistoryDataChanged; }
-            base.Dispose(disposing);
-        }
+    private string FormatTime(TimeSpan time) => string.Format("{0:00}:{1:00}:{2:00}.{3}", time.Hours, time.Minutes, time.Seconds, (int)(time.Milliseconds / 100));
+    private void UpdateColumnHeaderLanguage() { if (gridRunHistory.Columns.Count > 1) gridRunHistory.Columns[1].HeaderText = Utils.LanguageManager.GetString("Time", "Time"); }
+    private void LanguageManager_OnLanguageChanged(object? sender, EventArgs e) { UpdateColumnHeaderLanguage(); gridRunHistory.Invalidate(); }
+    public void AddRunRecord(TimeSpan runTime) => _historyService?.AddRunRecord(runTime);
+    public void UpdateHistory(List<TimeSpan> runHistory) => _historyService?.UpdateHistory(runHistory);
+    public void RefreshUI() => RefreshGridRowCount();
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) { LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged; if (_historyService != null) _historyService.HistoryDataChanged -= OnHistoryDataChanged; }
+        base.Dispose(disposing);
     }
 }

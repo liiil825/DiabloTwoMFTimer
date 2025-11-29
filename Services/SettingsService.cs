@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using DiabloTwoMFTimer.UI.Settings;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Utils;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -10,6 +10,21 @@ namespace DiabloTwoMFTimer.Services;
 
 public class AppSettings : IAppSettings
 {
+    private static readonly string ConfigFilePath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "DiabloTwoMFTimer",
+        "config.yaml"
+    );
+
+    private static readonly ISerializer serializer = new SerializerBuilder()
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .Build();
+
+    private static readonly IDeserializer deserializer = new DeserializerBuilder()
+        .WithNamingConvention(CamelCaseNamingConvention.Instance)
+        .IgnoreUnmatchedProperties()
+        .Build();
+
     // 窗口设置
     public string WindowPosition { get; set; } = "TopLeft";
     public bool AlwaysOnTop { get; set; } = true;
@@ -41,27 +56,30 @@ public class AppSettings : IAppSettings
     public Keys HotkeyPause { get; set; } = Keys.Space | Keys.Control;
     public Keys HotkeyDeleteHistory { get; set; } = Keys.D | Keys.Control;
     public Keys HotkeyRecordLoot { get; set; } = Keys.A | Keys.Alt;
-}
 
-public static class SettingsManager
-{
-    private static readonly string ConfigFilePath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "DiabloTwoMFTimer",
-        "config.yaml"
-    );
+    // 保存设置
+    public void Save()
+    {
+        try
+        {
+            // 确保目录存在 - 添加null检查以修复CS8604警告
+            string? directory = Path.GetDirectoryName(ConfigFilePath);
+            if (directory != null)
+            {
+                Directory.CreateDirectory(directory);
+            }
 
-    private static readonly ISerializer serializer = new SerializerBuilder()
-        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        .Build();
-
-    private static readonly IDeserializer deserializer = new DeserializerBuilder()
-        .WithNamingConvention(CamelCaseNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
+            var yaml = serializer.Serialize(this);
+            File.WriteAllText(ConfigFilePath, yaml);
+        }
+        catch (Exception ex)
+        {
+            LogManager.WriteErrorLog("AppSettings", $"保存设置失败", ex);
+        }
+    }
 
     // 加载设置
-    public static AppSettings LoadSettings()
+    public static IAppSettings Load()
     {
         try
         {
@@ -80,94 +98,44 @@ public static class SettingsManager
         }
         catch (Exception ex)
         {
-            LogManager.WriteErrorLog("SettingsManager", $"加载设置失败", ex);
+            LogManager.WriteErrorLog("AppSettings", $"加载设置失败", ex);
         }
 
         // 返回默认设置
-        LogManager.WriteDebugLog("SettingsManager", "返回默认设置");
+        LogManager.WriteDebugLog("AppSettings", "返回默认设置");
         return new AppSettings();
     }
 
-    // 保存设置
-    public static void SaveSettings(IAppSettings settings)
-    {
-        try
-        {
-            // 确保目录存在 - 添加null检查以修复CS8604警告
-            string? directory = Path.GetDirectoryName(ConfigFilePath);
-            if (directory != null)
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            // 将IAppSettings转换为AppSettings对象进行序列化
-            var appSettings =
-                settings as AppSettings
-                ?? new AppSettings
-                {
-                    WindowPosition = settings.WindowPosition,
-                    AlwaysOnTop = settings.AlwaysOnTop,
-                    Language = settings.Language,
-                    LastUsedProfile = settings.LastUsedProfile,
-                    LastRunScene = settings.LastRunScene,
-                    LastUsedDifficulty = settings.LastUsedDifficulty,
-                    WorkTimeMinutes = settings.WorkTimeMinutes,
-                    WorkTimeSeconds = settings.WorkTimeSeconds,
-                    ShortBreakMinutes = settings.ShortBreakMinutes,
-                    ShortBreakSeconds = settings.ShortBreakSeconds,
-                    LongBreakMinutes = settings.LongBreakMinutes,
-                    LongBreakSeconds = settings.LongBreakSeconds,
-                    TimerShowLootDrops = settings.TimerShowLootDrops,
-                    TimerShowPomodoro = settings.TimerShowPomodoro,
-                    TimerSyncStartPomodoro = settings.TimerSyncStartPomodoro,
-                    TimerSyncPausePomodoro = settings.TimerSyncPausePomodoro,
-                    PomodoroWarningLongTime = settings.PomodoroWarningLongTime,
-                    PomodoroWarningShortTime = settings.PomodoroWarningShortTime,
-                    GenerateRoomName = settings.GenerateRoomName,
-                    HotkeyStartOrNext = settings.HotkeyStartOrNext,
-                    HotkeyPause = settings.HotkeyPause,
-                    HotkeyDeleteHistory = settings.HotkeyDeleteHistory,
-                    HotkeyRecordLoot = settings.HotkeyRecordLoot,
-                };
-
-            var yaml = serializer.Serialize(appSettings);
-            File.WriteAllText(ConfigFilePath, yaml);
-        }
-        catch (Exception ex)
-        {
-            LogManager.WriteErrorLog("SettingsManager", $"保存设置失败", ex);
-        }
-    }
-
+    // UI相关转换方法
     // 将设置窗口的位置枚举转换为字符串
-    public static string WindowPositionToString(SettingsControl.WindowPosition position)
+    public static string WindowPositionToString(UI.Settings.SettingsControl.WindowPosition position)
     {
         return position.ToString();
     }
 
     // 将字符串转换为设置窗口的位置枚举
-    public static SettingsControl.WindowPosition StringToWindowPosition(string positionStr)
+    public static UI.Settings.SettingsControl.WindowPosition StringToWindowPosition(string positionStr)
     {
-        if (Enum.TryParse<SettingsControl.WindowPosition>(positionStr, out var position))
+        if (Enum.TryParse<UI.Settings.SettingsControl.WindowPosition>(positionStr, out var position))
         {
             return position;
         }
-        return SettingsControl.WindowPosition.TopLeft;
+        return UI.Settings.SettingsControl.WindowPosition.TopLeft;
     }
 
     // 将语言选项转换为字符串
-    public static string LanguageToString(SettingsControl.LanguageOption language)
+    public static string LanguageToString(UI.Settings.SettingsControl.LanguageOption language)
     {
         return language.ToString();
     }
 
     // 将字符串转换为语言选项
-    public static SettingsControl.LanguageOption StringToLanguage(string languageStr)
+    public static UI.Settings.SettingsControl.LanguageOption StringToLanguage(string languageStr)
     {
-        if (Enum.TryParse<SettingsControl.LanguageOption>(languageStr, out var language))
+        if (Enum.TryParse<UI.Settings.SettingsControl.LanguageOption>(languageStr, out var language))
         {
             return language;
         }
-        return SettingsControl.LanguageOption.Chinese;
+        return UI.Settings.SettingsControl.LanguageOption.Chinese;
     }
 }

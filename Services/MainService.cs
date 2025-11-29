@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms; // 仅保留用于 Keys, Message, Form (作为参数)
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.Services;
@@ -11,7 +12,7 @@ public class MainServices(
     ITimerHistoryService timerHistoryService,
     IPomodoroTimerService pomodoroTimerService,
     IAppSettings appSettings
-    ) : IMainServices, IDisposable
+    ) : IMainService, IDisposable
 {
     #region Services & Fields
     private readonly IProfileService _profileService = profileService;
@@ -142,7 +143,7 @@ public class MainServices(
 
             if (Screen.PrimaryScreen != null)
             {
-                var position = SettingsManager.StringToWindowPosition(_appSettings.WindowPosition);
+                var position = AppSettings.StringToWindowPosition(_appSettings.WindowPosition);
                 UI.Settings.SettingsControl.MoveWindowToPosition(form, position);
             }
         }

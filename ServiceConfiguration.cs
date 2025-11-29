@@ -2,6 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.UI;
+using DiabloTwoMFTimer.Interfaces;
 
 namespace DiabloTwoMFTimer;
 
@@ -12,16 +13,17 @@ public static class ServiceConfiguration
         var services = new ServiceCollection();
 
         // 1. 注册基础配置 (单例)
-        services.AddSingleton<IAppSettings>(_ => SettingsManager.LoadSettings());
+        services.AddSingleton<IAppSettings>(_ => AppSettings.Load());
 
         // 2. 注册核心业务服务 (单例)
         services.AddSingleton<IProfileService, ProfileService>();
         services.AddSingleton<ITimerHistoryService, TimerHistoryService>();
         services.AddSingleton<ITimerService, TimerService>();
+        services.AddSingleton<IStatisticsService, StatisticsService>();
         services.AddSingleton<IPomodoroTimerService, PomodoroTimerService>();
 
         // MainServices 现在是纯逻辑协调者
-        services.AddSingleton<IMainServices, MainServices>();
+        services.AddSingleton<IMainService, MainServices>();
 
         // 3. 注册 UI 组件 (瞬态)
         // MainForm 依赖以下控件，容器会自动注入它们

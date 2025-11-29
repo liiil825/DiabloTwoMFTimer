@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Services; // 假设存在
 using DiabloTwoMFTimer.Utils; // 假设存在
 
@@ -79,10 +80,10 @@ public partial class SettingsControl : UserControl
     {
         // 直接修改IAppSettings并保存
         // 更新窗口位置
-        _appSettings.WindowPosition = SettingsManager.WindowPositionToString(generalSettings.SelectedPosition);
+        _appSettings.WindowPosition = AppSettings.WindowPositionToString(generalSettings.SelectedPosition);
 
         // 更新语言
-        _appSettings.Language = SettingsManager.LanguageToString(generalSettings.SelectedLanguage);
+        _appSettings.Language = AppSettings.LanguageToString(generalSettings.SelectedLanguage);
 
         // 更新始终置顶设置
         _appSettings.AlwaysOnTop = generalSettings.IsAlwaysOnTop;
@@ -101,7 +102,7 @@ public partial class SettingsControl : UserControl
         _appSettings.GenerateRoomName = timerSettings.GenerateRoomName;
 
         // 保存设置
-        SettingsManager.SaveSettings(_appSettings);
+        _appSettings.Save();
 
         // 显示成功提示
         Utils.Toast.Success(Utils.LanguageManager.GetString("SuccessSettingsChanged", "设置修改成功"));

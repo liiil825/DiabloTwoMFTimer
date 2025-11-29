@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.UI.Pomodoro;
 using DiabloTwoMFTimer.UI.Profiles;
@@ -13,8 +14,8 @@ namespace DiabloTwoMFTimer.UI;
 public partial class MainForm : Form
 {
     // 服务引用
-    private readonly IMainServices _mainServices;
-    private readonly IAppSettings _settings;
+    private readonly IMainService _mainService;
+    private readonly IAppSettings _appSettings;
 
     // 为了创建 RecordLootForm，我们需要这两个服务 (或者你可以选择把弹窗逻辑封装进 TimerControl)
     private readonly IProfileService _profileService;
@@ -28,7 +29,7 @@ public partial class MainForm : Form
 
     // 构造函数：通过依赖注入获取所有需要的组件
     public MainForm(
-        IMainServices mainServices,
+        IMainService mainService,
         IAppSettings settings,
         IProfileService profileService,
         ITimerHistoryService timerHistoryService,
@@ -38,8 +39,8 @@ public partial class MainForm : Form
         SettingsControl settingsControl
     )
     {
-        _mainServices = mainServices;
-        _settings = settings;
+        _mainService = mainService;
+        _appSettings = settings;
         _profileService = profileService;
         _timerHistoryService = timerHistoryService;
 
@@ -71,10 +72,10 @@ public partial class MainForm : Form
     private void OnMainForm_Shown(object? sender, EventArgs e)
     {
         // 关键：将窗口句柄传给 Service 用于注册热键
-        _mainServices.InitializeApplication(this.Handle);
+        _mainService.InitializeApplication(this.Handle);
 
         // 应用窗口位置设置
-        _mainServices.ApplyWindowSettings(this);
+        _mainService.ApplyWindowSettings(this);
     }
 
     private void InitializeChildControls()
@@ -95,7 +96,7 @@ public partial class MainForm : Form
     private void InitializeForm()
     {
         var width = UISizeConstants.ClientWidth;
-        var height = _settings.TimerShowLootDrops
+        var height = _appSettings.TimerShowLootDrops
             ? UISizeConstants.ClientHeightWithLoot
             : UISizeConstants.ClientHeightWithoutLoot;
 
@@ -108,7 +109,7 @@ public partial class MainForm : Form
     private void SubscribeToEvents()
     {
         // 1. 响应 Tab 切换请求
-        _mainServices.OnRequestTabChange += (tabPage) =>
+        _mainService.OnRequestTabChange += (tabPage) =>
         {
             if (tabControl != null && (int)tabPage < tabControl.TabCount)
             {
@@ -117,13 +118,13 @@ public partial class MainForm : Form
         };
 
         // 2. 响应 UI 刷新请求 (例如切换语言后)
-        _mainServices.OnRequestRefreshUI += () =>
+        _mainService.OnRequestRefreshUI += () =>
         {
             SafeInvoke(UpdateFormTitleAndTabs);
         };
 
         // 3. 响应删除历史记录请求 (热键触发)
-        _mainServices.OnRequestDeleteHistory += () =>
+        _mainService.OnRequestDeleteHistory += () =>
         {
             SafeInvoke(() =>
             {
@@ -136,7 +137,7 @@ public partial class MainForm : Form
         };
 
         // 4. 响应记录战利品请求 (热键触发)
-        _mainServices.OnRequestRecordLoot += () =>
+        _mainService.OnRequestRecordLoot += () =>
         {
             SafeInvoke(ShowRecordLootDialog);
         };
@@ -151,8 +152,8 @@ public partial class MainForm : Form
         // 1. 监听快捷键变更事件
         _settingsControl.HotkeysChanged += (s, e) =>
         {
-            // 通知 MainServices 重新注册热键
-            _mainServices.ReloadHotkeys();
+            // 通知 MainService 重新注册热键
+            _mainService.ReloadHotkeys();
         };
 
         // 2. 监听计时器设置变更 (显示/隐藏番茄钟或掉落列表)
@@ -167,14 +168,14 @@ public partial class MainForm : Form
 
             // 2.3 【关键】修复“原来逻辑是切换到 Tag 页面”
             // 调用 Service 请求切换 Tab，Service 会触发事件，MainForm 再响应切换
-            _mainServices.SetActiveTabPage(Models.TabPage.Timer);
+            _mainService.SetActiveTabPage(Models.TabPage.Timer);
         };
 
         // 3. 监听窗口位置变更
         _settingsControl.WindowPositionChanged += (s, e) =>
         {
             // 立即应用新位置
-            _mainServices.ApplyWindowSettings(this);
+            _mainService.ApplyWindowSettings(this);
         };
 
         // 4. 监听语言变更
@@ -182,6 +183,15 @@ public partial class MainForm : Form
         {
             // 刷新整个 UI
             UpdateFormTitleAndTabs();
+            // 再调用LanguageManager.SwitchLanguage触发语言变更事件
+            if (e.Language == SettingsControl.LanguageOption.Chinese)
+            {
+                LanguageManager.SwitchLanguage(LanguageManager.Chinese);
+            }
+            else
+            {
+                LanguageManager.SwitchLanguage(LanguageManager.English);
+            }
         };
 
         // 5. 监听始终置顶变更
@@ -265,13 +275,13 @@ public partial class MainForm : Form
     protected override void WndProc(ref Message m)
     {
         base.WndProc(ref m);
-        // 将消息转发给 MainServices 处理
-        _mainServices.ProcessHotKeyMessage(m);
+        // 将消息转发给 MainService 处理
+        _mainService.ProcessHotKeyMessage(m);
     }
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        _mainServices.HandleApplicationClosing();
+        _mainService.HandleApplicationClosing();
         base.OnFormClosing(e);
     }
 }

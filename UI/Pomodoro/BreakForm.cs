@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
-using DiabloTwoMFTimer.Services;
 
 namespace DiabloTwoMFTimer.UI.Pomodoro;
 
@@ -28,7 +28,7 @@ public partial class BreakForm : Form
     private readonly PomodoroBreakType _breakType;
     private readonly IProfileService? _profileService;
     private readonly PomodoroTimeSettings _timeSettings;
-    private readonly StatisticsService _statsService;
+    private readonly IStatisticsService _statsService;
     private readonly BreakFormMode _mode; // 当前窗口模式
 
     private StatViewType _currentViewType; // 当前显示的统计类型
@@ -53,6 +53,7 @@ public partial class BreakForm : Form
         IPomodoroTimerService timerService,
         IAppSettings appSettings,
         IProfileService? profileService,
+        IStatisticsService statsService,
         BreakFormMode mode,
         PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
     )
@@ -61,9 +62,9 @@ public partial class BreakForm : Form
         _appSettings = appSettings;
         _profileService = profileService;
         _mode = mode;
+        _statsService = statsService;
         _breakType = breakType;
         _timeSettings = timerService.Settings;
-        _statsService = new StatisticsService();
 
         // 确定默认显示的视图
         _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
@@ -224,8 +225,6 @@ public partial class BreakForm : Form
                 }
                 title = ">>> 本轮战况 <<<";
                 content = _statsService.GetDetailedSummary(
-                    _profileService,
-                    _appSettings,
                     sessionStart,
                     DateTime.Now
                 );
@@ -234,8 +233,6 @@ public partial class BreakForm : Form
             case StatViewType.Today:
                 title = ">>> 今日战况 <<<";
                 content = _statsService.GetDetailedSummary(
-                    _profileService,
-                    _appSettings,
                     DateTime.Today,
                     DateTime.Now
                 );
@@ -244,8 +241,6 @@ public partial class BreakForm : Form
             case StatViewType.Week:
                 title = ">>> 本周战况 <<<";
                 content = _statsService.GetDetailedSummary(
-                    _profileService,
-                    _appSettings,
                     _statsService.GetStartOfWeek(),
                     DateTime.Now
                 );

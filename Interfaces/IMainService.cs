@@ -1,9 +1,9 @@
 using System;
 using System.Windows.Forms;
 
-namespace DiabloTwoMFTimer.Services;
+namespace DiabloTwoMFTimer.Interfaces;
 
-public interface IMainServices
+public interface IMainService
 {
     // 初始化应用逻辑，传入窗口句柄用于注册热键
     void InitializeApplication(IntPtr windowHandle);

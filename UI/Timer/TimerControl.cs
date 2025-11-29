@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.UI.Pomodoro;
 using DiabloTwoMFTimer.UI.Settings;
@@ -378,7 +379,7 @@ public partial class TimerControl : UserControl
         if (lootRecordsControl != null)
         {
             _appSettings.TimerShowLootDrops = lootRecordsControl.Visible;
-            Services.SettingsManager.SaveSettings(_appSettings);
+            _appSettings.Save();
         }
     }
     #endregion
@@ -483,7 +484,7 @@ public partial class TimerControl : UserControl
                 var windowPosition = SettingsControl.WindowPosition.BottomLeft; // 默认位置
                 if (!string.IsNullOrEmpty(_appSettings.WindowPosition))
                 {
-                    windowPosition = Services.SettingsManager.StringToWindowPosition(_appSettings.WindowPosition);
+                    windowPosition = AppSettings.StringToWindowPosition(_appSettings.WindowPosition);
                 }
 
                 if (
@@ -511,7 +512,7 @@ public partial class TimerControl : UserControl
             // 更新应用设置
 
             _appSettings.TimerShowLootDrops = isVisible;
-            Services.SettingsManager.SaveSettings(_appSettings);
+            _appSettings.Save();
         }
     }
 }
