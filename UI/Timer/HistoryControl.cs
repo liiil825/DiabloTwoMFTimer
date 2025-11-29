@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.Utils;
@@ -11,7 +12,9 @@ namespace DiabloTwoMFTimer.UI.Timer;
 
 public partial class HistoryControl : UserControl
 {
-    private ITimerHistoryService? _historyService;
+    private ITimerHistoryService? _historyService = null!;
+    private IProfileService _profileService = null!;
+
     private bool _isInitialized = false;
 
     private CharacterProfile? _currentProfile = null;
@@ -33,10 +36,11 @@ public partial class HistoryControl : UserControl
     }
 
     // Initialize, GridRunHistory_CellValueNeeded 等方法保持不变 ...
-    public void Initialize(ITimerHistoryService historyService)
+    public void Initialize(ITimerHistoryService historyService, IProfileService profileService)
     {
         if (_isInitialized || historyService == null) return;
         _historyService = historyService;
+        _profileService = profileService;
         _isInitialized = true;
         LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
         _historyService.HistoryDataChanged += OnHistoryDataChanged;
@@ -124,7 +128,7 @@ public partial class HistoryControl : UserControl
         bool success = _historyService.DeleteHistoryRecordByIndex(_currentProfile, _currentScene!, _currentDifficulty, index);
         if (success)
         {
-            Utils.DataHelper.SaveProfile(_currentProfile);
+            _profileService.SaveCurrentProfile();
             RefreshGridRowCount();
         }
         return await Task.FromResult(success);

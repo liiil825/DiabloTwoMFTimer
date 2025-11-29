@@ -11,10 +11,12 @@ public class MainServices(
     ITimerService timerService,
     ITimerHistoryService timerHistoryService,
     IPomodoroTimerService pomodoroTimerService,
+    IProfileRepository profileRepository,
     IAppSettings appSettings
     ) : IMainService, IDisposable
 {
     #region Services & Fields
+    private readonly IProfileRepository _profileRepository = profileRepository;
     private readonly IProfileService _profileService = profileService;
     private readonly ITimerService _timerService = timerService;
     private readonly ITimerHistoryService _timerHistoryService = timerHistoryService;
@@ -180,7 +182,7 @@ public class MainServices(
         // 这一步是纯数据逻辑，没问题
         if (!string.IsNullOrEmpty(_appSettings.LastUsedProfile))
         {
-            var profile = Utils.DataHelper.LoadProfileByName(_appSettings.LastUsedProfile);
+            var profile = _profileRepository.GetByName(_appSettings.LastUsedProfile);
             if (profile != null)
             {
                 // 设置当前 Profile，这将触发 ProfileService 的事件，

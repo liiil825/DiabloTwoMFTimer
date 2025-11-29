@@ -96,7 +96,7 @@ public partial class RecordLootForm : BaseForm
         if (currentProfile != null)
         {
             currentProfile.LootRecords.Add(lootRecord);
-            DataHelper.SaveProfile(currentProfile);
+            _profileService.SaveCurrentProfile();
         }
 
         Utils.Toast.Success(LanguageManager.GetString("LootRecordSavedSuccessfully") ?? "掉落记录保存成功");

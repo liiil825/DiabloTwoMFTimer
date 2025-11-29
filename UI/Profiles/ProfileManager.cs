@@ -190,7 +190,7 @@ public partial class ProfileManager : UserControl
         // 尝试加载上次使用的角色档案
         if (!string.IsNullOrEmpty(_appSettings.LastUsedProfile))
         {
-            var profile = Utils.DataHelper.FindProfileByName(_appSettings.LastUsedProfile);
+            var profile = _profileService.FindProfileByName(_appSettings.LastUsedProfile);
             if (profile != null)
             {
                 currentProfile = profile;
@@ -354,7 +354,7 @@ public partial class ProfileManager : UserControl
 
     private void BtnCreateCharacter_Click(object? sender, EventArgs e)
     {
-        using var form = new CreateCharacterForm();
+        using var form = new CreateCharacterForm(_profileService);
         if (form.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(form.CharacterName))
         {
             // 确保cmbScene不为null
@@ -397,7 +397,7 @@ public partial class ProfileManager : UserControl
 
     private void BtnSwitchCharacter_Click(object? sender, EventArgs e)
     {
-        using var form = new SwitchCharacterForm();
+        using var form = new SwitchCharacterForm(_profileService);
         if (form.ShowDialog() == DialogResult.OK && form.SelectedProfile != null)
         {
             WriteDebugLog("开始切换角色...");
@@ -528,7 +528,7 @@ public partial class ProfileManager : UserControl
             WriteDebugLog($"尝试加载上次使用的角色档案: {lastUsedProfileName}");
 
             // 直接加载单个角色配置文件，而不是加载所有文件
-            var profile = Utils.DataHelper.LoadProfileByName(lastUsedProfileName);
+            var profile = _profileService.FindProfileByName(lastUsedProfileName);
             if (profile != null)
             {
                 currentProfile = profile;

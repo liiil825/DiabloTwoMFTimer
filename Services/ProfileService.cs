@@ -10,12 +10,16 @@ namespace DiabloTwoMFTimer.Services;
 public class ProfileService : IProfileService
 {
     private readonly IAppSettings _appSettings;
+    private readonly IProfileRepository _repository; // 新增：数据仓库依赖
 
-    public ProfileService(IAppSettings appSettings)
+    // 构造函数注入 Repository
+    public ProfileService(IAppSettings appSettings, IProfileRepository repository)
     {
         _appSettings = appSettings;
-        LoadLastUsedProfile();
-        LoadLastRunScene();
+        _repository = repository;
+
+        LoadFarmingScenes(); // 确保场景数据已加载
+        LoadLastUsedProfile(); // 加载上次使用的角色
     }
 
     #region Events for UI Communication
@@ -50,7 +54,7 @@ public class ProfileService : IProfileService
     private string _currentScene = string.Empty;
     public string CurrentScene
     {
-        get => LanguageManager.GetString(_currentScene);
+        get => LanguageManager.GetString(_currentScene); // 注意：这里可能需要确认是否还要翻译，建议保持原逻辑
         set
         {
             // 确保保存时使用英文场景名称
@@ -110,15 +114,34 @@ public class ProfileService : IProfileService
         try
         {
             LogManager.WriteDebugLog("ProfileService", $"开始创建新角色: {characterName}, 职业: {characterClass}");
-            var profile = DataHelper.CreateNewProfile(characterName, characterClass);
-            if (profile == null)
-            {
-                LogManager.WriteDebugLog("ProfileService", "创建角色失败，返回的配置文件为null");
-                return null;
-            }
-            LogManager.WriteDebugLog("ProfileService", $"角色创建成功: {profile.Name}");
 
-            // 设置为当前角色
+            // 1. 验证输入
+            if (string.IsNullOrWhiteSpace(characterName))
+            {
+                throw new ArgumentException("角色名称不能为空");
+            }
+
+            // 2. 检查重名 (使用 Repository)
+            if (_repository.GetByName(characterName) != null)
+            {
+                throw new InvalidOperationException($"角色 '{characterName}' 已存在");
+            }
+
+            // 3. 创建对象
+            var profile = new CharacterProfile
+            {
+                Name = characterName,
+                Class = characterClass,
+                Records = [],
+                LootRecords = []
+            };
+
+            // 4. 保存 (使用 Repository)
+            _repository.Save(profile);
+
+            LogManager.WriteDebugLog("ProfileService", $"角色创建成功并已保存: {profile.Name}");
+
+            // 5. 设置为当前角色
             CurrentProfile = profile;
             ProfileListChangedEvent?.Invoke();
 
@@ -127,6 +150,7 @@ public class ProfileService : IProfileService
         catch (Exception ex)
         {
             LogManager.WriteErrorLog("ProfileService", $"创建角色失败", ex);
+            // 这里可以选择抛出异常让 UI 层捕获并弹窗
             return null;
         }
     }
@@ -138,7 +162,6 @@ public class ProfileService : IProfileService
     {
         LogManager.WriteDebugLog("ProfileService", $"开始切换角色到: {profile.Name}");
 
-        // 验证角色数据
         if (profile == null || string.IsNullOrWhiteSpace(profile.Name))
         {
             LogManager.WriteDebugLog("ProfileService", "无效的角色数据");
@@ -156,7 +179,10 @@ public class ProfileService : IProfileService
     public bool DeleteCharacter(CharacterProfile profile)
     {
         LogManager.WriteDebugLog("ProfileService", $"开始删除角色: {profile.Name}");
-        DataHelper.DeleteProfile(profile);
+
+        // 使用 Repository 删除
+        _repository.Delete(profile);
+
         // 如果删除的是当前角色，清空当前角色
         if (CurrentProfile?.Name == profile.Name)
         {
@@ -164,8 +190,6 @@ public class ProfileService : IProfileService
         }
 
         ProfileListChangedEvent?.Invoke();
-        // 触发重置定时器事件
-        // _timerService.ResetTimerRequested();
         LogManager.WriteDebugLog("ProfileService", $"成功删除角色: {profile.Name}");
 
         return true;
@@ -176,7 +200,7 @@ public class ProfileService : IProfileService
     /// </summary>
     public List<CharacterProfile> GetAllProfiles()
     {
-        return DataHelper.LoadAllProfiles();
+        return _repository.GetAll();
     }
 
     /// <summary>
@@ -184,7 +208,15 @@ public class ProfileService : IProfileService
     /// </summary>
     public CharacterProfile? FindProfileByName(string name)
     {
-        return DataHelper.FindProfileByName(name);
+        return _repository.GetByName(name);
+    }
+
+    /// <summary>
+    /// 获取所有角色档案名称
+    /// </summary>
+    public List<string> GetAllProfileNames()
+    {
+        return _repository.GetAllNames();
     }
 
     /// <summary>
@@ -195,15 +227,13 @@ public class ProfileService : IProfileService
         if (CurrentProfile == null || string.IsNullOrEmpty(CurrentScene))
             return false;
 
-        // 获取场景的纯英文名称（与记录存储格式一致）
         string pureEnglishSceneName = SceneHelper.GetEnglishSceneName(CurrentScene);
-        // 查找同场景、同难度、未完成的记录
-        bool hasIncompleteRecord = CurrentProfile.Records.Any(r =>
+
+        // 注意：这里我们假设 CurrentProfile 已经在内存中是最新的
+        // 如果是多开程序，可能需要从 Repository 重新加载
+        return CurrentProfile.Records.Any(r =>
             r.SceneName == pureEnglishSceneName && r.Difficulty == CurrentDifficulty && !r.IsCompleted
         );
-
-        LogManager.WriteDebugLog("ProfileService", $"是否存在未完成记录: {hasIncompleteRecord}");
-        return hasIncompleteRecord;
     }
 
     /// <summary>
@@ -239,12 +269,10 @@ public class ProfileService : IProfileService
     /// </summary>
     public List<string> GetLocalizedDifficultyNames()
     {
-        return
-        [
-            .. Enum.GetValues(typeof(GameDifficulty))
-                .Cast<GameDifficulty>()
-                .Select(d => SceneHelper.GetLocalizedDifficultyName(d)),
-        ];
+        return Enum.GetValues(typeof(GameDifficulty))
+            .Cast<GameDifficulty>()
+            .Select(d => SceneHelper.GetLocalizedDifficultyName(d))
+            .ToList();
     }
 
     /// <summary>
@@ -267,28 +295,90 @@ public class ProfileService : IProfileService
 
     #endregion
 
+    #region Record Management (新增区域)
+
+    /// <summary>
+    /// 添加一条新的 MF 记录并保存
+    /// </summary>
+    public void AddRecord(MFRecord record)
+    {
+        if (CurrentProfile == null) return;
+
+        // 1. 修改内存数据
+        CurrentProfile.Records.Add(record);
+
+        // 2. 持久化保存
+        _repository.Save(CurrentProfile);
+
+        // 3. 记录日志 (可选)
+        LogManager.WriteDebugLog("ProfileService", $"已添加新记录: 场景={record.SceneName}, 时间={record.StartTime}");
+    }
+
+    /// <summary>
+    /// 更新现有的 MF 记录并保存
+    /// </summary>
+    public void UpdateRecord(MFRecord record)
+    {
+        if (CurrentProfile == null) return;
+
+        // 逻辑来自原来的 DataHelper.UpdateMFRecord
+        // 查找内存中对应的记录（通常是同一个引用，但在某些情况下为了安全可以重新查找）
+        var existingRecord = CurrentProfile.Records.FirstOrDefault(r =>
+            r.StartTime == record.StartTime &&
+            r.SceneName == record.SceneName &&
+            r.Difficulty == record.Difficulty &&
+            r.IsCompleted == false
+        );
+
+        if (existingRecord != null)
+        {
+            // 更新属性
+            existingRecord.EndTime = record.EndTime;
+            existingRecord.LatestTime = record.LatestTime;
+            existingRecord.DurationSeconds = record.DurationSeconds;
+            // 如果有其他需要更新的字段也在这里赋值
+
+            // 保存更改
+            _repository.Save(CurrentProfile);
+
+            LogManager.WriteDebugLog("ProfileService", $"已更新记录: 场景={record.SceneName}, 持续时间={record.DurationSeconds}");
+        }
+        else
+        {
+            // 如果没找到，可能是逻辑错误，或者应该作为新记录添加？
+            // 保持原 DataHelper 逻辑：如果找不到就不保存，或者你可以选择在这里抛出警告
+            LogManager.WriteDebugLog("ProfileService", "尝试更新记录但未找到匹配项");
+        }
+    }
+
+    /// <summary>
+    /// 手动保存当前角色状态
+    /// </summary>
+    public void SaveCurrentProfile()
+    {
+        if (CurrentProfile != null)
+        {
+            _repository.Save(CurrentProfile);
+        }
+    }
+
+    #endregion
+
     #region Private Methods
     /// <summary>
     /// 加载上次使用的角色档案
     /// </summary>
     private void LoadLastUsedProfile()
     {
-        LogManager.WriteDebugLog("ProfileService", "LoadLastUsedProfile 开始执行");
         string lastUsedProfileName = _appSettings.LastUsedProfile;
-        LogManager.WriteDebugLog("ProfileService", $"从配置文件加载设置: LastUsedProfile={lastUsedProfileName}");
         if (!string.IsNullOrWhiteSpace(lastUsedProfileName))
         {
-            LogManager.WriteDebugLog("ProfileService", $"尝试加载上次使用的角色档案: {lastUsedProfileName}");
-            var profile = FindProfileByName(lastUsedProfileName);
+            // 使用 Repository 加载
+            var profile = _repository.GetByName(lastUsedProfileName);
             if (profile != null)
             {
                 CurrentProfile = profile;
-                LogManager.WriteDebugLog("ProfileService", $"成功加载上次使用的角色档案: {lastUsedProfileName}");
             }
-        }
-        else
-        {
-            LogManager.WriteDebugLog("ProfileService", "没有保存的上次使用角色档案");
         }
     }
 
@@ -297,22 +387,17 @@ public class ProfileService : IProfileService
     /// </summary>
     private void LoadLastRunScene()
     {
-        // 优先使用当前角色档案的LastRunScene字段
         if (CurrentProfile != null && !string.IsNullOrEmpty(CurrentProfile.LastRunScene))
         {
             CurrentScene = CurrentProfile.LastRunScene;
         }
-        // 如果角色档案没有保存场景，则回退到全局设置
         else if (!string.IsNullOrEmpty(_appSettings.LastRunScene))
         {
             CurrentScene = _appSettings.LastRunScene;
         }
 
-        // 加载上次使用的难度
-        if (
-            !string.IsNullOrEmpty(_appSettings.LastUsedDifficulty)
-            && Enum.TryParse<GameDifficulty>(_appSettings.LastUsedDifficulty, out var difficulty)
-        )
+        if (!string.IsNullOrEmpty(_appSettings.LastUsedDifficulty)
+            && Enum.TryParse<GameDifficulty>(_appSettings.LastUsedDifficulty, out var difficulty))
         {
             CurrentDifficulty = difficulty;
         }

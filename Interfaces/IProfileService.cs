@@ -20,6 +20,7 @@ public interface IProfileService
     void LoadFarmingScenes();
     CharacterProfile? CreateCharacter(string characterName, CharacterClass characterClass);
     bool SwitchCharacter(CharacterProfile profile);
+    List<string> GetAllProfileNames();
     bool DeleteCharacter(CharacterProfile profile);
     List<CharacterProfile> GetAllProfiles();
     CharacterProfile? FindProfileByName(string name);
@@ -30,4 +31,10 @@ public interface IProfileService
     List<string> GetLocalizedDifficultyNames();
     GameDifficulty GetDifficultyByIndex(int index);
     int GetDifficultyIndex(GameDifficulty difficulty);
+
+    void AddRecord(MFRecord record);
+
+    void UpdateRecord(MFRecord record);
+
+    void SaveCurrentProfile();
 }

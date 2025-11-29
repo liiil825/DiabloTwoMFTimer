@@ -59,7 +59,8 @@ public partial class TimerControl : UserControl
 
         // 初始化子控件的服务引用
         characterSceneControl?.Initialize(_profileService, _appSettings);
-        historyControl?.Initialize(_historyService);
+        historyControl?.Initialize(_historyService, _profileService);
+        lootRecordsControl?.Initialize(_profileService);
 
         // 订阅服务事件
         SubscribeToServiceEvents();

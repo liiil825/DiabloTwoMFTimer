@@ -18,6 +18,7 @@ public class TimerService : ITimerService
     {
         _profileService = profileService;
         _historyService = historyService;
+
         _settings = settings;
         _timer = new System.Timers.Timer(100); // 100毫秒间隔
         _timer.Elapsed += OnTimerElapsed;
@@ -351,11 +352,11 @@ public class TimerService : ITimerService
                 existingRecord.StartTime = _startTime;
                 existingRecord.LatestTime = _startTime; // 每次启动时，更新latestTime为当前时间
                 existingRecord.DurationSeconds = 0.0;
-                DataHelper.UpdateMFRecord(_profileService.CurrentProfile, existingRecord);
+                _profileService.UpdateRecord(existingRecord);
             }
             else
             {
-                DataHelper.AddMFRecord(_profileService.CurrentProfile, newRecord);
+                _profileService.AddRecord(newRecord);
             }
             _profileService.CurrentProfile.LastRunScene = pureEnglishSceneName;
             _profileService.CurrentProfile.LastRunDifficulty = difficulty;
@@ -424,7 +425,7 @@ public class TimerService : ITimerService
             existingRecord.LatestTime = DateTime.Now;
             existingRecord.DurationSeconds = durationSeconds;
 
-            DataHelper.UpdateMFRecord(_profileService.CurrentProfile, existingRecord);
+            _profileService.UpdateRecord(existingRecord);
             LogManager.WriteDebugLog(
                 "TimerService",
                 $"[更新现有记录] {currentCharacter} - {currentScene}, ACT: {actValue}, 难度: {difficulty}, 开始时间: {existingRecord.StartTime}, 结束时间: {DateTime.Now}, DurationSeconds: {existingRecord.DurationSeconds}"
@@ -432,7 +433,7 @@ public class TimerService : ITimerService
         }
         else
         {
-            DataHelper.AddMFRecord(_profileService.CurrentProfile, newRecord);
+            _profileService.AddRecord(newRecord);
             LogManager.WriteDebugLog(
                 "TimerService",
                 $"[添加新记录] {currentCharacter} - {currentScene}, ACT: {actValue}, 难度: {difficulty}, 开始时间: {_startTime}, 结束时间: {DateTime.Now}, DurationSeconds: {newRecord.DurationSeconds}"
@@ -463,7 +464,7 @@ public class TimerService : ITimerService
 
         if (_profileService.CurrentProfile != null)
         {
-            DataHelper.UpdateMFRecord(_profileService.CurrentProfile, record);
+            _profileService.UpdateRecord(record);
             LogManager.WriteDebugLog(
                 "TimerService",
                 $"更新未完成记录: 场景={_profileService.CurrentScene}, "
