@@ -15,97 +15,90 @@ public partial class GeneralSettingsControl : UserControl
 
     public void LoadSettings(IAppSettings settings)
     {
-        if (this.InvokeRequired)
-        {
-            this.Invoke(new Action<IAppSettings>(LoadSettings), settings);
-            return;
-        }
-
-        // 1. 设置“总在最前”
-        if (alwaysOnTopCheckBox != null)
-        {
-            alwaysOnTopCheckBox.Checked = settings.AlwaysOnTop;
-        }
-
-        // 2. 设置语言 (使用 SettingsManager 的转换逻辑)
-        if (groupBoxLanguage != null)
-        {
-            var langOption = AppSettings.StringToLanguage(settings.Language);
-            if (langOption == SettingsControl.LanguageOption.English)
+        this.SafeInvoke(() =>
             {
-                englishRadioButton!.Checked = true;
-            }
-            else
-            {
-                chineseRadioButton!.Checked = true;
-            }
-        }
+                // 1. 设置“总在最前”
+                if (alwaysOnTopCheckBox != null)
+                {
+                    alwaysOnTopCheckBox.Checked = settings.AlwaysOnTop;
+                }
 
-        // 3. 设置窗口位置 (使用 SettingsManager 的转换逻辑)
-        if (groupBoxPosition != null)
-        {
-            var position = AppSettings.StringToWindowPosition(settings.WindowPosition);
-            switch (position)
-            {
-                case SettingsControl.WindowPosition.TopLeft:
-                    radioTopLeft!.Checked = true;
-                    break;
-                case SettingsControl.WindowPosition.TopCenter:
-                    radioTopCenter!.Checked = true;
-                    break;
-                case SettingsControl.WindowPosition.TopRight:
-                    radioTopRight!.Checked = true;
-                    break;
-                case SettingsControl.WindowPosition.BottomLeft:
-                    radioBottomLeft!.Checked = true;
-                    break;
-                case SettingsControl.WindowPosition.BottomCenter:
-                    radioBottomCenter!.Checked = true;
-                    break;
-                case SettingsControl.WindowPosition.BottomRight:
-                    radioBottomRight!.Checked = true;
-                    break;
-                default:
-                    radioTopLeft!.Checked = true;
-                    break;
-            }
-        }
+                // 2. 设置语言 (使用 SettingsManager 的转换逻辑)
+                if (groupBoxLanguage != null)
+                {
+                    var langOption = AppSettings.StringToLanguage(settings.Language);
+                    if (langOption == SettingsControl.LanguageOption.English)
+                    {
+                        englishRadioButton!.Checked = true;
+                    }
+                    else
+                    {
+                        chineseRadioButton!.Checked = true;
+                    }
+                }
+
+                // 3. 设置窗口位置 (使用 SettingsManager 的转换逻辑)
+                if (groupBoxPosition != null)
+                {
+                    var position = AppSettings.StringToWindowPosition(settings.WindowPosition);
+                    switch (position)
+                    {
+                        case SettingsControl.WindowPosition.TopLeft:
+                            radioTopLeft!.Checked = true;
+                            break;
+                        case SettingsControl.WindowPosition.TopCenter:
+                            radioTopCenter!.Checked = true;
+                            break;
+                        case SettingsControl.WindowPosition.TopRight:
+                            radioTopRight!.Checked = true;
+                            break;
+                        case SettingsControl.WindowPosition.BottomLeft:
+                            radioBottomLeft!.Checked = true;
+                            break;
+                        case SettingsControl.WindowPosition.BottomCenter:
+                            radioBottomCenter!.Checked = true;
+                            break;
+                        case SettingsControl.WindowPosition.BottomRight:
+                            radioBottomRight!.Checked = true;
+                            break;
+                        default:
+                            radioTopLeft!.Checked = true;
+                            break;
+                    }
+                }
+            });
     }
 
     public void RefreshUI()
     {
-        // 运行时动态更新文本
-        if (this.InvokeRequired)
+        this.SafeInvoke(() =>
         {
-            this.Invoke(new Action(RefreshUI));
-            return;
-        }
+            // 再次检查以防万一
+            if (groupBoxPosition == null)
+                return;
 
-        // 再次检查以防万一
-        if (groupBoxPosition == null)
-            return;
+            try
+            {
+                // 这里的 try-catch 是为了防止 Design 模式下偶然调用 LanguageManager 报错
+                groupBoxPosition.Text = LanguageManager.GetString("WindowPosition");
+                radioTopLeft!.Text = LanguageManager.GetString("TopLeft");
+                radioTopCenter!.Text = LanguageManager.GetString("TopCenter");
+                radioTopRight!.Text = LanguageManager.GetString("TopRight");
+                radioBottomLeft!.Text = LanguageManager.GetString("BottomLeft");
+                radioBottomCenter!.Text = LanguageManager.GetString("BottomCenter");
+                radioBottomRight!.Text = LanguageManager.GetString("BottomRight");
 
-        try
-        {
-            // 这里的 try-catch 是为了防止 Design 模式下偶然调用 LanguageManager 报错
-            groupBoxPosition.Text = LanguageManager.GetString("WindowPosition");
-            radioTopLeft!.Text = LanguageManager.GetString("TopLeft");
-            radioTopCenter!.Text = LanguageManager.GetString("TopCenter");
-            radioTopRight!.Text = LanguageManager.GetString("TopRight");
-            radioBottomLeft!.Text = LanguageManager.GetString("BottomLeft");
-            radioBottomCenter!.Text = LanguageManager.GetString("BottomCenter");
-            radioBottomRight!.Text = LanguageManager.GetString("BottomRight");
+                groupBoxLanguage!.Text = LanguageManager.GetString("Language");
+                chineseRadioButton!.Text = LanguageManager.GetString("Chinese");
+                englishRadioButton!.Text = LanguageManager.GetString("English");
 
-            groupBoxLanguage!.Text = LanguageManager.GetString("Language");
-            chineseRadioButton!.Text = LanguageManager.GetString("Chinese");
-            englishRadioButton!.Text = LanguageManager.GetString("English");
-
-            alwaysOnTopLabel!.Text = LanguageManager.GetString("AlwaysOnTop");
-        }
-        catch
-        {
-            // 如果出错（比如资源找不到），保持 InitializeComponent 中的默认文本
-        }
+                alwaysOnTopLabel!.Text = LanguageManager.GetString("AlwaysOnTop");
+            }
+            catch
+            {
+                // 如果出错（比如资源找不到），保持 InitializeComponent 中的默认文本
+            }
+        });
     }
 
     // ... 属性部分保持不变 ...

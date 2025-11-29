@@ -80,22 +80,20 @@ public partial class TimerSettingsControl : UserControl
     // 刷新UI（支持国际化）
     public void RefreshUI()
     {
-        if (this.InvokeRequired)
+        this.SafeInvoke(() =>
         {
-            this.Invoke(new Action(RefreshUI));
-            return;
-        }
-        if (grpTimerSettings == null)
-            return;
-        try
-        {
-            grpTimerSettings.Text = LanguageManager.GetString("TimerSettingsGroup");
-            chkShowPomodoro.Text = LanguageManager.GetString("TimerShowPomodoro");
-            chkShowLootDrops.Text = LanguageManager.GetString("TimerShowLootDrops");
-            chkSyncStartPomodoro.Text = LanguageManager.GetString("TimerSyncStartPomodoro");
-            chkSyncPausePomodoro.Text = LanguageManager.GetString("TimerSyncPausePomodoro");
-            chkGenerateRoomName.Text = LanguageManager.GetString("TimerGenerateRoomName");
-        }
-        catch { }
+            if (grpTimerSettings == null)
+                return;
+            try
+            {
+                grpTimerSettings.Text = LanguageManager.GetString("TimerSettingsGroup");
+                chkShowPomodoro.Text = LanguageManager.GetString("TimerShowPomodoro");
+                chkShowLootDrops.Text = LanguageManager.GetString("TimerShowLootDrops");
+                chkSyncStartPomodoro.Text = LanguageManager.GetString("TimerSyncStartPomodoro");
+                chkSyncPausePomodoro.Text = LanguageManager.GetString("TimerSyncPausePomodoro");
+                chkGenerateRoomName.Text = LanguageManager.GetString("TimerGenerateRoomName");
+            }
+            catch { }
+        });
     }
 }

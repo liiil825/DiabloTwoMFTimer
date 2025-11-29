@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
+using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Pomodoro;
 
@@ -362,15 +363,13 @@ public partial class BreakForm : Form
     // ... Timer 事件处理保持不变 ...
     private void TimerService_TimeUpdated(object? sender, EventArgs e)
     {
-        if (InvokeRequired)
+        this.SafeInvoke(() =>
         {
-            Invoke(new Action<object?, EventArgs>(TimerService_TimeUpdated), sender, e);
-            return;
-        }
-        var t = _timerService.TimeLeft;
-        if (lblTimer != null)
-            lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
-        CheckBreakTimeEnded();
+            var t = _timerService.TimeLeft;
+            if (lblTimer != null)
+                lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
+            CheckBreakTimeEnded();
+        });
     }
 
     private void AutoCloseForm()
@@ -378,10 +377,10 @@ public partial class BreakForm : Form
         if (!_isAutoClosed && !this.IsDisposed)
         {
             _isAutoClosed = true;
-            if (this.InvokeRequired)
-                this.Invoke(new Action(() => this.Close()));
-            else
+            this.SafeInvoke(() =>
+            {
                 this.Close();
+            });
         }
     }
 

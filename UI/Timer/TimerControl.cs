@@ -177,36 +177,30 @@ public partial class TimerControl : UserControl
         _profileService.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
     }
 
+
     private void OnTimeUpdated(string timeString)
     {
-        if (_timerService == null)
-            return;
-
-        if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired)
-        {
-            lblTimeDisplay.Invoke(new Action<string>(OnTimeUpdated), timeString);
-        }
-        else if (lblTimeDisplay != null)
+        // 直接针对具体的 label 调用 SafeInvoke
+        lblTimeDisplay?.SafeInvoke(() =>
         {
             lblTimeDisplay.Text = timeString;
-        }
+        });
     }
 
     private void OnTimerRunningStateChanged(bool isRunning)
     {
-        if (btnStatusIndicator != null && btnStatusIndicator.InvokeRequired)
-        {
-            btnStatusIndicator.Invoke(new Action<bool>(OnTimerRunningStateChanged), isRunning);
-        }
-        else if (btnStatusIndicator != null)
+        // 针对指示灯
+        btnStatusIndicator?.SafeInvoke(() =>
         {
             btnStatusIndicator.BackColor = isRunning ? Color.Green : Color.Red;
-        }
+        });
 
-        // 番茄时钟同步启动逻辑现在在PomodoroTimerService中处理
-
-        TimerStateChanged?.Invoke(this, EventArgs.Empty);
-        UpdateStatistics();
+        // 针对整个控件的其他更新 (TimerStateChanged 事件和 UpdateStatistics)
+        this.SafeInvoke(() =>
+        {
+            TimerStateChanged?.Invoke(this, EventArgs.Empty);
+            UpdateStatistics();
+        });
     }
 
     private void OnTimerPauseStateChanged(bool isPaused)
@@ -270,20 +264,12 @@ public partial class TimerControl : UserControl
     // 【修改 4】 核心逻辑：添加记录完成后，强制焦点回到历史列表
     private void OnRunCompleted(TimeSpan runTime)
     {
-        // 1. 数据层添加（这会触发 HistoryControl 的 Grid 刷新，但现在 Grid 刷新不会清除选中了）
+        // 1. 数据层添加
         historyControl?.AddRunRecord(runTime);
         UpdateStatistics();
 
-        // 2. 强制焦点控制
-        // 使用 Invoke 确保在 UI 刷新完成后执行
-        if (this.InvokeRequired)
-        {
-            this.Invoke(new Action(SetFocusToNewHistoryRecord));
-        }
-        else
-        {
-            SetFocusToNewHistoryRecord();
-        }
+        // 2. 强制焦点控制 (直接用 this.SafeInvoke)
+        this.SafeInvoke(SetFocusToNewHistoryRecord);
     }
 
     private void SetFocusToNewHistoryRecord()
@@ -338,15 +324,12 @@ public partial class TimerControl : UserControl
 
     private void OnTimerReset()
     {
-        if (lblTimeDisplay != null && lblTimeDisplay.InvokeRequired)
+        this.SafeInvoke(() =>
         {
-            lblTimeDisplay.Invoke(new Action(OnTimerReset));
-        }
-        else if (lblTimeDisplay != null)
-        {
-            lblTimeDisplay.Text = "00:00:00.0";
-        }
-        UpdateStatistics();
+            if (lblTimeDisplay != null)
+                lblTimeDisplay.Text = "00:00:00.0";
+            UpdateStatistics();
+        });
     }
     #endregion
 
@@ -419,14 +402,7 @@ public partial class TimerControl : UserControl
 
     public void RefreshUI()
     {
-        if (this.InvokeRequired)
-        {
-            this.Invoke(new Action(UpdateUI));
-        }
-        else
-        {
-            UpdateUI();
-        }
+        this.SafeInvoke(UpdateUI);
     }
 
     private void UpdateStatistics()

@@ -51,22 +51,18 @@ public partial class SettingsControl : UserControl
 
     public void RefreshUI()
     {
-        if (this.InvokeRequired)
+        this.SafeInvoke(() =>
         {
-            this.Invoke(new Action(RefreshUI));
-            return;
-        }
+            btnConfirmSettings.Text = LanguageManager.GetString("ConfirmSettings");
+            tabPageGeneral.Text = LanguageManager.GetString("General");
+            tabPageHotkeys.Text = LanguageManager.GetString("Hotkeys");
+            tabPageTimer.Text = LanguageManager.GetString("TimerSettings");
 
-        // 刷新自身（按钮等）
-        btnConfirmSettings.Text = LanguageManager.GetString("ConfirmSettings");
-        tabPageGeneral.Text = LanguageManager.GetString("General");
-        tabPageHotkeys.Text = LanguageManager.GetString("Hotkeys");
-        tabPageTimer.Text = LanguageManager.GetString("TimerSettings");
-
-        // 刷新子组件
-        generalSettings.RefreshUI();
-        hotkeySettings.RefreshUI();
-        timerSettings.RefreshUI();
+            // 刷新子组件
+            generalSettings.RefreshUI();
+            hotkeySettings.RefreshUI();
+            timerSettings.RefreshUI();
+        });
     }
 
     public void InitializeData(IAppSettings settings)

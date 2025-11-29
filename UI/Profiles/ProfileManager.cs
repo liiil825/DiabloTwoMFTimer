@@ -231,14 +231,10 @@ public partial class ProfileManager : UserControl
     /// </summary>
     public void RefreshUI()
     {
-        if (this.InvokeRequired)
-        {
-            this.Invoke(new Action(UpdateUI));
-        }
-        else
+        this.SafeInvoke(() =>
         {
             UpdateUI();
-        }
+        });
     }
 
     private void UpdateUI()

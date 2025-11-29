@@ -113,20 +113,20 @@ public partial class MainForm : Form
         {
             if (tabControl != null && (int)tabPage < tabControl.TabCount)
             {
-                SafeInvoke(() => tabControl.SelectedIndex = (int)tabPage);
+                this.SafeInvoke(() => tabControl.SelectedIndex = (int)tabPage);
             }
         };
 
         // 2. 响应 UI 刷新请求 (例如切换语言后)
         _mainService.OnRequestRefreshUI += () =>
         {
-            SafeInvoke(UpdateFormTitleAndTabs);
+            this.SafeInvoke(UpdateFormTitleAndTabs);
         };
 
         // 3. 响应删除历史记录请求 (热键触发)
         _mainService.OnRequestDeleteHistory += () =>
         {
-            SafeInvoke(() =>
+            this.SafeInvoke(() =>
             {
                 // 只有当前在 Timer 页时才响应删除
                 if (tabControl.SelectedIndex == (int)Models.TabPage.Timer)
@@ -139,7 +139,7 @@ public partial class MainForm : Form
         // 4. 响应记录战利品请求 (热键触发)
         _mainService.OnRequestRecordLoot += () =>
         {
-            SafeInvoke(ShowRecordLootDialog);
+            this.SafeInvoke(ShowRecordLootDialog);
         };
     }
 
@@ -199,21 +199,6 @@ public partial class MainForm : Form
         {
             this.TopMost = e.IsAlwaysOnTop;
         };
-    }
-
-    // 线程安全的 UI 调用辅助方法
-    private void SafeInvoke(Action action)
-    {
-        if (this.IsDisposed || !this.IsHandleCreated) return;
-
-        if (this.InvokeRequired)
-        {
-            this.Invoke(action);
-        }
-        else
-        {
-            action();
-        }
     }
 
     /// <summary>

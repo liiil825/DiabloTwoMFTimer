@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
+using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Pomodoro;
 
@@ -58,29 +59,16 @@ public class PomodoroTimeDisplayLabel : Label
 
     private void OnTimeUpdated(object? sender, EventArgs e)
     {
-        if (IsDisposed || !IsHandleCreated)
-            return;
-
-        if (InvokeRequired)
-        {
-            BeginInvoke(new Action<object?, EventArgs>(OnTimeUpdated), sender, e);
-            return;
-        }
-        UpdateDisplay();
+        this.SafeInvoke(UpdateDisplay);
     }
 
     private void OnPomodoroTimerStateChanged(object? sender, PomodoroTimerStateChangedEventArgs e)
     {
-        if (IsDisposed || !IsHandleCreated)
-            return;
-
-        if (InvokeRequired)
+        this.SafeInvoke(() =>
         {
-            BeginInvoke(new Action<object?, PomodoroTimerStateChangedEventArgs>(OnPomodoroTimerStateChanged), sender, e);
-            return;
-        }
-        UpdateDisplay();
-        UpdateColor();
+            UpdateDisplay();
+            UpdateColor();
+        });
     }
 
     private void UpdateDisplay()

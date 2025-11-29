@@ -68,54 +68,45 @@ public partial class HistoryControl : UserControl
         if (result) RefreshGridRowCount();
         return result;
     }
+
     private void RefreshGridRowCount()
     {
-        if (gridRunHistory.InvokeRequired)
+        gridRunHistory.SafeInvoke(() =>
         {
-            gridRunHistory.Invoke(new Action(RefreshGridRowCount));
-            return;
-        }
-        var count = _historyService?.RunHistory?.Count ?? 0;
-        gridRunHistory.RowCount = count;
-        gridRunHistory.Invalidate();
+            var count = _historyService?.RunHistory?.Count ?? 0;
+            gridRunHistory.RowCount = count;
+            gridRunHistory.Invalidate();
+        });
     }
 
     public void SelectLastRow()
     {
-        if (gridRunHistory.InvokeRequired)
+        gridRunHistory.SafeInvoke(() =>
         {
-            gridRunHistory.Invoke(new Action(SelectLastRow));
-            return;
-        }
+            // 同步行数防止异步问题
+            if (_historyService != null && gridRunHistory.RowCount != _historyService.RunHistory.Count)
+            {
+                gridRunHistory.RowCount = _historyService.RunHistory.Count;
+            }
 
-        // 同步行数防止异步问题
-        if (_historyService != null && gridRunHistory.RowCount != _historyService.RunHistory.Count)
-        {
-            gridRunHistory.RowCount = _historyService.RunHistory.Count;
-        }
-
-        if (gridRunHistory.RowCount > 0)
-        {
-            int lastIndex = gridRunHistory.RowCount - 1;
-            // 1. 强制获得焦点 (这会触发 InteractionOccurred -> 清除 Loot 选中)
-            gridRunHistory.Focus();
-            // 2. 滚动
-            gridRunHistory.FirstDisplayedScrollingRowIndex = lastIndex;
-            // 3. 选中
-            gridRunHistory.CurrentCell = gridRunHistory.Rows[lastIndex].Cells[0];
-            gridRunHistory.Rows[lastIndex].Selected = true;
-        }
+            if (gridRunHistory.RowCount > 0)
+            {
+                int lastIndex = gridRunHistory.RowCount - 1;
+                gridRunHistory.Focus();
+                gridRunHistory.FirstDisplayedScrollingRowIndex = lastIndex;
+                gridRunHistory.CurrentCell = gridRunHistory.Rows[lastIndex].Cells[0];
+                gridRunHistory.Rows[lastIndex].Selected = true;
+            }
+        });
     }
 
     public void ClearSelection()
     {
-        if (gridRunHistory.InvokeRequired)
+        gridRunHistory.SafeInvoke(() =>
         {
-            gridRunHistory.Invoke(new Action(ClearSelection));
-            return;
-        }
-        gridRunHistory.ClearSelection();
-        gridRunHistory.CurrentCell = null;
+            gridRunHistory.ClearSelection();
+            gridRunHistory.CurrentCell = null;
+        });
     }
 
     // ... 其他辅助方法保持不变 ...

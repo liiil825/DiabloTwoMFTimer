@@ -72,23 +72,11 @@ public partial class PomodoroControl : UserControl
 
     private void TimerService_PomodoroTimerStateChanged(object? sender, PomodoroTimerStateChangedEventArgs e)
     {
-        // Service 可能在后台线程触发，必须 Invoke
-        if (InvokeRequired)
-        {
-            BeginInvoke(new Action(UpdateUI));
-            return;
-        }
-        UpdateUI();
+        this.SafeInvoke(UpdateUI);
     }
-
     private void TimerService_PomodoroBreakStarted(object? sender, PomodoroBreakStartedEventArgs e)
     {
-        if (InvokeRequired)
-        {
-            BeginInvoke(new Action(() => ShowBreakForm(e.BreakType)));
-            return;
-        }
-        ShowBreakForm(e.BreakType);
+        this.SafeInvoke(() => ShowBreakForm(e.BreakType));
     }
 
     private void TimerService_PomodoroCompleted(object? sender, PomodoroCompletedEventArgs e)

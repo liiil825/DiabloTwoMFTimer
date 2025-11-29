@@ -170,31 +170,29 @@ public partial class HotkeySettingsControl : UserControl
 
     public void RefreshUI()
     {
-        if (this.InvokeRequired)
+        this.SafeInvoke(() =>
         {
-            this.Invoke(new Action(RefreshUI));
-            return;
-        }
-        if (grpHotkeys == null)
-            return;
-        try
-        {
-            grpHotkeys.Text = LanguageManager.GetString("HotkeySettingsGroup");
-            lblStartNext.Text = LanguageManager.GetString("HotkeyStartNext");
-            lblPause.Text = LanguageManager.GetString("HotkeyPause");
-            lblDeleteHistory.Text = LanguageManager.GetString("HotkeyDeleteHistory");
-            lblRecordLoot.Text = LanguageManager.GetString("HotkeyRecordLoot");
+            if (grpHotkeys == null)
+                return;
+            try
+            {
+                grpHotkeys.Text = LanguageManager.GetString("HotkeySettingsGroup");
+                lblStartNext.Text = LanguageManager.GetString("HotkeyStartNext");
+                lblPause.Text = LanguageManager.GetString("HotkeyPause");
+                lblDeleteHistory.Text = LanguageManager.GetString("HotkeyDeleteHistory");
+                lblRecordLoot.Text = LanguageManager.GetString("HotkeyRecordLoot");
 
-            LoadHotkeys(
-                new Services.AppSettings
-                {
-                    HotkeyStartOrNext = StartOrNextRunHotkey,
-                    HotkeyPause = PauseHotkey,
-                    HotkeyDeleteHistory = DeleteHistoryHotkey,
-                    HotkeyRecordLoot = RecordLootHotkey,
-                }
-            );
-        }
-        catch { }
+                LoadHotkeys(
+                    new Services.AppSettings
+                    {
+                        HotkeyStartOrNext = StartOrNextRunHotkey,
+                        HotkeyPause = PauseHotkey,
+                        HotkeyDeleteHistory = DeleteHistoryHotkey,
+                        HotkeyRecordLoot = RecordLootHotkey,
+                    }
+                );
+            }
+            catch { }
+        });
     }
 }

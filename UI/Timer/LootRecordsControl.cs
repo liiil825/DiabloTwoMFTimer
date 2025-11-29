@@ -68,14 +68,11 @@ public partial class LootRecordsControl : UserControl
 
     private void RefreshGrid()
     {
-        if (gridLoot.InvokeRequired)
+        gridLoot.SafeInvoke(() =>
         {
-            gridLoot.Invoke(new Action(RefreshGrid));
-            return;
-        }
-        gridLoot.RowCount = _displayRecords.Count;
-        gridLoot.Invalidate();
-        // 【关键修改】这里不再强制清除选中，避免打断父控件的焦点控制逻辑
+            gridLoot.RowCount = _displayRecords.Count;
+            gridLoot.Invalidate();
+        });
     }
 
     public async Task<bool> DeleteSelectedLootAsync()
@@ -100,13 +97,11 @@ public partial class LootRecordsControl : UserControl
 
     public void ClearSelection()
     {
-        if (gridLoot.InvokeRequired)
+        gridLoot.SafeInvoke(() =>
         {
-            gridLoot.Invoke(new Action(ClearSelection));
-            return;
-        }
-        gridLoot.ClearSelection();
-        gridLoot.CurrentCell = null;
+            gridLoot.ClearSelection();
+            gridLoot.CurrentCell = null;
+        });
     }
 
     public bool HasFocus => gridLoot.ContainsFocus;
