@@ -70,7 +70,8 @@ public partial class LootRecordsControl : UserControl
             ? _currentProfile.LootRecords
             : _currentProfile.LootRecords.Where(r => r.SceneName == pureEnglishCurrentScene);
 
-        _displayRecords = query.OrderByDescending(r => r.DropTime).ToList();
+        // 修改 1: 改为升序排列 (Oldest -> Newest)
+        _displayRecords = query.OrderBy(r => r.DropTime).ToList();
 
         RefreshGrid();
     }
@@ -79,11 +80,28 @@ public partial class LootRecordsControl : UserControl
     {
         gridLoot.SafeInvoke(() =>
         {
-            // 关键 1：先清除选中项，防止索引越界
             gridLoot.ClearSelection();
-            gridLoot.CurrentCell = null; // 确保没有活动单元格
+            gridLoot.CurrentCell = null;
             gridLoot.RowCount = _displayRecords.Count;
             gridLoot.Invalidate();
+        });
+    }
+
+    // 修改 2: 新增选中最后一行的方法 (用于添加新记录后)
+    public void SelectLastRow()
+    {
+        gridLoot.SafeInvoke(() =>
+        {
+            if (gridLoot.RowCount > 0)
+            {
+                int lastIndex = gridLoot.RowCount - 1;
+                // 确保滚动到最后一行
+                gridLoot.FirstDisplayedScrollingRowIndex = lastIndex;
+                gridLoot.ClearSelection();
+                gridLoot.Rows[lastIndex].Selected = true;
+                // 可选：将焦点设为该行，方便键盘操作
+                gridLoot.CurrentCell = gridLoot.Rows[lastIndex].Cells[0];
+            }
         });
     }
 

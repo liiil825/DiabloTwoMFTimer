@@ -228,6 +228,10 @@ public partial class TimerControl : UserControl
 
     private void OnTimerPauseStateChanged(bool isPaused)
     {
+        btnStatusIndicator?.SafeInvoke(() =>
+        {
+            btnStatusIndicator.BackColor = !isPaused ? Color.Green : Color.Red;
+        });
         TimerStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -289,20 +293,34 @@ public partial class TimerControl : UserControl
     private void OnRunCompleted(TimeSpan runTime)
     {
         // 1. 数据层添加
-        historyControl?.AddRunRecord(runTime);
+        _historyService?.AddRunRecord(runTime); // 添加历史记录
         UpdateStatistics();
 
-        // 2. 强制焦点控制 (直接用 this.SafeInvoke)
+        // 强制焦点控制
         this.SafeInvoke(SetFocusToNewHistoryRecord);
     }
 
     private void SetFocusToNewHistoryRecord()
     {
-        // 确保掉落列表不被选中
+        // 修改 3a: 完成计时时，选中历史记录，同时清除掉落列表选中 (互斥)
         lootRecordsControl?.ClearSelection();
-
-        // 强制选中历史列表最后一行
         historyControl?.SelectLastRow();
+    }
+
+    // 修改 3b: 新增处理掉落添加的方法 (供 MainForm 调用)
+    public void HandleLootAdded()
+    {
+        this.SafeInvoke(() =>
+        {
+            // 1. 刷新掉落数据 (会重新排序)
+            UpdateLootRecords();
+
+            // 2. 选中掉落列表的最后一项 (新添加的)
+            lootRecordsControl?.SelectLastRow();
+
+            // 3. 清除历史记录的选中状态 (互斥)
+            historyControl?.ClearSelection();
+        });
     }
 
     // 【修改 5】 路由删除逻辑
@@ -335,7 +353,6 @@ public partial class TimerControl : UserControl
         if (lootRecordsControl != null && _profileService != null && _profileService.CurrentProfile != null)
         {
             string currentScene = _profileService.CurrentScene ?? string.Empty;
-            // 传递 Profile
             lootRecordsControl.UpdateLootRecords(_profileService.CurrentProfile, currentScene);
         }
     }

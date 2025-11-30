@@ -217,7 +217,7 @@ public partial class MainForm : Form
         using var lootForm = new UI.Timer.RecordLootForm(_profileService, _timerHistoryService, _sceneService);
 
         // 订阅保存成功事件，刷新 TimerControl 的显示
-        lootForm.LootRecordSaved += (s, e) => _timerControl.RefreshUI();
+        lootForm.LootRecordSaved += (s, e) => _timerControl.HandleLootAdded();
 
         lootForm.ShowDialog(this);
     }

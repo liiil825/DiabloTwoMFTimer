@@ -34,6 +34,7 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
+        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         tabControl = new DiabloTwoMFTimer.UI.Components.ThemedTabControl();
         tabProfilePage = new System.Windows.Forms.TabPage();
         tabTimerPage = new System.Windows.Forms.TabPage();
