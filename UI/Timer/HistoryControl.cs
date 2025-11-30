@@ -74,6 +74,9 @@ public partial class HistoryControl : UserControl
         gridRunHistory.SafeInvoke(() =>
         {
             var count = _historyService?.RunHistory?.Count ?? 0;
+            // 关键 1：先清除选中项，防止索引越界
+            // gridRunHistory.ClearSelection();
+            // gridRunHistory.CurrentCell = null;
             gridRunHistory.RowCount = count;
             gridRunHistory.Invalidate();
         });

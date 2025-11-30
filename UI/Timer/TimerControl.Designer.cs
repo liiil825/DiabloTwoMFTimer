@@ -1,180 +1,187 @@
 #nullable disable
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using DiabloTwoMFTimer.UI.Components;
+using DiabloTwoMFTimer.UI.Components; // 引用自定义组件
 using DiabloTwoMFTimer.UI.Pomodoro;
-using DiabloTwoMFTimer.Utils;
+using DiabloTwoMFTimer.UI.Theme;
 
 namespace DiabloTwoMFTimer.UI.Timer
 {
     partial class TimerControl
     {
         private TableLayoutPanel mainLayout;
-        private FlowLayoutPanel topPanel; // 顶部按钮和状态
         // 组件引用
         private StatisticsControl statisticsControl;
         private HistoryControl historyControl;
         private CharacterSceneControl characterSceneControl;
         private LootRecordsControl lootRecordsControl;
-        private AntdUI.LabelTime labelTime1;
-        private Button toggleLootButton;
+        private ThemedLabel labelTime1;
+
+        // 控件字段定义：改为 Themed 组件
+        private Label btnStatusIndicator; // 状态灯保持原生Label即可
+        private ThemedButton toggleLootButton; // 改为 ThemedButton
         private PomodoroTimeDisplayLabel pomodoroTime;
-        private Label lblTimeDisplay;
+        private ThemedLabel lblTimeDisplay; // 改为 ThemedLabel
 
         private void InitializeComponent()
         {
-            mainLayout = new TableLayoutPanel();
-            topPanel = new FlowLayoutPanel();
-            btnStatusIndicator = new ThemedLabel();
-            lblTimeDisplay = new Label();
-            statisticsControl = new StatisticsControl();
-            historyControl = new HistoryControl();
-            characterSceneControl = new CharacterSceneControl();
-            lootRecordsControl = new LootRecordsControl();
-            labelTime1 = new AntdUI.LabelTime();
-            toggleLootButton = new Button();
-            pomodoroTime = new PomodoroTimeDisplayLabel();
-            SuspendLayout();
-            // 
-            // mainLayout
-            // 
-            mainLayout.Location = new Point(0, 0);
-            mainLayout.Name = "mainLayout";
-            mainLayout.Size = new Size(200, 100);
-            mainLayout.TabIndex = 0;
-            // 
-            // topPanel
-            // 
-            topPanel.Location = new Point(0, 0);
-            topPanel.Name = "topPanel";
-            topPanel.Size = new Size(200, 100);
-            topPanel.TabIndex = 0;
-            // 
-            // btnStatusIndicator
-            // 
-            btnStatusIndicator.AutoSize = true;
-            btnStatusIndicator.BackColor = Color.Transparent;
-            btnStatusIndicator.Font = new Font("微软雅黑", 10F);
-            btnStatusIndicator.ForeColor = Color.FromArgb(240, 240, 240);
-            btnStatusIndicator.IsTitle = false;
-            btnStatusIndicator.Location = new Point(15, 19);
-            btnStatusIndicator.Margin = new Padding(6);
-            btnStatusIndicator.Name = "btnStatusIndicator";
-            btnStatusIndicator.Size = new Size(0, 31);
-            btnStatusIndicator.TabIndex = 0;
-            // 
-            // lblTimeDisplay
-            // 
-            lblTimeDisplay.AutoSize = true;
-            lblTimeDisplay.Font = new Font("Microsoft YaHei UI", 28F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            lblTimeDisplay.Location = new Point(20, 61);
-            lblTimeDisplay.Margin = new Padding(6, 0, 6, 0);
-            lblTimeDisplay.Name = "lblTimeDisplay";
-            lblTimeDisplay.Size = new Size(303, 86);
-            lblTimeDisplay.TabIndex = 1;
-            lblTimeDisplay.Text = "00:00:00";
-            lblTimeDisplay.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // statisticsControl
-            // 
-            statisticsControl.AverageTime = TimeSpan.Parse("00:00:00");
-            statisticsControl.FastestTime = TimeSpan.Parse("00:00:00");
-            statisticsControl.Location = new Point(9, 157);
-            statisticsControl.Margin = new Padding(9, 8, 9, 8);
-            statisticsControl.Name = "statisticsControl";
-            statisticsControl.RunCount = 0;
-            statisticsControl.Size = new Size(421, 116);
-            statisticsControl.TabIndex = 2;
-            // 
-            // historyControl
-            // 
-            historyControl.Location = new Point(9, 289);
-            historyControl.Margin = new Padding(9, 8, 9, 8);
-            historyControl.Name = "historyControl";
-            historyControl.Size = new Size(421, 117);
-            historyControl.TabIndex = 3;
-            // 
-            // characterSceneControl
-            // 
-            characterSceneControl.Location = new Point(9, 409);
-            characterSceneControl.Margin = new Padding(6);
-            characterSceneControl.Name = "characterSceneControl";
-            characterSceneControl.Size = new Size(421, 80);
-            characterSceneControl.TabIndex = 4;
-            // 
-            // lootRecordsControl
-            // 
-            lootRecordsControl.Location = new Point(9, 495);
-            lootRecordsControl.Margin = new Padding(9, 8, 9, 8);
-            lootRecordsControl.Name = "lootRecordsControl";
-            lootRecordsControl.Size = new Size(421, 100);
-            lootRecordsControl.TabIndex = 6;
-            // 
-            // labelTime1
-            // 
-            labelTime1.Location = new Point(60, 9);
-            labelTime1.Name = "labelTime1";
-            labelTime1.ShowTime = false;
-            labelTime1.Size = new Size(135, 40);
-            labelTime1.TabIndex = 5;
-            labelTime1.Text = "labelTime1";
-            // 
-            // toggleLootButton
-            // 
-            toggleLootButton.Location = new Point(299, 438);
-            toggleLootButton.Name = "toggleLootButton";
-            toggleLootButton.Size = new Size(131, 40);
-            toggleLootButton.TabIndex = 7;
-            toggleLootButton.Text = "ShowLoot";
-            toggleLootButton.UseVisualStyleBackColor = true;
-            toggleLootButton.Click += ToggleLootButton_Click;
-            // 
-            // pomodoroTime
-            // 
-            pomodoroTime.AutoSize = true;
-            pomodoroTime.Font = new Font("微软雅黑", 16F, FontStyle.Bold);
-            pomodoroTime.Location = new Point(299, 9);
-            pomodoroTime.Name = "pomodoroTime";
-            pomodoroTime.ShowMilliseconds = false;
-            pomodoroTime.Size = new Size(125, 50);
-            pomodoroTime.TabIndex = 8;
-            pomodoroTime.Text = "00:00";
-            // 
-            // TimerControl
-            // 
-            AutoScaleDimensions = new SizeF(13F, 28F);
-            AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(pomodoroTime);
-            Controls.Add(toggleLootButton);
-            Controls.Add(lootRecordsControl);
-            Controls.Add(labelTime1);
-            Controls.Add(characterSceneControl);
-            Controls.Add(historyControl);
-            Controls.Add(statisticsControl);
-            Controls.Add(lblTimeDisplay);
-            Controls.Add(btnStatusIndicator);
-            Margin = new Padding(6);
-            Name = "TimerControl";
-            Size = new Size(667, 850);
-            ResumeLayout(false);
-            PerformLayout();
+            this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+            // 1. 初始化控件
+            this.mainLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.topLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.bottomInfoLayout = new System.Windows.Forms.TableLayoutPanel();
+
+            this.btnStatusIndicator = new System.Windows.Forms.Label();
+            this.labelTime1 = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.pomodoroTime = new DiabloTwoMFTimer.UI.Pomodoro.PomodoroTimeDisplayLabel();
+            this.toggleLootButton = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+            this.lblTimeDisplay = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+
+            this.statisticsControl = new DiabloTwoMFTimer.UI.Timer.StatisticsControl();
+            this.historyControl = new DiabloTwoMFTimer.UI.Timer.HistoryControl();
+            this.characterSceneControl = new DiabloTwoMFTimer.UI.Timer.CharacterSceneControl();
+            this.lootRecordsControl = new DiabloTwoMFTimer.UI.Timer.LootRecordsControl();
+
+            this.SuspendLayout();
+
+            // ---------------------------------------------------------
+            // 1. 主布局容器 (mainLayout) - 高度分配优化
+            // ---------------------------------------------------------
+            this.mainLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainLayout.ColumnCount = 1;
+            this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.mainLayout.RowCount = 6;
+
+            // Row 0: Top Bar (50px)
+            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+
+            // Row 1: Time Display (主计时) - 压缩到 80px (足够显示28pt字体)
+            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+
+            // Row 2: Stats (统计) - 压缩到 100px (原120)
+            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+
+            // Row 3: History (历史记录) - 70% 剩余空间
+            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
+
+            // Row 4: Bottom (场景+按钮) - 增加到 85px (解决显示不全)
+            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 85F));
+
+            // Row 5: Loot - 初始 0
+            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+
+            this.mainLayout.Controls.Add(this.topLayout, 0, 0);
+            this.mainLayout.Controls.Add(this.lblTimeDisplay, 0, 1);
+            this.mainLayout.Controls.Add(this.statisticsControl, 0, 2);
+            this.mainLayout.Controls.Add(this.historyControl, 0, 3);
+            this.mainLayout.Controls.Add(this.bottomInfoLayout, 0, 4);
+            this.mainLayout.Controls.Add(this.lootRecordsControl, 0, 5);
+
+            // ---------------------------------------------------------
+            // 2. 顶部布局
+            // ---------------------------------------------------------
+            this.topLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.topLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.topLayout.ColumnCount = 3;
+            this.topLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.topLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.topLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.topLayout.RowCount = 1;
+            this.topLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+
+            // 左侧流式容器
+            System.Windows.Forms.FlowLayoutPanel topLeftFlow = new System.Windows.Forms.FlowLayoutPanel();
+            topLeftFlow.WrapContents = false;
+            topLeftFlow.AutoSize = true;
+            topLeftFlow.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            topLeftFlow.Dock = System.Windows.Forms.DockStyle.Fill;
+            topLeftFlow.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
+            topLeftFlow.Controls.Add(this.btnStatusIndicator);
+            topLeftFlow.Controls.Add(this.labelTime1);
+            topLeftFlow.Margin = new System.Windows.Forms.Padding(0);
+
+            // 控件：指示灯
+            this.btnStatusIndicator.AutoSize = false;
+            this.btnStatusIndicator.Size = new System.Drawing.Size(16, 16);
+            this.btnStatusIndicator.BackColor = System.Drawing.Color.Red;
+            // this.btnStatusIndicator.Margin = new System.Windows.Forms.Padding(10, 13, 10, 0);
+            this.btnStatusIndicator.Margin = new System.Windows.Forms.Padding(15, 16, 8, 0);
+
+            // 控件：日期
+            // labelTime1 (时间)
+            this.labelTime1.AutoSize = true;
+            this.labelTime1.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular);
+            this.labelTime1.ForeColor = System.Drawing.Color.LightGray;
+            this.labelTime1.Text = "12:00";
+            // 文字通常自带一些上边距，Margin Top 给小一点
+            this.labelTime1.Margin = new System.Windows.Forms.Padding(0, 8, 0, 0);
+
+            // 控件：番茄钟
+            this.pomodoroTime.AutoSize = true;
+            this.pomodoroTime.Dock = System.Windows.Forms.DockStyle.Right;
+            this.pomodoroTime.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.pomodoroTime.ForeColor = System.Drawing.Color.White;
+            this.pomodoroTime.ShowMilliseconds = false;
+
+            this.topLayout.Controls.Add(topLeftFlow, 0, 0);
+            this.topLayout.Controls.Add(this.pomodoroTime, 2, 0);
+
+            // ---------------------------------------------------------
+            // 3. 主计时器 (解决显示问题)
+            // ---------------------------------------------------------
+            this.lblTimeDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTimeDisplay.AutoSize = false; // [核心修复] 必须设为 false
+                                                  // 字体改小一点，防止截断
+            this.lblTimeDisplay.Font = new System.Drawing.Font("Microsoft YaHei UI", 28F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 134);
+            this.lblTimeDisplay.ForeColor = DiabloTwoMFTimer.UI.Theme.AppTheme.AccentColor;
+            this.lblTimeDisplay.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblTimeDisplay.Text = "00:00:00.0";
+
+            // ---------------------------------------------------------
+            // 4. 底部布局 (解决高度不够)
+            // ---------------------------------------------------------
+            this.bottomInfoLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bottomInfoLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.bottomInfoLayout.ColumnCount = 2;
+            this.bottomInfoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.bottomInfoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.bottomInfoLayout.RowCount = 1;
+            this.bottomInfoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+
+            this.characterSceneControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.characterSceneControl.Margin = new System.Windows.Forms.Padding(5); // 减少一点 Margin
+
+            this.toggleLootButton.Size = new System.Drawing.Size(120, 36);
+            this.toggleLootButton.Text = "Show Loot";
+            this.toggleLootButton.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
+            // 增加 Bottom Margin 让它稍微往上提一点，或者减少让它贴底
+            this.toggleLootButton.Margin = new System.Windows.Forms.Padding(0, 0, 10, 25);
+            this.toggleLootButton.Click += new System.EventHandler(this.ToggleLootButton_Click);
+
+            this.bottomInfoLayout.Controls.Add(this.characterSceneControl, 0, 0);
+            this.bottomInfoLayout.Controls.Add(this.toggleLootButton, 1, 0);
+
+            // ---------------------------------------------------------
+            // 5. 其他
+            // ---------------------------------------------------------
+            this.statisticsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.historyControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lootRecordsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+
+            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.mainLayout);
+            this.Name = "TimerControl";
+            this.Size = new System.Drawing.Size(500, 600);
+
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
-        /// <summary>
-        /// 清理所有正在使用的资源。
-        /// </summary>
-        /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                UnsubscribeFromServiceEvents();
-            }
-            base.Dispose(disposing);
-        }
-        private ThemedLabel btnStatusIndicator;
+        // 记得在类中增加这两个新的字段定义
+        private System.Windows.Forms.TableLayoutPanel topLayout;
+        private System.Windows.Forms.TableLayoutPanel bottomInfoLayout;
     }
 }

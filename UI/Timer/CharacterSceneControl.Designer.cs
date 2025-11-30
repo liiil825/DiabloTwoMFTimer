@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Timer
 {
@@ -15,8 +16,8 @@ namespace DiabloTwoMFTimer.UI.Timer
 
         private void InitializeComponent()
         {
-            this.lblCharacterDisplay = new System.Windows.Forms.Label();
-            this.lblSceneDisplay = new System.Windows.Forms.Label();
+            this.lblCharacterDisplay = new ThemedLabel();
+            this.lblSceneDisplay = new ThemedLabel();
             this.SuspendLayout();
             //
             // lblCharacterDisplay

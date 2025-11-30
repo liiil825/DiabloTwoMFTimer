@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Timer
 {
@@ -16,9 +17,9 @@ namespace DiabloTwoMFTimer.UI.Timer
 
         private void InitializeComponent()
         {
-            lblRunCount = new Label();
-            lblFastestTime = new Label();
-            lblAverageTime = new Label();
+            lblRunCount = new ThemedLabel();
+            lblFastestTime = new ThemedLabel();
+            lblAverageTime = new ThemedLabel();
             SuspendLayout();
             //
             // lblRunCount

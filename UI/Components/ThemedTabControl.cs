@@ -15,22 +15,22 @@ namespace DiabloTwoMFTimer.UI.Components
             this.ItemSize = new Size(100, 40); // 统一 Tab 大小
         }
 
-        // 1. 解决鼠标变手型的问题
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            // 检查鼠标是否在任何一个 Tab 的矩形范围内
-            bool onTab = false;
-            for (int i = 0; i < this.TabCount; i++)
-            {
-                if (this.GetTabRect(i).Contains(e.Location))
-                {
-                    onTab = true;
-                    break;
-                }
-            }
-            this.Cursor = onTab ? Cursors.Hand : Cursors.Default;
-        }
+        // // 1. 解决鼠标变手型的问题
+        // protected override void OnMouseMove(MouseEventArgs e)
+        // {
+        //     base.OnMouseMove(e);
+        //     // 检查鼠标是否在任何一个 Tab 的矩形范围内
+        //     bool onTab = false;
+        //     for (int i = 0; i < this.TabCount; i++)
+        //     {
+        //         if (this.GetTabRect(i).Contains(e.Location))
+        //         {
+        //             onTab = true;
+        //             break;
+        //         }
+        //     }
+        //     this.Cursor = onTab ? Cursors.Hand : Cursors.Default;
+        // }
 
         protected override void OnDrawItem(DrawItemEventArgs e)
         {

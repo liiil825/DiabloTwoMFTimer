@@ -11,24 +11,39 @@ public class ThemedLabel : Label
     public ThemedLabel()
     {
         this.ForeColor = AppTheme.TextColor;
+        // 仅在构造函数设为默认值，允许外部覆盖
         this.Font = AppTheme.MainFont;
         this.AutoSize = true;
-
-        // 关键修改：不要默认透明，这会降低文字清晰度。
-        // 如果你的 Label 是放在 Panel 上的，WinForms 会自动处理背景继承。
         this.BackColor = Color.Transparent;
-
-        // 开启双缓冲优化渲染
         this.DoubleBuffered = true;
     }
 
     protected override void OnPaint(PaintEventArgs e)
     {
-        this.Font = IsTitle ? AppTheme.TitleFont : AppTheme.MainFont;
+        // -----------------------------------------------------
+        // 【关键修复】删除下面这行强制设置 Font 的代码
+        // this.Font = IsTitle ? AppTheme.TitleFont : AppTheme.MainFont;
+        // -----------------------------------------------------
+
+        // 如果你希望 IsTitle 属性仍然生效，应该在属性 setter 里改 Font，而不是在 OnPaint 里
 
         // 提升文字渲染质量
         e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
         base.OnPaint(e);
     }
+
+    // 如果想保留 IsTitle 功能，改写属性：
+    /*
+    public bool IsTitle 
+    { 
+        get => _isTitle;
+        set 
+        { 
+            _isTitle = value;
+            this.Font = value ? AppTheme.TitleFont : AppTheme.MainFont;
+        }
+    }
+    private bool _isTitle;
+    */
 }

@@ -72,6 +72,9 @@ public partial class LootRecordsControl : UserControl
     {
         gridLoot.SafeInvoke(() =>
         {
+            // 关键 1：先清除选中项，防止索引越界
+            gridLoot.ClearSelection();
+            gridLoot.CurrentCell = null; // 确保没有活动单元格
             gridLoot.RowCount = _displayRecords.Count;
             gridLoot.Invalidate();
         });

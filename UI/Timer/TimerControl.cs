@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Services;
-using DiabloTwoMFTimer.UI.Pomodoro;
 using DiabloTwoMFTimer.UI.Settings;
 using DiabloTwoMFTimer.Utils;
 
@@ -116,19 +115,9 @@ public partial class TimerControl : UserControl
             // 根据应用设置的TimerShowLootDrops设置初始化掉落记录控件的可见性
             lootRecordsControl.Visible = _appSettings.TimerShowLootDrops;
             bool isVisible = lootRecordsControl.Visible;
+            SetLootRecordsVisible(isVisible);
 
-            // 更新按钮文本
-            toggleLootButton.Text = isVisible
-                ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落")
-                : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
 
-            // 设置初始高度
-            this.Size = new Size(
-                this.Width,
-                isVisible
-                    ? UISizeConstants.TimerControlHeightWithLoot
-                    : UISizeConstants.TimerControlHeightWithoutLoot
-            );
         }
     }
 
@@ -215,6 +204,13 @@ public partial class TimerControl : UserControl
         lblTimeDisplay?.SafeInvoke(() =>
         {
             lblTimeDisplay.Text = timeString;
+
+            // 【新增】同时更新顶部的小时间（包含日期）
+            if (labelTime1 != null)
+            {
+                // 格式：10:03 周日 11-30
+                labelTime1.Text = DateTime.Now.ToString("HH:mm ddd MM-dd");
+            }
         });
     }
 
@@ -465,45 +461,56 @@ public partial class TimerControl : UserControl
     /// <param name="isVisible">是否可见</param>
     public void SetLootRecordsVisible(bool isVisible)
     {
-        if (lootRecordsControl != null)
+        if (lootRecordsControl == null) return;
+
+        lootRecordsControl.Visible = isVisible;
+        // 更新按钮文本
+        toggleLootButton.Text = isVisible
+            ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落")
+            : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
+
+        // 1. 调整主窗体大小
+        if (this.ParentForm != null)
         {
-            // 设置可见性
-            lootRecordsControl.Visible = isVisible;
+            // 使用常量定义的高度
+            int targetHeight = isVisible
+                ? UISizeConstants.ClientHeightWithLoot
+                : UISizeConstants.ClientHeightWithoutLoot;
 
-            // 更新按钮文本
-            toggleLootButton.Text = isVisible
-                ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落")
-                : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
-
-            // 调整TimerControl的高度
-            int newHeight = isVisible
-                ? UISizeConstants.TimerControlHeightWithLoot
-                : UISizeConstants.TimerControlHeightWithoutLoot;
-            int heightChange = newHeight - this.Height;
-            this.Size = new Size(this.Width, newHeight);
-
-            // 调整父窗体（MainForm）的高度
-            if (this.ParentForm != null)
+            // 只有高度不同时才调整，避免闪烁
+            if (this.ParentForm.ClientSize.Height != targetHeight)
             {
-                int newFormHeight = this.ParentForm.ClientSize.Height + heightChange;
-                this.ParentForm.ClientSize = new Size(this.ParentForm.ClientSize.Width, newFormHeight);
-
-                // 如果窗口位置设置为下方，重新应用窗口位置以保持在底部
-                var windowPosition = SettingsControl.WindowPosition.BottomLeft; // 默认位置
-                if (!string.IsNullOrEmpty(_appSettings.WindowPosition))
-                {
-                    windowPosition = AppSettings.StringToWindowPosition(_appSettings.WindowPosition);
-                }
-
-                if (
-                    windowPosition == SettingsControl.WindowPosition.BottomLeft
-                    || windowPosition == SettingsControl.WindowPosition.BottomCenter
-                    || windowPosition == SettingsControl.WindowPosition.BottomRight
-                )
-                {
-                    SettingsControl.MoveWindowToPosition(this.ParentForm, windowPosition);
-                }
+                this.ParentForm.ClientSize = new Size(this.ParentForm.ClientSize.Width, targetHeight);
             }
+            var windowPosition = SettingsControl.WindowPosition.BottomLeft; // 默认位置
+            if (!string.IsNullOrEmpty(_appSettings.WindowPosition))
+            {
+                windowPosition = AppSettings.StringToWindowPosition(_appSettings.WindowPosition);
+            }
+
+            if (
+                windowPosition == SettingsControl.WindowPosition.BottomLeft
+                || windowPosition == SettingsControl.WindowPosition.BottomCenter
+                || windowPosition == SettingsControl.WindowPosition.BottomRight
+            )
+            {
+                SettingsControl.MoveWindowToPosition(this.ParentForm, windowPosition);
+            }
+        }
+
+
+        // 2. 动态调整 TableLayoutPanel 的行高
+        // 索引：3=History, 5=Loot
+        if (isVisible)
+        {
+            // 显示掉落时：历史和掉落各分 50% 空间
+            // 注意：因为窗体变高了，所以即使是 50% 也足够显示内容
+            mainLayout.RowStyles[5] = new RowStyle(SizeType.Percent, 80F);
+        }
+        else
+        {
+            // 隐藏掉落时：历史占满剩余空间 (100%)，掉落高度强行设为 0
+            mainLayout.RowStyles[5] = new RowStyle(SizeType.Absolute, 0F);
         }
     }
 

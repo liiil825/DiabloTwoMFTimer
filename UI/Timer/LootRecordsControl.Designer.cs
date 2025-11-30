@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Timer
 {
@@ -14,23 +15,7 @@ namespace DiabloTwoMFTimer.UI.Timer
 
         private void InitializeComponent()
         {
-            this.gridLoot = new DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.gridLoot)).BeginInit();
-            this.SuspendLayout();
-
-            this.gridLoot.Dock = DockStyle.Fill;
-            this.gridLoot.BackgroundColor = SystemColors.Window;
-            this.gridLoot.BorderStyle = BorderStyle.None;
-            this.gridLoot.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            this.gridLoot.ColumnHeadersVisible = true;
-            this.gridLoot.RowHeadersVisible = false;
-            this.gridLoot.AllowUserToAddRows = false;
-            this.gridLoot.AllowUserToDeleteRows = false;
-            this.gridLoot.AllowUserToResizeRows = false;
-            this.gridLoot.ReadOnly = true;
-            this.gridLoot.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            this.gridLoot.MultiSelect = false;
-            this.gridLoot.VirtualMode = true;
+            this.gridLoot = new ThemedDataGridView();
 
             this.gridLoot.CellValueNeeded += GridLoot_CellValueNeeded;
             // 交互事件

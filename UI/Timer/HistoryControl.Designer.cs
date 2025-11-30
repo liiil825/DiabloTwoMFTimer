@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Timer
 {
@@ -14,24 +15,7 @@ namespace DiabloTwoMFTimer.UI.Timer
 
         private void InitializeComponent()
         {
-            this.gridRunHistory = new DataGridView();
-            ((System.ComponentModel.ISupportInitialize)(this.gridRunHistory)).BeginInit();
-            this.SuspendLayout();
-
-            // Grid 配置 (保持之前的配置)
-            this.gridRunHistory.Dock = DockStyle.Fill;
-            this.gridRunHistory.BackgroundColor = SystemColors.Window;
-            this.gridRunHistory.BorderStyle = BorderStyle.None;
-            this.gridRunHistory.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            this.gridRunHistory.ColumnHeadersVisible = true;
-            this.gridRunHistory.RowHeadersVisible = false;
-            this.gridRunHistory.AllowUserToAddRows = false;
-            this.gridRunHistory.AllowUserToDeleteRows = false;
-            this.gridRunHistory.AllowUserToResizeRows = false;
-            this.gridRunHistory.ReadOnly = true;
-            this.gridRunHistory.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            this.gridRunHistory.MultiSelect = false;
-            this.gridRunHistory.VirtualMode = true;
+            this.gridRunHistory = new ThemedDataGridView();
 
             // 【关键】当网格被点击或获得焦点时，触发交互事件
             this.gridRunHistory.Enter += (s, e) => InteractionOccurred?.Invoke(this, EventArgs.Empty);
