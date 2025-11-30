@@ -70,7 +70,7 @@
   "StopTimer": "Stop",
   "StartTimer": "Start Timer",
   "Complete": "Complete",
-  "CurrentCharacter": "Current Character: {{0}} ({{1}})",
+  "CurrentCharacter": "{{0}} ({{1}})",
   "CurrentCharacterNotSelected": "Current Character: Not Selected",
   "Reset": "Reset",
   "SelectScene": "Scene:",

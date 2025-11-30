@@ -70,7 +70,7 @@
   "StartTimer": "开始 Farm",
   "Complete": "完成",
   "Reset": "重置",
-  "CurrentCharacter": "当前角色: {{0}} ({{1}})",
+  "CurrentCharacter": "{{0}} ({{1}})",
   "CurrentCharacterNotSelected": "当前角色: 未选择",
   "SelectScene": "场景:",
   "CharacterClass_Barbarian": "野蛮人",

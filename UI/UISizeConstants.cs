@@ -17,11 +17,11 @@ public static class UISizeConstants
     /// <summary>
     /// MainForm 默认高度
     /// </summary>
-    public const int ClientHeightWithoutLoot = 650;
+    public const int ClientHeightWithoutLoot = 600;
 
     /// <summary>
     /// MainForm 显示掉落记录时的高度
     /// </summary>
-    public const int ClientHeightWithLoot = 730;
+    public const int ClientHeightWithLoot = 680;
     #endregion
 }
