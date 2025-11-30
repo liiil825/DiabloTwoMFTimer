@@ -92,7 +92,7 @@ public partial class GeneralSettingsControl : UserControl
                 chineseRadioButton!.Text = LanguageManager.GetString("Chinese");
                 englishRadioButton!.Text = LanguageManager.GetString("English");
 
-                alwaysOnTopLabel!.Text = LanguageManager.GetString("AlwaysOnTop");
+                alwaysOnTopCheckBox!.Text = LanguageManager.GetString("AlwaysOnTop");
             }
             catch
             {

@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Settings;
 partial class HotkeySettingsControl
@@ -32,17 +33,18 @@ partial class HotkeySettingsControl
     /// </summary>
     private void InitializeComponent()
     {
-        this.grpHotkeys = new System.Windows.Forms.GroupBox();
-        this.lblStartNext = new System.Windows.Forms.Label();
-        this.txtStartNext = new System.Windows.Forms.TextBox();
-        this.lblPause = new System.Windows.Forms.Label();
-        this.txtPause = new System.Windows.Forms.TextBox();
-        this.lblDeleteHistory = new System.Windows.Forms.Label();
-        this.txtDeleteHistory = new System.Windows.Forms.TextBox();
-        this.lblRecordLoot = new System.Windows.Forms.Label();
-        this.txtRecordLoot = new System.Windows.Forms.TextBox();
+        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        this.grpHotkeys = new ThemedGroupBox();
+        this.lblStartNext = new ThemedLabel();
+        this.txtStartNext = new ThemedTextBox();
+        this.lblPause = new ThemedLabel();
+        this.txtPause = new ThemedTextBox();
+        this.lblDeleteHistory = new ThemedLabel();
+        this.txtDeleteHistory = new ThemedTextBox();
+        this.lblRecordLoot = new ThemedLabel();
+        this.txtRecordLoot = new ThemedTextBox();
         this.grpHotkeys.SuspendLayout();
-        this.SuspendLayout();
+        this.ResumeLayout(false);
         //
         // grpHotkeys
         //

@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Settings;
 partial class TimerSettingsControl
@@ -32,14 +33,15 @@ partial class TimerSettingsControl
     /// </summary>
     private void InitializeComponent()
     {
-        this.grpTimerSettings = new System.Windows.Forms.GroupBox();
-        this.chkSyncPausePomodoro = new System.Windows.Forms.CheckBox();
-        this.chkGenerateRoomName = new System.Windows.Forms.CheckBox();
-        this.chkShowPomodoro = new System.Windows.Forms.CheckBox();
-        this.chkShowLootDrops = new System.Windows.Forms.CheckBox();
-        this.chkSyncStartPomodoro = new System.Windows.Forms.CheckBox();
+        this.grpTimerSettings = new ThemedGroupBox();
+        this.chkSyncPausePomodoro = new ThemedCheckBox();
+        this.chkGenerateRoomName = new ThemedCheckBox();
+        this.chkShowPomodoro = new ThemedCheckBox();
+        this.chkShowLootDrops = new ThemedCheckBox();
+        this.chkSyncStartPomodoro = new ThemedCheckBox();
         this.grpTimerSettings.SuspendLayout();
-        this.SuspendLayout();
+        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        this.ResumeLayout(false);
         //
         // grpTimerSettings
         //

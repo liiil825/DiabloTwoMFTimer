@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Settings;
 partial class GeneralSettingsControl
@@ -32,18 +33,19 @@ partial class GeneralSettingsControl
     /// </summary>
     private void InitializeComponent()
     {
-        groupBoxPosition = new GroupBox();
-        radioTopLeft = new RadioButton();
-        radioTopCenter = new RadioButton();
-        radioTopRight = new RadioButton();
-        radioBottomLeft = new RadioButton();
-        radioBottomCenter = new RadioButton();
-        radioBottomRight = new RadioButton();
-        groupBoxLanguage = new GroupBox();
-        chineseRadioButton = new RadioButton();
-        englishRadioButton = new RadioButton();
-        alwaysOnTopCheckBox = new CheckBox();
-        alwaysOnTopLabel = new Label();
+        groupBoxPosition = new ThemedGroupBox();
+        radioTopLeft = new ThemedRadioButton();
+        radioTopCenter = new ThemedRadioButton();
+        radioTopRight = new ThemedRadioButton();
+        radioBottomLeft = new ThemedRadioButton();
+        radioBottomCenter = new ThemedRadioButton();
+        radioBottomRight = new ThemedRadioButton();
+        groupBoxLanguage = new ThemedGroupBox();
+        chineseRadioButton = new ThemedRadioButton();
+        englishRadioButton = new ThemedRadioButton();
+        alwaysOnTopCheckBox = new ThemedCheckBox();
+        alwaysOnTopLabel = new ThemedLabel();
+        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         groupBoxPosition.SuspendLayout();
         groupBoxLanguage.SuspendLayout();
         SuspendLayout();
@@ -159,22 +161,14 @@ partial class GeneralSettingsControl
         alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
         alwaysOnTopCheckBox.Size = new Size(22, 21);
         alwaysOnTopCheckBox.TabIndex = 3;
-        //
-        // alwaysOnTopLabel
-        //
-        alwaysOnTopLabel.AutoSize = true;
-        alwaysOnTopLabel.Location = new Point(51, 206);
-        alwaysOnTopLabel.Name = "alwaysOnTopLabel";
-        alwaysOnTopLabel.Size = new Size(96, 28);
-        alwaysOnTopLabel.TabIndex = 2;
-        alwaysOnTopLabel.Text = "总在最前";
+        alwaysOnTopCheckBox.Text = "总在最前";
+        alwaysOnTopCheckBox.AutoSize = true;
         //
         // GeneralSettingsControl
         //
         AutoScroll = true;
         Controls.Add(groupBoxPosition);
         Controls.Add(groupBoxLanguage);
-        Controls.Add(alwaysOnTopLabel);
         Controls.Add(alwaysOnTopCheckBox);
         Name = "GeneralSettingsControl";
         Size = new Size(320, 280);

@@ -32,15 +32,19 @@ partial class SettingsControl
     /// </summary>
     private void InitializeComponent()
     {
-        tabControl = new TabControl();
+        tabControl = new DiabloTwoMFTimer.UI.Components.ThemedTabControl();
         tabPageGeneral = new TabPage();
         generalSettings = new GeneralSettingsControl();
         tabPageHotkeys = new TabPage();
         hotkeySettings = new HotkeySettingsControl();
         tabPageTimer = new TabPage();
         timerSettings = new TimerSettingsControl();
-        btnConfirmSettings = new Button();
+        btnConfirmSettings = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+        tabPageGeneral.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        tabPageHotkeys.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        tabPageTimer.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         panelBottom = new Panel();
+        panelBottom.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         tabControl.SuspendLayout();
         tabPageGeneral.SuspendLayout();
         tabPageHotkeys.SuspendLayout();
