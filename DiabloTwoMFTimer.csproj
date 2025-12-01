@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>DiabloTwoMFTimer</AssemblyName>
     <RootNamespace>DiabloTwoMFTimer</RootNamespace>
+    <ApplicationIcon>Resources\d2r.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,7 @@
     <Content Include="Resources\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\d2r.ico" />
     <Content Include="Resources\FarmingSpots.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -34,6 +34,7 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
+        FormBorderStyle = FormBorderStyle.None;
         this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         tabControl = new DiabloTwoMFTimer.UI.Components.ThemedTabControl();
         tabProfilePage = new System.Windows.Forms.TabPage();
@@ -91,8 +92,10 @@ partial class MainForm
         BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         ClientSize = new System.Drawing.Size(UISizeConstants.ClientWidth, UISizeConstants.ClientHeightWithoutLoot);
         Controls.Add(tabControl);
+        Icon = new System.Drawing.Icon("Resources\\d2r.ico");
         Margin = new Padding(6);
         Name = "MainForm";
+        Text = "Timer";
         tabControl.ResumeLayout(false);
         ResumeLayout(false);
     }

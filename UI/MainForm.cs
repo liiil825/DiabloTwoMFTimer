@@ -280,4 +280,13 @@ public partial class MainForm : Form
         _mainService.HandleApplicationClosing();
         base.OnFormClosing(e);
     }
+
+    // 在 UI/MainForm.cs 中重写 OnPaint
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+        // 绘制暗金边框
+        using Pen p = new(DiabloTwoMFTimer.UI.Theme.AppTheme.AccentColor, 1);
+        e.Graphics.DrawRectangle(p, 0, 0, Width - 1, Height - 1);
+    }
 }
