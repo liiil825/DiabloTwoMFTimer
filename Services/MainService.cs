@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
-using System.Windows.Forms; // 仅保留用于 Keys, Message, Form (作为参数)
+using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
@@ -26,7 +26,6 @@ public class MainServices(
     private readonly IAppSettings _appSettings = appSettings;
     private readonly IMessenger _messenger = messenger;
 
-    // 仅持有句柄用于注册热键，不持有 Form 对象
     private IntPtr _windowHandle;
 
     // 热键常量
@@ -57,20 +56,14 @@ public class MainServices(
     public event Action? OnRequestRefreshUI;
     public event Action? OnRequestDeleteHistory;
     public event Action? OnRequestRecordLoot;
-
     #endregion
 
     #region Public Methods
 
-    /// <summary>
-    /// 初始化应用程序逻辑
-    /// </summary>
-    /// <param name="windowHandle">主窗口句柄，用于注册热键</param>
     public void InitializeApplication(IntPtr windowHandle)
     {
         _windowHandle = windowHandle;
 
-        // 1. 从配置中初始化当前热键变量
         _currentStartOrNextRunHotkey = _appSettings.HotkeyStartOrNext;
         _currentPauseHotkey = _appSettings.HotkeyPause;
         _currentDeleteHistoryHotkey = _appSettings.HotkeyDeleteHistory;
@@ -78,18 +71,17 @@ public class MainServices(
 
         InitializeLanguageSupport();
         RegisterHotkeys();
+
         _messenger.Subscribe<LanguageChangedMessage>(OnLanguageChanged);
         _messenger.Subscribe<TimerSettingsChangedMessage>(OnTimerSettingsChanged);
         _messenger.Subscribe<HotkeysChangedMessage>(_ => ReloadHotkeys());
 
-        // 加载上次使用的角色档案 (不再直接操作 ProfileManager，而是依赖 ProfileService)
-        // 注意：UI 层的 ProfileManager 需要自己监听 ProfileService 的变化或者在初始化时读取
+        // --- 新增：监听暂停和恢复消息 ---
+        _messenger.Subscribe<SuspendHotkeysMessage>(_ => UnregisterHotKeys());
+        _messenger.Subscribe<ResumeHotkeysMessage>(_ => RegisterHotkeys());
+
         LoadLastUsedProfile();
-
-        // 恢复未完成记录
         _timerService.RestoreIncompleteRecord();
-
-        // 通知 UI 刷新
         RequestRefresh();
     }
 
@@ -104,9 +96,6 @@ public class MainServices(
         UnregisterHotKeys();
     }
 
-    /// <summary>
-    /// 处理热键消息
-    /// </summary>
     public void ProcessHotKeyMessage(Message m)
     {
         if (m.Msg != WM_HOTKEY)
@@ -117,7 +106,6 @@ public class MainServices(
         switch (id)
         {
             case HOTKEY_ID_STARTSTOP:
-                // 逻辑：如果热键触发，强制切到 Timer 页面，并执行开始/停止
                 OnRequestTabChange?.Invoke(Models.TabPage.Timer);
                 _timerService.StartOrNextRun();
                 break;
@@ -128,22 +116,16 @@ public class MainServices(
                 break;
 
             case HOTKEY_ID_DELETE_HISTORY:
-                // 逻辑：只有在 Timer 页面才能删除 (判断逻辑也可以移给 UI 层，或者在这里判断)
-                // 这里我们选择触发事件，让 UI 层决定是否响应以及如何响应
                 OnRequestDeleteHistory?.Invoke();
                 break;
 
             case HOTKEY_ID_RECORD_LOOT:
                 OnRequestTabChange?.Invoke(Models.TabPage.Timer);
-                // 触发事件，让 UI 层弹出 Loot 窗口
                 OnRequestRecordLoot?.Invoke();
                 break;
         }
     }
 
-    /// <summary>
-    /// 应用窗口设置 (无状态辅助方法)
-    /// </summary>
     public void ApplyWindowSettings(Form form)
     {
         if (form != null && _appSettings != null)
@@ -160,23 +142,17 @@ public class MainServices(
 
     public void SetActiveTabPage(Models.TabPage tabPage)
     {
-        // 这里的 OnRequestTabChange 会被 MainForm 监听到，
-        // 然后由 MainForm 去真正执行 tabControl.SelectedIndex = ...
         OnRequestTabChange?.Invoke(tabPage);
     }
 
     public void ReloadHotkeys()
     {
-        // 1. 重新从配置读取热键到内存变量
         _currentStartOrNextRunHotkey = _appSettings.HotkeyStartOrNext;
         _currentPauseHotkey = _appSettings.HotkeyPause;
         _currentDeleteHistoryHotkey = _appSettings.HotkeyDeleteHistory;
         _currentRecordLootHotkey = _appSettings.HotkeyRecordLoot;
 
-        // 2. 重新注册
         RegisterHotkeys();
-
-        // 记录日志方便调试
         Utils.LogManager.WriteDebugLog("MainServices", "热键已重新注册");
     }
 
@@ -186,14 +162,11 @@ public class MainServices(
 
     private void LoadLastUsedProfile()
     {
-        // 这一步是纯数据逻辑，没问题
         if (!string.IsNullOrEmpty(_appSettings.LastUsedProfile))
         {
             var profile = _profileRepository.GetByName(_appSettings.LastUsedProfile);
             if (profile != null)
             {
-                // 设置当前 Profile，这将触发 ProfileService 的事件，
-                // UI 层的 ProfileManager 和 TimerControl 会监听到这个变化并自动更新
                 _profileService.SwitchCharacter(profile);
             }
         }
@@ -204,22 +177,16 @@ public class MainServices(
         LanguageManager.SwitchLanguage(
             _appSettings.Language == "Chinese" ? LanguageManager.Chinese : LanguageManager.English
         );
-        // MainService 本身不需要监听语言变化来更新 UI，因为它不再持有 UI 控件
-        // 只需要确保设置了正确的语言即可
     }
 
     private void OnTimerSettingsChanged(TimerSettingsChangedMessage _)
     {
-        // 收到设置变更，自动切回计时器页面 (保持原有用户体验)
         OnRequestTabChange?.Invoke(Models.TabPage.Timer);
-
-        // 也可以在这里触发 RequestRefresh 来刷新整个 UI 的标题等
         RequestRefresh();
     }
 
     private void OnLanguageChanged(LanguageChangedMessage message)
     {
-        // 收到语言变更消息，切换语言
         LanguageManager.SwitchLanguage(message.LanguageCode);
         RequestRefresh();
     }
@@ -250,7 +217,7 @@ public class MainServices(
 
     private void RegisterHotKey(Keys keys, int id)
     {
-        if (_windowHandle == IntPtr.Zero)
+        if (_windowHandle == IntPtr.Zero || keys == Keys.None)
             return;
 
         int modifiers = 0;
@@ -271,6 +238,5 @@ public class MainServices(
     {
         UnregisterHotKeys();
         _messenger.Unsubscribe<TimerSettingsChangedMessage>(OnTimerSettingsChanged);
-        // 取消订阅其他可能的事件
     }
 }

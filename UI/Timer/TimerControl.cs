@@ -287,9 +287,7 @@ public partial class TimerControl : UserControl
         }
     }
 
-    // ... OnTimerRunningStateChanged 等方法保持不变 ...
-
-    // 【修改 4】 核心逻辑：添加记录完成后，强制焦点回到历史列表
+    // 核心逻辑：添加记录完成后，强制焦点回到历史列表
     private void OnRunCompleted(TimeSpan runTime)
     {
         // 1. 数据层添加
@@ -485,16 +483,21 @@ public partial class TimerControl : UserControl
             : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
 
         // 2. 动态调整 TableLayoutPanel 的行高
-        // 索引：3=History, 5=Loot
+        // 索引说明：
+        // 0: Top
+        // 1: Time
+        // 2: Stats
+        // 3: History (Percent)
+        // 4: Loot (Percent) - 【修改点：现在操作索引4】
+        // 5: Bottom Info (Fixed)
         if (isVisible)
         {
-            // 注意：因为窗体变高了，所以即使是 50% 也足够显示内容
-            mainLayout.RowStyles[5] = new RowStyle(SizeType.Percent, 80F);
+            mainLayout.RowStyles[4] = new RowStyle(SizeType.Percent, 80F);
         }
         else
         {
             // 隐藏掉落时：历史占满剩余空间 (100%)，掉落高度强行设为 0
-            mainLayout.RowStyles[5] = new RowStyle(SizeType.Absolute, 0F);
+            mainLayout.RowStyles[4] = new RowStyle(SizeType.Absolute, 0F);
         }
     }
 
@@ -521,5 +524,14 @@ public partial class TimerControl : UserControl
                 _appSettings.GenerateRoomName
             ));
         }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            UnsubscribeFromServiceEvents();
+        }
+        base.Dispose(disposing);
     }
 }

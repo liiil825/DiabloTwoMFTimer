@@ -81,10 +81,14 @@ public class ThemedButton : Button
     // --- 核心绘制逻辑 ---
     protected override void OnPaint(PaintEventArgs e)
     {
+        // 1. [新增] 安全检查：如果控件不可见或尺寸太小，直接不绘制，防止 AddArc 崩溃
+        if (this.Width <= 1 || this.Height <= 1)
+            return;
+
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias; // 开启抗锯齿，圆角才圆润
 
-        // 1. 确定颜色 (沿用之前的配色逻辑)
+        // 2. 确定颜色 (沿用之前的配色逻辑)
         Color backColor = AppTheme.SurfaceColor;
         Color borderColor = Color.FromArgb(80, 80, 80);
         Color textColor = AppTheme.TextColor;
@@ -108,13 +112,13 @@ public class ThemedButton : Button
             textColor = AppTheme.AccentColor; // 悬停：金字
         }
 
-        // 2. 准备绘制区域
+        // 3. 准备绘制区域
         // 注意：Rect 需要减去 1，否则边缘会被切掉一点
         var rect = this.ClientRectangle;
         rect.Width -= 1;
         rect.Height -= 1;
 
-        // 3. 绘制背景和边框
+        // 4. 绘制背景和边框
         using (var path = GetRoundedPath(rect, _borderRadius))
         using (var brush = new SolidBrush(backColor))
         using (var pen = new Pen(borderColor, 1)) // 边框宽度 1
@@ -123,7 +127,7 @@ public class ThemedButton : Button
             g.DrawPath(pen, path);
         }
 
-        // 4. 绘制文字 (居中)
+        // 5. 绘制文字 (居中)
         // 使用 MeasureString 确保精准居中
         var textSize = g.MeasureString(this.Text, this.Font);
         var textX = (this.Width - textSize.Width) / 2;
@@ -139,6 +143,11 @@ public class ThemedButton : Button
     private GraphicsPath GetRoundedPath(Rectangle rect, int radius)
     {
         GraphicsPath path = new GraphicsPath();
+
+        // 安全检查：如果 rect 无效，直接返回空路径
+        if (rect.Width <= 0 || rect.Height <= 0)
+            return path;
+
         int d = radius * 2; // 直径
 
         // 简单的防崩溃检查，防止圆角大于按钮尺寸
@@ -146,6 +155,9 @@ public class ThemedButton : Button
             d = rect.Width;
         if (d > rect.Height)
             d = rect.Height;
+
+        // 如果 d 计算出来仍然 <= 0 (理论上前面 rect 检查已过滤，双重保险)，设为 1
+        if (d <= 0) d = 1;
 
         // 顺时针添加四段圆弧
         path.AddArc(rect.X, rect.Y, d, d, 180, 90); // 左上

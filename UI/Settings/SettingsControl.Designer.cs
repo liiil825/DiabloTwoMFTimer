@@ -32,6 +32,7 @@ partial class SettingsControl
     /// </summary>
     private void InitializeComponent()
     {
+        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         tabControl = new DiabloTwoMFTimer.UI.Components.ThemedTabControl();
         tabPageGeneral = new TabPage();
         generalSettings = new GeneralSettingsControl();

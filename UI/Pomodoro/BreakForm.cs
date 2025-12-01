@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq; // 必须引用，用于 Sum
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
@@ -11,15 +12,15 @@ namespace DiabloTwoMFTimer.UI.Pomodoro;
 // 定义窗口模式
 public enum BreakFormMode
 {
-    PomodoroBreak, // 休息模式：有倒计时，有Session统计
-    StatisticsView, // 查看模式：无倒计时，仅查看数据
+    PomodoroBreak,
+    StatisticsView,
 }
 
 public enum StatViewType
 {
-    Session, // 刚才/本轮
-    Today, // 今日
-    Week, // 本周
+    Session,
+    Today,
+    Week,
 }
 
 public partial class BreakForm : Form
@@ -30,9 +31,9 @@ public partial class BreakForm : Form
     private readonly IProfileService? _profileService;
     private readonly PomodoroTimeSettings _timeSettings;
     private readonly IStatisticsService _statsService;
-    private readonly BreakFormMode _mode; // 当前窗口模式
+    private readonly BreakFormMode _mode;
 
-    private StatViewType _currentViewType; // 当前显示的统计类型
+    private StatViewType _currentViewType;
     private bool _isAutoClosed = false;
 
     private readonly List<string> _shortBreakMessages = new()
@@ -49,7 +50,6 @@ public partial class BreakForm : Form
         "即使是奈非天也需要休息",
     };
 
-    // 构造函数
     public BreakForm(
         IPomodoroTimerService timerService,
         IAppSettings appSettings,
@@ -67,20 +67,17 @@ public partial class BreakForm : Form
         _breakType = breakType;
         _timeSettings = timerService.Settings;
 
-        // 确定默认显示的视图
         _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
 
         InitializeComponent();
         SetupForm();
-        UpdateContent(); // 设置初始文本
-        UpdateLayoutState(); // 根据模式显隐控件
+        UpdateContent();
+        UpdateLayoutState();
 
         this.BackColor = Color.FromArgb(28, 28, 28);
 
-        // 初始加载数据
         RefreshStatistics();
 
-        // 仅在休息模式下订阅计时事件
         if (_mode == BreakFormMode.PomodoroBreak)
         {
             _timerService.TimeUpdated += TimerService_TimeUpdated;
@@ -97,7 +94,7 @@ public partial class BreakForm : Form
             Font = new Font("微软雅黑", 10F),
             FlatStyle = FlatStyle.Flat,
             Cursor = Cursors.Hand,
-            Tag = type, // 存储类型
+            Tag = type,
         };
         btn.FlatAppearance.BorderSize = 1;
         btn.Click += (s, e) => SwitchView(type);
@@ -130,27 +127,24 @@ public partial class BreakForm : Form
         this.DoubleBuffered = true;
     }
 
-    // 根据模式控制控件的显示/隐藏
     private void UpdateLayoutState()
     {
         if (_mode == BreakFormMode.StatisticsView)
         {
             lblMessage.Visible = false;
             lblTimer.Visible = false;
+            pomodoroStatusDisplay.Visible = false; // 统计模式隐藏番茄
             btnSkip.Visible = false;
-
-            // 关键点：查看模式下，"本轮战况" 意义不大，隐藏它
             btnToggleSession.Visible = true;
         }
         else
         {
             lblMessage.Visible = true;
             lblTimer.Visible = true;
+            pomodoroStatusDisplay.Visible = true;
             btnSkip.Visible = true;
             btnToggleSession.Visible = true;
         }
-
-        // 触发一次布局重算
         this.PerformLayout();
     }
 
@@ -162,7 +156,6 @@ public partial class BreakForm : Form
 
     private void UpdateButtonStyles()
     {
-        // 高亮当前选中的按钮
         HighlightButton(btnToggleSession, _currentViewType == StatViewType.Session);
         HighlightButton(btnToggleToday, _currentViewType == StatViewType.Today);
         HighlightButton(btnToggleWeek, _currentViewType == StatViewType.Week);
@@ -170,9 +163,7 @@ public partial class BreakForm : Form
 
     private void HighlightButton(Button? btn, bool isActive)
     {
-        if (btn == null)
-            return;
-
+        if (btn == null) return;
         if (isActive)
         {
             btn.BackColor = Color.Gray;
@@ -189,7 +180,6 @@ public partial class BreakForm : Form
 
     private void UpdateContent()
     {
-        // 只有休息模式需要随机提示语
         if (_mode == BreakFormMode.PomodoroBreak && lblMessage != null)
         {
             var rnd = new Random();
@@ -202,63 +192,86 @@ public partial class BreakForm : Form
     {
         UpdateButtonStyles();
 
+        // 1. 更新番茄钟状态
+        if (pomodoroStatusDisplay != null)
+        {
+            pomodoroStatusDisplay.TotalCompletedCount = _timerService.CompletedPomodoros;
+        }
+
         if (_profileService == null || _profileService.CurrentProfile == null)
         {
-            if (lblStats != null)
-                lblStats.Text = "暂无角色数据";
+            if (lblStats != null) lblStats.Text = "暂无角色数据";
+            if (lblDuration != null) lblDuration.Text = "";
             return;
         }
 
+        DateTime start = DateTime.MinValue;
+        DateTime end = DateTime.Now;
         string title = "";
-        string content = "";
 
+        // 确定时间范围
         switch (_currentViewType)
         {
             case StatViewType.Session:
-                // 计算Session时间
-                DateTime sessionStart;
                 if (_breakType == PomodoroBreakType.ShortBreak)
-                    sessionStart = DateTime.Now.AddMinutes(-_timeSettings.WorkTimeMinutes - 5);
+                    start = DateTime.Now.AddMinutes(-_timeSettings.WorkTimeMinutes - 5);
                 else
                 {
                     int cycleMins = (_timeSettings.WorkTimeMinutes * 4) + (_timeSettings.ShortBreakMinutes * 3);
-                    sessionStart = DateTime.Now.AddMinutes(-cycleMins - 10);
+                    start = DateTime.Now.AddMinutes(-cycleMins - 10);
                 }
                 title = ">>> 本轮战况 <<<";
-                content = _statsService.GetDetailedSummary(sessionStart, DateTime.Now);
                 break;
 
             case StatViewType.Today:
+                start = DateTime.Today;
                 title = ">>> 今日战况 <<<";
-                content = _statsService.GetDetailedSummary(DateTime.Today, DateTime.Now);
                 break;
 
             case StatViewType.Week:
+                start = _statsService.GetStartOfWeek();
                 title = ">>> 本周战况 <<<";
-                content = _statsService.GetDetailedSummary(_statsService.GetStartOfWeek(), DateTime.Now);
                 break;
         }
 
+        // 2. 获取统计文本
+        string content = _statsService.GetDetailedSummary(start, end);
         if (lblStats != null)
             lblStats.Text = $"{title}\n\n{content}";
+
+        // 3. 计算并显示总时长 (新增功能)
+        if (lblDuration != null)
+        {
+            var validRecords = _profileService.CurrentProfile.Records
+                .Where(r => r.IsCompleted && r.StartTime >= start && r.StartTime <= end);
+
+            double totalSeconds = validRecords.Sum(r => r.DurationSeconds);
+            TimeSpan ts = TimeSpan.FromSeconds(totalSeconds);
+
+            // 格式化时长显示
+            string durationText = totalSeconds < 60
+                ? $"{ts.Seconds}秒"
+                : (totalSeconds < 3600
+                    ? $"{ts.Minutes}分 {ts.Seconds}秒"
+                    : $"{ts.Hours}小时 {ts.Minutes}分");
+
+            lblDuration.Text = $"累计游戏时长: {durationText}";
+        }
     }
 
-    // 布局逻辑 (根据模式动态调整)
     private void BreakForm_SizeChanged(object? sender, EventArgs e)
     {
-        if (pnlHeader == null)
-            return; // 防止初始化前的空引用
+        if (pnlHeader == null) return;
 
         int cx = this.ClientSize.Width / 2;
         int totalH = this.ClientSize.Height;
         int totalW = this.ClientSize.Width;
 
-        // 1. 顶部 Header 区域
-        // 强制刷新 FlowLayoutPanel 的布局，确保隐藏按钮后 Width 是准确的
+        // 1. Header
         pnlToggles.PerformLayout();
-        pnlToggles.Left = (totalW - pnlToggles.Width) / 2; // 重新计算居中
+        pnlToggles.Left = (totalW - pnlToggles.Width) / 2;
 
-        int currentY = 120; // 内容起始 Y 坐标
+        int currentY = 110; // 起始高度
 
         // 2. 提示语 (仅休息模式)
         if (_mode == BreakFormMode.PomodoroBreak)
@@ -266,18 +279,27 @@ public partial class BreakForm : Form
             lblMessage.Width = totalW - 100;
             lblMessage.Location = new Point(50, currentY);
             currentY = lblMessage.Bottom + 10;
+
+            // 3. 倒计时 (移到这里)
+            // 确保 Label AutoSize = true, 居中计算
+            lblTimer.Location = new Point(cx - (lblTimer.Width / 2), currentY);
+            currentY = lblTimer.Bottom + 5;
+
+            // 4. 番茄状态 (新增)
+            pomodoroStatusDisplay.Location = new Point(cx - (pomodoroStatusDisplay.Width / 2), currentY);
+            currentY = pomodoroStatusDisplay.Bottom + 15;
         }
         else
         {
             currentY += 20;
         }
 
-        // --- 从底部向上布局，防止重叠 ---
+        // 5. 总时长 (新增)
+        lblDuration.Location = new Point(cx - (lblDuration.Width / 2), currentY);
+        currentY = lblDuration.Bottom + 20;
 
-        // 5. 底部按钮位置 (固定在底部 100px 处)
+        // --- 底部按钮 ---
         int btnY = totalH - 100;
-
-        // 按钮布局
         if (_mode == BreakFormMode.PomodoroBreak)
         {
             int spacing = 40;
@@ -290,28 +312,10 @@ public partial class BreakForm : Form
             btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
         }
 
-        // 4. 倒计时 (仅休息模式)
-        // 放在按钮上方 60px 处
-        int statsBottomLimit;
-
-        if (_mode == BreakFormMode.PomodoroBreak)
-        {
-            int timerY = btnY - 60;
-            lblTimer.Location = new Point(cx - (lblTimer.Width / 2), timerY);
-            // 统计区域的底部界限 = 倒计时上方再留 20px
-            statsBottomLimit = timerY - 20;
-        }
-        else
-        {
-            // 查看模式下，统计区域底部界限 = 按钮上方再留 40px
-            statsBottomLimit = btnY - 40;
-        }
-
-        // 3. 统计内容 (填充中间剩余空间)
-        // 高度 = 底部界限 - 当前Y坐标
+        // 6. 统计内容 (填充剩余空间)
+        int statsBottomLimit = btnY - 20;
         int statsHeight = statsBottomLimit - currentY;
-        if (statsHeight < 100)
-            statsHeight = 100; // 最小高度保护
+        if (statsHeight < 100) statsHeight = 100;
 
         lblStats.Width = totalW - 100;
         lblStats.Height = statsHeight;
@@ -320,18 +324,11 @@ public partial class BreakForm : Form
 
     private void TimerService_PomodoroTimerStateChanged(object? sender, PomodoroTimerStateChangedEventArgs e)
     {
-        // 只有在休息模式下才处理自动关闭逻辑
         if (_mode == BreakFormMode.PomodoroBreak)
         {
-            // 如果状态从休息切换到工作，自动关闭窗口
-            // 逻辑：当前是 Work 状态，且上一个状态是对应的休息状态
-            if (
-                e.State == PomodoroTimerState.Work
-                && (
-                    (_breakType == PomodoroBreakType.ShortBreak && e.PreviousState == PomodoroTimerState.ShortBreak)
-                    || (_breakType == PomodoroBreakType.LongBreak && e.PreviousState == PomodoroTimerState.LongBreak)
-                )
-            )
+            if (e.State == PomodoroTimerState.Work &&
+                ((_breakType == PomodoroBreakType.ShortBreak && e.PreviousState == PomodoroTimerState.ShortBreak) ||
+                 (_breakType == PomodoroBreakType.LongBreak && e.PreviousState == PomodoroTimerState.LongBreak)))
             {
                 AutoCloseForm();
             }
@@ -340,10 +337,8 @@ public partial class BreakForm : Form
 
     private void CheckBreakTimeEnded()
     {
-        // 只有在休息模式下才检查
         if (_mode == BreakFormMode.PomodoroBreak)
         {
-            // 双重保险：如果倒计时归零，且服务状态已经是 Work（通常 TimerStateChanged 会先触发，这里是兜底）
             if (_timerService.TimeLeft <= TimeSpan.Zero && _timerService.CurrentState == PomodoroTimerState.Work)
             {
                 AutoCloseForm();
@@ -351,7 +346,6 @@ public partial class BreakForm : Form
         }
     }
 
-    // ... Timer 事件处理保持不变 ...
     private void TimerService_TimeUpdated(object? sender, EventArgs e)
     {
         this.SafeInvoke(() =>

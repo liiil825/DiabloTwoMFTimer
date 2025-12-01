@@ -1,20 +1,13 @@
-#nullable disable
 using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace DiabloTwoMFTimer.UI.Pomodoro;
+
 partial class BreakForm
 {
-    /// <summary>
-    /// Required designer variable.
-    /// </summary>
     private System.ComponentModel.IContainer components = null;
 
-    /// <summary>
-    /// Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
         if (disposing && (components != null))
@@ -26,10 +19,6 @@ partial class BreakForm
 
     #region Windows Form Designer generated code
 
-    /// <summary>
-    /// Required method for Designer support - do not modify
-    /// the contents of this method with the code editor.
-    /// </summary>
     private void InitializeComponent()
     {
         this.AutoScaleMode = AutoScaleMode.Font;
@@ -62,7 +51,7 @@ partial class BreakForm
             AutoSize = true,
             FlowDirection = FlowDirection.LeftToRight,
             BackColor = Color.Transparent,
-            Location = new Point(20, 60), // 在标题下方
+            Location = new Point(20, 60),
         };
 
         btnToggleSession = CreateToggleButton("本轮战况", StatViewType.Session);
@@ -76,39 +65,57 @@ partial class BreakForm
         pnlHeader.Controls.Add(lblTitle);
         pnlHeader.Controls.Add(pnlToggles);
 
-        // 2. 提示语 (仅休息模式)
+        // 2. 提示语
         lblMessage = new Label
         {
             AutoSize = false,
-            Size = new Size(800, 80),
-            Font = new Font("微软雅黑", 24F, FontStyle.Bold),
+            Size = new Size(800, 60), // 高度稍微减小
+            Font = new Font("微软雅黑", 22F, FontStyle.Bold),
             ForeColor = Color.White,
             TextAlign = ContentAlignment.MiddleCenter,
             Text = "休息一下",
         };
 
-        // 3. 统计内容 (核心区域)
-        lblStats = new Label
-        {
-            AutoSize = false,
-            Size = new Size(800, 400),
-            Font = new Font("Consolas", 12F),
-            ForeColor = Color.Gold,
-            TextAlign = ContentAlignment.TopCenter,
-            Text = "Loading...",
-        };
-
-        // 4. 倒计时
+        // 3. 倒计时 (字体加大，颜色醒目)
         lblTimer = new Label
         {
             AutoSize = true,
-            Font = new Font("Consolas", 20F, FontStyle.Bold),
+            Font = new Font("Consolas", 36F, FontStyle.Bold), // 字体加大
             ForeColor = Color.LightGreen,
             TextAlign = ContentAlignment.MiddleCenter,
             Text = "00:00",
         };
 
-        // 5. 底部按钮
+        // 4. 新增：番茄状态显示
+        pomodoroStatusDisplay = new DiabloTwoMFTimer.UI.Components.PomodoroStatusDisplay
+        {
+            Size = new Size(400, 40),
+            IconSize = 24,
+            IconSpacing = 8
+        };
+
+        // 5. 新增：总时长标签
+        lblDuration = new Label
+        {
+            AutoSize = true,
+            Font = new Font("微软雅黑", 12F, FontStyle.Regular),
+            ForeColor = Color.LightGray,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Text = "总投入时间: --",
+        };
+
+        // 6. 统计内容
+        lblStats = new Label
+        {
+            AutoSize = false,
+            Size = new Size(800, 400),
+            Font = new Font("Consolas", 11F),
+            ForeColor = Color.Gold,
+            TextAlign = ContentAlignment.TopCenter,
+            Text = "Loading...",
+        };
+
+        // 7. 底部按钮
         btnClose = CreateFlatButton("关闭", Color.IndianRed);
         btnClose.Click += (s, e) => this.Close();
 
@@ -119,11 +126,13 @@ partial class BreakForm
             this.Close();
         };
 
-        // 添加控件
+        // 添加控件 (顺序很重要，但这里主要靠 SizeChanged 手动布局)
         this.Controls.Add(pnlHeader);
         this.Controls.Add(lblMessage);
+        this.Controls.Add(lblTimer);           // 调整顺序
+        this.Controls.Add(pomodoroStatusDisplay); // 新增
+        this.Controls.Add(lblDuration);        // 新增
         this.Controls.Add(lblStats);
-        this.Controls.Add(lblTimer);
         this.Controls.Add(btnSkip);
         this.Controls.Add(btnClose);
 
@@ -139,9 +148,13 @@ partial class BreakForm
     private Button btnToggleSession;
     private Button btnToggleToday;
     private Button btnToggleWeek;
+
     private Label lblMessage;
-    private Label lblStats;
     private Label lblTimer;
+    private DiabloTwoMFTimer.UI.Components.PomodoroStatusDisplay pomodoroStatusDisplay; // 新增
+    private Label lblDuration; // 新增
+    private Label lblStats;
+
     private Button btnClose;
     private Button btnSkip;
 }

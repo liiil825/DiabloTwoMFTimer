@@ -3,18 +3,18 @@ using System.Drawing;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Utils;
-using DiabloTwoMFTimer.UI.Theme; // 引用主题
+using DiabloTwoMFTimer.Models; // 引用消息命名空间
+using DiabloTwoMFTimer.UI.Theme;
 
 namespace DiabloTwoMFTimer.UI.Settings;
 
 public partial class HotkeySettingsControl : UserControl
 {
-    // 修改为使用主题颜色
     private readonly Color ColorNormal = AppTheme.SurfaceColor;
-    // 编辑状态用稍亮一点的颜色，或者带点颜色的背景
     private readonly Color ColorEditing = Color.FromArgb(60, 60, 70);
 
     private bool _isUpdating = false;
+    private IMessenger? _messenger; // 新增 Messenger 引用
 
     public Keys StartOrNextRunHotkey { get; private set; }
     public Keys PauseHotkey { get; private set; }
@@ -24,12 +24,17 @@ public partial class HotkeySettingsControl : UserControl
     public HotkeySettingsControl()
     {
         InitializeComponent();
-        InitializeTextBoxStyles(); // 初始化样式
+        InitializeTextBoxStyles();
+    }
+
+    // 依赖注入方法
+    public void SetMessenger(IMessenger messenger)
+    {
+        _messenger = messenger;
     }
 
     private void InitializeTextBoxStyles()
     {
-        // 确保初始加载时颜色正确
         ApplyStyle(txtStartNext);
         ApplyStyle(txtPause);
         ApplyStyle(txtDeleteHistory);
@@ -54,8 +59,11 @@ public partial class HotkeySettingsControl : UserControl
             return;
         }
 
+        // 进入编辑模式：暂停全局热键
+        _messenger?.Publish(new SuspendHotkeysMessage());
+
         textBox.BackColor = ColorEditing;
-        textBox.ForeColor = AppTheme.AccentColor; // 编辑时高亮文字
+        textBox.ForeColor = AppTheme.AccentColor;
         textBox.Text = LanguageManager.GetString("HotkeyPressToSet") ?? "请按快捷键 (Esc取消)";
     }
 
@@ -64,9 +72,13 @@ public partial class HotkeySettingsControl : UserControl
         if (sender is not TextBox textBox)
             return;
 
-        textBox.BackColor = ColorNormal;
-        textBox.ForeColor = AppTheme.TextColor; // 恢复文字颜色
+        // 离开编辑模式：恢复全局热键
+        _messenger?.Publish(new ResumeHotkeysMessage());
 
+        textBox.BackColor = ColorNormal;
+        textBox.ForeColor = AppTheme.TextColor;
+
+        // 还原显示当前保存的键值 (如果是Esc取消，这里会自动还原)
         string tag = textBox.Tag?.ToString() ?? "";
         Keys currentKey = Keys.None;
         switch (tag)
@@ -95,20 +107,24 @@ public partial class HotkeySettingsControl : UserControl
 
         e.SuppressKeyPress = true;
 
+        // Esc: 取消 (通过转移焦点触发 Leave 事件来还原)
         if (e.KeyCode == Keys.Escape)
         {
-            this.Focus();
+            // 关键修复：将焦点移交给父容器（如 GroupBox 或 TabPage），强制 TextBox 失去焦点
+            this.Parent?.Focus();
             return;
         }
 
+        // Back/Delete: 清除热键
         if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete)
         {
             _isUpdating = true;
             UpdateHotkey(textBox, Keys.None);
-            this.Focus();
+            this.Parent?.Focus(); // 清除后也自动退出编辑
             return;
         }
 
+        // 忽略单一控制键
         if (e.KeyCode == Keys.ControlKey || e.KeyCode == Keys.ShiftKey || e.KeyCode == Keys.Menu)
         {
             return;
@@ -121,7 +137,9 @@ public partial class HotkeySettingsControl : UserControl
 
         _isUpdating = true;
         UpdateHotkey(textBox, keyData);
-        this.Focus();
+
+        // 设置完成后自动退出编辑
+        this.Parent?.Focus();
     }
 
     private void UpdateHotkey(TextBox textBox, Keys newKey)
@@ -146,8 +164,6 @@ public partial class HotkeySettingsControl : UserControl
         textBox.BackColor = ColorNormal;
         textBox.ForeColor = AppTheme.TextColor;
     }
-
-    // ... 其余 LoadHotkeys, RefreshUI, FormatKeyString 方法保持不变 ...
 
     private string FormatKeyString(Keys key)
     {
