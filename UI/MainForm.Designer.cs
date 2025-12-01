@@ -8,15 +8,8 @@ namespace DiabloTwoMFTimer.UI;
 
 partial class MainForm
 {
-    /// <summary>
-    /// Required designer variable.
-    /// </summary>
     private System.ComponentModel.IContainer components = null;
 
-    /// <summary>
-    /// Clean up any resources being used.
-    /// </summary>
-    /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
     protected override void Dispose(bool disposing)
     {
         if (disposing && (components != null))
@@ -28,76 +21,110 @@ partial class MainForm
 
     #region Windows Form Designer generated code
 
-    /// <summary>
-    /// Required method for Designer support - do not modify
-    /// the contents of this method with the code editor.
-    /// </summary>
     private void InitializeComponent()
     {
-        FormBorderStyle = FormBorderStyle.None;
-        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
-        tabControl = new DiabloTwoMFTimer.UI.Components.ThemedTabControl();
-        tabProfilePage = new System.Windows.Forms.TabPage();
-        tabTimerPage = new System.Windows.Forms.TabPage();
-        tabPomodoroPage = new System.Windows.Forms.TabPage();
-        tabSettingsPage = new System.Windows.Forms.TabPage();
-        tabControl.SuspendLayout();
-        SuspendLayout();
+        this.tabControl = new DiabloTwoMFTimer.UI.Components.ThemedTabControl();
+        this.tabProfilePage = new System.Windows.Forms.TabPage();
+        this.tabTimerPage = new System.Windows.Forms.TabPage();
+        this.tabPomodoroPage = new System.Windows.Forms.TabPage();
+        this.tabSettingsPage = new System.Windows.Forms.TabPage();
+        this.tabClosePage = new System.Windows.Forms.TabPage(); // 新增：关闭用的 Tab
 
+        this.tabControl.SuspendLayout();
+        this.SuspendLayout();
+
+        // 
         // tabControl
-        tabControl.Controls.Add(tabProfilePage);
-        tabControl.Controls.Add(tabTimerPage);
-        tabControl.Controls.Add(tabPomodoroPage);
-        tabControl.Controls.Add(tabSettingsPage);
-        tabControl.Dock = DockStyle.Fill;
-        tabControl.Margin = new Padding(6);
-        tabControl.BackColor = AppTheme.BackColor;
-        tabControl.Name = "tabControl";
-        tabControl.SelectedIndex = 0;
-        tabControl.TabIndex = 1;
-        tabControl.SelectedIndexChanged += TabControl_SelectedIndexChanged;
+        // 
+        this.tabControl.Controls.Add(this.tabProfilePage);
+        this.tabControl.Controls.Add(this.tabTimerPage);
+        this.tabControl.Controls.Add(this.tabPomodoroPage);
+        this.tabControl.Controls.Add(this.tabSettingsPage);
+        this.tabControl.Controls.Add(this.tabClosePage); // 添加到集合中
 
+        this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.tabControl.Margin = new System.Windows.Forms.Padding(0);
+        this.tabControl.BackColor = AppTheme.BackColor;
+        this.tabControl.Name = "tabControl";
+        this.tabControl.SelectedIndex = 0;
+        this.tabControl.TabIndex = 1;
+
+        // --- 核心修改：布局设置 ---
+        this.tabControl.ItemSize = new System.Drawing.Size(95, 40);
+        this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+        // -------------------------
+        this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
+
+        // 
         // tabProfilePage
-        tabProfilePage.Location = new Point(4, 37);
-        tabProfilePage.Name = "tabProfilePage";
-        tabProfilePage.Padding = new System.Windows.Forms.Padding(3);
-        tabProfilePage.TabIndex = 0;
-        tabProfilePage.Text = "Profile";
-        tabProfilePage.UseVisualStyleBackColor = true;
+        // 
+        this.tabProfilePage.Location = new System.Drawing.Point(4, 44);
+        this.tabProfilePage.Name = "tabProfilePage";
+        this.tabProfilePage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabProfilePage.TabIndex = 0;
+        this.tabProfilePage.Text = "Profile";
+        this.tabProfilePage.UseVisualStyleBackColor = true;
 
+        // 
         // tabTimerPage
-        tabTimerPage.Location = new Point(4, 37);
-        tabTimerPage.Name = "tabTimerPage";
-        tabTimerPage.Padding = new System.Windows.Forms.Padding(3);
-        tabTimerPage.TabIndex = 1;
-        tabTimerPage.UseVisualStyleBackColor = true;
+        // 
+        this.tabTimerPage.Location = new System.Drawing.Point(4, 44);
+        this.tabTimerPage.Name = "tabTimerPage";
+        this.tabTimerPage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabTimerPage.TabIndex = 1;
+        this.tabTimerPage.Text = "Timer";
+        this.tabTimerPage.UseVisualStyleBackColor = true;
 
+        // 
         // tabPomodoroPage
-        tabPomodoroPage.Location = new Point(4, 37);
-        tabPomodoroPage.Name = "tabPomodoroPage";
-        tabPomodoroPage.Padding = new System.Windows.Forms.Padding(3);
-        tabPomodoroPage.TabIndex = 2;
-        tabPomodoroPage.UseVisualStyleBackColor = true;
+        // 
+        this.tabPomodoroPage.Location = new System.Drawing.Point(4, 44);
+        this.tabPomodoroPage.Name = "tabPomodoroPage";
+        this.tabPomodoroPage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabPomodoroPage.TabIndex = 2;
+        this.tabPomodoroPage.Text = "Tomato";
+        this.tabPomodoroPage.UseVisualStyleBackColor = true;
 
+        // 
         // tabSettingsPage
-        tabSettingsPage.Location = new Point(4, 37);
-        tabSettingsPage.Name = "tabSettingsPage";
-        tabSettingsPage.Padding = new System.Windows.Forms.Padding(3);
-        tabSettingsPage.TabIndex = 3;
-        tabSettingsPage.UseVisualStyleBackColor = true;
+        // 
+        this.tabSettingsPage.Location = new System.Drawing.Point(4, 44);
+        this.tabSettingsPage.Name = "tabSettingsPage";
+        this.tabSettingsPage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabSettingsPage.TabIndex = 3;
+        this.tabSettingsPage.Text = "Settings";
+        this.tabSettingsPage.UseVisualStyleBackColor = true;
 
+        // 
+        // tabClosePage (新增)
+        // 
+        // 不需要设置 Padding 或 Content，因为它只作为一个按钮使用
+        this.tabClosePage.Name = "tabClosePage";
+        this.tabClosePage.TabIndex = 4;
+        this.tabClosePage.Text = "×"; // 显示 X
+        this.tabClosePage.UseVisualStyleBackColor = true;
+
+        // 
         // MainForm
-        AutoScaleDimensions = new SizeF(13F, 28F);
-        AutoScaleMode = AutoScaleMode.Font;
-        BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
-        ClientSize = new System.Drawing.Size(UISizeConstants.ClientWidth, UISizeConstants.ClientHeightWithoutLoot);
-        Controls.Add(tabControl);
-        Icon = new System.Drawing.Icon("Resources\\d2r.ico");
-        Margin = new Padding(6);
-        Name = "MainForm";
-        Text = "Timer";
-        tabControl.ResumeLayout(false);
-        ResumeLayout(false);
+        // 
+        this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
+        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        this.ClientSize = new System.Drawing.Size(UISizeConstants.ClientWidth, UISizeConstants.ClientHeightWithoutLoot);
+
+        // 无边框
+        this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+
+        // 只添加 tabControl，移除了之前的 btnClose
+        this.Controls.Add(this.tabControl);
+
+        this.Margin = new System.Windows.Forms.Padding(6);
+        this.Name = "MainForm";
+        this.Text = "D2R Helper";
+        this.Icon = new System.Drawing.Icon("Resources\\d2r.ico");
+
+        this.tabControl.ResumeLayout(false);
+        this.ResumeLayout(false);
     }
 
     #endregion
@@ -107,4 +134,5 @@ partial class MainForm
     private System.Windows.Forms.TabPage tabTimerPage;
     private System.Windows.Forms.TabPage tabPomodoroPage;
     private System.Windows.Forms.TabPage tabSettingsPage;
+    private System.Windows.Forms.TabPage tabClosePage; // 新增声明
 }
