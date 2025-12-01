@@ -163,6 +163,24 @@ namespace DiabloTwoMFTimer.UI.Common
             if (lblTitle != null)
                 lblTitle.Text = this.Text;
         }
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Escape)
+            {
+                BtnCancel_Click(null, EventArgs.Empty);
+                return true;
+            }
+            if (keyData == Keys.Enter)
+            {
+                // 如果焦点在按钮上，让按钮自己处理，否则默认触发确认
+                if (!btnConfirm!.Focused && !btnCancel!.Focused)
+                {
+                    BtnConfirm_Click(null, EventArgs.Empty);
+                    return true;
+                }
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         protected virtual void BtnConfirm_Click(object? sender, EventArgs e)
         {

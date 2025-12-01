@@ -16,9 +16,9 @@ namespace DiabloTwoMFTimer.UI.Timer
 
         private void InitializeComponent()
         {
-            this.txtLootName = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.chkPreviousRun = new System.Windows.Forms.CheckBox();
+            this.txtLootName = new DiabloTwoMFTimer.UI.Components.ThemedTextBox();
+            this.label1 = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.chkPreviousRun = new DiabloTwoMFTimer.UI.Components.ThemedCheckBox();
             this.SuspendLayout();
             //
             // txtLootName

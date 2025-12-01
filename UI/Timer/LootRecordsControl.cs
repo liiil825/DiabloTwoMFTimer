@@ -90,6 +90,10 @@ public partial class LootRecordsControl : UserControl
     // 修改 2: 新增选中最后一行的方法 (用于添加新记录后)
     public void SelectLastRow()
     {
+        // 检查是否有可见行
+        if (!gridLoot.Visible || gridLoot.Height <= 0)
+            return;
+
         gridLoot.SafeInvoke(() =>
         {
             if (gridLoot.RowCount > 0)
@@ -107,6 +111,10 @@ public partial class LootRecordsControl : UserControl
 
     public void ScrollToBottom()
     {
+        // 检查是否有可见行
+        if (!gridLoot.Visible || gridLoot.Height <= 0)
+            return;
+
         gridLoot.SafeInvoke(() =>
         {
             if (gridLoot.RowCount > 0)
