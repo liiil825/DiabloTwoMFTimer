@@ -13,7 +13,7 @@ public enum ToastType
     Error,
 }
 
-public class ToastForm : Form
+public class ToastForm : System.Windows.Forms.Form
 {
     private System.Windows.Forms.Timer _timerLife = null!;
     private System.Windows.Forms.Timer _timerAnim = null!;

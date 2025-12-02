@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
-using DiabloTwoMFTimer.UI.Common;
+using DiabloTwoMFTimer.UI.Form;
 using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Profiles;

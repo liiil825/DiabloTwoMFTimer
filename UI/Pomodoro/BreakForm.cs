@@ -23,7 +23,7 @@ public enum StatViewType
     Week,
 }
 
-public partial class BreakForm : Form
+public partial class BreakForm : System.Windows.Forms.Form
 {
     private readonly IPomodoroTimerService _timerService;
     private readonly IAppSettings _appSettings;

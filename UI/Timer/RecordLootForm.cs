@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Services;
-using DiabloTwoMFTimer.UI.Common;
+using DiabloTwoMFTimer.UI.Form;
 using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Timer;

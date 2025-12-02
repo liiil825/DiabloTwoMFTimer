@@ -119,12 +119,12 @@ public partial class SettingsControl : UserControl
         _messenger.Publish(new HotkeysChangedMessage());
     }
 
-    public void ApplyWindowPosition(Form form)
+    public void ApplyWindowPosition(System.Windows.Forms.Form form)
     {
         MoveWindowToPosition(form, generalSettings.SelectedPosition);
     }
 
-    public static void MoveWindowToPosition(Form form, WindowPosition position)
+    public static void MoveWindowToPosition(System.Windows.Forms.Form form, WindowPosition position)
     {
         Rectangle screenBounds = Screen.GetWorkingArea(form);
         int x,

@@ -52,7 +52,6 @@ partial class BreakForm
             FlowDirection = FlowDirection.LeftToRight,
             BackColor = Color.Transparent,
             Location = new Point(20, 60),
-            Padding = new Padding(0, 5, 0, 5),
         };
 
         btnToggleSession = CreateToggleButton("本轮战况", StatViewType.Session);

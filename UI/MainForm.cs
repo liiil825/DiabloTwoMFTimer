@@ -12,7 +12,7 @@ using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI;
 
-public partial class MainForm : Form
+public partial class MainForm : System.Windows.Forms.Form
 {
     private readonly IMainService _mainService = null!;
     private readonly IAppSettings _appSettings = null!;
