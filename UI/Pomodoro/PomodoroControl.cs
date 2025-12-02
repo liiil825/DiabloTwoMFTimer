@@ -196,13 +196,7 @@ public partial class PomodoroControl : UserControl
     private void LoadSettings()
     {
         // 使用注入的_appSettings获取设置
-        _timerService.Settings.WorkTimeMinutes = _appSettings.WorkTimeMinutes;
-        _timerService.Settings.WorkTimeSeconds = _appSettings.WorkTimeSeconds;
-        _timerService.Settings.ShortBreakMinutes = _appSettings.ShortBreakMinutes;
-        _timerService.Settings.ShortBreakSeconds = _appSettings.ShortBreakSeconds;
-        _timerService.Settings.LongBreakMinutes = _appSettings.LongBreakMinutes;
-        _timerService.Settings.LongBreakSeconds = _appSettings.LongBreakSeconds;
-        _timerService.Reset();
+        _timerService.LoadSettings();
     }
 
     private void SaveSettings()

@@ -22,21 +22,19 @@ public class PomodoroTimerService : IPomodoroTimerService
     private PomodoroTimerState _currentState = PomodoroTimerState.Work;
     private PomodoroTimerState _previousState = PomodoroTimerState.Work; // 记录之前的状态
     private readonly System.Windows.Forms.Timer _timer;
-    private readonly ITimerService? _timerService; // 引用计时器服务
+    private readonly ITimerService? _timerService = null!; // 引用计时器服务
+    private readonly IAppSettings? _appSettings = null!;
 
     // 标记是否在休息前暂停了计时器
     private bool _timerWasPausedBeforeBreak = false;
-    private IAppSettings? _appSettings;
 
     // 时间设置
     public PomodoroTimeSettings Settings { get; set; }
 
-    public PomodoroTimerService()
-        : this(null) { }
-
-    public PomodoroTimerService(ITimerService? timerService)
+    public PomodoroTimerService(ITimerService? timerService, IAppSettings? appSettings)
     {
         _timerService = timerService;
+        _appSettings = appSettings;
         Settings = new PomodoroTimeSettings();
         _timer = new System.Windows.Forms.Timer { Interval = 100 };
         _timer.Tick += Timer_Tick;
@@ -112,15 +110,14 @@ public class PomodoroTimerService : IPomodoroTimerService
         OnTimerStateChanged();
     }
 
-    public void LoadSettings(IAppSettings appSettings)
+    public void LoadSettings()
     {
-        _appSettings = appSettings;
-        Settings.WorkTimeMinutes = appSettings.WorkTimeMinutes;
-        Settings.WorkTimeSeconds = appSettings.WorkTimeSeconds;
-        Settings.ShortBreakMinutes = appSettings.ShortBreakMinutes;
-        Settings.ShortBreakSeconds = appSettings.ShortBreakSeconds;
-        Settings.LongBreakMinutes = appSettings.LongBreakMinutes;
-        Settings.LongBreakSeconds = appSettings.LongBreakSeconds;
+        Settings.WorkTimeMinutes = _appSettings?.WorkTimeMinutes ?? 25;
+        Settings.WorkTimeSeconds = _appSettings?.WorkTimeSeconds ?? 0;
+        Settings.ShortBreakMinutes = _appSettings?.ShortBreakMinutes ?? 5;
+        Settings.ShortBreakSeconds = _appSettings?.ShortBreakSeconds ?? 0;
+        Settings.LongBreakMinutes = _appSettings?.LongBreakMinutes ?? 15;
+        Settings.LongBreakSeconds = _appSettings?.LongBreakSeconds ?? 0;
         Reset();
     }
 

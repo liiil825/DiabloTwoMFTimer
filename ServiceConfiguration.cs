@@ -24,7 +24,11 @@ public static class ServiceConfiguration
         services.AddSingleton<ITimerHistoryService, TimerHistoryService>();
         services.AddSingleton<ITimerService, TimerService>();
         services.AddSingleton<IStatisticsService, StatisticsService>();
-        services.AddSingleton<IPomodoroTimerService, PomodoroTimerService>();
+        services.AddSingleton<IPomodoroTimerService>(sp => new PomodoroTimerService(
+            sp.GetRequiredService<ITimerService>(),
+            sp.GetRequiredService<IAppSettings>()
+        ));
+        
 
         // MainServices 现在是纯逻辑协调者
         services.AddSingleton<IMainService, MainServices>();

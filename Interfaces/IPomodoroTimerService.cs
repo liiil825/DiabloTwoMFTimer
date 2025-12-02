@@ -24,6 +24,6 @@ public interface IPomodoroTimerService
     void Start();
     void Pause();
     void Reset();
-    void LoadSettings(IAppSettings appSettings);
+    void LoadSettings();
     void SkipBreak();
 }
