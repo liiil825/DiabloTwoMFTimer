@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading; // 必须引用：用于 Mutex
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.UI;
@@ -11,44 +12,56 @@ static class Program
 {
     private static IServiceProvider? _serviceProvider;
 
+    // 定义一个唯一的互斥体名称，通常建议包含 GUID 以避免冲突
+    private const string AppMutexName = "Global\\DiabloTwoMFTimer_Unique_Mutex_ID";
+
     [STAThread]
     static void Main(string[] args)
     {
-        // 1. 全局异常处理
-        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-        Application.ThreadException += Application_ThreadException;
-        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-        // 2. 基础 UI 设置
-        Application.SetHighDpiMode(HighDpiMode.SystemAware);
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-
-        // 3. 调试模式检查
-        if (args.Length > 0 && args[0].Equals("--debug", StringComparison.CurrentCultureIgnoreCase))
+        // 尝试创建一个命名的 Mutex
+        // createdNew: 如果为 true，表示当前是第一个实例；如果为 false，表示 Mutex 已存在（程序已在运行）
+        using (var mutex = new Mutex(true, AppMutexName, out bool createdNew))
         {
-            Utils.LogManager.IsDebugEnabled = true;
-        }
+            if (!createdNew)
+            {
+                // 如果不是新创建的，说明程序已经在运行
+                MessageBox.Show("程序已经在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return; // 直接退出
+            }
 
-        try
-        {
-            // 4. 配置依赖注入
-            _serviceProvider = ServiceConfiguration.ConfigureServices();
+            // --- 以下是原有的启动逻辑 ---
 
-            // 5. 启动应用程序
-            // 这里的 GetRequiredService 会自动触发 MainForm 的构造函数
-            // 从而自动创建并注入 ProfileManager, TimerControl, MainServices 等所有依赖
-            var mainForm = _serviceProvider.GetRequiredService<MainForm>();
+            // 1. 全局异常处理
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Application.ThreadException += Application_ThreadException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            // 注意：MainServices 的初始化逻辑 (InitializeApplication)
-            // 现在在 MainForm 的 Shown 事件中触发，因为需要等待窗口句柄创建完成。
+            // 2. 基础 UI 设置
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-            Application.Run(mainForm);
-        }
-        catch (Exception ex)
-        {
-            HandleFatalException(ex);
-        }
+            // 3. 调试模式检查
+            if (args.Length > 0 && args[0].Equals("--debug", StringComparison.CurrentCultureIgnoreCase))
+            {
+                Utils.LogManager.IsDebugEnabled = true;
+            }
+
+            try
+            {
+                // 4. 配置依赖注入
+                _serviceProvider = ServiceConfiguration.ConfigureServices();
+
+                // 5. 启动应用程序
+                var mainForm = _serviceProvider.GetRequiredService<MainForm>();
+
+                Application.Run(mainForm);
+            }
+            catch (Exception ex)
+            {
+                HandleFatalException(ex);
+            }
+        } // 退出 using 块时，Mutex 会被自动释放
     }
 
     private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
