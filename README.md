@@ -1,8 +1,10 @@
-# WinForms Demo 应用程序
+# DiabloTwoMFTimer
 
 这是一个简单的D2R MF工具，包含以下功能：
 - MF 记录功能
 - 番茄时钟功能
+
+[![暗黑2刷图神器演示视频](https://i0.hdslb.com/bfs/archive/BV1fs2GB2EKU_1.jpg)](https://www.bilibili.com/video/BV1fs2GB2EKU/)
 
 ## 运行步骤
 
