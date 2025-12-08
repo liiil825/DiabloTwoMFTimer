@@ -187,11 +187,11 @@ public partial class MainForm : System.Windows.Forms.Form
     private void AdjustWindowHeight()
     {
         bool showLoot = _appSettings.TimerShowLootDrops;
-        int targetHeight = showLoot ? UISizeConstants.ClientHeightWithLoot : UISizeConstants.ClientHeightWithoutLoot;
+        int targetHeight = showLoot ? Theme.UISizeConstants.ClientHeightWithLoot : Theme.UISizeConstants.ClientHeightWithoutLoot;
 
         if (this.ClientSize.Height != targetHeight)
         {
-            this.ClientSize = new Size(UISizeConstants.ClientWidth, targetHeight);
+            this.ClientSize = new Size(Theme.UISizeConstants.ClientWidth, targetHeight);
             _mainService.ApplyWindowSettings(this);
         }
     }

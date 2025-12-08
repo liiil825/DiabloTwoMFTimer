@@ -78,15 +78,20 @@ public partial class TimerControl : UserControl
         if (!DesignMode)
         {
             LoadProfileHistoryData();
-
-            // 根据角色档案的ShowLoot设置初始化掉落记录控件的可见性
             InitializeLootRecordsVisibility();
-            // 根据设置初始化番茄时间显示
             InitializePomodoroVisibility();
-            // 【关键】首次加载时，清除所有选中状态，防止默认选中第一行掉落
-            ScrollToBottom();
-            ClearAllSelections();
-            // 更新界面状态
+
+            // 【修改】不在这里直接滚动，而是触发一次 Layout 后再滚
+            // 强制重新布局
+            this.PerformLayout();
+
+            this.BeginInvoke(new Action(() =>
+            {
+                // 此时控件应该已经有尺寸了
+                ScrollToBottom();
+                ClearAllSelections();
+            }));
+
             UpdateUI();
         }
 
@@ -498,12 +503,12 @@ public partial class TimerControl : UserControl
         // 5: Bottom Info (Fixed)
         if (isVisible)
         {
-            mainLayout.RowStyles[4] = new RowStyle(SizeType.Percent, 80F);
+            tlpMain.RowStyles[4] = new RowStyle(SizeType.Percent, 80F);
         }
         else
         {
             // 隐藏掉落时：历史占满剩余空间 (100%)，掉落高度强行设为 0
-            mainLayout.RowStyles[4] = new RowStyle(SizeType.Absolute, 0F);
+            tlpMain.RowStyles[4] = new RowStyle(SizeType.Absolute, 0F);
         }
         // --- 新增滚动逻辑 ---
         // 使用 BeginInvoke 是关键：它会把这个操作排入 UI 线程的消息队列末尾
@@ -551,14 +556,5 @@ public partial class TimerControl : UserControl
                 )
             );
         }
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            UnsubscribeFromServiceEvents();
-        }
-        base.Dispose(disposing);
     }
 }

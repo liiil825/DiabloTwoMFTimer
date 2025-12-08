@@ -99,9 +99,12 @@ public partial class SettingsControl : UserControl
         _appSettings.TimerSyncPausePomodoro = timerSettings.TimerSyncPausePomodoro;
         _appSettings.GenerateRoomName = timerSettings.GenerateRoomName;
 
-        _appSettings.Save();
+        // 保存缩放设置
+        float oldScale = _appSettings.UiScale;
+        float newScale = generalSettings.SelectedUiScale;
 
-        Utils.Toast.Success(Utils.LanguageManager.GetString("SuccessSettingsChanged", "设置修改成功"));
+        _appSettings.UiScale = newScale;
+        _appSettings.Save();
 
         string langCode = (generalSettings.SelectedLanguage == LanguageOption.Chinese) ? "zh-CN" : "en-US";
         _messenger.Publish(new LanguageChangedMessage(langCode));
@@ -117,6 +120,24 @@ public partial class SettingsControl : UserControl
         _messenger.Publish(new WindowPositionChangedMessage());
         _messenger.Publish(new AlwaysOnTopChangedMessage());
         _messenger.Publish(new HotkeysChangedMessage());
+        // 4. 【核心修改】检查缩放变化并提示重启
+        if (Math.Abs(oldScale - newScale) > 0.01f)
+        {
+            var result = DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(
+                "界面缩放设置已保存。需要重启程序才能完全生效。\n\n是否立即重启？",
+                "需要重启",
+                MessageBoxButtons.YesNo); // 使用 YesNo 按钮
+
+            if (result == DialogResult.Yes)
+            {
+                Application.Restart();
+                Environment.Exit(0); // 确保当前进程立即终止
+            }
+        }
+        else
+        {
+            Utils.Toast.Success(Utils.LanguageManager.GetString("SuccessSettingsChanged", "设置修改成功"));
+        }
     }
 
     public void ApplyWindowPosition(System.Windows.Forms.Form form)

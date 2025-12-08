@@ -41,21 +41,6 @@ public partial class CharacterSceneControl : UserControl
         UpdateUI();
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        if (_profileService == null)
-            return;
-
-        if (disposing)
-        { // 取消注册语言变更事件
-            Utils.LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
-            // 取消注册ProfileService事件
-            _profileService.CurrentProfileChangedEvent -= OnProfileChanged;
-            _profileService.CurrentSceneChangedEvent -= OnSceneChanged;
-            _profileService.CurrentDifficultyChangedEvent -= OnDifficultyChanged;
-        }
-        base.Dispose(disposing);
-    }
 
     private void OnProfileChanged(CharacterProfile? profile) => UpdateUI();
 

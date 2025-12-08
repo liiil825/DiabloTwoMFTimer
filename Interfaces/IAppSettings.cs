@@ -5,6 +5,7 @@ namespace DiabloTwoMFTimer.Interfaces;
 public interface IAppSettings
 {
     public string WindowPosition { get; set; }
+    public float UiScale { get; set; }
     public bool AlwaysOnTop { get; set; }
     public string Language { get; set; }
 

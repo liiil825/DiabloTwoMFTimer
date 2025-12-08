@@ -21,10 +21,8 @@ public partial class HistoryControl : UserControl
     private string? _currentScene = null;
     private GameDifficulty _currentDifficulty = GameDifficulty.Hell;
 
-    // 【新功能】暴露交互事件
-    public event EventHandler? InteractionOccurred;
+    public event EventHandler? InteractionOccurred = null;
 
-    // 属性保持不变...
     public int RunCount => _historyService?.RunCount ?? 0;
     public TimeSpan FastestTime => _historyService?.FastestTime ?? TimeSpan.Zero;
     public TimeSpan AverageTime => _historyService?.AverageTime ?? TimeSpan.Zero;
@@ -35,7 +33,6 @@ public partial class HistoryControl : UserControl
         InitializeComponent();
     }
 
-    // Initialize, GridRunHistory_CellValueNeeded 等方法保持不变 ...
     public void Initialize(ITimerHistoryService historyService, IProfileService profileService)
     {
         if (_isInitialized || historyService == null)
@@ -61,7 +58,6 @@ public partial class HistoryControl : UserControl
         }
     }
 
-    // ... LoadProfileHistoryData, RefreshGridRowCount, DeleteSelectedRecordAsync 保持不变 ...
     public bool LoadProfileHistoryData(
         CharacterProfile? profile,
         string scene,
@@ -85,9 +81,7 @@ public partial class HistoryControl : UserControl
         gridRunHistory.SafeInvoke(() =>
         {
             var count = _historyService?.RunHistory?.Count ?? 0;
-            // 关键 1：先清除选中项，防止索引越界
-            // gridRunHistory.ClearSelection();
-            // gridRunHistory.CurrentCell = null;
+            LogManager.WriteDebugLog("RefreshGridRowCount", $"刷新运行记录网格行计数: {count}");
             gridRunHistory.RowCount = count;
             gridRunHistory.Invalidate();
         });
@@ -95,9 +89,11 @@ public partial class HistoryControl : UserControl
 
     public void SelectLastRow()
     {
+        // 关键防御：如果控件还没显示或没高度，不要操作
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
+
         gridRunHistory.SafeInvoke(() =>
         {
-            // 同步行数防止异步问题
             if (_historyService != null && gridRunHistory.RowCount != _historyService.RunHistory.Count)
             {
                 gridRunHistory.RowCount = _historyService.RunHistory.Count;
@@ -106,15 +102,17 @@ public partial class HistoryControl : UserControl
             if (gridRunHistory.RowCount > 0)
             {
                 int lastIndex = gridRunHistory.RowCount - 1;
-                gridRunHistory.Focus();
-                // 确保lastIndex在有效范围内
-                if (lastIndex >= 0 && lastIndex < gridRunHistory.RowCount)
+                // 再次检查 DisplayedRowCount
+                if (gridRunHistory.DisplayedRowCount(false) > 0)
                 {
                     gridRunHistory.FirstDisplayedScrollingRowIndex = lastIndex;
+                    gridRunHistory.ClearSelection();
                     if (gridRunHistory.Rows.Count > lastIndex)
                     {
-                        gridRunHistory.CurrentCell = gridRunHistory.Rows[lastIndex].Cells[0];
                         gridRunHistory.Rows[lastIndex].Selected = true;
+                        // 只有当 Visible 时才尝试 Focus，否则会报错
+                        if (gridRunHistory.Visible)
+                            gridRunHistory.CurrentCell = gridRunHistory.Rows[lastIndex].Cells[0];
                     }
                 }
             }
@@ -123,31 +121,23 @@ public partial class HistoryControl : UserControl
 
     public void ScrollToBottom()
     {
+        // 关键防御
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
+
         gridRunHistory.SafeInvoke(() =>
         {
             if (gridRunHistory.RowCount > 0)
             {
-                // 计算逻辑：为了让最后一行刚好出现在底部，
-                // 我们将“第一行显示的索引”设为“总行数 - 一页能显示的行数”
-                int displayCount = gridRunHistory.DisplayedRowCount(false);
-                int firstVisible = gridRunHistory.RowCount - displayCount;
+                int displayedCount = gridRunHistory.DisplayedRowCount(false);
+                if (displayedCount == 0) return;
 
-                // 边界检查，防止负数
-                if (firstVisible < 0)
-                    firstVisible = 0;
-                // 边界检查，防止超出最大行数
-                if (firstVisible >= gridRunHistory.RowCount)
-                    firstVisible = gridRunHistory.RowCount - 1;
+                int firstVisible = gridRunHistory.RowCount - displayedCount;
+                if (firstVisible < 0) firstVisible = 0;
 
-                // 再次确保firstVisible在有效范围内（0到RowCount-1）
-                if (firstVisible >= 0 && firstVisible < gridRunHistory.RowCount)
-                {
-                    gridRunHistory.FirstDisplayedScrollingRowIndex = firstVisible;
-                }
+                gridRunHistory.FirstDisplayedScrollingRowIndex = firstVisible;
             }
         });
     }
-
     public void ClearSelection()
     {
         gridRunHistory.SafeInvoke(() =>
@@ -156,8 +146,6 @@ public partial class HistoryControl : UserControl
             gridRunHistory.CurrentCell = null;
         });
     }
-
-    // ... 其他辅助方法保持不变 ...
 
     public async Task<bool> DeleteSelectedRecordAsync()
     {
@@ -178,22 +166,10 @@ public partial class HistoryControl : UserControl
         return await Task.FromResult(success);
     }
 
-    // 响应 Service 数据变更
     private void OnHistoryDataChanged(object? sender, HistoryChangedEventArgs e)
     {
-        if (e == null)
-            return;
-        switch (e.ChangeType)
-        {
-            // 注意：这里我们不再在 Add 事件里处理 SelectLastRow，
-            // 因为我们希望由 TimerControl 统一调度（添加后，清除Loot选中，再选中History），
-            // 避免事件冲突。所以这里只负责更新行数。
-            case HistoryChangeType.Add:
-            case HistoryChangeType.FullRefresh:
-            default:
-                RefreshGridRowCount();
-                break;
-        }
+        if (e == null) return;
+        RefreshGridRowCount();
     }
 
     private string FormatTime(TimeSpan time) =>
@@ -222,15 +198,4 @@ public partial class HistoryControl : UserControl
     public void UpdateHistory(List<TimeSpan> runHistory) => _historyService?.UpdateHistory(runHistory);
 
     public void RefreshUI() => RefreshGridRowCount();
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
-            if (_historyService != null)
-                _historyService.HistoryDataChanged -= OnHistoryDataChanged;
-        }
-        base.Dispose(disposing);
-    }
 }

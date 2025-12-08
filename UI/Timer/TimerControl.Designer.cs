@@ -1,193 +1,225 @@
-#nullable disable
-
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-using DiabloTwoMFTimer.UI.Components;
-using DiabloTwoMFTimer.UI.Pomodoro;
-using DiabloTwoMFTimer.UI.Theme;
+using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Timer
 {
     partial class TimerControl
     {
-        private TableLayoutPanel mainLayout;
-        // 组件引用
-        private StatisticsControl statisticsControl;
-        private HistoryControl historyControl;
-        private CharacterSceneControl characterSceneControl;
-        private LootRecordsControl lootRecordsControl;
-        private ThemedLabel labelTime1;
+        private System.ComponentModel.IContainer components = null;
 
-        // 控件字段定义
-        private Label btnStatusIndicator;
-        private ThemedButton toggleLootButton;
-        private PomodoroTimeDisplayLabel pomodoroTime;
-        private ThemedLabel lblTimeDisplay;
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                UnsubscribeFromServiceEvents();
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Component Designer generated code
 
         private void InitializeComponent()
         {
-            this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
-            // 1. 初始化控件
-            this.mainLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.topLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.bottomInfoLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 
+            // Top Bar
+            this.tlpTop = new System.Windows.Forms.TableLayoutPanel();
+            this.tlpTopLeft = new System.Windows.Forms.TableLayoutPanel();
             this.btnStatusIndicator = new System.Windows.Forms.Label();
             this.labelTime1 = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
             this.pomodoroTime = new DiabloTwoMFTimer.UI.Pomodoro.PomodoroTimeDisplayLabel();
-            this.toggleLootButton = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+
+            // Main Time
             this.lblTimeDisplay = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
 
+            // Sub Controls
             this.statisticsControl = new DiabloTwoMFTimer.UI.Timer.StatisticsControl();
             this.historyControl = new DiabloTwoMFTimer.UI.Timer.HistoryControl();
-            this.characterSceneControl = new DiabloTwoMFTimer.UI.Timer.CharacterSceneControl();
             this.lootRecordsControl = new DiabloTwoMFTimer.UI.Timer.LootRecordsControl();
 
+            // Bottom Bar
+            this.tlpBottom = new System.Windows.Forms.TableLayoutPanel();
+            this.characterSceneControl = new DiabloTwoMFTimer.UI.Timer.CharacterSceneControl();
+            this.toggleLootButton = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+
+            this.tlpMain.SuspendLayout();
+            this.tlpTop.SuspendLayout();
+            this.tlpTopLeft.SuspendLayout();
+            this.tlpBottom.SuspendLayout();
             this.SuspendLayout();
 
-            // ---------------------------------------------------------
-            // 1. 主布局容器 (mainLayout)
-            // ---------------------------------------------------------
-            this.mainLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainLayout.ColumnCount = 1;
-            this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
 
-            // 重要：先清除样式，防止重复添加导致索引错乱
-            this.mainLayout.RowStyles.Clear();
-            this.mainLayout.RowCount = 6;
+            // 
+            // tlpMain
+            // 
+            this.tlpMain.ColumnCount = 1;
+            this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 
-            // --- 必须严格按照索引 0-5 的顺序添加 RowStyle ---
+            // Rows Definition
+            // 0: Top Bar
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, ScaleHelper.Scale(36)));
+            // 1: Main Time - 【增大】为了容纳大字体
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            // 2: Stats 
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            // 3: History
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            // 4: Loot
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+            // 5: Bottom
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
 
-            // Row 0: Top Bar (50px)
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.tlpMain.Controls.Add(this.tlpTop, 0, 0);
+            this.tlpMain.Controls.Add(this.lblTimeDisplay, 0, 1);
+            this.tlpMain.Controls.Add(this.statisticsControl, 0, 2);
+            this.tlpMain.Controls.Add(this.historyControl, 0, 3);
+            this.tlpMain.Controls.Add(this.lootRecordsControl, 0, 4);
+            this.tlpMain.Controls.Add(this.tlpBottom, 0, 5);
 
-            // Row 1: Time Display (80px)
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+            this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMain.Location = new System.Drawing.Point(0, 0);
+            this.tlpMain.Name = "tlpMain";
+            this.tlpMain.RowCount = 6;
+            this.tlpMain.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.ClientHeightWithoutLoot - Theme.UISizeConstants.TabItemHeight);
+            this.tlpMain.TabIndex = 0;
 
-            // Row 2: Stats (120px)
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            // 
+            // tlpTop (1 Row, 2 Cols)
+            // 
 
-            // Row 3: History (70%)
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.tlpTop.ColumnCount = 2;
+            // 【核心修改】左侧占满剩余空间 (100%)
+            this.tlpTop.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            // 【核心修改】右侧自适应 (AutoSize)，只占番茄钟需要的宽度
+            this.tlpTop.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpTop.Controls.Add(this.tlpTopLeft, 0, 0); // 放入新的 TableLayout
+            this.tlpTop.Controls.Add(this.pomodoroTime, 1, 0);
+            this.tlpTop.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpTop.Margin = new System.Windows.Forms.Padding(0);
+            this.tlpTop.Name = "tlpTop";
+            this.tlpTop.RowCount = 1;
+            this.tlpTop.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 
-            // Row 4: Loot (掉落记录) - [关键] 必须在这里，代码逻辑会控制它的大小
-            // 初始设为 0F (隐藏)
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+            // 
+            // tlpTopLeft (Indicator + Date) - 新增容器
+            // 
+            this.tlpTopLeft.ColumnCount = 2;
+            this.tlpTopLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize)); // 适应红点大小
+            this.tlpTopLeft.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F)); // 适应文字
+            this.tlpTopLeft.Controls.Add(this.btnStatusIndicator, 0, 0);
+            this.tlpTopLeft.Controls.Add(this.labelTime1, 1, 0);
+            this.tlpTopLeft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpTopLeft.Location = new System.Drawing.Point(0, 0);
+            this.tlpTopLeft.Margin = new System.Windows.Forms.Padding(0);
+            this.tlpTopLeft.Name = "tlpTopLeft";
+            this.tlpTopLeft.RowCount = 1;
+            this.tlpTopLeft.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 
-            // Row 5: Bottom (场景+按钮) - [关键] 必须是最后一个，固定 85px
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 85F));
-
-            // --- 添加控件 (注意第二个参数是 Column, 第三个参数是 Row) ---
-
-            this.mainLayout.Controls.Add(this.topLayout, 0, 0);
-            this.mainLayout.Controls.Add(this.lblTimeDisplay, 0, 1);
-            this.mainLayout.Controls.Add(this.statisticsControl, 0, 2);
-            this.mainLayout.Controls.Add(this.historyControl, 0, 3);
-
-            // [关键] 确保 Loot 在第 4 行
-            this.mainLayout.Controls.Add(this.lootRecordsControl, 0, 4);
-            // [关键] 确保 Bottom Info 在第 5 行
-            this.mainLayout.Controls.Add(this.bottomInfoLayout, 0, 5);
-
-            // ---------------------------------------------------------
-            // 2. 顶部布局
-            // ---------------------------------------------------------
-            this.topLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.topLayout.Margin = new System.Windows.Forms.Padding(0);
-            this.topLayout.ColumnCount = 3;
-            this.topLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.topLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.topLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.topLayout.RowCount = 1;
-            this.topLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-
-            // 左侧容器
-            System.Windows.Forms.FlowLayoutPanel topLeftFlow = new System.Windows.Forms.FlowLayoutPanel();
-            topLeftFlow.WrapContents = false;
-            topLeftFlow.AutoSize = true;
-            topLeftFlow.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            topLeftFlow.Dock = System.Windows.Forms.DockStyle.Fill;
-            topLeftFlow.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
-            topLeftFlow.Controls.Add(this.btnStatusIndicator);
-            topLeftFlow.Controls.Add(this.labelTime1);
-            topLeftFlow.Margin = new System.Windows.Forms.Padding(0);
-
-            // 指示灯
+            // Indicator
             this.btnStatusIndicator.AutoSize = false;
-            this.btnStatusIndicator.Size = new System.Drawing.Size(16, 16);
+            this.btnStatusIndicator.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.btnStatusIndicator.BackColor = System.Drawing.Color.Red;
-            this.btnStatusIndicator.Margin = new System.Windows.Forms.Padding(15, 17, 0, 0);
+            this.btnStatusIndicator.Size = new System.Drawing.Size(ScaleHelper.Scale(8), ScaleHelper.Scale(8));
+            this.btnStatusIndicator.Margin = new System.Windows.Forms.Padding(10, 0, 5, 0); // Top Margin 居中 (50高度的一半减去一半icon)
 
-            // 日期时间
+            // Date Time Label
             this.labelTime1.AutoSize = true;
-            this.labelTime1.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold);
+            this.labelTime1.Dock = System.Windows.Forms.DockStyle.Fill;
+            // this.labelTime1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.labelTime1.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.SmallTitleFont; // 【加粗】
+            this.labelTime1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft; // 【左对齐 + 垂直居中】
             this.labelTime1.ForeColor = System.Drawing.Color.LightGray;
             this.labelTime1.Text = "12:00";
-            this.labelTime1.Margin = new System.Windows.Forms.Padding(8, 8, 0, 0);
+            this.labelTime1.Margin = new System.Windows.Forms.Padding(0); // Top Margin 居中
 
-            // 番茄钟
+            // 
+            // pomodoroTime
+            // 
             this.pomodoroTime.AutoSize = true;
-            this.pomodoroTime.Dock = System.Windows.Forms.DockStyle.Right;
-            this.pomodoroTime.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Bold);
-            this.pomodoroTime.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.pomodoroTime.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pomodoroTime.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.SmallTitleFont; // 【加粗】
+            this.pomodoroTime.TextAlign = System.Drawing.ContentAlignment.MiddleRight; // 【右对齐 + 垂直居中】
             this.pomodoroTime.ForeColor = System.Drawing.Color.White;
             this.pomodoroTime.ShowMilliseconds = false;
+            this.pomodoroTime.Margin = new System.Windows.Forms.Padding(0); // 右边距
 
-            this.topLayout.Controls.Add(topLeftFlow, 0, 0);
-            this.topLayout.Controls.Add(this.pomodoroTime, 2, 0);
-
-            // ---------------------------------------------------------
-            // 3. 主计时器
-            // ---------------------------------------------------------
+            // 
+            // lblTimeDisplay
+            // 
+            this.lblTimeDisplay.AutoSize = true;
             this.lblTimeDisplay.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblTimeDisplay.AutoSize = false;
-            this.lblTimeDisplay.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.BigTimeFont;
+            this.lblTimeDisplay.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.BigTimeFont; // 【超大字体】
             this.lblTimeDisplay.ForeColor = DiabloTwoMFTimer.UI.Theme.AppTheme.AccentColor;
-            this.lblTimeDisplay.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblTimeDisplay.Text = "00:00:00.0";
+            this.lblTimeDisplay.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
-            // ---------------------------------------------------------
-            // 4. 底部布局 (场景+按钮)
-            // ---------------------------------------------------------
-            this.bottomInfoLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.bottomInfoLayout.Margin = new System.Windows.Forms.Padding(0);
-            this.bottomInfoLayout.ColumnCount = 2;
-            this.bottomInfoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.bottomInfoLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
-            this.bottomInfoLayout.RowCount = 1;
-            this.bottomInfoLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-
-            this.characterSceneControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.characterSceneControl.Margin = new System.Windows.Forms.Padding(5);
-
-            this.toggleLootButton.Size = new System.Drawing.Size(120, 36);
-            this.toggleLootButton.Text = "Show Loot";
-            this.toggleLootButton.Anchor = (System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right);
-            this.toggleLootButton.Margin = new System.Windows.Forms.Padding(0, 0, 10, 15);
-            this.toggleLootButton.Click += new System.EventHandler(this.ToggleLootButton_Click);
-
-            this.bottomInfoLayout.Controls.Add(this.characterSceneControl, 0, 0);
-            this.bottomInfoLayout.Controls.Add(this.toggleLootButton, 1, 0);
-
-            // ---------------------------------------------------------
-            // 5. 其他
-            // ---------------------------------------------------------
+            // 
+            // Sub Controls
+            // 
             this.statisticsControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.historyControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lootRecordsControl.Dock = System.Windows.Forms.DockStyle.Fill;
 
+            // 
+            // tlpBottom
+            // 
+            this.tlpBottom.ColumnCount = 2;
+            this.tlpBottom.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpBottom.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpBottom.Controls.Add(this.characterSceneControl, 0, 0);
+            this.tlpBottom.Controls.Add(this.toggleLootButton, 1, 0);
+            this.tlpBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpBottom.Margin = new System.Windows.Forms.Padding(0);
+            this.tlpBottom.Name = "tlpBottom";
+            this.tlpBottom.RowCount = 1;
+            this.tlpBottom.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+
+            // Character Scene
+            this.characterSceneControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.characterSceneControl.Margin = new System.Windows.Forms.Padding(5);
+
+            // Toggle Button
+            this.toggleLootButton.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.toggleLootButton.Size = new System.Drawing.Size(ScaleHelper.Scale(80), ScaleHelper.Scale(36));
+            this.toggleLootButton.Text = "Show Loot";
+            this.toggleLootButton.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
+            this.toggleLootButton.Click += new System.EventHandler(this.ToggleLootButton_Click);
+
+            // 
+            // TimerControl
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.mainLayout);
+            this.Controls.Add(this.tlpMain);
             this.Name = "TimerControl";
             this.Size = new System.Drawing.Size(500, 600);
 
+            this.tlpMain.ResumeLayout(false);
+            this.tlpMain.PerformLayout();
+            this.tlpTop.ResumeLayout(false);
+            this.tlpTop.PerformLayout();
+            this.tlpTopLeft.ResumeLayout(false);
+            this.tlpBottom.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
         }
 
-        private System.Windows.Forms.TableLayoutPanel topLayout;
-        private System.Windows.Forms.TableLayoutPanel bottomInfoLayout;
+        #endregion
+
+        private System.Windows.Forms.TableLayoutPanel tlpMain;
+        private System.Windows.Forms.TableLayoutPanel tlpTop;
+        private System.Windows.Forms.TableLayoutPanel tlpTopLeft;
+        private System.Windows.Forms.TableLayoutPanel tlpBottom;
+
+        private System.Windows.Forms.Label btnStatusIndicator;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel labelTime1;
+        private DiabloTwoMFTimer.UI.Pomodoro.PomodoroTimeDisplayLabel pomodoroTime;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblTimeDisplay;
+
+        private DiabloTwoMFTimer.UI.Timer.StatisticsControl statisticsControl;
+        private DiabloTwoMFTimer.UI.Timer.HistoryControl historyControl;
+        private DiabloTwoMFTimer.UI.Timer.LootRecordsControl lootRecordsControl;
+        private DiabloTwoMFTimer.UI.Timer.CharacterSceneControl characterSceneControl;
+        private DiabloTwoMFTimer.UI.Components.ThemedButton toggleLootButton;
     }
 }

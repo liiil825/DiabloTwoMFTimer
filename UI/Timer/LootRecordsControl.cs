@@ -19,7 +19,7 @@ public partial class LootRecordsControl : UserControl
     private List<LootRecord> _displayRecords = [];
     private string _currentScene = string.Empty;
 
-    public event EventHandler? InteractionOccurred;
+    public event EventHandler? InteractionOccurred = null;
 
     public LootRecordsControl()
     {
@@ -40,13 +40,13 @@ public partial class LootRecordsControl : UserControl
         var record = _displayRecords[e.RowIndex];
         switch (e.ColumnIndex)
         {
-            case 0:
+            case 0: // Index
                 e.Value = record.RunCount.ToString();
                 break;
-            case 1:
+            case 1: // Name
                 e.Value = record.Name;
                 break;
-            case 2:
+            case 2: // Time
                 e.Value = record.DropTime.ToString("MM-dd HH:mm");
                 break;
         }
@@ -70,7 +70,6 @@ public partial class LootRecordsControl : UserControl
             ? _currentProfile.LootRecords
             : _currentProfile.LootRecords.Where(r => r.SceneName == pureEnglishCurrentScene);
 
-        // 修改 1: 改为升序排列 (Oldest -> Newest)
         _displayRecords = query.OrderBy(r => r.DropTime).ToList();
 
         RefreshGrid();
@@ -87,42 +86,39 @@ public partial class LootRecordsControl : UserControl
         });
     }
 
-    // 修改 2: 新增选中最后一行的方法 (用于添加新记录后)
     public void SelectLastRow()
     {
-        // 检查是否有可见行
-        if (!gridLoot.Visible || gridLoot.Height <= 0)
-            return;
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
 
         gridLoot.SafeInvoke(() =>
         {
             if (gridLoot.RowCount > 0)
             {
+                if (gridLoot.DisplayedRowCount(false) == 0) return;
+
                 int lastIndex = gridLoot.RowCount - 1;
-                // 确保滚动到最后一行
                 gridLoot.FirstDisplayedScrollingRowIndex = lastIndex;
                 gridLoot.ClearSelection();
                 gridLoot.Rows[lastIndex].Selected = true;
-                // 可选：将焦点设为该行，方便键盘操作
-                gridLoot.CurrentCell = gridLoot.Rows[lastIndex].Cells[0];
+                if (gridLoot.Visible)
+                    gridLoot.CurrentCell = gridLoot.Rows[lastIndex].Cells[0];
             }
         });
     }
 
     public void ScrollToBottom()
     {
-        // 检查是否有可见行
-        if (!gridLoot.Visible || gridLoot.Height <= 0)
-            return;
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
 
         gridLoot.SafeInvoke(() =>
         {
             if (gridLoot.RowCount > 0)
             {
                 int displayCount = gridLoot.DisplayedRowCount(false);
+                if (displayCount == 0) return;
+
                 int firstVisible = gridLoot.RowCount - displayCount;
-                if (firstVisible < 0)
-                    firstVisible = 0;
+                if (firstVisible < 0) firstVisible = 0;
                 gridLoot.FirstDisplayedScrollingRowIndex = firstVisible;
             }
         });

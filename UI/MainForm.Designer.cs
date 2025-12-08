@@ -44,13 +44,14 @@ partial class MainForm
 
         this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
         this.tabControl.Margin = new System.Windows.Forms.Padding(0);
+        this.tabControl.Padding = new System.Drawing.Point(0, 0);
         this.tabControl.BackColor = AppTheme.BackColor;
         this.tabControl.Name = "tabControl";
         this.tabControl.SelectedIndex = 0;
         this.tabControl.TabIndex = 1;
 
         // --- 核心修改：布局设置 ---
-        this.tabControl.ItemSize = new System.Drawing.Size(95, 40);
+        this.tabControl.ItemSize = new System.Drawing.Size(UISizeConstants.TabItemWidth, UISizeConstants.TabItemHeight);
         this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
         // -------------------------
         this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
@@ -58,9 +59,9 @@ partial class MainForm
         // 
         // tabProfilePage
         // 
-        this.tabProfilePage.Location = new System.Drawing.Point(4, 44);
+        this.tabProfilePage.Location = new System.Drawing.Point(0, UISizeConstants.TabItemHeight);
         this.tabProfilePage.Name = "tabProfilePage";
-        this.tabProfilePage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabProfilePage.Padding = new System.Windows.Forms.Padding(0);
         this.tabProfilePage.TabIndex = 0;
         this.tabProfilePage.Text = "Profile";
         this.tabProfilePage.UseVisualStyleBackColor = true;
@@ -68,9 +69,9 @@ partial class MainForm
         // 
         // tabTimerPage
         // 
-        this.tabTimerPage.Location = new System.Drawing.Point(4, 44);
+        this.tabTimerPage.Location = new System.Drawing.Point(0, UISizeConstants.TabItemHeight);
         this.tabTimerPage.Name = "tabTimerPage";
-        this.tabTimerPage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabTimerPage.Padding = new System.Windows.Forms.Padding(0);
         this.tabTimerPage.TabIndex = 1;
         this.tabTimerPage.Text = "Timer";
         this.tabTimerPage.UseVisualStyleBackColor = true;
@@ -78,9 +79,9 @@ partial class MainForm
         // 
         // tabPomodoroPage
         // 
-        this.tabPomodoroPage.Location = new System.Drawing.Point(4, 44);
+        this.tabPomodoroPage.Location = new System.Drawing.Point(0, UISizeConstants.TabItemHeight);
         this.tabPomodoroPage.Name = "tabPomodoroPage";
-        this.tabPomodoroPage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabPomodoroPage.Padding = new System.Windows.Forms.Padding(0);
         this.tabPomodoroPage.TabIndex = 2;
         this.tabPomodoroPage.Text = "Tomato";
         this.tabPomodoroPage.UseVisualStyleBackColor = true;
@@ -88,9 +89,9 @@ partial class MainForm
         // 
         // tabSettingsPage
         // 
-        this.tabSettingsPage.Location = new System.Drawing.Point(4, 44);
+        this.tabSettingsPage.Location = new System.Drawing.Point(0, UISizeConstants.TabItemHeight);
         this.tabSettingsPage.Name = "tabSettingsPage";
-        this.tabSettingsPage.Padding = new System.Windows.Forms.Padding(3);
+        this.tabSettingsPage.Padding = new System.Windows.Forms.Padding(0);
         this.tabSettingsPage.TabIndex = 3;
         this.tabSettingsPage.Text = "Settings";
         this.tabSettingsPage.UseVisualStyleBackColor = true;

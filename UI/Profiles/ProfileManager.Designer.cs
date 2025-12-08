@@ -1,252 +1,272 @@
-#nullable disable
-
-using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using DiabloTwoMFTimer.UI.Components;
-
 namespace DiabloTwoMFTimer.UI.Profiles
 {
     partial class ProfileManager
     {
+        private System.ComponentModel.IContainer components = null;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Component Designer generated code
 
         private void InitializeComponent()
         {
-            btnCreateCharacter = new ThemedButton();
-            btnSwitchCharacter = new ThemedButton();
-            btnDeleteCharacter = new ThemedButton();
-            lblScene = new ThemedLabel();
-            cmbScene = new ThemedComboBox();
-            lblDifficulty = new ThemedLabel();
-            cmbDifficulty = new ThemedComboBox();
-            btnStartFarm = new ThemedButton();
-            btnShowStats = new ThemedButton();
-            btnShowLootHistory = new ThemedButton();
-            lblCurrentProfile = new ThemedLabel();
-            lblTime = new ThemedLabel();
-            lblStats = new ThemedLabel();
-            SuspendLayout();
+            this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
+
+            this.tlpTopButtons = new System.Windows.Forms.TableLayoutPanel();
+            this.btnCreateCharacter = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+            this.btnSwitchCharacter = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+            this.btnDeleteCharacter = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+
+            this.tlpScene = new System.Windows.Forms.TableLayoutPanel();
+            this.lblScene = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.cmbScene = new DiabloTwoMFTimer.UI.Components.ThemedComboBox();
+
+            this.tlpDifficulty = new System.Windows.Forms.TableLayoutPanel();
+            this.lblDifficulty = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.cmbDifficulty = new DiabloTwoMFTimer.UI.Components.ThemedComboBox();
+
+            this.tlpActionButtons = new System.Windows.Forms.TableLayoutPanel();
+            this.btnStartFarm = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+            this.btnShowLootHistory = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+            this.btnShowStats = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+
+            this.lblCurrentProfile = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.lblTime = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.lblStats = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+
+            this.tlpMain.SuspendLayout();
+            this.tlpTopButtons.SuspendLayout();
+            this.tlpScene.SuspendLayout();
+            this.tlpDifficulty.SuspendLayout();
+            this.tlpActionButtons.SuspendLayout();
+            this.SuspendLayout();
+
             // 
-            // btnCreateCharacter
+            // tlpMain
             // 
-            btnCreateCharacter.BackColor = Color.Transparent;
-            btnCreateCharacter.BorderRadius = 8;
-            btnCreateCharacter.FlatStyle = FlatStyle.Flat;
-            btnCreateCharacter.Font = new Font("微软雅黑", 10F);
-            btnCreateCharacter.Location = new Point(30, 30);
-            btnCreateCharacter.Margin = new Padding(4);
-            btnCreateCharacter.Name = "btnCreateCharacter";
-            btnCreateCharacter.Size = new Size(100, 40);
-            btnCreateCharacter.TabIndex = 0;
-            btnCreateCharacter.UseVisualStyleBackColor = true;
-            btnCreateCharacter.Click += BtnCreateCharacter_Click;
+            this.tlpMain.ColumnCount = 1;
+            this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMain.Controls.Add(this.tlpTopButtons, 0, 0);
+            this.tlpMain.Controls.Add(this.tlpScene, 0, 1);
+            this.tlpMain.Controls.Add(this.tlpDifficulty, 0, 2);
+            this.tlpMain.Controls.Add(this.tlpActionButtons, 0, 3);
+            this.tlpMain.Controls.Add(this.lblCurrentProfile, 0, 4);
+            this.tlpMain.Controls.Add(this.lblTime, 0, 5);
+            this.tlpMain.Controls.Add(this.lblStats, 0, 6);
+
+            this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMain.Location = new System.Drawing.Point(0, 0);
+            this.tlpMain.Name = "tlpMain";
+            this.tlpMain.Padding = new System.Windows.Forms.Padding(20);
+            this.tlpMain.RowCount = 8;
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMain.Size = new System.Drawing.Size(542, 450);
+            this.tlpMain.TabIndex = 0;
+
+            // -----------------------------------------------------------
+            // 1. 顶部按钮组 (tlpTopButtons)
+            // -----------------------------------------------------------
+            this.tlpTopButtons.AutoSize = true;
+            this.tlpTopButtons.ColumnCount = 3;
+            // 均分 33.33%
+            this.tlpTopButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tlpTopButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tlpTopButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+
+            this.tlpTopButtons.Controls.Add(this.btnCreateCharacter, 0, 0);
+            this.tlpTopButtons.Controls.Add(this.btnSwitchCharacter, 1, 0);
+            this.tlpTopButtons.Controls.Add(this.btnDeleteCharacter, 2, 0);
+
+            this.tlpTopButtons.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpTopButtons.Location = new System.Drawing.Point(23, 23);
+            this.tlpTopButtons.Margin = new System.Windows.Forms.Padding(3, 3, 3, 15);
+            this.tlpTopButtons.Name = "tlpTopButtons";
+            this.tlpTopButtons.RowCount = 1;
+            this.tlpTopButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpTopButtons.Size = new System.Drawing.Size(496, 48);
+            this.tlpTopButtons.TabIndex = 0;
+
+            // 统一设置顶部按钮样式
+            System.Windows.Forms.Padding commonMargin = new System.Windows.Forms.Padding(5, 5, 5, 10); // 统一间距 3px
+
+            this.btnCreateCharacter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnCreateCharacter.Height = 40;
+            this.btnCreateCharacter.Margin = commonMargin;
+            this.btnCreateCharacter.Click += BtnCreateCharacter_Click;
+
+            this.btnSwitchCharacter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnSwitchCharacter.Height = 40;
+            this.btnSwitchCharacter.Margin = commonMargin;
+            this.btnSwitchCharacter.Click += BtnSwitchCharacter_Click;
+
+            this.btnDeleteCharacter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnDeleteCharacter.Height = 40;
+            this.btnDeleteCharacter.Margin = commonMargin;
+            this.btnDeleteCharacter.Click += BtnDeleteCharacter_Click;
+
             // 
-            // btnSwitchCharacter
+            // tlpScene
             // 
-            btnSwitchCharacter.BackColor = Color.Transparent;
-            btnSwitchCharacter.BorderRadius = 8;
-            btnSwitchCharacter.FlatStyle = FlatStyle.Flat;
-            btnSwitchCharacter.Font = new Font("微软雅黑", 10F);
-            btnSwitchCharacter.Location = new Point(181, 30);
-            btnSwitchCharacter.Margin = new Padding(4);
-            btnSwitchCharacter.Name = "btnSwitchCharacter";
-            btnSwitchCharacter.Size = new Size(100, 40);
-            btnSwitchCharacter.TabIndex = 1;
-            btnSwitchCharacter.UseVisualStyleBackColor = true;
-            btnSwitchCharacter.Click += BtnSwitchCharacter_Click;
+            this.tlpScene.AutoSize = true;
+            this.tlpScene.ColumnCount = 2;
+            this.tlpScene.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+            this.tlpScene.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpScene.Controls.Add(this.lblScene, 0, 0);
+            this.tlpScene.Controls.Add(this.cmbScene, 1, 0);
+            this.tlpScene.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpScene.Location = new System.Drawing.Point(23, 89);
+            this.tlpScene.Margin = new System.Windows.Forms.Padding(3, 3, 3, 10);
+            this.tlpScene.Name = "tlpScene";
+            this.tlpScene.RowCount = 1;
+            this.tlpScene.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpScene.Size = new System.Drawing.Size(496, 41);
+            this.tlpScene.TabIndex = 1;
+
+            this.lblScene.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.lblScene.AutoSize = true;
+            this.lblScene.Text = "Scene:";
+
+            this.cmbScene.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cmbScene.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbScene.Height = 35;
+
             // 
-            // btnDeleteCharacter
+            // tlpDifficulty
             // 
-            btnDeleteCharacter.BackColor = Color.Transparent;
-            btnDeleteCharacter.BorderRadius = 8;
-            btnDeleteCharacter.Enabled = false;
-            btnDeleteCharacter.FlatStyle = FlatStyle.Flat;
-            btnDeleteCharacter.Font = new Font("微软雅黑", 10F);
-            btnDeleteCharacter.Location = new Point(324, 30);
-            btnDeleteCharacter.Margin = new Padding(4);
-            btnDeleteCharacter.Name = "btnDeleteCharacter";
-            btnDeleteCharacter.Size = new Size(100, 40);
-            btnDeleteCharacter.TabIndex = 2;
-            btnDeleteCharacter.UseVisualStyleBackColor = true;
-            btnDeleteCharacter.Click += BtnDeleteCharacter_Click;
+            this.tlpDifficulty.AutoSize = true;
+            this.tlpDifficulty.ColumnCount = 2;
+            this.tlpDifficulty.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
+            this.tlpDifficulty.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpDifficulty.Controls.Add(this.lblDifficulty, 0, 0);
+            this.tlpDifficulty.Controls.Add(this.cmbDifficulty, 1, 0);
+            this.tlpDifficulty.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpDifficulty.Location = new System.Drawing.Point(23, 143);
+            this.tlpDifficulty.Margin = new System.Windows.Forms.Padding(3, 3, 3, 20);
+            this.tlpDifficulty.Name = "tlpDifficulty";
+            this.tlpDifficulty.RowCount = 1;
+            this.tlpDifficulty.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpDifficulty.Size = new System.Drawing.Size(496, 41);
+            this.tlpDifficulty.TabIndex = 2;
+
+            this.lblDifficulty.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.lblDifficulty.AutoSize = true;
+            this.lblDifficulty.Text = "Diff:";
+
+            this.cmbDifficulty.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cmbDifficulty.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbDifficulty.Height = 35;
+
+            // -----------------------------------------------------------
+            // 2. 底部操作按钮组 (tlpActionButtons)
+            // -----------------------------------------------------------
+            this.tlpActionButtons.AutoSize = true;
+            this.tlpActionButtons.ColumnCount = 3;
+            // 同样均分 33.33%，确保和上面对齐
+            this.tlpActionButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tlpActionButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+            this.tlpActionButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+
+            this.tlpActionButtons.Controls.Add(this.btnStartFarm, 0, 0);
+            this.tlpActionButtons.Controls.Add(this.btnShowLootHistory, 1, 0);
+            this.tlpActionButtons.Controls.Add(this.btnShowStats, 2, 0);
+
+            this.tlpActionButtons.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpActionButtons.Location = new System.Drawing.Point(23, 207);
+            this.tlpActionButtons.Margin = new System.Windows.Forms.Padding(3, 3, 3, 20);
+            this.tlpActionButtons.Name = "tlpActionButtons";
+            this.tlpActionButtons.RowCount = 1;
+            this.tlpActionButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpActionButtons.Size = new System.Drawing.Size(496, 54);
+            this.tlpActionButtons.TabIndex = 3;
+
+            // 核心修改：使用与上面相同的 Margin
+            this.btnStartFarm.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnStartFarm.Height = 50;
+            this.btnStartFarm.Margin = commonMargin; // 使用 3px
+            this.btnStartFarm.Click += BtnStartFarm_Click;
+
+            this.btnShowLootHistory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnShowLootHistory.Height = 50;
+            this.btnShowLootHistory.Margin = commonMargin; // 使用 3px
+            this.btnShowLootHistory.Click += BtnShowLootHistory_Click;
+
+            this.btnShowStats.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnShowStats.Height = 50;
+            this.btnShowStats.Margin = commonMargin; // 使用 3px
+            this.btnShowStats.Click += BtnShowStats_Click;
+
             // 
-            // lblScene
+            // Labels
             // 
-            lblScene.AutoSize = true;
-            lblScene.BackColor = Color.Transparent;
-            lblScene.Font = new Font("微软雅黑", 10F);
-            lblScene.ForeColor = Color.FromArgb(240, 240, 240);
-            lblScene.IsTitle = false;
-            lblScene.Location = new Point(30, 100);
-            lblScene.Margin = new Padding(6, 0, 6, 0);
-            lblScene.Name = "lblScene";
-            lblScene.Size = new Size(0, 31);
-            lblScene.TabIndex = 3;
-            // 
-            // cmbScene
-            // 
-            cmbScene.BackColor = Color.FromArgb(45, 45, 48);
-            cmbScene.DrawMode = DrawMode.OwnerDrawFixed;
-            cmbScene.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbScene.FlatStyle = FlatStyle.Flat;
-            cmbScene.Font = new Font("微软雅黑", 10F);
-            cmbScene.ForeColor = Color.FromArgb(240, 240, 240);
-            cmbScene.Location = new Point(130, 100);
-            cmbScene.Margin = new Padding(6);
-            cmbScene.Name = "cmbScene";
-            cmbScene.Size = new Size(294, 39);
-            cmbScene.TabIndex = 4;
-            cmbScene.SelectedIndexChanged += CmbScene_SelectedIndexChanged;
-            // 
-            // lblDifficulty
-            // 
-            lblDifficulty.AutoSize = true;
-            lblDifficulty.BackColor = Color.Transparent;
-            lblDifficulty.Font = new Font("微软雅黑", 10F);
-            lblDifficulty.ForeColor = Color.FromArgb(240, 240, 240);
-            lblDifficulty.IsTitle = false;
-            lblDifficulty.Location = new Point(30, 160);
-            lblDifficulty.Margin = new Padding(6, 0, 6, 0);
-            lblDifficulty.Name = "lblDifficulty";
-            lblDifficulty.Size = new Size(0, 31);
-            lblDifficulty.TabIndex = 5;
-            // 
-            // cmbDifficulty
-            // 
-            cmbDifficulty.BackColor = Color.FromArgb(45, 45, 48);
-            cmbDifficulty.DrawMode = DrawMode.OwnerDrawFixed;
-            cmbDifficulty.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbDifficulty.FlatStyle = FlatStyle.Flat;
-            cmbDifficulty.Font = new Font("微软雅黑", 10F);
-            cmbDifficulty.ForeColor = Color.FromArgb(240, 240, 240);
-            cmbDifficulty.Location = new Point(130, 160);
-            cmbDifficulty.Margin = new Padding(6);
-            cmbDifficulty.Name = "cmbDifficulty";
-            cmbDifficulty.Size = new Size(294, 39);
-            cmbDifficulty.TabIndex = 6;
-            cmbDifficulty.SelectedIndexChanged += CmbDifficulty_SelectedIndexChanged;
-            // 
-            // btnStartFarm
-            // 
-            btnStartFarm.BackColor = Color.Transparent;
-            btnStartFarm.BorderRadius = 8;
-            btnStartFarm.Enabled = false;
-            btnStartFarm.FlatStyle = FlatStyle.Flat;
-            btnStartFarm.Font = new Font("微软雅黑", 10F);
-            btnStartFarm.Location = new Point(30, 220);
-            btnStartFarm.Margin = new Padding(6);
-            btnStartFarm.Name = "btnStartFarm";
-            btnStartFarm.Size = new Size(120, 50);
-            btnStartFarm.TabIndex = 7;
-            btnStartFarm.UseVisualStyleBackColor = true;
-            btnStartFarm.Click += BtnStartFarm_Click;
-            // 
-            // btnShowStats
-            // 
-            btnShowStats.BackColor = Color.Transparent;
-            btnShowStats.BorderRadius = 8;
-            btnShowStats.FlatStyle = FlatStyle.Flat;
-            btnShowStats.Font = new Font("微软雅黑", 10F);
-            btnShowStats.Location = new Point(294, 220);
-            btnShowStats.Margin = new Padding(6);
-            btnShowStats.Name = "btnShowStats";
-            btnShowStats.Size = new Size(80, 50);
-            btnShowStats.TabIndex = 8;
-            btnShowStats.Text = "统计";
-            btnShowStats.UseVisualStyleBackColor = false;
-            btnShowStats.Click += BtnShowStats_Click;
-            // 
-            // btnShowLootHistory
-            // 
-            btnShowLootHistory.BackColor = Color.Transparent;
-            btnShowLootHistory.BorderRadius = 8;
-            btnShowLootHistory.FlatStyle = FlatStyle.Flat;
-            btnShowLootHistory.Font = new Font("微软雅黑", 10F);
-            btnShowLootHistory.Location = new Point(184, 220);
-            btnShowLootHistory.Margin = new Padding(6);
-            btnShowLootHistory.Name = "btnShowLootHistory";
-            btnShowLootHistory.Size = new Size(80, 50);
-            btnShowLootHistory.TabIndex = 9;
-            btnShowLootHistory.Text = "掉落";
-            btnShowLootHistory.UseVisualStyleBackColor = false;
-            btnShowLootHistory.Click += BtnShowLootHistory_Click;
-            // 
-            // lblCurrentProfile
-            // 
-            lblCurrentProfile.AutoSize = true;
-            lblCurrentProfile.BackColor = Color.Transparent;
-            lblCurrentProfile.Font = new Font("微软雅黑", 10F);
-            lblCurrentProfile.ForeColor = Color.FromArgb(240, 240, 240);
-            lblCurrentProfile.IsTitle = false;
-            lblCurrentProfile.Location = new Point(30, 300);
-            lblCurrentProfile.Margin = new Padding(6, 0, 6, 0);
-            lblCurrentProfile.Name = "lblCurrentProfile";
-            lblCurrentProfile.Size = new Size(0, 31);
-            lblCurrentProfile.TabIndex = 10;
-            // 
-            // lblTime
-            // 
-            lblTime.AutoSize = true;
-            lblTime.BackColor = Color.Transparent;
-            lblTime.Font = new Font("微软雅黑", 10F);
-            lblTime.ForeColor = Color.FromArgb(240, 240, 240);
-            lblTime.IsTitle = false;
-            lblTime.Location = new Point(30, 340);
-            lblTime.Margin = new Padding(6, 0, 6, 0);
-            lblTime.Name = "lblTime";
-            lblTime.Size = new Size(0, 31);
-            lblTime.TabIndex = 11;
-            // 
-            // lblStats
-            // 
-            lblStats.AutoSize = true;
-            lblStats.BackColor = Color.Transparent;
-            lblStats.Font = new Font("微软雅黑", 10F);
-            lblStats.ForeColor = Color.FromArgb(240, 240, 240);
-            lblStats.IsTitle = false;
-            lblStats.Location = new Point(30, 380);
-            lblStats.Margin = new Padding(6, 0, 6, 0);
-            lblStats.Name = "lblStats";
-            lblStats.Size = new Size(0, 31);
-            lblStats.TabIndex = 12;
+            this.lblCurrentProfile.AutoSize = true;
+            this.lblCurrentProfile.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblCurrentProfile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+
+            this.lblTime.AutoSize = true;
+            this.lblTime.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+
+            this.lblStats.AutoSize = true;
+            this.lblStats.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblStats.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+
             // 
             // ProfileManager
             // 
-            AutoScaleDimensions = new SizeF(13F, 28F);
-            AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(32, 32, 32);
-            Controls.Add(btnShowStats);
-            Controls.Add(btnCreateCharacter);
-            Controls.Add(btnSwitchCharacter);
-            Controls.Add(btnDeleteCharacter);
-            Controls.Add(lblScene);
-            Controls.Add(cmbScene);
-            Controls.Add(lblDifficulty);
-            Controls.Add(cmbDifficulty);
-            Controls.Add(btnStartFarm);
-            Controls.Add(btnShowLootHistory);
-            Controls.Add(lblCurrentProfile);
-            Controls.Add(lblTime);
-            Controls.Add(lblStats);
-            Margin = new Padding(6);
-            Name = "ProfileManager";
-            Size = new Size(542, 450);
-            ResumeLayout(false);
-            PerformLayout();
+            this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(32, 32, 32);
+            this.Controls.Add(this.tlpMain);
+            this.Name = "ProfileManager";
+            this.Size = new System.Drawing.Size(542, 450);
+
+            this.tlpMain.ResumeLayout(false);
+            this.tlpMain.PerformLayout();
+            this.tlpTopButtons.ResumeLayout(false);
+            this.tlpScene.ResumeLayout(false);
+            this.tlpScene.PerformLayout();
+            this.tlpDifficulty.ResumeLayout(false);
+            this.tlpDifficulty.PerformLayout();
+            this.tlpActionButtons.ResumeLayout(false);
+            this.ResumeLayout(false);
         }
-        private ThemedButton btnCreateCharacter;
-        private ThemedButton btnSwitchCharacter;
-        private ThemedButton btnDeleteCharacter;
-        private ThemedLabel lblScene;
-        private ThemedComboBox cmbScene;
-        private ThemedLabel lblDifficulty;
-        private ThemedComboBox cmbDifficulty;
-        private ThemedButton btnStartFarm;
-        private ThemedButton btnShowStats;
-        private ThemedButton btnShowLootHistory;
-        private ThemedLabel lblCurrentProfile;
-        private ThemedLabel lblTime;
-        private ThemedLabel lblStats;
+
+        #endregion
+
+        private System.Windows.Forms.TableLayoutPanel tlpMain;
+        private System.Windows.Forms.TableLayoutPanel tlpTopButtons;
+        private System.Windows.Forms.TableLayoutPanel tlpScene;
+        private System.Windows.Forms.TableLayoutPanel tlpDifficulty;
+        private System.Windows.Forms.TableLayoutPanel tlpActionButtons;
+
+        private DiabloTwoMFTimer.UI.Components.ThemedButton btnCreateCharacter;
+        private DiabloTwoMFTimer.UI.Components.ThemedButton btnSwitchCharacter;
+        private DiabloTwoMFTimer.UI.Components.ThemedButton btnDeleteCharacter;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblScene;
+        private DiabloTwoMFTimer.UI.Components.ThemedComboBox cmbScene;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblDifficulty;
+        private DiabloTwoMFTimer.UI.Components.ThemedComboBox cmbDifficulty;
+
+        private DiabloTwoMFTimer.UI.Components.ThemedButton btnStartFarm;
+        private DiabloTwoMFTimer.UI.Components.ThemedButton btnShowLootHistory;
+        private DiabloTwoMFTimer.UI.Components.ThemedButton btnShowStats;
+
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblCurrentProfile;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblTime;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblStats;
     }
 }

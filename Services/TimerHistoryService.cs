@@ -225,10 +225,10 @@ public class TimerHistoryService(ISceneService sceneService) : ITimerHistoryServ
                     RunHistory.Add(duration);
                     totalSeconds += correctDuration;
 
-                    LogManager.WriteDebugLog(
-                        "TimerHistoryService",
-                        $"[加载记录 #{i + 1}] 添加到RunHistory: {duration}"
-                    );
+                    // LogManager.WriteDebugLog(
+                    //     "TimerHistoryService",
+                    //     $"[加载记录 #{i + 1}] 添加到RunHistory: {duration}"
+                    // );
 
                     // 更新最快时间
                     if (duration < FastestTime)
@@ -250,13 +250,6 @@ public class TimerHistoryService(ISceneService sceneService) : ITimerHistoryServ
                     "TimerHistoryService",
                     $"[加载完成] 运行次数: {RunCount}, 最快时间: {FastestTime}, 平均时间: {AverageTime}"
                 );
-
-                // 记录RunHistory的所有内容
-                LogManager.WriteDebugLog("TimerHistoryService", "RunHistory内容:");
-                for (int i = 0; i < RunHistory.Count; i++)
-                {
-                    LogManager.WriteDebugLog("TimerHistoryService", $"[{i}] {RunHistory[i]}");
-                }
 
                 OnHistoryDataChanged(HistoryChangeType.FullRefresh);
                 return true;

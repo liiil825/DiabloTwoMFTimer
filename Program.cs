@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading; // 必须引用：用于 Mutex
 using System.Windows.Forms;
+using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.UI;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +52,9 @@ static class Program
             {
                 // 4. 配置依赖注入
                 _serviceProvider = ServiceConfiguration.ConfigureServices();
+                var appSettings = _serviceProvider.GetRequiredService<IAppSettings>();
+                Utils.ScaleHelper.Initialize(appSettings);
+                UI.Theme.AppTheme.InitializeFonts();
 
                 // 5. 启动应用程序
                 var mainForm = _serviceProvider.GetRequiredService<MainForm>();

@@ -1,17 +1,8 @@
-using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using DiabloTwoMFTimer.UI.Components;
-
 namespace DiabloTwoMFTimer.UI.Timer
 {
     partial class StatisticsControl
     {
-        private IContainer components = null;
-        private Label lblRunCount;
-        private Label lblFastestTime;
-        private Label lblAverageTime;
+        private System.ComponentModel.IContainer components = null;
 
         protected override void Dispose(bool disposing)
         {
@@ -23,73 +14,96 @@ namespace DiabloTwoMFTimer.UI.Timer
             base.Dispose(disposing);
         }
 
+        #region Component Designer generated code
+
         private void InitializeComponent()
         {
-            lblRunCount = new ThemedLabel();
-            lblFastestTime = new ThemedLabel();
-            lblAverageTime = new ThemedLabel();
-            SuspendLayout();
+            this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
+            this.lblRunCount = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.lblFastestTime = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.lblAverageTime = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+
+            this.tlpMain.SuspendLayout();
+            this.SuspendLayout();
+
+            // 
+            // tlpMain
+            // 
+            this.tlpMain.ColumnCount = 1;
+            this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70F));
+            this.tlpMain.Controls.Add(this.lblRunCount, 0, 0);
+            this.tlpMain.Controls.Add(this.lblFastestTime, 0, 1);
+            this.tlpMain.Controls.Add(this.lblAverageTime, 0, 2);
+            this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpMain.Location = new System.Drawing.Point(0, 0);
+            this.tlpMain.Name = "tlpMain";
+            this.tlpMain.RowCount = 3;
+            // 三行均分
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tlpMain.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, 60);
+            this.tlpMain.TabIndex = 0;
 
             // 
             // lblRunCount
             // 
-            // 1. 设置 Dock=Top 让它占满顶部宽度
-            lblRunCount.Dock = DockStyle.Top;
-            lblRunCount.Font = new Font("Microsoft YaHei UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            // 2. 关闭 AutoSize 以便由 Dock 控制宽度
-            lblRunCount.AutoSize = false;
-            // 3. 设定固定高度
-            lblRunCount.Height = 35;
-            lblRunCount.Name = "lblRunCount";
-            // 4. 核心：文字居中对齐
-            lblRunCount.TextAlign = ContentAlignment.MiddleCenter;
-            lblRunCount.Text = "--- Run count 0 ---";
+            this.lblRunCount.AutoSize = true;
+            this.lblRunCount.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblRunCount.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.SmallTitleFont; // 大一点的字体
+            this.lblRunCount.Location = new System.Drawing.Point(0, 0);
+            this.lblRunCount.Name = "lblRunCount";
+            this.lblRunCount.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, 20);
+            this.lblRunCount.TabIndex = 0;
+            this.lblRunCount.Text = "--- Run count 0 ---";
+            this.lblRunCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // 
             // lblFastestTime
             // 
-            lblFastestTime.Dock = DockStyle.Top;
-            lblFastestTime.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            lblFastestTime.AutoSize = false;
-            lblFastestTime.Height = 30; // 稍微紧凑一点
-            lblFastestTime.Name = "lblFastestTime";
-            lblFastestTime.TextAlign = ContentAlignment.MiddleCenter;
-            lblFastestTime.Text = "Fastest time: --:--:--.-";
+            this.lblFastestTime.AutoSize = true;
+            this.lblFastestTime.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblFastestTime.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.MainFont;
+            this.lblFastestTime.Location = new System.Drawing.Point(0, 22);
+            this.lblFastestTime.Name = "lblFastestTime";
+            this.lblFastestTime.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, 20);
+            this.lblFastestTime.TabIndex = 1;
+            this.lblFastestTime.Text = "Fastest: --:--:--.-";
+            this.lblFastestTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // 
             // lblAverageTime
             // 
-            lblAverageTime.Dock = DockStyle.Top;
-            lblAverageTime.Font = new Font("Microsoft YaHei UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            lblAverageTime.AutoSize = false;
-            lblAverageTime.Height = 30;
-            lblAverageTime.Name = "lblAverageTime";
-            lblAverageTime.TextAlign = ContentAlignment.MiddleCenter;
-            lblAverageTime.Text = "Average time: --:--:--.-";
+            this.lblAverageTime.AutoSize = true;
+            this.lblAverageTime.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblAverageTime.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.MainFont;
+            this.lblAverageTime.Location = new System.Drawing.Point(0, 44);
+            this.lblAverageTime.Name = "lblAverageTime";
+            this.lblAverageTime.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, 20);
+            this.lblAverageTime.TabIndex = 2;
+            this.lblAverageTime.Text = "Average: --:--:--.-";
+            this.lblAverageTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // 
             // StatisticsControl
             // 
-            AutoScaleDimensions = new SizeF(13F, 28F);
-            AutoScaleMode = AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Transparent;
+            this.Controls.Add(this.tlpMain);
+            this.Name = "StatisticsControl";
+            this.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, 70);
 
-            // 注意添加顺序：在 Dock=Top 模式下，后添加的控件会位于更底层（视觉上的下方）
-            // 或者先添加的位于 Z-Order 顶层，Dock=Top 时会占据最顶部
-            // 这里的顺序会导致：
-            // 1. Add(lblAverageTime) -> 占据顶部
-            // 2. Add(lblFastestTime) -> 插入到 Average 之上
-            // 3. Add(lblRunCount)    -> 插入到 Fastest 之上
-            // 最终视觉顺序：RunCount -> Fastest -> Average (符合预期)
-            Controls.Add(lblAverageTime);
-            Controls.Add(lblFastestTime);
-            Controls.Add(lblRunCount);
-
-            Margin = new Padding(4);
-            Name = "StatisticsControl";
-            // 稍微增加一点 Padding 让内容不贴边（可选）
-            Padding = new Padding(0, 10, 0, 0);
-            Size = new Size(419, 120);
-            ResumeLayout(false);
+            this.tlpMain.ResumeLayout(false);
+            this.tlpMain.PerformLayout();
+            this.ResumeLayout(false);
         }
+
+        #endregion
+
+        private System.Windows.Forms.TableLayoutPanel tlpMain;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblRunCount;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblFastestTime;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblAverageTime;
     }
 }

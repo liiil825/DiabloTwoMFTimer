@@ -103,6 +103,7 @@ public class MainServices(
 
         int id = m.WParam.ToInt32();
 
+
         switch (id)
         {
             case HOTKEY_ID_STARTSTOP:

@@ -1,4 +1,5 @@
 namespace DiabloTwoMFTimer.UI.Settings;
+
 partial class GeneralSettingsControl
 {
     private System.ComponentModel.IContainer components = null;
@@ -16,153 +17,221 @@ partial class GeneralSettingsControl
 
     private void InitializeComponent()
     {
-        groupBoxPosition = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
-        radioTopLeft = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        radioTopCenter = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        radioTopRight = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        radioBottomLeft = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        radioBottomCenter = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        radioBottomRight = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        groupBoxLanguage = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
-        chineseRadioButton = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        englishRadioButton = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
-        alwaysOnTopCheckBox = new DiabloTwoMFTimer.UI.Components.ThemedCheckBox();
+        this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
+        this.groupBoxPosition = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
+        this.tlpPosition = new System.Windows.Forms.TableLayoutPanel();
+        this.radioTopLeft = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
+        this.radioTopCenter = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
+        this.radioTopRight = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
+        this.radioBottomLeft = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
+        this.radioBottomCenter = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
+        this.radioBottomRight = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
 
-        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
-        groupBoxPosition.SuspendLayout();
-        groupBoxLanguage.SuspendLayout();
-        SuspendLayout();
+        this.groupBoxLanguage = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
+        this.tlpLanguage = new System.Windows.Forms.TableLayoutPanel();
+        this.chineseRadioButton = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
+        this.englishRadioButton = new DiabloTwoMFTimer.UI.Components.ThemedRadioButton();
+
+        this.alwaysOnTopCheckBox = new DiabloTwoMFTimer.UI.Components.ThemedCheckBox();
+
+        this.grpUiScale = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
+        this.cmbUiScale = new DiabloTwoMFTimer.UI.Components.ThemedComboBox();
+
+        this.tlpMain.SuspendLayout();
+        this.groupBoxPosition.SuspendLayout();
+        this.tlpPosition.SuspendLayout();
+        this.groupBoxLanguage.SuspendLayout();
+        this.tlpLanguage.SuspendLayout();
+        this.grpUiScale.SuspendLayout();
+        this.SuspendLayout();
+
+        // 
+        // tlpMain
+        // 
+        this.tlpMain.AutoSize = true; // 【关键】允许自动伸缩高度
+        this.tlpMain.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+        this.tlpMain.ColumnCount = 1;
+        this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+
+        // --- 顺序调整 ---
+        // 1. 窗口位置
+        this.tlpMain.Controls.Add(this.groupBoxPosition, 0, 0);
+        // 2. 语言
+        this.tlpMain.Controls.Add(this.groupBoxLanguage, 0, 1);
+        // 3. 界面缩放 (调整到了始终置顶前面)
+        this.tlpMain.Controls.Add(this.grpUiScale, 0, 2);
+        // 4. 始终置顶
+        this.tlpMain.Controls.Add(this.alwaysOnTopCheckBox, 0, 3);
+
+        this.tlpMain.Dock = System.Windows.Forms.DockStyle.Top; // 【关键】设为 Top 而不是 Fill，让它能撑开高度
+        this.tlpMain.Location = new System.Drawing.Point(0, 0);
+        this.tlpMain.Name = "tlpMain";
+        // 【关键】去除 Padding (Margin)，紧凑布局
+        this.tlpMain.Padding = new System.Windows.Forms.Padding(0);
+        this.tlpMain.RowCount = 4;
+        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpMain.Size = new System.Drawing.Size(350, 280); // 初始高度不重要，会自动撑开
+        this.tlpMain.TabIndex = 0;
+
         // 
         // groupBoxPosition
         // 
-        groupBoxPosition.Controls.Add(radioTopLeft);
-        groupBoxPosition.Controls.Add(radioTopCenter);
-        groupBoxPosition.Controls.Add(radioTopRight);
-        groupBoxPosition.Controls.Add(radioBottomLeft);
-        groupBoxPosition.Controls.Add(radioBottomCenter);
-        groupBoxPosition.Controls.Add(radioBottomRight);
-        groupBoxPosition.Location = new System.Drawing.Point(10, 10);
-        groupBoxPosition.Name = "groupBoxPosition";
-        groupBoxPosition.Size = new System.Drawing.Size(320, 130); // 增加高度
-        groupBoxPosition.TabIndex = 0;
-        groupBoxPosition.TabStop = false;
-        groupBoxPosition.Text = "窗口位置";
+        this.groupBoxPosition.AutoSize = true;
+        this.groupBoxPosition.Controls.Add(this.tlpPosition);
+        this.groupBoxPosition.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.groupBoxPosition.Location = new System.Drawing.Point(3, 3); // 稍微留点间隙 (3px) 看起来不那么拥挤
+        this.groupBoxPosition.Name = "groupBoxPosition";
+        this.groupBoxPosition.Padding = new System.Windows.Forms.Padding(3, 20, 3, 3);
+        this.groupBoxPosition.Size = new System.Drawing.Size(344, 100);
+        this.groupBoxPosition.TabIndex = 0;
+        this.groupBoxPosition.TabStop = false;
+        this.groupBoxPosition.Text = "窗口位置";
+
         // 
-        // radioTopLeft
+        // tlpPosition
         // 
-        radioTopLeft.AutoSize = true;
-        radioTopLeft.Checked = true;
-        radioTopLeft.Location = new System.Drawing.Point(20, 35); // Y=35
-        radioTopLeft.Name = "radioTopLeft";
-        radioTopLeft.Size = new System.Drawing.Size(79, 32);
-        radioTopLeft.TabIndex = 0;
-        radioTopLeft.TabStop = true;
-        radioTopLeft.Text = "左上";
-        // 
-        // radioTopCenter
-        // 
-        radioTopCenter.AutoSize = true;
-        radioTopCenter.Location = new System.Drawing.Point(120, 35);
-        radioTopCenter.Name = "radioTopCenter";
-        radioTopCenter.Size = new System.Drawing.Size(79, 32);
-        radioTopCenter.TabIndex = 1;
-        radioTopCenter.Text = "上中";
-        // 
-        // radioTopRight
-        // 
-        radioTopRight.AutoSize = true;
-        radioTopRight.Location = new System.Drawing.Point(220, 35);
-        radioTopRight.Name = "radioTopRight";
-        radioTopRight.Size = new System.Drawing.Size(79, 32);
-        radioTopRight.TabIndex = 2;
-        radioTopRight.Text = "右上";
-        // 
-        // radioBottomLeft
-        // 
-        radioBottomLeft.AutoSize = true;
-        radioBottomLeft.Location = new System.Drawing.Point(20, 80); // Y=80 (间距增大)
-        radioBottomLeft.Name = "radioBottomLeft";
-        radioBottomLeft.Size = new System.Drawing.Size(79, 32);
-        radioBottomLeft.TabIndex = 3;
-        radioBottomLeft.Text = "左下";
-        // 
-        // radioBottomCenter
-        // 
-        radioBottomCenter.AutoSize = true;
-        radioBottomCenter.Location = new System.Drawing.Point(120, 80);
-        radioBottomCenter.Name = "radioBottomCenter";
-        radioBottomCenter.Size = new System.Drawing.Size(79, 32);
-        radioBottomCenter.TabIndex = 4;
-        radioBottomCenter.Text = "下中";
-        // 
-        // radioBottomRight
-        // 
-        radioBottomRight.AutoSize = true;
-        radioBottomRight.Location = new System.Drawing.Point(220, 80);
-        radioBottomRight.Name = "radioBottomRight";
-        radioBottomRight.Size = new System.Drawing.Size(79, 32);
-        radioBottomRight.TabIndex = 5;
-        radioBottomRight.Text = "右下";
+        this.tlpPosition.AutoSize = true;
+        this.tlpPosition.ColumnCount = 3;
+        this.tlpPosition.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+        this.tlpPosition.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+        this.tlpPosition.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+        this.tlpPosition.Controls.Add(this.radioTopLeft, 0, 0);
+        this.tlpPosition.Controls.Add(this.radioTopCenter, 1, 0);
+        this.tlpPosition.Controls.Add(this.radioTopRight, 2, 0);
+        this.tlpPosition.Controls.Add(this.radioBottomLeft, 0, 1);
+        this.tlpPosition.Controls.Add(this.radioBottomCenter, 1, 1);
+        this.tlpPosition.Controls.Add(this.radioBottomRight, 2, 1);
+        this.tlpPosition.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.tlpPosition.Location = new System.Drawing.Point(3, 20);
+        this.tlpPosition.Name = "tlpPosition";
+        this.tlpPosition.RowCount = 2;
+        this.tlpPosition.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpPosition.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpPosition.Size = new System.Drawing.Size(338, 77);
+        this.tlpPosition.TabIndex = 0;
+
+        void SetRadio(System.Windows.Forms.RadioButton rb, string text)
+        {
+            rb.AutoSize = true;
+            rb.Dock = System.Windows.Forms.DockStyle.Fill;
+            rb.Margin = new System.Windows.Forms.Padding(5);
+            rb.Text = text;
+        }
+        SetRadio(radioTopLeft, "左上"); radioTopLeft.Checked = true;
+        SetRadio(radioTopCenter, "上中");
+        SetRadio(radioTopRight, "右上");
+        SetRadio(radioBottomLeft, "左下");
+        SetRadio(radioBottomCenter, "下中");
+        SetRadio(radioBottomRight, "右下");
+
         // 
         // groupBoxLanguage
         // 
-        groupBoxLanguage.Controls.Add(chineseRadioButton);
-        groupBoxLanguage.Controls.Add(englishRadioButton);
-        groupBoxLanguage.Location = new System.Drawing.Point(10, 155); // 下移
-        groupBoxLanguage.Name = "groupBoxLanguage";
-        groupBoxLanguage.Size = new System.Drawing.Size(320, 85); // 增加高度
-        groupBoxLanguage.TabIndex = 1;
-        groupBoxLanguage.TabStop = false;
-        groupBoxLanguage.Text = "语言";
+        this.groupBoxLanguage.AutoSize = true;
+        this.groupBoxLanguage.Controls.Add(this.tlpLanguage);
+        this.groupBoxLanguage.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.groupBoxLanguage.Location = new System.Drawing.Point(3, 109);
+        this.groupBoxLanguage.Name = "groupBoxLanguage";
+        this.groupBoxLanguage.Padding = new System.Windows.Forms.Padding(3, 20, 3, 3);
+        this.groupBoxLanguage.Size = new System.Drawing.Size(344, 60);
+        this.groupBoxLanguage.TabIndex = 1;
+        this.groupBoxLanguage.TabStop = false;
+        this.groupBoxLanguage.Text = "语言";
+
         // 
-        // chineseRadioButton
+        // tlpLanguage
         // 
-        chineseRadioButton.AutoSize = true;
-        chineseRadioButton.Checked = true;
-        chineseRadioButton.Location = new System.Drawing.Point(20, 35);
-        chineseRadioButton.Name = "chineseRadioButton";
-        chineseRadioButton.Size = new System.Drawing.Size(117, 32);
-        chineseRadioButton.TabIndex = 0;
-        chineseRadioButton.TabStop = true;
-        chineseRadioButton.Text = "Chinese";
+        this.tlpLanguage.AutoSize = true;
+        this.tlpLanguage.ColumnCount = 2;
+        this.tlpLanguage.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+        this.tlpLanguage.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+        this.tlpLanguage.Controls.Add(this.chineseRadioButton, 0, 0);
+        this.tlpLanguage.Controls.Add(this.englishRadioButton, 1, 0);
+        this.tlpLanguage.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.tlpLanguage.Location = new System.Drawing.Point(3, 20);
+        this.tlpLanguage.Name = "tlpLanguage";
+        this.tlpLanguage.RowCount = 1;
+        this.tlpLanguage.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpLanguage.Size = new System.Drawing.Size(338, 37);
+        this.tlpLanguage.TabIndex = 0;
+
+        SetRadio(chineseRadioButton, "Chinese"); chineseRadioButton.Checked = true;
+        SetRadio(englishRadioButton, "English");
+
         // 
-        // englishRadioButton
+        // grpUiScale (调整到了第三位)
         // 
-        englishRadioButton.AutoSize = true;
-        englishRadioButton.Location = new System.Drawing.Point(160, 35);
-        englishRadioButton.Name = "englishRadioButton";
-        englishRadioButton.Size = new System.Drawing.Size(110, 32);
-        englishRadioButton.TabIndex = 1;
-        englishRadioButton.Text = "English";
+        this.grpUiScale.AutoSize = true;
+        this.grpUiScale.Controls.Add(this.cmbUiScale);
+        this.grpUiScale.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.grpUiScale.Location = new System.Drawing.Point(3, 175);
+        this.grpUiScale.Name = "grpUiScale";
+        this.grpUiScale.Padding = new System.Windows.Forms.Padding(3, 20, 3, 3);
+        this.grpUiScale.Size = new System.Drawing.Size(344, 53);
+        this.grpUiScale.TabIndex = 2;
+        this.grpUiScale.TabStop = false;
+        this.grpUiScale.Text = "界面大小 (需重启)";
+
         // 
-        // alwaysOnTopCheckBox
+        // cmbUiScale
         // 
-        alwaysOnTopCheckBox.AutoSize = true;
-        alwaysOnTopCheckBox.Checked = true;
-        alwaysOnTopCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-        alwaysOnTopCheckBox.Location = new System.Drawing.Point(20, 260); // 下移
-        alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
-        alwaysOnTopCheckBox.Size = new System.Drawing.Size(120, 30);
-        alwaysOnTopCheckBox.TabIndex = 3;
-        alwaysOnTopCheckBox.Text = "总在最前";
+        this.cmbUiScale.Dock = System.Windows.Forms.DockStyle.Top;
+        this.cmbUiScale.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+        this.cmbUiScale.Location = new System.Drawing.Point(3, 20);
+        this.cmbUiScale.Name = "cmbUiScale";
+        this.cmbUiScale.Size = new System.Drawing.Size(338, 28);
+        this.cmbUiScale.TabIndex = 0;
+
+        // 
+        // alwaysOnTopCheckBox (调整到了最后)
+        // 
+        this.alwaysOnTopCheckBox.AutoSize = true;
+        this.alwaysOnTopCheckBox.Checked = true;
+        this.alwaysOnTopCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+        this.alwaysOnTopCheckBox.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.alwaysOnTopCheckBox.Location = new System.Drawing.Point(13, 241); // 这里的 Location 只是初始值，会被 TableLayout 覆盖
+        this.alwaysOnTopCheckBox.Margin = new System.Windows.Forms.Padding(13, 10, 3, 10);
+        this.alwaysOnTopCheckBox.Name = "alwaysOnTopCheckBox";
+        this.alwaysOnTopCheckBox.Size = new System.Drawing.Size(334, 24);
+        this.alwaysOnTopCheckBox.TabIndex = 3;
+        this.alwaysOnTopCheckBox.Text = "总在最前";
+
         // 
         // GeneralSettingsControl
         // 
-        AutoScroll = true;
-        Controls.Add(groupBoxPosition);
-        Controls.Add(groupBoxLanguage);
-        Controls.Add(alwaysOnTopCheckBox);
-        Name = "GeneralSettingsControl";
-        Size = new System.Drawing.Size(350, 320);
-        groupBoxPosition.ResumeLayout(false);
-        groupBoxPosition.PerformLayout();
-        groupBoxLanguage.ResumeLayout(false);
-        groupBoxLanguage.PerformLayout();
-        ResumeLayout(false);
-        PerformLayout();
+        this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        // 【核心】开启自动滚动
+        this.AutoScroll = true;
+        this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        this.Controls.Add(this.tlpMain);
+        this.Name = "GeneralSettingsControl";
+        this.Size = new System.Drawing.Size(350, 420);
+
+        this.tlpMain.ResumeLayout(false);
+        this.tlpMain.PerformLayout();
+        this.groupBoxPosition.ResumeLayout(false);
+        this.groupBoxPosition.PerformLayout();
+        this.tlpPosition.ResumeLayout(false);
+        this.tlpPosition.PerformLayout();
+        this.groupBoxLanguage.ResumeLayout(false);
+        this.groupBoxLanguage.PerformLayout();
+        this.tlpLanguage.ResumeLayout(false);
+        this.tlpLanguage.PerformLayout();
+        this.grpUiScale.ResumeLayout(false);
+        this.grpUiScale.PerformLayout();
+        this.ResumeLayout(false);
+        this.PerformLayout();
     }
 
     #endregion
+
+    private System.Windows.Forms.TableLayoutPanel tlpMain;
+    private System.Windows.Forms.TableLayoutPanel tlpPosition;
+    private System.Windows.Forms.TableLayoutPanel tlpLanguage;
 
     private DiabloTwoMFTimer.UI.Components.ThemedGroupBox groupBoxPosition;
     private DiabloTwoMFTimer.UI.Components.ThemedGroupBox groupBoxLanguage;
@@ -175,4 +244,7 @@ partial class GeneralSettingsControl
     private DiabloTwoMFTimer.UI.Components.ThemedRadioButton chineseRadioButton;
     private DiabloTwoMFTimer.UI.Components.ThemedRadioButton englishRadioButton;
     private DiabloTwoMFTimer.UI.Components.ThemedCheckBox alwaysOnTopCheckBox;
+
+    private DiabloTwoMFTimer.UI.Components.ThemedGroupBox grpUiScale;
+    private DiabloTwoMFTimer.UI.Components.ThemedComboBox cmbUiScale;
 }

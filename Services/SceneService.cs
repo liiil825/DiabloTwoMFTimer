@@ -13,7 +13,7 @@ namespace DiabloTwoMFTimer.Services;
 public class SceneService : ISceneService
 {
     private readonly IAppSettings _appSettings;
-    private string FarmingSpotsPath =>
+    private static string FarmingSpotsPath =>
         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "FarmingSpots.yaml");
     private List<FarmingScene> _cachedFarmingSpots = [];
 
@@ -83,10 +83,6 @@ public class SceneService : ISceneService
     public string GetSceneDisplayName(FarmingScene scene)
     {
         string actText = $"ACT {scene.ACT}";
-        LogManager.WriteDebugLog(
-            "SceneService",
-            $"获取场景显示名称: {actText}: {scene.GetSceneName(_appSettings.Language)}"
-        );
         // 使用注入的 AppSettings 获取语言
         string name = scene.GetSceneName(_appSettings.Language);
         return $"{actText}: {name}";
@@ -199,19 +195,14 @@ public class SceneService : ISceneService
             string.Equals(s.EnUS, cleanSceneName, StringComparison.OrdinalIgnoreCase)
         );
 
-        switch (type)
+        return type switch
         {
-            case SceneNameType.English:
-                return cleanSceneName;
-            case SceneNameType.Chinese:
-                return scene?.ZhCN ?? cleanSceneName;
-            case SceneNameType.ShortEnglish:
-                return scene?.ShortEnName ?? cleanSceneName;
-            case SceneNameType.ShortChinese:
-                return scene?.ShortZhCN ?? cleanSceneName;
-            default:
-                return cleanSceneName;
-        }
+            SceneNameType.English => cleanSceneName,
+            SceneNameType.Chinese => scene?.ZhCN ?? cleanSceneName,
+            SceneNameType.ShortEnglish => scene?.ShortEnName ?? cleanSceneName,
+            SceneNameType.ShortChinese => scene?.ShortZhCN ?? cleanSceneName,
+            _ => cleanSceneName,
+        };
     }
 
     /// <summary>

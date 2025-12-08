@@ -1,54 +1,104 @@
-#nullable disable
-
 using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using DiabloTwoMFTimer.UI.Components;
 
 namespace DiabloTwoMFTimer.UI.Timer
 {
     partial class LootRecordsControl
     {
+        private System.ComponentModel.IContainer components = null;
 
-        private DataGridView gridLoot;
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Component Designer generated code
 
         private void InitializeComponent()
         {
-            this.gridLoot = new ThemedDataGridView();
+            System.Windows.Forms.DataGridViewCellStyle cellStyleCenter = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle cellStyleRight = new System.Windows.Forms.DataGridViewCellStyle();
 
-            this.gridLoot.CellValueNeeded += GridLoot_CellValueNeeded;
-            // 交互事件
+            this.gridLoot = new DiabloTwoMFTimer.UI.Components.ThemedDataGridView();
             this.gridLoot.Click += (s, e) => InteractionOccurred?.Invoke(this, EventArgs.Empty);
             this.gridLoot.Enter += (s, e) => InteractionOccurred?.Invoke(this, EventArgs.Empty);
 
-            // 【优化】不需要场景列
-            DataGridViewTextBoxColumn colIndex = new DataGridViewTextBoxColumn();
-            colIndex.HeaderText = "#";
-            colIndex.Width = 80;
-            colIndex.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            this.colRun = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
 
-            DataGridViewTextBoxColumn colName = new DataGridViewTextBoxColumn();
-            colName.HeaderText = "Item";
-            colName.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            ((System.ComponentModel.ISupportInitialize)(this.gridLoot)).BeginInit();
+            this.SuspendLayout();
 
-            DataGridViewTextBoxColumn colTime = new DataGridViewTextBoxColumn();
-            colTime.HeaderText = "Time";
-            colTime.Width = 140;
-            colTime.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            // 
+            // gridLoot
+            // 
+            this.gridLoot.BackgroundColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+            this.gridLoot.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gridLoot.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colRun,
+            this.colName,
+            this.colTime});
+            this.gridLoot.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gridLoot.Location = new System.Drawing.Point(0, 0);
+            this.gridLoot.Name = "gridLoot";
+            this.gridLoot.Size = new System.Drawing.Size(605, 150);
+            this.gridLoot.TabIndex = 0;
+            this.gridLoot.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.GridLoot_CellValueNeeded);
 
-            this.gridLoot.Columns.AddRange(new DataGridViewColumn[] { colIndex, colName, colTime });
+            // 
+            // colRun (#)
+            // 
+            this.colRun.HeaderText = "#";
+            this.colRun.Name = "colRun";
+            this.colRun.ReadOnly = true;
+            // 固定小宽度
+            this.colRun.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.colRun.Width = DiabloTwoMFTimer.Utils.ScaleHelper.Scale(40);
+            cellStyleCenter.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.colRun.DefaultCellStyle = cellStyleCenter;
 
-            this.AutoScaleDimensions = new SizeF(9F, 20F);
-            this.AutoScaleMode = AutoScaleMode.Font;
+            // 
+            // colName (Item)
+            // 
+            this.colName.HeaderText = "Item";
+            this.colName.Name = "colName";
+            this.colName.ReadOnly = true;
+            // 填充剩余空间
+            this.colName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+
+            // 
+            // colTime (Time)
+            // 
+            this.colTime.HeaderText = "Time";
+            this.colTime.Name = "colTime";
+            this.colTime.ReadOnly = true;
+            // 固定宽度显示时间，避免挤压
+            this.colTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.colTime.Width = DiabloTwoMFTimer.Utils.ScaleHelper.Scale(110);
+            cellStyleRight.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.colTime.DefaultCellStyle = cellStyleRight;
+
+            // 
+            // LootRecordsControl
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.gridLoot);
             this.Name = "LootRecordsControl";
-            this.Size = new Size(605, 150);
-
+            this.Size = new System.Drawing.Size(605, 150);
             ((System.ComponentModel.ISupportInitialize)(this.gridLoot)).EndInit();
             this.ResumeLayout(false);
         }
 
+        #endregion
 
+        private DiabloTwoMFTimer.UI.Components.ThemedDataGridView gridLoot;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colRun;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTime;
     }
 }

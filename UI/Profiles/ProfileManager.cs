@@ -117,7 +117,7 @@ public partial class ProfileManager : UserControl
             for (int i = 0; i < farmingScenes.Count; i++)
             {
                 var scene = farmingScenes[i];
-                LogManager.WriteDebugLog($"添加场景到下拉框: {scene}");
+                // LogManager.WriteDebugLog($"添加场景到下拉框: {scene}");
                 string displayName = _sceneService.GetSceneDisplayName(scene);
                 cmbScene?.Items.Add(displayName);
 
@@ -156,7 +156,7 @@ public partial class ProfileManager : UserControl
         {
             for (int i = 0; i < farmingScenes.Count; i++)
             {
-                WriteDebugLog($"匹配场景 {i}: {farmingScenes[i].EnUS}");
+                // WriteDebugLog($"匹配场景 {i}: {farmingScenes[i].EnUS}");
                 if (farmingScenes[i].EnUS == LastRunScene)
                 {
                     cmbScene.SelectedIndex = i;
@@ -480,7 +480,7 @@ public partial class ProfileManager : UserControl
             DiabloTwoMFTimer.UI.Pomodoro.BreakFormMode.StatisticsView // <--- 关键：指定为查看模式
         );
 
-        statsForm.Show(); // 使用 Show() 允许非模态，或者 ShowDialog() 模态显示
+        statsForm.Show(this.FindForm()); // 使用 Show() 允许非模态，或者 ShowDialog() 模态显示
     }
 
     // 场景选择变更事件处理
@@ -546,13 +546,6 @@ public partial class ProfileManager : UserControl
         {
             WriteDebugLog("没有保存的上次使用角色档案");
         }
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        // 取消注册语言变更事件
-        LanguageManager.OnLanguageChanged -= LanguageManager_OnLanguageChanged;
-        base.Dispose(disposing);
     }
 
     /// <summary>

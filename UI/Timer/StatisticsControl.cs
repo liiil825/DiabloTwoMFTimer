@@ -57,7 +57,7 @@ public partial class StatisticsControl : UserControl
         {
             // 使用多语言显示运行次数
             string runCountText = Utils.LanguageManager.GetString("RunCount", RunCount);
-            runCountText = $"------- {runCountText} -------";
+            runCountText = $" {runCountText} ";
 
             lblRunCount.Text = runCountText;
         }
