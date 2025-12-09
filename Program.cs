@@ -54,6 +54,7 @@ static class Program
         }
         catch (AbandonedMutexException)
         {
+            MessageBox.Show("程序已经在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             // 捕获“被遗弃的锁”（上一个进程非正常退出），视为获取成功
             return true;
         }
@@ -97,58 +98,6 @@ static class Program
             HandleFatalException(ex);
         }
     }
-
-    // [STAThread]
-    // static void Main(string[] args)
-    // {
-    //     // 尝试创建一个命名的 Mutex
-    //     // createdNew: 如果为 true，表示当前是第一个实例；如果为 false，表示 Mutex 已存在（程序已在运行）
-    //     using (var mutex = new Mutex(true, AppMutexName, out bool createdNew))
-    //     {
-    //         if (!createdNew)
-    //         {
-    //             // 如果不是新创建的，说明程序已经在运行
-    //             MessageBox.Show("程序已经在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-    //             return; // 直接退出
-    //         }
-
-    //         // --- 以下是原有的启动逻辑 ---
-
-    //         // 1. 全局异常处理
-    //         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-    //         Application.ThreadException += Application_ThreadException;
-    //         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-
-    //         // 2. 基础 UI 设置
-    //         Application.SetHighDpiMode(HighDpiMode.SystemAware);
-    //         Application.EnableVisualStyles();
-    //         Application.SetCompatibleTextRenderingDefault(false);
-
-    //         // 3. 调试模式检查
-    //         if (args.Length > 0 && args[0].Equals("--debug", StringComparison.CurrentCultureIgnoreCase))
-    //         {
-    //             Utils.LogManager.IsDebugEnabled = true;
-    //         }
-
-    //         try
-    //         {
-    //             // 4. 配置依赖注入
-    //             _serviceProvider = ServiceConfiguration.ConfigureServices();
-    //             var appSettings = _serviceProvider.GetRequiredService<IAppSettings>();
-    //             Utils.ScaleHelper.Initialize(appSettings);
-    //             UI.Theme.AppTheme.InitializeFonts();
-
-    //             // 5. 启动应用程序
-    //             var mainForm = _serviceProvider.GetRequiredService<MainForm>();
-
-    //             Application.Run(mainForm);
-    //         }
-    //         catch (Exception ex)
-    //         {
-    //             HandleFatalException(ex);
-    //         }
-    //     } // 退出 using 块时，Mutex 会被自动释放
-    // }
 
     private static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
     {

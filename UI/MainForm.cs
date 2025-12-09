@@ -211,6 +211,27 @@ public partial class MainForm : System.Windows.Forms.Form
 
     private void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
     {
+        // 【新增】核心修复：让按钮状态始终跟随 Tab 索引变化
+        // 这样无论是点击顶部按钮，还是程序内部跳转（如StartFarm），样式都会自动同步
+        int index = tabControl.SelectedIndex;
+
+        // 根据索引找到对应的按钮
+        // (注意：这里使用了之前定义的按钮变量名，确保它们在当前类中可访问)
+        DiabloTwoMFTimer.UI.Components.ThemedButton? targetBtn = index switch
+        {
+            0 => btnNavProfile,
+            1 => btnNavTimer,
+            2 => btnNavPomodoro,
+            3 => btnNavSettings,
+            _ => null
+        };
+
+        // 更新高亮样式
+        if (targetBtn != null)
+        {
+            UpdateNavButtonStyles(targetBtn);
+        }
+
         AdjustWindowHeight();
         if (tabControl.SelectedIndex == (int)Models.TabPage.Timer)
         {
