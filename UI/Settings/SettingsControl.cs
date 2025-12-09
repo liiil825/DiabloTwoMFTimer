@@ -150,7 +150,7 @@ public partial class SettingsControl : UserControl
             if (result == DialogResult.Yes)
             {
                 Application.Restart();
-                Environment.Exit(0); // 确保当前进程立即终止
+                Application.Exit();
             }
         }
         else
