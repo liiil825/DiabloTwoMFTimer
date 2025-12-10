@@ -90,7 +90,12 @@ public partial class BreakForm : System.Windows.Forms.Form
         var btn = new Button
         {
             Text = text,
-            Size = new Size(120, 43),
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            // 增加左右内边距，保证文字与边框的距离
+            Padding = new Padding(20, 5, 20, 5),
+            // 设置最小高度，确保按钮不会太扁，高度保持原有的 43
+            MinimumSize = new Size(0, 43),
             Font = Theme.AppTheme.MainFont,
             FlatStyle = FlatStyle.Flat,
             Cursor = Cursors.Hand,
@@ -108,12 +113,31 @@ public partial class BreakForm : System.Windows.Forms.Form
         var btn = new Button
         {
             Text = text,
-            Size = new Size(160, 50),
+            // --- 修复开始 ---
+            // 1. 启用自动调整大小，根据文字内容撑开宽度
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Size = new Size(ScaleHelper.Scale(160), ScaleHelper.Scale(50)),
             Font = Theme.AppTheme.MainFont,
             FlatStyle = FlatStyle.Flat,
             ForeColor = Color.White,
             Cursor = Cursors.Hand,
             BackColor = Color.FromArgb(60, 60, 60),
+
+            // 2. 动态计算内边距 (Padding)
+            Padding = new Padding(
+                ScaleHelper.Scale(10),
+                ScaleHelper.Scale(5),
+                ScaleHelper.Scale(10),
+                ScaleHelper.Scale(5)
+            ),
+
+            // 3. 动态计算最小高度 (MinimumSize)
+            // 保持基准高度 43 的缩放比例，确保高度足以容纳缩放后的字体
+            MinimumSize = new Size(0, ScaleHelper.Scale(43)),
+            // --- 修复结束 ---
+            TextAlign = ContentAlignment.MiddleCenter, // 显式指定居中
+            UseCompatibleTextRendering = true,
         };
         btn.FlatAppearance.BorderSize = 0;
         btn.FlatAppearance.MouseOverBackColor = hoverColor;

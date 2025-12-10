@@ -30,19 +30,20 @@ partial class BreakForm
         pnlHeader = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 110,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
             BackColor = Color.Transparent,
+            Padding = new Padding(0, 0, 0, Utils.ScaleHelper.Scale(20)),
         };
 
         lblTitle = new Label
         {
-            AutoSize = false,
-            Size = new Size(300, 40),
+            AutoSize = true,
             Font = Theme.AppTheme.TitleFont,
             ForeColor = Color.Gray,
             TextAlign = ContentAlignment.MiddleLeft,
             Text = _mode == BreakFormMode.PomodoroBreak ? "REST & RECOVER" : "STATISTICS",
-            Location = new Point(20, 20),
+            Location = new Point(Utils.ScaleHelper.Scale(20), Utils.ScaleHelper.Scale(20)),
         };
 
         // 切换按钮容器
@@ -51,7 +52,7 @@ partial class BreakForm
             AutoSize = true,
             FlowDirection = FlowDirection.LeftToRight,
             BackColor = Color.Transparent,
-            Location = new Point(20, 60),
+            Location = new Point(Utils.ScaleHelper.Scale(20), Utils.ScaleHelper.Scale(60)),
         };
 
         btnToggleSession = CreateToggleButton("本轮战况", StatViewType.Session);
@@ -69,7 +70,7 @@ partial class BreakForm
         lblMessage = new Label
         {
             AutoSize = false,
-            Size = new Size(800, 60), // 高度稍微减小
+            Size = new Size(Utils.ScaleHelper.Scale(800), Utils.ScaleHelper.Scale(60)),
             Font = Theme.AppTheme.BigTitleFont,
             ForeColor = Color.White,
             TextAlign = ContentAlignment.MiddleCenter,
@@ -89,9 +90,9 @@ partial class BreakForm
         // 4. 新增：番茄状态显示
         pomodoroStatusDisplay = new DiabloTwoMFTimer.UI.Components.PomodoroStatusDisplay
         {
-            Size = new Size(400, 40),
-            IconSize = 24,
-            IconSpacing = 8
+            Size = new Size(Utils.ScaleHelper.Scale(400), Utils.ScaleHelper.Scale(40)),
+            IconSize = Utils.ScaleHelper.Scale(24),
+            IconSpacing = Utils.ScaleHelper.Scale(8)
         };
 
         // 5. 新增：总时长标签
@@ -108,7 +109,7 @@ partial class BreakForm
         lblStats = new Label
         {
             AutoSize = false,
-            Size = new Size(800, 400),
+            Size = new Size(Utils.ScaleHelper.Scale(800), Utils.ScaleHelper.Scale(400)),
             Font = Theme.AppTheme.ConsoleFont,
             ForeColor = Color.Gold,
             TextAlign = ContentAlignment.TopCenter,
