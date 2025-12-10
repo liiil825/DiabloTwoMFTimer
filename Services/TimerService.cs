@@ -36,7 +36,7 @@ public class TimerService : ITimerService
         _settings = settings;
         _sceneService = sceneService;
 
-        _timer = new System.Timers.Timer(100); // 100毫秒间隔
+        _timer = new System.Timers.Timer(15);
         _timer.Elapsed += OnTimerElapsed;
 
         // 监听 ProfileService 的事件

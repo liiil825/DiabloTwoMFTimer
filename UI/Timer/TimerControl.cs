@@ -205,13 +205,21 @@ public partial class TimerControl : UserControl
         // 直接针对具体的 label 调用 SafeInvoke
         lblTimeDisplay?.SafeInvoke(() =>
         {
-            lblTimeDisplay.Text = timeString;
+            if (lblTimeDisplay.Text != timeString)
+            {
+                lblTimeDisplay.Text = timeString;
+            }
 
-            // 【新增】同时更新顶部的小时间（包含日期）
+            // 同时更新顶部的小时间（包含日期）
             if (labelTime1 != null)
             {
-                // 格式：10:03 周日 11-30
-                labelTime1.Text = DateTime.Now.ToString("HH:mm ddd MM-dd");
+                // 获取当前时间字符串
+                string nowText = DateTime.Now.ToString("HH:mm ddd MM-dd");
+                // 【优化】同样检查是否变化
+                if (labelTime1.Text != nowText)
+                {
+                    labelTime1.Text = nowText;
+                }
             }
         });
     }
