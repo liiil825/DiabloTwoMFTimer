@@ -89,12 +89,11 @@ namespace DiabloTwoMFTimer.UI.Profiles
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize)); // Diff
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize)); // Action 1
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize)); // Action 2 (Stat)
-            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
 
-            this.tlpMain.Size = new System.Drawing.Size(542, 500); // 稍微加高一点默认值
             this.tlpMain.TabIndex = 0;
 
             // ... (TopButtons, Scene, Difficulty 代码保持不变，省略) ...
@@ -264,26 +263,27 @@ namespace DiabloTwoMFTimer.UI.Profiles
             // Labels
             // 
             this.lblCurrentProfile.AutoSize = true;
-            this.lblCurrentProfile.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblCurrentProfile.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblCurrentProfile.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
             this.lblTime.AutoSize = true;
-            this.lblTime.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblTime.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
             this.lblStats.AutoSize = true;
-            this.lblStats.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblStats.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblStats.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
             // 
             // ProfileManager
             // 
+            this.AutoSize = true; // 【开启】自身也随内容变化
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(32, 32, 32);
             this.Controls.Add(this.tlpMain);
             this.Name = "ProfileManager";
-            this.Size = new System.Drawing.Size(542, 500);
 
             this.tlpMain.ResumeLayout(false);
             this.tlpMain.PerformLayout();
