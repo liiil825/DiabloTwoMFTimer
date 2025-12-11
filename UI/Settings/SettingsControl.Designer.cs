@@ -193,6 +193,7 @@ partial class SettingsControl
         // panelBottom
         // 
         this.panelBottom.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        this.panelBottom.Controls.Add(this.btnAbout);
         this.panelBottom.Controls.Add(this.btnConfirmSettings);
         this.panelBottom.Dock = System.Windows.Forms.DockStyle.Fill;
         // this.panelBottom.Location = new System.Drawing.Point(0, 389);
@@ -204,9 +205,8 @@ partial class SettingsControl
         // 注意：panelBottom 已经有 btnConfirmSettings (Anchor = Top|Right)
         // 我们将 btnAbout 设置为 Anchor = Top|Left
 
-        // panelBottom
-        this.panelBottom.Controls.Add(this.btnAbout); // 添加按钮
-                                                      // 保持 btnConfirmSettings 的代码不变...
+        // panelBottom // 添加按钮
+        // 保持 btnConfirmSettings 的代码不变...
 
         // 4. 配置 btnAbout 属性
         // btnAbout
@@ -237,7 +237,7 @@ partial class SettingsControl
         this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         this.Controls.Add(this.tlpMain);
         this.Name = "SettingsControl";
-        this.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, 436);
+        this.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.ClientHeightWithLoot);
 
         this.tlpMain.ResumeLayout(false);
         this.tabControl.ResumeLayout(false);

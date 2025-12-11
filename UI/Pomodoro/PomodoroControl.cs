@@ -112,6 +112,7 @@ public partial class PomodoroControl : UserControl
 
         // 仅在休息时间启用统计按钮
         btnShowStats.Enabled = _timerService.CanShowStats;
+        btnNextState.Enabled = _timerService.IsRunning;
 
         UpdateCountDisplay();
     }

@@ -17,7 +17,7 @@ public class PomodoroTimerService : IPomodoroTimerService
     public event EventHandler? TimeUpdated;
 
     // --- 核心字段 ---
-    private readonly System.Windows.Forms.Timer _timer;
+    private readonly System.Timers.Timer _timer;
     private readonly ITimerService? _timerService;
     private readonly IAppSettings? _appSettings;
 
@@ -53,8 +53,9 @@ public class PomodoroTimerService : IPomodoroTimerService
         _appSettings = appSettings;
 
         // 初始化定时器 (100ms 精度以保证显示流畅)
-        _timer = new System.Windows.Forms.Timer { Interval = 100 };
-        _timer.Tick += OnTimerTick;
+        _timer = new System.Timers.Timer(100);
+        _timer.AutoReset = true; // 确保它会循环触发
+        _timer.Elapsed += OnTimerTick; // 注意：事件名从 Tick 变成了 Elapse
 
         // 显式初始化为停止状态，防止自动运行
         _status = TimerStatus.Stopped;
@@ -119,6 +120,8 @@ public class PomodoroTimerService : IPomodoroTimerService
     // 强制进入下一阶段 (用于手动跳过，或半自动模式下的触发)
     public void SwitchToNextState()
     {
+        if (!IsRunning) return;
+
         TransitionToNextStage();
     }
 
@@ -296,11 +299,8 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     private void TryPauseGameTimer()
     {
-        // 仅在 TimerSyncPausePomodoro 开启时，让番茄钟去控制主计时器
-        if (_timerService != null && _timerService.IsRunning)
-        {
-            _timerService.Pause();
-        }
+        LogManager.WriteDebugLog("Pomodoro", "尝试暂停游戏主计时器");
+        _timerService!.Pause();
     }
 
     private void TryResumeGameTimer()
@@ -318,6 +318,8 @@ public class PomodoroTimerService : IPomodoroTimerService
     // 当游戏开始 (Timer Running = true)
     private void OnGameTimerRunningStateChanged(bool isGameRunning)
     {
+        if (!isGameRunning) return;
+
         // 【核心修复】增加这一行：检查游戏计时器是否真的在运行。
         // 因为程序启动恢复记录时，会触发 isGameRunning=true，但状态其实是 Paused。
         // 这时 _timerService.IsRunning 会返回 false。
@@ -332,7 +334,6 @@ public class PomodoroTimerService : IPomodoroTimerService
         // 此时用户开始游戏 (Game Start)，这被视为“触发信号”，进入下一阶段并开始计时。
         if (_status == TimerStatus.Paused && _timeLeft <= TimeSpan.Zero)
         {
-            LogManager.WriteDebugLog("Pomodoro", "检测到游戏开始，触发等待状态进入下一阶段");
             TransitionToNextStage();
         }
         // 场景 B: 同步开启 (Stopped -> Start)

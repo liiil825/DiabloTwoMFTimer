@@ -24,12 +24,9 @@ partial class PomodoroControl
         // 按钮容器
         this.tlpButtons = new System.Windows.Forms.TableLayoutPanel();
 
-        // 原有按钮
         this.btnStartPomodoro = new DiabloTwoMFTimer.UI.Components.ThemedButton();
         this.btnPomodoroSettings = new DiabloTwoMFTimer.UI.Components.ThemedButton();
         this.btnPomodoroReset = new DiabloTwoMFTimer.UI.Components.ThemedButton();
-
-        // 新增按钮
         this.btnNextState = new DiabloTwoMFTimer.UI.Components.ThemedButton();
         this.btnAddMinute = new DiabloTwoMFTimer.UI.Components.ThemedButton();
         this.btnShowStats = new DiabloTwoMFTimer.UI.Components.ThemedButton();
