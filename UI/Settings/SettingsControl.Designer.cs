@@ -23,6 +23,7 @@ partial class SettingsControl
         this.btnSetGeneral = new DiabloTwoMFTimer.UI.Components.ThemedButton();
         this.btnSetHotkeys = new DiabloTwoMFTimer.UI.Components.ThemedButton();
         this.btnSetTimer = new DiabloTwoMFTimer.UI.Components.ThemedButton();
+        this.btnAbout = new DiabloTwoMFTimer.UI.Components.ThemedButton();
         this.tabPageGeneral = new System.Windows.Forms.TabPage();
         this.generalSettings = new DiabloTwoMFTimer.UI.Settings.GeneralSettingsControl();
         this.tabPageHotkeys = new System.Windows.Forms.TabPage();
@@ -41,34 +42,30 @@ partial class SettingsControl
         this.panelBottom.SuspendLayout();
         this.SuspendLayout();
 
-
         // 
         // tlpMain
         // 
         this.tlpMain.ColumnCount = 1;
         this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-        // 重要：SettingsControl 之前的 tlpMain 可能包含了 TabControl。
-        // 现在我们需要把 tlpSettingsNav 加在 tlpMain 的最上面，或者让 tlpSettingsNav 和 tabControl 并在 tlpMain 里。
-        // 假设 tlpMain 是垂直布局：
-        // 1. 修改 tlpMain 的行定义，从 2 行改为 3 行
         this.tlpMain.RowCount = 3;
-        this.tlpMain.RowStyles.Clear();
-        // 行 0：顶部自定义导航栏 (高度写死)
-        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, Theme.UISizeConstants.TabItemHeight));
-        // 行 1：中部 Tab 内容容器 (自动填满 100%)
-        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-        // 行 2：底部确认按钮区域 (固定高度)
+        this.tlpMain.RowStyles.Clear(); // 清除旧样式
+
+        // 行 0：顶部导航栏
         this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, Theme.UISizeConstants.TabItemHeight));
 
-        // 2. 清除控件原有的 Dock=Top，全部改为 Dock=Fill
-        this.tlpSettingsNav.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.panelBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+        // 行 1：内容区域 (100% 填充)
+        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+
+        // [修复 1] 行 2：底部按钮区域
+        // 使用 ScaleHelper.Scale(60) 作为基数，确保有足够空间容纳按钮和 Padding
+        // 2x 缩放时，高度为 120px，按钮为 60px，不会被切掉
+        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, DiabloTwoMFTimer.Utils.ScaleHelper.Scale(60)));
 
         // 3. 将控件严格放入对应的“坑位”
         this.tlpMain.Controls.Add(this.tlpSettingsNav, 0, 0); // 导航放在第 0 行
         this.tlpMain.Controls.Add(this.tabControl, 0, 1);    // 容器放在第 1 行 (内容区不会再往上跑了)
         this.tlpMain.Controls.Add(this.panelBottom, 0, 2);   // 按钮放在第 2 行
+
 
         // 4. 其他修正：确保 tlpMain 始终 Dock=Fill 填充整个 SettingsControl
         this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -92,19 +89,41 @@ partial class SettingsControl
         this.tabControl.TabIndex = 0;
         // 
         // tlpSettingsNav
-        // 
         this.tlpSettingsNav.ColumnCount = 3;
-        this.tlpSettingsNav.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
-        this.tlpSettingsNav.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
-        this.tlpSettingsNav.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
+        this.tlpSettingsNav.ColumnStyles.Clear();
+        this.tlpSettingsNav.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+        this.tlpSettingsNav.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+        this.tlpSettingsNav.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+
+        // 确保 Panel 本身填充父容器单元格
+        this.tlpSettingsNav.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.tlpSettingsNav.Margin = new System.Windows.Forms.Padding(0);
+
+        // ... (添加控件的代码) ...
         this.tlpSettingsNav.Controls.Add(this.btnSetGeneral, 0, 0);
         this.tlpSettingsNav.Controls.Add(this.btnSetHotkeys, 1, 0);
         this.tlpSettingsNav.Controls.Add(this.btnSetTimer, 2, 0);
+
+        // 【修改点 2】配置按钮样式 (Dock=Fill, Margin=0)
+
+        // btnSetGeneral
+        this.btnSetGeneral.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.btnSetGeneral.Margin = new System.Windows.Forms.Padding(0);
+        this.btnSetGeneral.AutoSize = false;
+
+        // btnSetHotkeys
+        this.btnSetHotkeys.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.btnSetHotkeys.Margin = new System.Windows.Forms.Padding(0);
+        this.btnSetHotkeys.AutoSize = false;
+
+        // btnSetTimer
+        this.btnSetTimer.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.btnSetTimer.Margin = new System.Windows.Forms.Padding(0);
+        this.btnSetTimer.AutoSize = false;
+
         this.tlpSettingsNav.Dock = System.Windows.Forms.DockStyle.Top; // 停靠在顶部
-        this.tlpSettingsNav.Location = new System.Drawing.Point(0, 0);
         this.tlpSettingsNav.RowCount = 1;
         this.tlpSettingsNav.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-        // 这里不需要用 TabItemHeight，可以稍微矮一点，或者保持一致
         this.tlpSettingsNav.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.TabItemHeight);
 
         // 
@@ -112,7 +131,7 @@ partial class SettingsControl
         // 
         this.tabPageGeneral.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         this.tabPageGeneral.Controls.Add(this.generalSettings);
-        this.tabPageGeneral.Location = new System.Drawing.Point(0, 37); // TabControl内部计算的位置
+        // this.tabPageGeneral.Location = new System.Drawing.Point(0, 37); // TabControl内部计算的位置
         this.tabPageGeneral.Name = "tabPageGeneral";
         this.tabPageGeneral.Padding = new System.Windows.Forms.Padding(3);
         this.tabPageGeneral.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.SettingTabPageHeight);
@@ -123,7 +142,7 @@ partial class SettingsControl
         // generalSettings
         // 
         this.generalSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.generalSettings.Location = new System.Drawing.Point(0, 3);
+        // this.generalSettings.Location = new System.Drawing.Point(0, 3);
         this.generalSettings.Name = "generalSettings";
         this.generalSettings.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.SettingTabPageHeight);
         this.generalSettings.TabIndex = 0;
@@ -133,7 +152,7 @@ partial class SettingsControl
         // 
         this.tabPageHotkeys.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         this.tabPageHotkeys.Controls.Add(this.hotkeySettings);
-        this.tabPageHotkeys.Location = new System.Drawing.Point(0, 37);
+        // this.tabPageHotkeys.Location = new System.Drawing.Point(0, 37);
         this.tabPageHotkeys.Name = "tabPageHotkeys";
         this.tabPageHotkeys.Padding = new System.Windows.Forms.Padding(3);
         this.tabPageHotkeys.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.SettingTabPageHeight);
@@ -144,7 +163,7 @@ partial class SettingsControl
         // hotkeySettings
         // 
         this.hotkeySettings.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.hotkeySettings.Location = new System.Drawing.Point(0, 3);
+        // this.hotkeySettings.Location = new System.Drawing.Point(0, 3);
         this.hotkeySettings.Name = "hotkeySettings";
         this.hotkeySettings.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.SettingTabPageHeight);
         this.hotkeySettings.TabIndex = 0;
@@ -154,7 +173,7 @@ partial class SettingsControl
         // 
         this.tabPageTimer.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         this.tabPageTimer.Controls.Add(this.timerSettings);
-        this.tabPageTimer.Location = new System.Drawing.Point(0, 37);
+        // this.tabPageTimer.Location = new System.Drawing.Point(0, 37);
         this.tabPageTimer.Name = "tabPageTimer";
         this.tabPageTimer.Padding = new System.Windows.Forms.Padding(3);
         this.tabPageTimer.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.SettingTabPageHeight);
@@ -165,7 +184,7 @@ partial class SettingsControl
         // timerSettings
         // 
         this.timerSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.timerSettings.Location = new System.Drawing.Point(0, 3);
+        // this.timerSettings.Location = new System.Drawing.Point(0, 3);
         this.timerSettings.Name = "timerSettings";
         this.timerSettings.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, Theme.UISizeConstants.SettingTabPageHeight);
         this.timerSettings.TabIndex = 0;
@@ -176,10 +195,28 @@ partial class SettingsControl
         this.panelBottom.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         this.panelBottom.Controls.Add(this.btnConfirmSettings);
         this.panelBottom.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.panelBottom.Location = new System.Drawing.Point(0, 389);
+        // this.panelBottom.Location = new System.Drawing.Point(0, 389);
         this.panelBottom.Name = "panelBottom";
         this.panelBottom.Size = new System.Drawing.Size(Theme.UISizeConstants.ClientWidth, 44);
         this.panelBottom.TabIndex = 1;
+
+        // 3. 在 panelBottom 中添加 btnAbout
+        // 注意：panelBottom 已经有 btnConfirmSettings (Anchor = Top|Right)
+        // 我们将 btnAbout 设置为 Anchor = Top|Left
+
+        // panelBottom
+        this.panelBottom.Controls.Add(this.btnAbout); // 添加按钮
+                                                      // 保持 btnConfirmSettings 的代码不变...
+
+        // 4. 配置 btnAbout 属性
+        // btnAbout
+        this.btnAbout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)));
+        this.btnAbout.Location = new System.Drawing.Point(10, 6); // 左侧留 10px 边距，垂直与 Confirm 对齐
+        this.btnAbout.Name = "btnAbout";
+        this.btnAbout.Size = new System.Drawing.Size(80, 30);
+        this.btnAbout.TabIndex = 1;
+        this.btnAbout.Text = "关于";
+        this.btnAbout.Click += new System.EventHandler(this.BtnAbout_Click);
 
         // 
         // btnConfirmSettings
@@ -227,4 +264,5 @@ partial class SettingsControl
     private DiabloTwoMFTimer.UI.Components.ThemedButton btnSetGeneral;
     private DiabloTwoMFTimer.UI.Components.ThemedButton btnSetHotkeys;
     private DiabloTwoMFTimer.UI.Components.ThemedButton btnSetTimer;
+    private DiabloTwoMFTimer.UI.Components.ThemedButton btnAbout;
 }

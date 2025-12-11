@@ -79,8 +79,8 @@ partial class HotkeySettingsControl
         this.tlpHotkeys.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 
         // 添加控件
-        this.tlpHotkeys.Controls.Add(this.lblStartNext, 0, 0);
-        this.tlpHotkeys.Controls.Add(this.txtStartNext, 1, 0);
+        this.tlpHotkeys.Controls.Add(this.lblStartNext, 0, 0); // Index 0
+        this.tlpHotkeys.Controls.Add(this.txtStartNext, 1, 0); // Index 1
         this.tlpHotkeys.Controls.Add(this.lblPause, 0, 1);
         this.tlpHotkeys.Controls.Add(this.txtPause, 1, 1);
         this.tlpHotkeys.Controls.Add(this.lblDeleteHistory, 0, 2);
@@ -120,6 +120,7 @@ partial class HotkeySettingsControl
             txt.Margin = new System.Windows.Forms.Padding(5);
             txt.ReadOnly = true;
             txt.Tag = tag;
+            txt.TabStop = false;
             // 事件在 .cs 文件中绑定
             txt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnHotkeyInput);
             txt.Enter += new System.EventHandler(this.OnTextBoxEnter);
@@ -138,7 +139,7 @@ partial class HotkeySettingsControl
         this.AutoScroll = true;
         this.Controls.Add(this.tlpMain);
         this.Name = "HotkeySettingsControl";
-        this.Size = new System.Drawing.Size(350, 250);
+        // this.Size = new System.Drawing.Size(350, 250);
 
         this.tlpMain.ResumeLayout(false);
         this.tlpMain.PerformLayout();

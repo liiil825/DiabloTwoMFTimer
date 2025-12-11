@@ -51,7 +51,7 @@ partial class GeneralSettingsControl
         // 
         // tlpMain
         // 
-        this.tlpMain.AutoSize = true; // 【关键】允许自动伸缩高度
+        this.tlpMain.AutoSize = true;
         this.tlpMain.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
         this.tlpMain.ColumnCount = 1;
         this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -231,7 +231,7 @@ partial class GeneralSettingsControl
         this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
         this.Controls.Add(this.tlpMain);
         this.Name = "GeneralSettingsControl";
-        this.Size = new System.Drawing.Size(350, 420);
+        // this.Size = new System.Drawing.Size(350, 420);
 
         this.tlpMain.ResumeLayout(false);
         this.tlpMain.PerformLayout();

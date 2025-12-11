@@ -83,10 +83,11 @@ public partial class SettingsControl : UserControl
     {
         this.SafeInvoke(() =>
         {
-            btnConfirmSettings.Text = LanguageManager.GetString("ConfirmSettings");
-            btnSetGeneral.Text = LanguageManager.GetString("General");
-            btnSetHotkeys.Text = LanguageManager.GetString("Hotkeys");
-            btnSetTimer.Text = LanguageManager.GetString("TimerSettings");
+            btnConfirmSettings!.Text = LanguageManager.GetString("ConfirmSettings");
+            btnSetGeneral!.Text = LanguageManager.GetString("General");
+            btnSetHotkeys!.Text = LanguageManager.GetString("Hotkeys");
+            btnSetTimer!.Text = LanguageManager.GetString("TimerSettings");
+            btnAbout!.Text = LanguageManager.GetString("About") ?? "关于";
 
             generalSettings.RefreshUI();
             hotkeySettings.RefreshUI();
@@ -99,6 +100,12 @@ public partial class SettingsControl : UserControl
         generalSettings.LoadSettings(settings);
         hotkeySettings.LoadHotkeys(settings);
         timerSettings.LoadSettings(settings);
+    }
+
+    private void BtnAbout_Click(object? sender, EventArgs e)
+    {
+        using var aboutForm = new UI.Form.AboutForm();
+        aboutForm.ShowDialog(this.FindForm());
     }
 
     private void BtnConfirmSettings_Click(object? sender, EventArgs e)

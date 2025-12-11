@@ -14,6 +14,7 @@
   "CountButton": "Click to Count",
   "CountLabel": "Click Count: {{0}}",
   "RecordLootFormTitle": "Record Loot",
+  "RecordLoot": "Record Loot",
   "LootNameLabel": "Item or Rune Name:",
   "PreviousRunCheckbox": "Dropped in previous run (RunCount - 1)",
   "SaveButton": "Save",
@@ -160,5 +161,11 @@
   "Export": "Export",
   "Opacity": "Window Opacity",
   "UiScale": "UI Scale",
-  "LootTableRun": "Run"
+  "LootTableRun": "Run",
+  "About": "About",
+  "AboutTitle": "About D2R Timer",
+  "VisitGithub": "GitHub Repository",
+  "VisitBilibili": "Bilibili Channel",
+  "VersionLabel": "Version: {{0}}",
+  "AuthorLabel": "Author: 极简Lz"
 }

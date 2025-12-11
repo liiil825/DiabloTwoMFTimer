@@ -110,6 +110,7 @@
   "TotalRuns": "场次",
   "Average": "平均",
   "Loots": "掉落",
+  "RecordLoot": "记录掉落",
   "SceneData": "场景数据",
   "Times": "次",
   "Avg": "均",
@@ -164,5 +165,11 @@
   "Export": "导出",
   "Yes": "是",
   "No": "否",
-  "LootTableRun": "场次"
+  "LootTableRun": "场次",
+  "About": "关于",
+  "AboutTitle": "关于 D2R Timer",
+  "VisitGithub": "GitHub 仓库",
+  "VisitBilibili": "Bilibili 主页",
+  "VersionLabel": "版本: {{0}}",
+  "AuthorLabel": "作者: 极简Lz"
 }

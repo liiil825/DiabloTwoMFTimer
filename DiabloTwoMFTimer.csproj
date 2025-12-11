@@ -7,6 +7,7 @@
     <AssemblyName>DiabloTwoMFTimer</AssemblyName>
     <RootNamespace>DiabloTwoMFTimer</RootNamespace>
     <ApplicationIcon>Resources\d2r.ico</ApplicationIcon>
+    <Version>1.0.4</Version>
   </PropertyGroup>
 
   <ItemGroup>
