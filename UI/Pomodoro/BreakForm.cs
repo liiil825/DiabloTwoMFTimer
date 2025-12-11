@@ -24,6 +24,9 @@ public partial class BreakForm : System.Windows.Forms.Form
     private StatViewType _currentViewType;
     private bool _isAutoClosed = false;
 
+    // 动画定时器
+    private System.Windows.Forms.Timer _fadeInTimer;
+
     // 动态生成的切换按钮
     private Button btnToggleSession = null!;
     private Button btnToggleToday = null!;
@@ -65,6 +68,11 @@ public partial class BreakForm : System.Windows.Forms.Form
         InitializeComponent();
         InitializeToggleButtons();
 
+        // --- 1. 初始透明，准备动画 ---
+        this.Opacity = 0;
+        _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
+        _fadeInTimer.Tick += FadeInTimer_Tick;
+
         // 强制设置所有标签为非自动大小，以便统一宽度对齐
         ConfigureLabelStyles();
 
@@ -81,12 +89,30 @@ public partial class BreakForm : System.Windows.Forms.Form
         this.SizeChanged += BreakForm_SizeChanged;
     }
 
+    // --- 2. 动画逻辑 ---
+    private void FadeInTimer_Tick(object? sender, EventArgs e)
+    {
+        if (this.Opacity < 1)
+        {
+            this.Opacity += 0.08; // 调整这个数值控制速度
+        }
+        else
+        {
+            this.Opacity = 1;
+            _fadeInTimer.Stop();
+        }
+    }
+
     protected override void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
         RefreshStatistics();
+
         // 触发一次布局计算，确保初始位置正确
         BreakForm_SizeChanged(this, EventArgs.Empty);
+
+        // --- 3. 开始淡入 ---
+        _fadeInTimer.Start();
     }
 
     private void ConfigureLabelStyles()
@@ -166,86 +192,98 @@ public partial class BreakForm : System.Windows.Forms.Form
     // --- 核心布局逻辑 ---
     private void BreakForm_SizeChanged(object? sender, EventArgs e)
     {
-        int w = this.ClientSize.Width;
-        int h = this.ClientSize.Height;
-        int cx = w / 2;
+        // --- 4. 挂起布局，防止计算过程中控件乱跳 ---
+        this.SuspendLayout();
 
-        // 1. Header
-        int headerHeight = ScaleHelper.Scale(110);
-        headerControl.Height = headerHeight;
-
-        // Header 内部按钮居中
-        var togglePanel = headerControl.TogglePanel;
-        if (togglePanel != null)
+        try
         {
-            togglePanel.PerformLayout();
-            togglePanel.Left = (w - togglePanel.Width) / 2;
+            int w = this.ClientSize.Width;
+            int h = this.ClientSize.Height;
+            int cx = w / 2;
+
+            // 1. Header
+            int headerHeight = ScaleHelper.Scale(110);
+            headerControl.Height = headerHeight;
+
+            // Header 内部按钮居中
+            var togglePanel = headerControl.TogglePanel;
+            if (togglePanel != null)
+            {
+                togglePanel.PerformLayout();
+                togglePanel.Left = (w - togglePanel.Width) / 2;
+            }
+
+            // --- 核心修改：统一内容宽度 ---
+            // 所有中间的控件都使用这个宽度，并且 X 坐标统一
+            int contentWidth = w - ScaleHelper.Scale(100);
+            int contentLeft = (w - contentWidth) / 2;
+
+            // 辅助方法：统一设置控件位置和宽度
+            void LayoutCenterControl(Control ctrl, int y, int height)
+            {
+                ctrl.Location = new Point(contentLeft, y);
+                ctrl.Size = new Size(contentWidth, height);
+            }
+
+            int currentY = headerHeight + ScaleHelper.Scale(40);
+
+            // 2. 提示语
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
+                // 提示语
+                LayoutCenterControl(lblMessage, currentY, ScaleHelper.Scale(60));
+                currentY = lblMessage.Bottom + ScaleHelper.Scale(30);
+
+                // 倒计时
+                LayoutCenterControl(lblTimer, currentY, ScaleHelper.Scale(60)); // 高度给足，防止大字体切边
+                currentY = lblTimer.Bottom + ScaleHelper.Scale(10);
+
+                // 番茄状态 (PomodoroStatusDisplay 内部自绘逻辑已支持基于 Width 居中)
+                LayoutCenterControl(pomodoroStatusDisplay, currentY, ScaleHelper.Scale(40));
+                currentY = pomodoroStatusDisplay.Bottom + ScaleHelper.Scale(20);
+            }
+            else
+            {
+                currentY = headerHeight + ScaleHelper.Scale(20);
+            }
+
+            // 3. 总时长 (现在和上面的控件完全对齐)
+            LayoutCenterControl(lblDuration, currentY, ScaleHelper.Scale(30));
+            currentY = lblDuration.Bottom + ScaleHelper.Scale(20);
+
+            // 4. 底部按钮
+            int btnY = h - ScaleHelper.Scale(100);
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
+                int spacing = ScaleHelper.Scale(40);
+                int totalBtnW = btnSkip.Width + btnClose.Width + spacing;
+                int startX = (w - totalBtnW) / 2;
+
+                btnSkip.Location = new Point(startX, btnY);
+                btnClose.Location = new Point(btnSkip.Right + spacing, btnY);
+            }
+            else
+            {
+                btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
+            }
+
+            // 5. 统计内容 (填充剩余空间)
+            int statsBottomLimit = btnY - ScaleHelper.Scale(20);
+            int statsHeight = statsBottomLimit - currentY;
+            if (statsHeight < 100) statsHeight = 100;
+
+            LayoutCenterControl(lblStats, currentY, statsHeight);
         }
-
-        // --- 核心修改：统一内容宽度 ---
-        // 所有中间的控件都使用这个宽度，并且 X 坐标统一
-        int contentWidth = w - ScaleHelper.Scale(100);
-        int contentLeft = (w - contentWidth) / 2;
-
-        // 辅助方法：统一设置控件位置和宽度
-        void LayoutCenterControl(Control ctrl, int y, int height)
+        finally
         {
-            ctrl.Location = new Point(contentLeft, y);
-            ctrl.Size = new Size(contentWidth, height);
+            // --- 5. 恢复布局 ---
+            this.ResumeLayout();
         }
-
-        int currentY = headerHeight + ScaleHelper.Scale(40);
-
-        // 2. 提示语
-        if (_mode == BreakFormMode.PomodoroBreak)
-        {
-            // 提示语
-            LayoutCenterControl(lblMessage, currentY, ScaleHelper.Scale(60));
-            currentY = lblMessage.Bottom + ScaleHelper.Scale(30);
-
-            // 倒计时
-            LayoutCenterControl(lblTimer, currentY, ScaleHelper.Scale(60)); // 高度给足，防止大字体切边
-            currentY = lblTimer.Bottom + ScaleHelper.Scale(10);
-
-            // 番茄状态 (PomodoroStatusDisplay 内部自绘逻辑已支持基于 Width 居中)
-            LayoutCenterControl(pomodoroStatusDisplay, currentY, ScaleHelper.Scale(40));
-            currentY = pomodoroStatusDisplay.Bottom + ScaleHelper.Scale(20);
-        }
-        else
-        {
-            currentY = headerHeight + ScaleHelper.Scale(20);
-        }
-
-        // 3. 总时长 (现在和上面的控件完全对齐)
-        LayoutCenterControl(lblDuration, currentY, ScaleHelper.Scale(30));
-        currentY = lblDuration.Bottom + ScaleHelper.Scale(20);
-
-        // 4. 底部按钮
-        int btnY = h - ScaleHelper.Scale(100);
-        if (_mode == BreakFormMode.PomodoroBreak)
-        {
-            int spacing = ScaleHelper.Scale(40);
-            int totalBtnW = btnSkip.Width + btnClose.Width + spacing;
-            int startX = (w - totalBtnW) / 2;
-
-            btnSkip.Location = new Point(startX, btnY);
-            btnClose.Location = new Point(btnSkip.Right + spacing, btnY);
-        }
-        else
-        {
-            btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
-        }
-
-        // 5. 统计内容 (填充剩余空间)
-        int statsBottomLimit = btnY - ScaleHelper.Scale(20);
-        int statsHeight = statsBottomLimit - currentY;
-        if (statsHeight < 100) statsHeight = 100;
-
-        LayoutCenterControl(lblStats, currentY, statsHeight);
     }
 
     private void SwitchView(StatViewType type)
     {
+        // 这里也可以加一点简单的 Opacity 动画让切换更柔和，不过暂不复杂化
         _currentViewType = type;
         RefreshStatistics();
     }
@@ -286,67 +324,76 @@ public partial class BreakForm : System.Windows.Forms.Form
 
     private void RefreshStatistics()
     {
-        UpdateButtonStyles();
-
-        if (pomodoroStatusDisplay != null)
+        // 为了防止数据计算时 UI 卡顿，可以使用 SuspendLayout
+        this.SuspendLayout();
+        try
         {
-            pomodoroStatusDisplay.TotalCompletedCount = _timerService.CompletedPomodoros;
+            UpdateButtonStyles();
+
+            if (pomodoroStatusDisplay != null)
+            {
+                pomodoroStatusDisplay.TotalCompletedCount = _timerService.CompletedPomodoros;
+            }
+
+            if (_profileService == null || _profileService.CurrentProfile == null)
+            {
+                if (lblStats != null) lblStats.Text = "暂无角色数据";
+                if (lblDuration != null) lblDuration.Text = "";
+                return;
+            }
+
+            DateTime start = DateTime.MinValue;
+            DateTime end = DateTime.Now;
+            string title = "";
+
+            switch (_currentViewType)
+            {
+                case StatViewType.Session:
+                    if (_breakType == PomodoroBreakType.ShortBreak)
+                        start = DateTime.Now.AddMinutes(-_timeSettings.WorkTimeMinutes - 5);
+                    else
+                    {
+                        int cycleMins = (_timeSettings.WorkTimeMinutes * 4) + (_timeSettings.ShortBreakMinutes * 3);
+                        start = DateTime.Now.AddMinutes(-cycleMins - 10);
+                    }
+                    title = ">>> 本轮战况 <<<";
+                    break;
+
+                case StatViewType.Today:
+                    start = DateTime.Today;
+                    title = ">>> 今日战况 <<<";
+                    break;
+
+                case StatViewType.Week:
+                    start = _statsService.GetStartOfWeek();
+                    title = ">>> 本周战况 <<<";
+                    break;
+            }
+
+            string content = _statsService.GetDetailedSummary(start, end);
+            if (lblStats != null)
+                lblStats.Text = $"{title}\n\n{content}";
+
+            if (lblDuration != null)
+            {
+                var validRecords = _profileService.CurrentProfile.Records.Where(r =>
+                    r.IsCompleted && r.StartTime >= start && r.StartTime <= end
+                );
+
+                double totalSeconds = validRecords.Sum(r => r.DurationSeconds);
+                TimeSpan ts = TimeSpan.FromSeconds(totalSeconds);
+
+                string durationText =
+                    totalSeconds < 60
+                        ? $"{ts.Seconds}秒"
+                        : (totalSeconds < 3600 ? $"{ts.Minutes}分 {ts.Seconds}秒" : $"{ts.Hours}小时 {ts.Minutes}分");
+
+                lblDuration.Text = $"累计游戏时长: {durationText}";
+            }
         }
-
-        if (_profileService == null || _profileService.CurrentProfile == null)
+        finally
         {
-            if (lblStats != null) lblStats.Text = "暂无角色数据";
-            if (lblDuration != null) lblDuration.Text = "";
-            return;
-        }
-
-        DateTime start = DateTime.MinValue;
-        DateTime end = DateTime.Now;
-        string title = "";
-
-        switch (_currentViewType)
-        {
-            case StatViewType.Session:
-                if (_breakType == PomodoroBreakType.ShortBreak)
-                    start = DateTime.Now.AddMinutes(-_timeSettings.WorkTimeMinutes - 5);
-                else
-                {
-                    int cycleMins = (_timeSettings.WorkTimeMinutes * 4) + (_timeSettings.ShortBreakMinutes * 3);
-                    start = DateTime.Now.AddMinutes(-cycleMins - 10);
-                }
-                title = ">>> 本轮战况 <<<";
-                break;
-
-            case StatViewType.Today:
-                start = DateTime.Today;
-                title = ">>> 今日战况 <<<";
-                break;
-
-            case StatViewType.Week:
-                start = _statsService.GetStartOfWeek();
-                title = ">>> 本周战况 <<<";
-                break;
-        }
-
-        string content = _statsService.GetDetailedSummary(start, end);
-        if (lblStats != null)
-            lblStats.Text = $"{title}\n\n{content}";
-
-        if (lblDuration != null)
-        {
-            var validRecords = _profileService.CurrentProfile.Records.Where(r =>
-                r.IsCompleted && r.StartTime >= start && r.StartTime <= end
-            );
-
-            double totalSeconds = validRecords.Sum(r => r.DurationSeconds);
-            TimeSpan ts = TimeSpan.FromSeconds(totalSeconds);
-
-            string durationText =
-                totalSeconds < 60
-                    ? $"{ts.Seconds}秒"
-                    : (totalSeconds < 3600 ? $"{ts.Minutes}分 {ts.Seconds}秒" : $"{ts.Hours}小时 {ts.Minutes}分");
-
-            lblDuration.Text = $"累计游戏时长: {durationText}";
+            this.ResumeLayout();
         }
     }
 
@@ -394,12 +441,14 @@ public partial class BreakForm : System.Windows.Forms.Form
         if (!_isAutoClosed && !this.IsDisposed)
         {
             _isAutoClosed = true;
+            // 可以在这里做 FadeOut 动画，但这里直接关闭响应更快
             this.SafeInvoke(() => this.Close());
         }
     }
 
     private void BreakForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
+        _fadeInTimer.Stop(); // 清理 Timer
         _timerService.TimeUpdated -= TimerService_TimeUpdated;
         _timerService.PomodoroTimerStateChanged -= TimerService_PomodoroTimerStateChanged;
     }

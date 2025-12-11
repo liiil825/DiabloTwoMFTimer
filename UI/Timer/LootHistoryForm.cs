@@ -21,6 +21,9 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     private Button btnWeek = null!;
     private Button btnCustom = null!;
 
+    // 动画定时器
+    private System.Windows.Forms.Timer _fadeInTimer;
+
     private enum ViewMode { Today, Week, Custom }
     private ViewMode _currentMode = ViewMode.Today;
 
@@ -41,8 +44,35 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         // 绑定布局事件
         this.SizeChanged += LootHistoryForm_SizeChanged;
 
+        // --- 1. 动画初始化 ---
+        this.Opacity = 0;
+        _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
+        _fadeInTimer.Tick += FadeInTimer_Tick;
+
         UpdateLanguageText();
         SwitchMode(ViewMode.Today);
+    }
+
+    // --- 2. 动画逻辑 ---
+    private void FadeInTimer_Tick(object? sender, EventArgs e)
+    {
+        if (this.Opacity < 1)
+        {
+            this.Opacity += 0.08;
+        }
+        else
+        {
+            this.Opacity = 1;
+            _fadeInTimer.Stop();
+        }
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        // 确保布局在显示前完成一次计算
+        LootHistoryForm_SizeChanged(this, EventArgs.Empty);
+        _fadeInTimer.Start();
     }
 
     private void InitializeToggleButtons()
@@ -81,57 +111,67 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     // --- 核心布局逻辑 ---
     private void LootHistoryForm_SizeChanged(object? sender, EventArgs e)
     {
-        int w = this.ClientSize.Width;
-        int h = this.ClientSize.Height;
-        int cx = w / 2;
-
-        // 1. 设置 Header 高度 (固定)
-        int headerHeight = ScaleHelper.Scale(110);
-        headerControl.Height = headerHeight;
-
-        // 【解决问题1：顶部按钮居中】
-        // 访问 ThemedWindowHeader 暴露的 FlowLayoutPanel
-        var togglePanel = headerControl.TogglePanel;
-        if (togglePanel != null)
+        // --- 3. 挂起布局 ---
+        this.SuspendLayout();
+        try
         {
-            // 确保 Panel 大小已计算
-            togglePanel.PerformLayout();
-            // 计算居中 X 坐标
-            togglePanel.Left = (w - togglePanel.Width) / 2;
+            int w = this.ClientSize.Width;
+            int h = this.ClientSize.Height;
+            int cx = w / 2;
+
+            // 1. 设置 Header 高度 (固定)
+            int headerHeight = ScaleHelper.Scale(110);
+            headerControl.Height = headerHeight;
+
+            // 【解决问题1：顶部按钮居中】
+            // 访问 ThemedWindowHeader 暴露的 FlowLayoutPanel
+            var togglePanel = headerControl.TogglePanel;
+            if (togglePanel != null)
+            {
+                // 确保 Panel 大小已计算
+                togglePanel.PerformLayout();
+                // 计算居中 X 坐标
+                togglePanel.Left = (w - togglePanel.Width) / 2;
+            }
+
+            // 2. 预留给自定义日期栏的高度 (固定保留，解决表格跳动问题)
+            int datePanelHeight = ScaleHelper.Scale(60);
+            int datePanelTop = headerHeight; // 紧接 Header 下方
+
+            // 配置 pnlCustomDate (始终占据这个位置和大小)
+            pnlCustomDate.Location = new Point(0, datePanelTop);
+            pnlCustomDate.Size = new Size(w, datePanelHeight);
+
+            // 【解决问题2 & 3：对齐日期控件和按钮】
+            LayoutCustomDatePanel(w, datePanelHeight);
+
+            // 3. 配置表格容器
+            // 【解决问题4：表格位移】
+            // 表格的 Top 永远是 (Header高度 + DatePanel高度 + 间距)，无论 DatePanel 是否可见
+            int gridTopPadding = ScaleHelper.Scale(10);
+            int gridTop = datePanelTop + datePanelHeight + gridTopPadding;
+
+            // 底部留白给关闭按钮
+            int bottomMargin = ScaleHelper.Scale(100);
+            int gridHeight = h - gridTop - bottomMargin;
+            if (gridHeight < 100) gridHeight = 100;
+
+            // 限制表格最大宽度，避免在 4K 屏上太宽难看
+            int maxGridWidth = ScaleHelper.Scale(1200);
+            int gridWidth = Math.Min(w - ScaleHelper.Scale(60), maxGridWidth); // 左右留30间距
+
+            pnlGridContainer.Size = new Size(gridWidth, gridHeight);
+            pnlGridContainer.Location = new Point((w - gridWidth) / 2, gridTop);
+
+            // 4. 配置关闭按钮 (底部居中)
+            int btnY = h - ScaleHelper.Scale(80);
+            btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
         }
-
-        // 2. 预留给自定义日期栏的高度 (固定保留，解决表格跳动问题)
-        int datePanelHeight = ScaleHelper.Scale(60);
-        int datePanelTop = headerHeight; // 紧接 Header 下方
-
-        // 配置 pnlCustomDate (始终占据这个位置和大小)
-        pnlCustomDate.Location = new Point(0, datePanelTop);
-        pnlCustomDate.Size = new Size(w, datePanelHeight);
-
-        // 【解决问题2 & 3：对齐日期控件和按钮】
-        LayoutCustomDatePanel(w, datePanelHeight);
-
-        // 3. 配置表格容器
-        // 【解决问题4：表格位移】
-        // 表格的 Top 永远是 (Header高度 + DatePanel高度 + 间距)，无论 DatePanel 是否可见
-        int gridTopPadding = ScaleHelper.Scale(10);
-        int gridTop = datePanelTop + datePanelHeight + gridTopPadding;
-
-        // 底部留白给关闭按钮
-        int bottomMargin = ScaleHelper.Scale(100);
-        int gridHeight = h - gridTop - bottomMargin;
-        if (gridHeight < 100) gridHeight = 100;
-
-        // 限制表格最大宽度，避免在 4K 屏上太宽难看
-        int maxGridWidth = ScaleHelper.Scale(1200);
-        int gridWidth = Math.Min(w - ScaleHelper.Scale(60), maxGridWidth); // 左右留30间距
-
-        pnlGridContainer.Size = new Size(gridWidth, gridHeight);
-        pnlGridContainer.Location = new Point((w - gridWidth) / 2, gridTop);
-
-        // 4. 配置关闭按钮 (底部居中)
-        int btnY = h - ScaleHelper.Scale(80);
-        btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
+        finally
+        {
+            // --- 4. 恢复布局 ---
+            this.ResumeLayout();
+        }
     }
 
     private void LayoutCustomDatePanel(int panelWidth, int panelHeight)
@@ -281,6 +321,7 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
     private void BtnClose_Click(object sender, EventArgs e)
     {
+        // 简单的淡出 (可选，如果觉得太复杂直接 Close 也可以)
         this.Close();
     }
 
@@ -329,29 +370,39 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
     private void LoadData(DateTime start, DateTime end)
     {
-        var profile = _profileService.CurrentProfile;
-        if (profile == null) return;
-
-        var records = profile.LootRecords
-            .Where(r => r.DropTime >= start && r.DropTime <= end)
-            .OrderByDescending(r => r.DropTime)
-            .ToList();
-
-        var displayList = records.Select(r => new
+        // 4. 数据加载也挂起布局
+        this.SuspendLayout();
+        try
         {
-            r.DropTime,
-            r.Name,
-            SceneName = _sceneService.GetLocalizedShortSceneName(r.SceneName),
-            r.RunCount
-        }).ToList();
+            var profile = _profileService.CurrentProfile;
+            if (profile == null) return;
 
-        var bindingSource = new BindingSource();
-        bindingSource.DataSource = displayList;
-        gridLoot.DataSource = bindingSource;
+            var records = profile.LootRecords
+                .Where(r => r.DropTime >= start && r.DropTime <= end)
+                .OrderByDescending(r => r.DropTime)
+                .ToList();
+
+            var displayList = records.Select(r => new
+            {
+                r.DropTime,
+                r.Name,
+                SceneName = _sceneService.GetLocalizedShortSceneName(r.SceneName),
+                r.RunCount
+            }).ToList();
+
+            var bindingSource = new BindingSource();
+            bindingSource.DataSource = displayList;
+            gridLoot.DataSource = bindingSource;
+        }
+        finally
+        {
+            this.ResumeLayout();
+        }
     }
 
     protected override void OnFormClosed(FormClosedEventArgs e)
     {
+        _fadeInTimer.Stop();
         LanguageManager.OnLanguageChanged -= LanguageChanged;
         base.OnFormClosed(e);
     }
