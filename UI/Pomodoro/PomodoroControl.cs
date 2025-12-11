@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks; // 必须引用
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
@@ -69,18 +70,28 @@ public partial class PomodoroControl : UserControl
         this.SafeInvoke(UpdateUI);
     }
 
+    // 【核心修复】异步处理弹窗，防止卡死 UI
     private void TimerService_PomodoroBreakStarted(object? sender, PomodoroBreakStartedEventArgs e)
     {
-        this.SafeInvoke(() => ShowBreakForm(e.BreakType));
+        // 使用 BeginInvoke 脱离当前执行栈（特别是从 Hook/Hotkey 进来的调用）
+        this.BeginInvoke(new Action(async () =>
+        {
+            try
+            {
+                // 延迟 100ms：让出 CPU 给游戏和系统消息循环，避免资源竞争导致卡死
+                await Task.Delay(100);
+                ShowBreakForm(e.BreakType);
+            }
+            catch (Exception ex)
+            {
+                LogManager.WriteErrorLog("PomodoroControl", "ShowBreakForm error", ex);
+            }
+        }));
     }
 
-    private void TimerService_PomodoroCompleted(object? sender, PomodoroCompletedEventArgs e)
-    {
-    }
+    private void TimerService_PomodoroCompleted(object? sender, PomodoroCompletedEventArgs e) { }
 
-    private void TimerService_PomodoroBreakSkipped(object? sender, EventArgs e)
-    {
-    }
+    private void TimerService_PomodoroBreakSkipped(object? sender, EventArgs e) { }
 
     #endregion
 
@@ -88,7 +99,6 @@ public partial class PomodoroControl : UserControl
 
     private void UpdateUI()
     {
-        // 更新按钮文字
         btnStartPomodoro.Text = _timerService.IsRunning
             ? (LanguageManager.GetString("PausePomodoro") ?? "暂停")
             : (LanguageManager.GetString("StartPomodoro") ?? "开始");
@@ -96,7 +106,6 @@ public partial class PomodoroControl : UserControl
         btnPomodoroReset.Text = LanguageManager.GetString("ResetPomodoro") ?? "重置";
         btnPomodoroSettings.Text = LanguageManager.GetString("Settings") ?? "设置";
 
-        // 更新新按钮文字
         btnNextState.Text = LanguageManager.GetString("PomodoroSkip") ?? "Skip";
         btnAddMinute.Text = LanguageManager.GetString("PomodoroAddMin") ?? "+1 Min";
         btnShowStats.Text = LanguageManager.GetString("Statistics") ?? "Stats";
@@ -104,7 +113,6 @@ public partial class PomodoroControl : UserControl
         // 仅在休息时间启用统计按钮
         btnShowStats.Enabled = _timerService.CanShowStats;
 
-        // 更新计数显示
         UpdateCountDisplay();
     }
 
@@ -140,7 +148,6 @@ public partial class PomodoroControl : UserControl
 
     private void BtnShowStats_Click(object? sender, EventArgs e)
     {
-        // 获取当前的 BreakType (如果不是休息时间，默认 Short)
         var breakType = (_timerService.CompletedPomodoros % 4 == 0)
             ? PomodoroBreakType.LongBreak
             : PomodoroBreakType.ShortBreak;
@@ -164,7 +171,6 @@ public partial class PomodoroControl : UserControl
 
         if (settingsForm.ShowDialog(this.FindForm()) == DialogResult.OK)
         {
-            // 更新 Service 配置
             _timerService.Settings.WorkTimeMinutes = settingsForm.WorkTimeMinutes;
             _timerService.Settings.WorkTimeSeconds = settingsForm.WorkTimeSeconds;
             _timerService.Settings.ShortBreakMinutes = settingsForm.ShortBreakMinutes;
@@ -172,13 +178,10 @@ public partial class PomodoroControl : UserControl
             _timerService.Settings.LongBreakMinutes = settingsForm.LongBreakMinutes;
             _timerService.Settings.LongBreakSeconds = settingsForm.LongBreakSeconds;
 
-            // 更新警告时间设置
             _appSettings.PomodoroWarningLongTime = settingsForm.WarningLongTime;
             _appSettings.PomodoroWarningShortTime = settingsForm.WarningShortTime;
 
-            // 更新模式设置 (SettingsForm 内部已直接更新 _appSettings)
-            // 确保加载一次新模式
-            _timerService.LoadSettings();
+            _timerService.LoadSettings(); // 确保重新加载模式等设置
 
             SaveSettings();
             _timerService.Reset();

@@ -28,7 +28,7 @@ public class PomodoroTimerService : IPomodoroTimerService
     // 标记是否在休息前暂停了计时器
     private bool _timerWasPausedBeforeBreak = false;
 
-    // 【新增】标记是否正在等待手动触发进入下一阶段
+    // 标记是否正在等待手动触发进入下一阶段
     private bool _isWaitingForManualTrigger = false;
 
     // 时间设置
@@ -39,13 +39,7 @@ public class PomodoroTimerService : IPomodoroTimerService
         _timerService = timerService;
         _appSettings = appSettings;
         Settings = new PomodoroTimeSettings();
-        _timer = new System.Windows.Forms.Timer { Interval = 1000 }; // 修正为 1000ms，之前的 60ms 太快且 Tick 逻辑是减 100ms
-        // 注意：原代码 Timer_Tick 中是 Subtract(TimeSpan.FromMilliseconds(100))，Interval 应配合调整。
-        // 这里保持原逻辑修正：原代码 Interval=60, Tick 减 100ms，会导致时间走得比实际快。
-        // 建议改为标准秒级：Interval=1000, Tick 减 1秒。或者 Interval=100, Tick 减 100ms。
-        // 为了平滑，这里设为 100ms
-        _timer.Interval = 100;
-
+        _timer = new System.Windows.Forms.Timer { Interval = 100 }; // 100ms 更新一次更平滑
         _timer.Tick += Timer_Tick;
         InitializeTimer();
 
@@ -103,7 +97,12 @@ public class PomodoroTimerService : IPomodoroTimerService
         else if (isPaused &&
         _appSettings?.TimerSyncPausePomodoro == true && _isRunning)
         {
-            Pause();
+            // 【核心修复】只有在“工作”状态下才同步暂停。
+            // 如果是“休息”状态，主计时器暂停（通常是因为不刷了）不应该打断休息倒计时。
+            if (_currentState == PomodoroTimerState.Work)
+            {
+                Pause();
+            }
         }
     }
 
@@ -143,6 +142,8 @@ public class PomodoroTimerService : IPomodoroTimerService
         _timeLeft = GetWorkTime();
         _isWaitingForManualTrigger = false;
         OnTimerStateChanged();
+        // 强制刷新一次时间，避免界面残留
+        TimeUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     public void LoadSettings()
@@ -156,14 +157,14 @@ public class PomodoroTimerService : IPomodoroTimerService
         Reset();
     }
 
-    // 【新增】增加时间
+    // 增加时间
     public void AddMinutes(int minutes)
     {
         _timeLeft = _timeLeft.Add(TimeSpan.FromMinutes(minutes));
         TimeUpdated?.Invoke(this, EventArgs.Empty);
     }
 
-    // 【新增】切换到下一个状态 (Manual Trigger / Skip)
+    // 切换到下一个状态 (Manual Trigger / Skip)
     public void SwitchToNextState()
     {
         _isWaitingForManualTrigger = false; // 清除等待标记
@@ -172,8 +173,6 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     public void SkipBreak()
     {
-        // SkipBreak 本质上就是从休息状态跳到工作状态，可以用 SwitchToNextState 实现
-        // 但为了兼容旧逻辑（如果不在休息状态跳过可能会有副作用），保留特定检查
         if (_currentState != PomodoroTimerState.Work)
         {
             SwitchToNextState();
@@ -182,7 +181,7 @@ public class PomodoroTimerService : IPomodoroTimerService
         }
     }
 
-    // 【新增】是否允许显示统计
+    // 是否允许显示统计
     public bool CanShowStats => _currentState != PomodoroTimerState.Work;
 
     private void Timer_Tick(object? sender, EventArgs e)
@@ -236,7 +235,6 @@ public class PomodoroTimerService : IPomodoroTimerService
             else if (mode == PomodoroMode.SemiAuto)
             {
                 // 半自动：工作->休息(手动)，休息->工作(自动)
-                // "1个是工作时间需要手动" -> 意味着工作结束，进入休息需要手动确认
                 if (_currentState == PomodoroTimerState.Work)
                     shouldWait = true;
             }
@@ -249,13 +247,18 @@ public class PomodoroTimerService : IPomodoroTimerService
                 _isWaitingForManualTrigger = true;
                 SystemSounds.Beep.Play(); // 提示结束
                 OnTimerStateChanged();
+                // 也要触发一次更新，确保界面显示 00:00
+                TimeUpdated?.Invoke(this, EventArgs.Empty);
                 return; // 暂停在这里，等待手动触发
             }
         }
 
         // --- 进入正常的切换逻辑 ---
         _isWaitingForManualTrigger = false;
-        _timeLeft = TimeSpan.Zero;
+
+        // 【关键修复】这里不要先把时间设为0，否则UI会闪现 00:00
+        // _timeLeft = TimeSpan.Zero; 
+
         if (!forceNext) SystemSounds.Beep.Play(); // 自然结束才响铃
 
         _previousState = _currentState; // 保存之前的状态
@@ -280,15 +283,16 @@ public class PomodoroTimerService : IPomodoroTimerService
                     }
                 }
 
-                // 触发休息开始事件
-                PomodoroBreakStarted?.Invoke(this, new PomodoroBreakStartedEventArgs(breakType));
-
-                // 自动开始休息计时
+                // 【核心修复步骤 1】先更新状态和时间
+                // 这样在触发事件打开窗口时，窗口读取到的已经是 5:00 而不是 0:00
                 _currentState =
                     (breakType == PomodoroBreakType.ShortBreak)
                         ? PomodoroTimerState.ShortBreak
                         : PomodoroTimerState.LongBreak;
                 _timeLeft = GetBreakTime(breakType);
+
+                // 【核心修复步骤 2】时间就绪后，再触发 UI 事件
+                PomodoroBreakStarted?.Invoke(this, new PomodoroBreakStartedEventArgs(breakType));
                 break;
 
             case PomodoroTimerState.ShortBreak:
@@ -306,14 +310,18 @@ public class PomodoroTimerService : IPomodoroTimerService
                 // 自动开始下一个工作周期
                 _currentState = PomodoroTimerState.Work;
                 _timeLeft = GetWorkTime();
-                if (!forceNext) SystemSounds.Beep.Play(); // 如果是强制跳过休息，这里可能不响铃比较好
+                if (!forceNext) SystemSounds.Beep.Play();
                 break;
         }
 
         // 切换后自动开始运行新阶段
         _isRunning = true;
         _timer.Start();
+
         OnTimerStateChanged();
+
+        // 【关键修复】手动触发一次时间更新，确保主界面和刚弹出的窗口立即刷新为新时间
+        TimeUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     private void InitializeTimer()

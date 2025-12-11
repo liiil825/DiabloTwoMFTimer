@@ -76,13 +76,22 @@ public partial class BreakForm : System.Windows.Forms.Form
 
         this.BackColor = Color.FromArgb(28, 28, 28);
 
-        RefreshStatistics();
-
         if (_mode == BreakFormMode.PomodoroBreak)
         {
             _timerService.TimeUpdated += TimerService_TimeUpdated;
             _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
+
+            // 立即刷新一次显示，确保用户看到正确的时间而不是 00:00
+            // 此时 Service 中的时间已经是正确的
+            UpdateTimerDisplay();
         }
+    }
+
+    // 【关键优化】将耗时操作移至 OnLoad
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        RefreshStatistics();
     }
 
     private Button CreateToggleButton(string text, StatViewType type)
@@ -390,6 +399,13 @@ public partial class BreakForm : System.Windows.Forms.Form
                 lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
             CheckBreakTimeEnded();
         });
+    }
+
+    private void UpdateTimerDisplay()
+    {
+        var t = _timerService.TimeLeft;
+        if (lblTimer != null)
+            lblTimer.Text = $"{(int)t.TotalMinutes:00}:{t.Seconds:00}";
     }
 
     private void AutoCloseForm()
