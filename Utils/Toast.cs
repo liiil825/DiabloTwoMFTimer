@@ -12,65 +12,75 @@ public static class Toast
 {
     private static readonly List<ToastForm> _openToasts = [];
 
+    // 定义一个委托，用于从 UI 线程执行操作
+    private static Action<Action>? _uiInvoker;
+
+    /// <summary>
+    /// 注册 UI 线程调用器 (通常由 MainForm 在启动时调用)
+    /// </summary>
+    public static void RegisterUiInvoker(Action<Action> invoker)
+    {
+        _uiInvoker = invoker;
+    }
+
+    // 公开的方法保持不变，服务层不需要改代码
     public static void Show(string message, ToastType type = ToastType.Info)
     {
-        // ---------------------------------------------------------
-        // 【核心修复】线程安全检查
-        // ---------------------------------------------------------
-        // 检查当前是否有打开的主窗体，用来判断和获取 UI 线程
-        if (Application.OpenForms.Count > 0)
+        // 如果注册了 UI 调用器，且需要跨线程，则通过调用器执行
+        if (_uiInvoker != null)
         {
-            var mainForm = Application.OpenForms[0];
-
-            // 如果当前调用线程不是 UI 线程 (InvokeRequired = true)
-            // 我们必须将操作“封送 (Marshal)”回 UI 线程执行
-            if (mainForm != null && mainForm.InvokeRequired && !mainForm.IsDisposed)
-            {
-                // 使用 BeginInvoke 异步执行，避免阻塞后台计时器线程
-                mainForm.BeginInvoke(new Action(() => Show(message, type)));
-                return;
-            }
-        }
-        // ---------------------------------------------------------
-
-        var toast = new ToastForm(message, type);
-
-        var screen = Screen.PrimaryScreen;
-        if (screen == null)
-        {
-            toast.Location = new Point(100, 100);
+            // 注意：这里调用 InternalShow，而不是递归调用 Show，防止死循环
+            _uiInvoker(() => InternalShow(message, type));
         }
         else
         {
-            var workingArea = screen.WorkingArea;
-
-            // 重新居中计算
-            int x = workingArea.X + (workingArea.Width - toast.Width) / 2;
-            int startY = workingArea.Y + (int)(workingArea.Height * 0.15);
-
-            // 简单的堆叠逻辑：如果有多个提示，向下偏移
-            // 注意：这里需要清理已关闭的 toast，防止无限下移
-            _openToasts.RemoveAll(t => t.IsDisposed);
-
-            int offset = _openToasts.Count * (toast.Height + 10);
-            toast.Location = new Point(x, startY + offset);
+            // 如果没注册（比如单元测试环境），尝试直接执行
+            InternalShow(message, type);
         }
+    }
 
-        toast.FormClosed += (s, e) =>
+    // 真正的 UI 逻辑 (私有，确保只在 UI 线程运行)
+    private static void InternalShow(string message, ToastType type)
+    {
+        try
         {
-            _openToasts.Remove(toast);
-        };
-        _openToasts.Add(toast);
+            var toast = new ToastForm(message, type);
 
-        // 此时在 UI 线程，Show() 能正常建立消息循环连接
-        toast.Show();
+            var screen = Screen.PrimaryScreen;
+            if (screen == null)
+            {
+                toast.Location = new Point(100, 100);
+            }
+            else
+            {
+                var workingArea = screen.WorkingArea;
+                int x = workingArea.X + (workingArea.Width - toast.Width) / 2;
+                int startY = workingArea.Y + (int)(workingArea.Height * 0.15);
+
+                // 清理已销毁的引用
+                _openToasts.RemoveAll(t => t.IsDisposed);
+
+                int offset = _openToasts.Count * (toast.Height + 10);
+                toast.Location = new Point(x, startY + offset);
+            }
+
+            toast.FormClosed += (s, e) =>
+            {
+                _openToasts.Remove(toast);
+            };
+            _openToasts.Add(toast);
+
+            toast.Show();
+        }
+        catch (Exception ex)
+        {
+            // 兜底防护，防止 UI 创建失败导致崩溃
+            LogManager.WriteErrorLog("Toast", "显示通知失败", ex);
+        }
     }
 
     public static void Success(string msg) => Show(msg, ToastType.Success);
-
     public static void Error(string msg) => Show(msg, ToastType.Error);
-
     public static void Info(string msg) => Show(msg, ToastType.Info);
-
     public static void Warning(string msg) => Show(msg, ToastType.Warning);
 }

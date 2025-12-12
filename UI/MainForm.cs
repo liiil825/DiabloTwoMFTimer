@@ -65,6 +65,7 @@ public partial class MainForm : System.Windows.Forms.Form
         InitializeForm();
         SubscribeToEvents();
         SubscribeToMessages();
+        Utils.Toast.RegisterUiInvoker(action => this.SafeInvoke(action));
         this.Shown += OnMainForm_Shown;
     }
 
