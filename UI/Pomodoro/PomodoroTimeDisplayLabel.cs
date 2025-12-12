@@ -21,8 +21,17 @@ public class PomodoroTimeDisplayLabel : Label
         // 默认前景色为白色（适应深色背景），UpdateColor 会根据状态覆盖它
         this.ForeColor = UI.Theme.AppTheme.TextColor;
         this.Text = "00:00:0";
-        this.DoubleBuffered = true;
         this.BackColor = System.Drawing.Color.Transparent;
+
+        // 【核心修改】启用双缓冲和自绘样式，解决高频刷新时的闪烁问题
+        this.SetStyle(
+            ControlStyles.UserPaint |
+            ControlStyles.AllPaintingInWmPaint |
+            ControlStyles.OptimizedDoubleBuffer |
+            ControlStyles.ResizeRedraw |
+            ControlStyles.SupportsTransparentBackColor, true);
+
+        this.UpdateStyles();
     }
 
     /// <summary>
@@ -40,6 +49,63 @@ public class PomodoroTimeDisplayLabel : Label
                 UpdateDisplay();
             }
         }
+    }
+
+    // 【新增】重写 OnPaint 进行自绘，绕过 Label 默认的低效绘制
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        var g = e.Graphics;
+        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        // 处理对齐方式 (主要是为了适配 Designer 中设置的 BottomCenter)
+        using var format = new StringFormat();
+        switch (this.TextAlign)
+        {
+            case ContentAlignment.BottomCenter:
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Far;
+                break;
+            case ContentAlignment.MiddleCenter:
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Center;
+                break;
+            case ContentAlignment.TopLeft:
+                format.Alignment = StringAlignment.Near;
+                format.LineAlignment = StringAlignment.Near;
+                break;
+            case ContentAlignment.TopCenter:
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Near;
+                break;
+            case ContentAlignment.TopRight:
+                format.Alignment = StringAlignment.Far;
+                format.LineAlignment = StringAlignment.Near;
+                break;
+            case ContentAlignment.MiddleLeft:
+                format.Alignment = StringAlignment.Near;
+                format.LineAlignment = StringAlignment.Center;
+                break;
+            case ContentAlignment.MiddleRight:
+                format.Alignment = StringAlignment.Far;
+                format.LineAlignment = StringAlignment.Center;
+                break;
+            case ContentAlignment.BottomLeft:
+                format.Alignment = StringAlignment.Near;
+                format.LineAlignment = StringAlignment.Far;
+                break;
+            case ContentAlignment.BottomRight:
+                format.Alignment = StringAlignment.Far;
+                format.LineAlignment = StringAlignment.Far;
+                break;
+            default:
+                format.Alignment = StringAlignment.Center;
+                format.LineAlignment = StringAlignment.Center;
+                break;
+        }
+
+        using var brush = new SolidBrush(this.ForeColor);
+        g.DrawString(this.Text, this.Font, brush, this.ClientRectangle, format);
     }
 
     public void BindService(IPomodoroTimerService service)

@@ -52,7 +52,7 @@ public class PomodoroTimerService : IPomodoroTimerService
         _timerService = timerService;
         _appSettings = appSettings;
 
-        _timer = new System.Timers.Timer(60);
+        _timer = new System.Timers.Timer(100);
         _timer.AutoReset = true; // 确保它会循环触发
         _timer.Elapsed += OnTimerTick; // 注意：事件名从 Tick 变成了 Elapse
 

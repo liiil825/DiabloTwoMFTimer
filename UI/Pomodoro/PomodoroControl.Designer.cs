@@ -1,5 +1,6 @@
 using System.Drawing;
 using DiabloTwoMFTimer.UI.Components;
+using DiabloTwoMFTimer.Utils;
 
 namespace DiabloTwoMFTimer.UI.Pomodoro;
 partial class PomodoroControl
@@ -48,11 +49,12 @@ partial class PomodoroControl
 
         // 定义行：Spring - Time - Status - ButtonArea - Spring
         this.mainLayout.RowCount = 5;
-        this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 30F)); // Top Spring
+        // 【修改 2】调整顶部弹簧比例：从 30% -> 40%，把时间往下推，不再贴顶
+        this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
         this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 100F)); // Time
         this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));  // Status
-        this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));       // Buttons
-        this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 70F)); // Bottom Spring
+        this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));       // Buttons (自适应)
+        this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F)); // Bottom Spring
 
         this.mainLayout.Controls.Add(this.lblPomodoroTime, 0, 1);
         this.mainLayout.Controls.Add(this.pomodoroStatusDisplay1, 0, 2);
@@ -67,10 +69,16 @@ partial class PomodoroControl
         this.tlpButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
         this.tlpButtons.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
 
+        // 【修改 1 & 3】
+        // 1. 减小容器内边距 (Padding)：30 -> 15。这会让按钮自动变宽。
+        this.tlpButtons.Padding = new System.Windows.Forms.Padding(ScaleHelper.Scale(15), 0, ScaleHelper.Scale(15), 0);
+
         this.tlpButtons.RowCount = 3;
-        this.tlpButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
-        this.tlpButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
-        this.tlpButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+        // 【修改 1】行高改为 AutoSize，不强制指定高度。
+        // 这样按钮的高度就会由组件自身 (ThemedButton 默认为 40px) 决定，与档案页保持一致。
+        this.tlpButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpButtons.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
 
         // Row 0: Start/Pause | Skip/Next
         this.tlpButtons.Controls.Add(this.btnStartPomodoro, 0, 0);
@@ -100,27 +108,36 @@ partial class PomodoroControl
         this.pomodoroStatusDisplay1.BackColor = System.Drawing.Color.Transparent;
         this.pomodoroStatusDisplay1.IconSize = 24;
 
-        // 按钮统一样式
-        Size btnSize = new System.Drawing.Size(140, 45); // 稍微变窄以适应两列
-
+        // 【修改】按钮统一样式逻辑
         void InitBtn(ThemedButton btn, string text)
         {
             btn.Text = text;
-            btn.Size = btnSize;
-            btn.Anchor = System.Windows.Forms.AnchorStyles.None;
+
+            // 1. 使用 Dock.Fill 填满格子
+            btn.Dock = System.Windows.Forms.DockStyle.Fill;
+
+            // 2. 移除 Anchor 和固定 Size，完全交给布局管理器
+            // btn.Size = ... (移除)
+
+            // 3. 设置 Margin 控制间距
+            // 左右间距设小 (Scale(3)) -> 让两个按钮靠得更近
+            // 上下间距设大 (Scale(8)) -> 拉开行距
+            btn.Margin = new System.Windows.Forms.Padding(
+                ScaleHelper.Scale(3), // Left (更紧凑)
+                ScaleHelper.Scale(8), // Top (更宽松)
+                ScaleHelper.Scale(3), // Right
+                ScaleHelper.Scale(8)  // Bottom
+            );
         }
 
         InitBtn(this.btnStartPomodoro, "Start");
         this.btnStartPomodoro.Click += new System.EventHandler(this.BtnStartPomodoro_Click);
 
         InitBtn(this.btnNextState, "Skip");
-        // 点击事件在主代码中绑定
 
         InitBtn(this.btnAddMinute, "+1 Min");
-        // 点击事件在主代码中绑定
 
         InitBtn(this.btnShowStats, "Stats");
-        // 点击事件在主代码中绑定
 
         InitBtn(this.btnPomodoroSettings, "Settings");
         this.btnPomodoroSettings.Click += new System.EventHandler(this.BtnPomodoroSettings_Click);

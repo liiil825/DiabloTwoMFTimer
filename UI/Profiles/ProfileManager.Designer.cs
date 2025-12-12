@@ -162,6 +162,7 @@ namespace DiabloTwoMFTimer.UI.Profiles
             this.cmbScene.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cmbScene.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbScene.Height = 35;
+            this.cmbScene.SelectedIndexChanged += CmbScene_SelectedIndexChanged;
 
             // 
             // tlpDifficulty
@@ -192,6 +193,7 @@ namespace DiabloTwoMFTimer.UI.Profiles
             this.cmbDifficulty.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cmbDifficulty.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbDifficulty.Height = 35;
+            this.cmbDifficulty.SelectedIndexChanged += CmbDifficulty_SelectedIndexChanged;
 
             // -----------------------------------------------------------
             // 3. 第一行操作按钮 (Start + Export)
