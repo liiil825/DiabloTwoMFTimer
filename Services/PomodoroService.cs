@@ -46,6 +46,7 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     // 仅在非工作时间（即休息时间）允许查看统计
     public bool CanShowStats => _currentState != PomodoroTimerState.Work;
+    public DateTime CurrentSessionStartTime { get; private set; } = DateTime.Now;
 
     public PomodoroTimerService(ITimerService? timerService, IAppSettings? appSettings)
     {
@@ -85,6 +86,10 @@ public class PomodoroTimerService : IPomodoroTimerService
         // 场景2：普通暂停后的恢复，或从停止状态开始
         if (_status != TimerStatus.Running)
         {
+            if (_status == TimerStatus.Stopped)
+            {
+                CurrentSessionStartTime = DateTime.Now;
+            }
             _status = TimerStatus.Running;
             _timer.Start();
             NotifyStateChanged();
@@ -230,6 +235,7 @@ public class PomodoroTimerService : IPomodoroTimerService
         else
         {
             // >>> 休息 -> 工作 <<<
+            CurrentSessionStartTime = DateTime.Now;
             _currentState = PomodoroTimerState.Work;
 
             TryResumeGameTimer(); // (可选) 恢复游戏主计时器

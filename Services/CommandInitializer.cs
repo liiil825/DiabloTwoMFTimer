@@ -125,10 +125,26 @@ public class CommandInitializer
             }
         );
 
+        _dispatcher.Register(
+            "Pomodoro.SwitchToNextState",
+            () =>
+            {
+                _pomodoroTimerService.SwitchToNextState();
+                Utils.Toast.Info($"已切换到 {_pomodoroTimerService.CurrentState}");
+            }
+        );
+
         // --- 记录操作 ---
         // 注意：删除操作涉及到 UI 确认，通常是通过 MainService 发出请求，MainForm 监听并弹窗
         // _dispatcher.Register("Record.DeleteLast", () => _mainService.RequestDeleteHistory());
-        // _dispatcher.Register("Loot.Add", () => _mainService.RequestRecordLoot());
+        _dispatcher.Register(
+            "Loot.Add",
+            () =>
+            {
+                _mainService.SetActiveTabPage(Models.TabPage.Timer);
+                _messenger.Publish(new ShowRecordLootFormMessage());
+            }
+        );
 
         // --- 系统/导航 ---
         _dispatcher.Register(

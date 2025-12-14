@@ -278,8 +278,6 @@ public partial class MainForm : System.Windows.Forms.Form
                 }
             });
         };
-
-        _mainService.OnRequestRecordLoot += () => this.SafeInvoke(ShowRecordLootDialog);
     }
 
     private void SubscribeToMessages()
@@ -328,6 +326,8 @@ public partial class MainForm : System.Windows.Forms.Form
                 RestoreFromTray();
             })
         );
+
+        _messenger.Subscribe<ShowRecordLootFormMessage>(_ => this.SafeInvoke(ShowRecordLootDialog));
     }
 
     private void OnScreenshotRequested(ScreenshotRequestedMessage message)

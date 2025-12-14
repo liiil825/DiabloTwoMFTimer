@@ -55,3 +55,5 @@ public class MinimizeToTrayMessage { }
 /// 请求从系统托盘恢复
 /// </summary>
 public class RestoreFromTrayMessage { }
+
+public class ShowRecordLootFormMessage { }

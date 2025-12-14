@@ -33,9 +33,6 @@ public interface IMainService
     // 请求删除历史记录 (对应原来的 DeleteSelectedRecordAsync)
     event Action? OnRequestDeleteHistory;
 
-    // 请求显示战利品记录窗口 (对应原来的 RecordLootForm)
-    event Action? OnRequestRecordLoot;
-
     void ReloadHotkeys();
 
     void UpdateWindowHandle(IntPtr newHandle);

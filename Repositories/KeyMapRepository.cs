@@ -163,7 +163,7 @@ public class KeyMapRepository : IKeyMapRepository
                 [
                     new()
                     {
-                        Key = "l",
+                        Key = "q",
                         Text = "添加掉落 (Loot)",
                         Action = "Loot.Add",
                     },

@@ -360,7 +360,7 @@ public partial class BreakForm : System.Windows.Forms.Form
             {
                 case StatViewType.Session:
                     if (_breakType == PomodoroBreakType.ShortBreak)
-                        start = DateTime.Now.AddMinutes(-_timeSettings.WorkTimeMinutes - 5);
+                        start = _timerService.CurrentSessionStartTime.AddSeconds(-30);
                     else
                     {
                         int cycleMins = (_timeSettings.WorkTimeMinutes * 4) + (_timeSettings.ShortBreakMinutes * 3);
@@ -390,9 +390,10 @@ public partial class BreakForm : System.Windows.Forms.Form
                 //     r.IsCompleted && r.StartTime >= start && r.StartTime <= end
                 // );
                 var validRecords = _profileService
-                .CurrentProfile.Records
-                .Where(r => r.StartTime >= start && r.StartTime <= end && r.DurationSeconds > 0) // 去掉 r.IsCompleted
-                .ToList();
+                    .CurrentProfile.Records.Where(r =>
+                        r.StartTime >= start && r.StartTime <= end && r.DurationSeconds > 0
+                    ) // 去掉 r.IsCompleted
+                    .ToList();
 
                 double totalSeconds = validRecords.Sum(r => r.DurationSeconds);
                 TimeSpan ts = TimeSpan.FromSeconds(totalSeconds);

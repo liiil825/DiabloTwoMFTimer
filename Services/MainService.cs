@@ -57,7 +57,6 @@ public class MainServices(
     public event Action<Models.TabPage>? OnRequestTabChange;
     public event Action? OnRequestRefreshUI;
     public event Action? OnRequestDeleteHistory;
-    public event Action? OnRequestRecordLoot;
     #endregion
 
     #region Public Methods
@@ -124,7 +123,7 @@ public class MainServices(
 
             case HOTKEY_ID_RECORD_LOOT:
                 OnRequestTabChange?.Invoke(Models.TabPage.Timer);
-                OnRequestRecordLoot?.Invoke();
+                _messenger.Publish(new ShowRecordLootFormMessage());
                 break;
 
             case HOTKEY_ID_LEADER:
