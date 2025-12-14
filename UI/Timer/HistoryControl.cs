@@ -93,7 +93,8 @@ public partial class HistoryControl : UserControl
     public void SelectLastRow()
     {
         // 关键防御：如果控件还没显示或没高度，不要操作
-        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0)
+            return;
 
         gridRunHistory.SafeInvoke(() =>
         {
@@ -125,22 +126,26 @@ public partial class HistoryControl : UserControl
     public void ScrollToBottom()
     {
         // 关键防御
-        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0)
+            return;
 
         gridRunHistory.SafeInvoke(() =>
         {
             if (gridRunHistory.RowCount > 0)
             {
                 int displayedCount = gridRunHistory.DisplayedRowCount(false);
-                if (displayedCount == 0) return;
+                if (displayedCount == 0)
+                    return;
 
                 int firstVisible = gridRunHistory.RowCount - displayedCount;
-                if (firstVisible < 0) firstVisible = 0;
+                if (firstVisible < 0)
+                    firstVisible = 0;
 
                 gridRunHistory.FirstDisplayedScrollingRowIndex = firstVisible;
             }
         });
     }
+
     public void ClearSelection()
     {
         gridRunHistory.SafeInvoke(() =>
@@ -152,7 +157,8 @@ public partial class HistoryControl : UserControl
 
     public Task<bool> DeleteSelectedRecordAsync()
     {
-        if (_isDeleting) return Task.FromResult(false);
+        if (_isDeleting)
+            return Task.FromResult(false);
 
         if (_historyService == null || gridRunHistory.SelectedRows.Count == 0 || _currentProfile == null)
             return Task.FromResult(false);
@@ -173,7 +179,11 @@ public partial class HistoryControl : UserControl
             string message = LanguageManager.GetString("DeleteHistoryConfirm", runNumber, timeFormatted);
 
             // 显示弹窗
-            var result = ThemedMessageBox.Show(message, LanguageManager.GetString("DeleteConfirmTitle"), MessageBoxButtons.YesNo);
+            var result = ThemedMessageBox.Show(
+                message,
+                LanguageManager.GetString("DeleteConfirmTitle"),
+                MessageBoxButtons.YesNo
+            );
 
             if (result != DialogResult.Yes)
             {
@@ -204,7 +214,8 @@ public partial class HistoryControl : UserControl
 
     private void OnHistoryDataChanged(object? sender, HistoryChangedEventArgs e)
     {
-        if (e == null) return;
+        if (e == null)
+            return;
         RefreshGridRowCount();
     }
 

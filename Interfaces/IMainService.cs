@@ -37,4 +37,6 @@ public interface IMainService
     event Action? OnRequestRecordLoot;
 
     void ReloadHotkeys();
+
+    void UpdateWindowHandle(IntPtr newHandle);
 }

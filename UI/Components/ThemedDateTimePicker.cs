@@ -103,7 +103,7 @@ public class ThemedDateTimePicker : DateTimePicker
         {
             new Point(center.X - arrowSize, center.Y - 2),
             new Point(center.X + arrowSize, center.Y - 2),
-            new Point(center.X, center.Y + 3)
+            new Point(center.X, center.Y + 3),
         };
 
         using (var arrowBrush = new SolidBrush(AppTheme.AccentColor))

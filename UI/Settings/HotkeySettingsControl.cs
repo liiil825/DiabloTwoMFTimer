@@ -68,14 +68,13 @@ public partial class HotkeySettingsControl : UserControl
 
         // --- 核心修改：提示信息显示在底部标签，而不是输入框内 ---
         // 尝试从语言文件获取，如果为空则使用默认
-        string hint = LanguageManager.GetString("HotkeyPressToSetDetail")
-                      ?? "请按下快捷键 (Esc取消, Backspace/Delete清除)";
+        string hint =
+            LanguageManager.GetString("HotkeyPressToSetDetail") ?? "请按下快捷键 (Esc取消, Backspace/Delete清除)";
         lblStatus.Text = hint;
         lblStatus.ForeColor = AppTheme.Colors.Primary;
 
         // 可选：输入框内可以显示 "..." 表示正在等待
-        textBox.Text = LanguageManager.GetString("PleasePressKey")
-                      ?? "请按下快捷键";
+        textBox.Text = LanguageManager.GetString("PleasePressKey") ?? "请按下快捷键";
     }
 
     private void OnTextBoxLeave(object? sender, EventArgs e)
@@ -153,9 +152,12 @@ public partial class HotkeySettingsControl : UserControl
         }
 
         Keys keyData = e.KeyCode;
-        if (e.Control) keyData |= Keys.Control;
-        if (e.Shift) keyData |= Keys.Shift;
-        if (e.Alt) keyData |= Keys.Alt;
+        if (e.Control)
+            keyData |= Keys.Control;
+        if (e.Shift)
+            keyData |= Keys.Shift;
+        if (e.Alt)
+            keyData |= Keys.Alt;
 
         _isUpdating = true;
         UpdateHotkey(textBox, keyData);
@@ -201,7 +203,7 @@ public partial class HotkeySettingsControl : UserControl
     {
         // 假设 Settings 中已经添加了 HotkeyLeader 属性
         // 如果报错，请确保在 IAppSettings 和 AppSettings 中添加该属性
-        // LeaderHotkey = settings.HotkeyLeader; 
+        // LeaderHotkey = settings.HotkeyLeader;
 
         // 暂时为了代码不报错，这里需要你手动确认 Settings 结构
         // 示例：
@@ -239,14 +241,16 @@ public partial class HotkeySettingsControl : UserControl
 
                 // 这里保存逻辑需要根据你的 Settings 实现来调整
                 // 通常应该传递包含新属性的对象
-                LoadHotkeys(new Services.AppSettings
-                {
-                    // HotkeyLeader = LeaderHotkey, // 请取消注释并确保属性存在
-                    HotkeyStartOrNext = StartOrNextRunHotkey,
-                    HotkeyPause = PauseHotkey,
-                    HotkeyDeleteHistory = DeleteHistoryHotkey,
-                    HotkeyRecordLoot = RecordLootHotkey,
-                });
+                LoadHotkeys(
+                    new Services.AppSettings
+                    {
+                        // HotkeyLeader = LeaderHotkey, // 请取消注释并确保属性存在
+                        HotkeyStartOrNext = StartOrNextRunHotkey,
+                        HotkeyPause = PauseHotkey,
+                        HotkeyDeleteHistory = DeleteHistoryHotkey,
+                        HotkeyRecordLoot = RecordLootHotkey,
+                    }
+                );
             }
             catch { }
         });

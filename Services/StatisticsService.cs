@@ -117,7 +117,7 @@ public class StatisticsService(IProfileService profileService, IAppSettings appS
         var sb = new StringBuilder();
         // 1. 获取场景统计
         var validRecords = _profileService
-            .CurrentProfile.Records.Where(r => r.IsCompleted && r.StartTime >= start && r.StartTime <= end)
+            .CurrentProfile.Records.Where(r => r.StartTime >= start && r.StartTime <= end)
             .ToList();
 
         if (validRecords.Count > 0)
@@ -175,7 +175,9 @@ public class StatisticsService(IProfileService profileService, IAppSettings appS
             if (loots.Count > maxDisplayCount)
             {
                 int hiddenCount = loots.Count - maxDisplayCount;
-                sb.AppendLine($"... {LanguageManager.GetString("And")} {hiddenCount} {LanguageManager.GetString("MoreRecords")}");
+                sb.AppendLine(
+                    $"... {LanguageManager.GetString("And")} {hiddenCount} {LanguageManager.GetString("MoreRecords")}"
+                );
             }
         }
         // 如果没有掉落，就不显示掉落栏位，或者显示"无"

@@ -38,7 +38,6 @@ public partial class MainForm : System.Windows.Forms.Form
     private LeaderKeyForm _leaderKeyForm = null!;
     private System.ComponentModel.IContainer _components = null!;
 
-
     public MainForm()
     {
         InitializeComponent();
@@ -99,10 +98,14 @@ public partial class MainForm : System.Windows.Forms.Form
     // 统一的点击事件处理
     private void NavButton_Click(object sender, EventArgs e)
     {
-        if (sender == btnNavProfile) tabControl.SelectedIndex = 0;
-        else if (sender == btnNavTimer) tabControl.SelectedIndex = 1;
-        else if (sender == btnNavPomodoro) tabControl.SelectedIndex = 2;
-        else if (sender == btnNavSettings) tabControl.SelectedIndex = 3;
+        if (sender == btnNavProfile)
+            tabControl.SelectedIndex = 0;
+        else if (sender == btnNavTimer)
+            tabControl.SelectedIndex = 1;
+        else if (sender == btnNavPomodoro)
+            tabControl.SelectedIndex = 2;
+        else if (sender == btnNavSettings)
+            tabControl.SelectedIndex = 3;
         else if (sender == btnNavMinimize) // 现在文字是 'x'
         {
             using var form = new CloseOptionForm();
@@ -210,7 +213,7 @@ public partial class MainForm : System.Windows.Forms.Form
             Text = "D2R Timer", // 鼠标悬停时显示的文字
             Icon = new Icon("Resources\\d2r.ico"), // 复用你的图标，确保路径正确
             Visible = true, // 初始是否可见，建议设为 true，或者仅在最小化时 true
-            ContextMenuStrip = _trayMenu
+            ContextMenuStrip = _trayMenu,
         };
 
         // 3. 绑定双击事件：还原窗口
@@ -249,6 +252,7 @@ public partial class MainForm : System.Windows.Forms.Form
             this.ShowInTaskbar = true;
             this.WindowState = FormWindowState.Normal;
             this.Activate(); // 激活窗口到最前
+            _mainService.ReloadHotkeys(); // 重新注册热键，确保热键正常工作
         }
     }
 
@@ -286,48 +290,68 @@ public partial class MainForm : System.Windows.Forms.Form
         _messenger.Subscribe<AlwaysOnTopChangedMessage>(_ =>
             this.SafeInvoke(() => this.TopMost = _appSettings.AlwaysOnTop)
         );
-        _messenger.Subscribe<OpacityChangedMessage>(_ =>
-            this.SafeInvoke(() => this.Opacity = _appSettings.Opacity)
-        );
+        _messenger.Subscribe<OpacityChangedMessage>(_ => this.SafeInvoke(() => this.Opacity = _appSettings.Opacity));
         _messenger.Subscribe<HideMainWindowMessage>(_ => this.SafeInvoke(() => this.Opacity = 0));
         _messenger.Subscribe<ShowMainWindowMessage>(_ => this.SafeInvoke(() => this.Opacity = _appSettings.Opacity));
         _messenger.Subscribe<TimerSettingsChangedMessage>(msg => this.SafeInvoke(() => AdjustWindowHeight()));
         _messenger.Subscribe<ScreenshotRequestedMessage>(OnScreenshotRequested);
-        _messenger.Subscribe<ShowLeaderKeyFormMessage>(_ => this.SafeInvoke(() =>
-        {
-            if (!_leaderKeyForm.Visible)
+        _messenger.Subscribe<ShowLeaderKeyFormMessage>(_ =>
+            this.SafeInvoke(() =>
             {
-                // 确保显示在当前屏幕 (多屏支持)
-                _leaderKeyForm.StartPosition = FormStartPosition.Manual;
-                var screen = Screen.FromControl(this);
-                _leaderKeyForm.Location = new Point(screen.Bounds.X, screen.Bounds.Bottom - _leaderKeyForm.Height);
-                _leaderKeyForm.Width = screen.Bounds.Width;
+                if (!_leaderKeyForm.Visible)
+                {
+                    // 确保显示在当前屏幕 (多屏支持)
+                    _leaderKeyForm.StartPosition = FormStartPosition.Manual;
+                    var screen = Screen.FromControl(this);
+                    _leaderKeyForm.Location = new Point(screen.Bounds.X, screen.Bounds.Bottom - _leaderKeyForm.Height);
+                    _leaderKeyForm.Width = screen.Bounds.Width;
 
-                _leaderKeyForm.Show();
-                _leaderKeyForm.Activate();
-            }
-        }));
+                    _leaderKeyForm.Show();
+                    _leaderKeyForm.Activate();
+                }
+            })
+        );
+
+        // 【新增】响应最小化和恢复消息
+        _messenger.Subscribe<MinimizeToTrayMessage>(_ =>
+            this.SafeInvoke(() =>
+            {
+                // 模拟点击最小化按钮的行为
+                this.WindowState = FormWindowState.Minimized;
+                // OnMainForm_Resize 会处理后续的 Hide 和 ShowInTaskbar = false
+            })
+        );
+
+        _messenger.Subscribe<RestoreFromTrayMessage>(_ =>
+            this.SafeInvoke(() =>
+            {
+                RestoreFromTray();
+            })
+        );
     }
+
     private void OnScreenshotRequested(ScreenshotRequestedMessage message)
     {
         // 使用 BeginInvoke 确保脱离当前的事件调用栈
         // 使用 async/await 让出 UI 线程，让系统有时间处理 RecordLootForm 关闭后的重绘
-        this.BeginInvoke(new Action(async () =>
-        {
-            try
+        this.BeginInvoke(
+            new Action(async () =>
             {
-                // 等待 500ms：这对于让刚刚关闭的 RecordLootForm 彻底消失绰绰有余
-                // 此时 UI 线程是空闲的，可以处理 Paint 消息
-                await Task.Delay(500);
+                try
+                {
+                    // 等待 500ms：这对于让刚刚关闭的 RecordLootForm 彻底消失绰绰有余
+                    // 此时 UI 线程是空闲的，可以处理 Paint 消息
+                    await Task.Delay(500);
 
-                await PerformMainFormScreenshotAsync(message.LootName);
-            }
-            catch (Exception ex)
-            {
-                LogManager.WriteErrorLog("MainForm", "延迟截图失败", ex);
-                Utils.Toast.Error(LanguageManager.GetString("ScreenshotFailed") ?? "截图失败");
-            }
-        }));
+                    await PerformMainFormScreenshotAsync(message.LootName);
+                }
+                catch (Exception ex)
+                {
+                    LogManager.WriteErrorLog("MainForm", "延迟截图失败", ex);
+                    Utils.Toast.Error(LanguageManager.GetString("ScreenshotFailed") ?? "截图失败");
+                }
+            })
+        );
     }
 
     private async Task PerformMainFormScreenshotAsync(string lootName)
@@ -403,7 +427,9 @@ public partial class MainForm : System.Windows.Forms.Form
     private void AdjustWindowHeight()
     {
         bool showLoot = _appSettings.TimerShowLootDrops;
-        int targetHeight = showLoot ? Theme.UISizeConstants.ClientHeightWithLoot : Theme.UISizeConstants.ClientHeightWithoutLoot;
+        int targetHeight = showLoot
+            ? Theme.UISizeConstants.ClientHeightWithLoot
+            : Theme.UISizeConstants.ClientHeightWithoutLoot;
 
         if (this.ClientSize.Height != targetHeight)
         {
@@ -426,7 +452,7 @@ public partial class MainForm : System.Windows.Forms.Form
             1 => btnNavTimer,
             2 => btnNavPomodoro,
             3 => btnNavSettings,
-            _ => null
+            _ => null,
         };
 
         // 更新高亮样式
@@ -456,5 +482,12 @@ public partial class MainForm : System.Windows.Forms.Form
     {
         _mainService.HandleApplicationClosing();
         base.OnFormClosing(e);
+    }
+
+    protected override void OnHandleCreated(EventArgs e)
+    {
+        base.OnHandleCreated(e);
+        // 当句柄重建时（例如修改 ShowInTaskbar 后），通知 Service 更新并重注册热键
+        _mainService?.UpdateWindowHandle(this.Handle);
     }
 }

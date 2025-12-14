@@ -85,12 +85,14 @@ public partial class TimerControl : UserControl
             // 强制重新布局
             this.PerformLayout();
 
-            this.BeginInvoke(new Action(() =>
-            {
-                // 此时控件应该已经有尺寸了
-                ScrollToBottom();
-                ClearAllSelections();
-            }));
+            this.BeginInvoke(
+                new Action(() =>
+                {
+                    // 此时控件应该已经有尺寸了
+                    ScrollToBottom();
+                    ClearAllSelections();
+                })
+            );
 
             UpdateUI();
         }
@@ -402,10 +404,12 @@ public partial class TimerControl : UserControl
         LoadProfileHistoryData();
         UpdateUI();
         // 使用BeginInvoke确保在UI更新完成后执行滚动
-        this.BeginInvoke(new Action(() =>
-        {
-            ScrollToBottom();
-        }));
+        this.BeginInvoke(
+            new Action(() =>
+            {
+                ScrollToBottom();
+            })
+        );
     }
 
     public void HandleApplicationClosing()

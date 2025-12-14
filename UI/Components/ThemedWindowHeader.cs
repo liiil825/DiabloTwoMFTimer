@@ -41,7 +41,7 @@ public class ThemedWindowHeader : UserControl
             ForeColor = Color.Gray,
             TextAlign = ContentAlignment.MiddleLeft,
             Location = new Point(ScaleHelper.Scale(20), ScaleHelper.Scale(20)),
-            Text = "TITLE"
+            Text = "TITLE",
         };
 
         // 2. 按钮容器

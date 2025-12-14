@@ -19,6 +19,7 @@ public partial class LootRecordsControl : UserControl
 
     private List<LootRecord> _displayRecords = [];
     private string _currentScene = string.Empty;
+
     // 【新增】防抖标志位
     private bool _isDeleting = false;
 
@@ -91,13 +92,15 @@ public partial class LootRecordsControl : UserControl
 
     public void SelectLastRow()
     {
-        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0)
+            return;
 
         gridLoot.SafeInvoke(() =>
         {
             if (gridLoot.RowCount > 0)
             {
-                if (gridLoot.DisplayedRowCount(false) == 0) return;
+                if (gridLoot.DisplayedRowCount(false) == 0)
+                    return;
 
                 int lastIndex = gridLoot.RowCount - 1;
                 gridLoot.FirstDisplayedScrollingRowIndex = lastIndex;
@@ -111,17 +114,20 @@ public partial class LootRecordsControl : UserControl
 
     public void ScrollToBottom()
     {
-        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0) return;
+        if (!this.IsHandleCreated || !this.Visible || this.Height <= 0)
+            return;
 
         gridLoot.SafeInvoke(() =>
         {
             if (gridLoot.RowCount > 0)
             {
                 int displayCount = gridLoot.DisplayedRowCount(false);
-                if (displayCount == 0) return;
+                if (displayCount == 0)
+                    return;
 
                 int firstVisible = gridLoot.RowCount - displayCount;
-                if (firstVisible < 0) firstVisible = 0;
+                if (firstVisible < 0)
+                    firstVisible = 0;
                 gridLoot.FirstDisplayedScrollingRowIndex = firstVisible;
             }
         });
@@ -129,7 +135,8 @@ public partial class LootRecordsControl : UserControl
 
     public Task<bool> DeleteSelectedLootAsync()
     {
-        if (_isDeleting) return Task.FromResult(false);
+        if (_isDeleting)
+            return Task.FromResult(false);
         if (_currentProfile == null || gridLoot.SelectedRows.Count == 0)
             return Task.FromResult(false);
 
@@ -150,7 +157,11 @@ public partial class LootRecordsControl : UserControl
             string message = LanguageManager.GetString("DeleteLootConfirm", recordToDelete.Name, sceneName, dropTime);
 
             // 显示弹窗 (模态)
-            var result = ThemedMessageBox.Show(message, LanguageManager.GetString("DeleteConfirmTitle"), MessageBoxButtons.YesNo);
+            var result = ThemedMessageBox.Show(
+                message,
+                LanguageManager.GetString("DeleteConfirmTitle"),
+                MessageBoxButtons.YesNo
+            );
 
             if (result != DialogResult.Yes)
             {

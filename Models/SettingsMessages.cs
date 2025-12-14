@@ -45,3 +45,13 @@ public class ShowPomodoroSettingsMessage { }
 /// 请求打开番茄钟休息界面
 /// </summary>
 public class ShowPomodoroBreakFormMessage { }
+
+/// <summary>
+/// 请求最小化到系统托盘
+/// </summary>
+public class MinimizeToTrayMessage { }
+
+/// <summary>
+/// 请求从系统托盘恢复
+/// </summary>
+public class RestoreFromTrayMessage { }

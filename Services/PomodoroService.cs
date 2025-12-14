@@ -119,7 +119,8 @@ public class PomodoroTimerService : IPomodoroTimerService
     // 强制进入下一阶段 (用于手动跳过，或半自动模式下的触发)
     public void SwitchToNextState()
     {
-        if (!IsRunning) return;
+        if (!IsRunning)
+            return;
 
         TransitionToNextStage();
     }
@@ -148,7 +149,8 @@ public class PomodoroTimerService : IPomodoroTimerService
     private void OnTimerTick(object? sender, EventArgs e)
     {
         // 双重检查：只有 Running 状态才走字
-        if (_status != TimerStatus.Running) return;
+        if (_status != TimerStatus.Running)
+            return;
 
         // 扣减时间
         _timeLeft = _timeLeft.Subtract(TimeSpan.FromMilliseconds(100));
@@ -250,12 +252,14 @@ public class PomodoroTimerService : IPomodoroTimerService
     private bool CheckIfShouldWait(PomodoroMode mode)
     {
         // 模式 3: 全手动 (工作结束等待；休息结束等待)
-        if (mode == PomodoroMode.Manual) return true;
+        if (mode == PomodoroMode.Manual)
+            return true;
 
         // 模式 2: 半自动 (工作->休息：暂停等待；休息->工作：自动)
         if (mode == PomodoroMode.SemiAuto)
         {
-            if (_currentState == PomodoroTimerState.Work) return true; // 工作结束，停下来等触发
+            if (_currentState == PomodoroTimerState.Work)
+                return true; // 工作结束，停下来等触发
             return false; // 休息结束，自动进工作
         }
 
@@ -279,7 +283,8 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     private void CheckForWarnings()
     {
-        if (_currentState != PomodoroTimerState.Work) return;
+        if (_currentState != PomodoroTimerState.Work)
+            return;
 
         double totalSeconds = _timeLeft.TotalSeconds;
         int warnLong = _appSettings?.PomodoroWarningLongTime ?? 60;
@@ -306,7 +311,11 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     private void TryResumeGameTimer()
     {
-        if (_timerService != null && !_timerService.IsRunning && _timerService.PreviousStatusBeforePause == TimerStatus.Running)
+        if (
+            _timerService != null
+            && !_timerService.IsRunning
+            && _timerService.PreviousStatusBeforePause == TimerStatus.Running
+        )
         {
             _timerService.Resume();
         }
@@ -319,7 +328,8 @@ public class PomodoroTimerService : IPomodoroTimerService
     // 当游戏开始 (Timer Running = true)
     private void OnGameTimerRunningStateChanged(bool isGameRunning)
     {
-        if (!isGameRunning) return;
+        if (!isGameRunning)
+            return;
 
         // 【核心修复】增加这一行：检查游戏计时器是否真的在运行。
         // 因为程序启动恢复记录时，会触发 isGameRunning=true，但状态其实是 Paused。
@@ -363,16 +373,18 @@ public class PomodoroTimerService : IPomodoroTimerService
             else // Game Resumed (暂停恢复)
             {
                 // 如果番茄钟处于【工作状态】且【被暂停】(非等待触发状态)，则恢复
-                if (_currentState == PomodoroTimerState.Work && _status == TimerStatus.Paused && _timeLeft > TimeSpan.Zero)
+                if (
+                    _currentState == PomodoroTimerState.Work
+                    && _status == TimerStatus.Paused
+                    && _timeLeft > TimeSpan.Zero
+                )
                 {
                     Start();
                 }
             }
         }
 
-        if (_appSettings?.TimerSyncStartPomodoro == true
-        && !isGamePaused
-        && _status == TimerStatus.Stopped)
+        if (_appSettings?.TimerSyncStartPomodoro == true && !isGamePaused && _status == TimerStatus.Stopped)
         {
             Start();
         }
@@ -390,7 +402,8 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     public void LoadSettings()
     {
-        if (_appSettings == null) return;
+        if (_appSettings == null)
+            return;
         Settings.WorkTimeMinutes = _appSettings.WorkTimeMinutes;
         Settings.WorkTimeSeconds = _appSettings.WorkTimeSeconds;
         Settings.ShortBreakMinutes = _appSettings.ShortBreakMinutes;
@@ -407,8 +420,10 @@ public class PomodoroTimerService : IPomodoroTimerService
         // 转换 TimerStatus 为 bool isRunning 传递给 UI
         bool isRunningBool = (_status == TimerStatus.Running);
 
-        PomodoroTimerStateChanged?.Invoke(this, new PomodoroTimerStateChangedEventArgs(
-            _currentState, _previousState, isRunningBool, _timeLeft));
+        PomodoroTimerStateChanged?.Invoke(
+            this,
+            new PomodoroTimerStateChangedEventArgs(_currentState, _previousState, isRunningBool, _timeLeft)
+        );
     }
 
     private void NotifyTimeUpdated()

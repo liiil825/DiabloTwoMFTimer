@@ -31,7 +31,6 @@ public static class ServiceConfiguration
             sp.GetRequiredService<IAppSettings>()
         ));
 
-
         // MainServices 现在是纯逻辑协调者
         services.AddSingleton<IMainService, MainServices>();
         services.AddTransient<CommandInitializer>();

@@ -41,8 +41,10 @@ public static class ScaleHelper
         }
 
         // 安全限制
-        if (ScaleFactor < 0.8f) ScaleFactor = 0.8f;
-        if (ScaleFactor > 3.0f) ScaleFactor = 3.0f;
+        if (ScaleFactor < 0.8f)
+            ScaleFactor = 0.8f;
+        if (ScaleFactor > 3.0f)
+            ScaleFactor = 3.0f;
 
         LogManager.WriteDebugLog("ScaleHelper", $"UI Scale: {ScaleFactor}");
     }
@@ -55,7 +57,6 @@ public static class ScaleHelper
     public static float ScaleFont(float baseSize)
     {
         float fontFactor = 1.0f;
-
 
         if (ScaleFactor >= 2.1f)
         {

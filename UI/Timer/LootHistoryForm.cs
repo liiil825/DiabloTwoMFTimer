@@ -24,13 +24,20 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     // 动画定时器
     private System.Windows.Forms.Timer _fadeInTimer;
 
-    private enum ViewMode { Today, Week, Custom }
+    private enum ViewMode
+    {
+        Today,
+        Week,
+        Custom,
+    }
+
     private ViewMode _currentMode = ViewMode.Today;
 
     public LootHistoryForm(
         IProfileService profileService,
         ISceneService sceneService,
-        IStatisticsService statisticsService)
+        IStatisticsService statisticsService
+    )
     {
         _profileService = profileService;
         _sceneService = sceneService;
@@ -94,7 +101,12 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
             // 增加内边距让按钮看起来更宽敞
-            Padding = new Padding(ScaleHelper.Scale(25), ScaleHelper.Scale(5), ScaleHelper.Scale(25), ScaleHelper.Scale(5)),
+            Padding = new Padding(
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5),
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5)
+            ),
             MinimumSize = new Size(0, ScaleHelper.Scale(43)),
             Font = AppTheme.MainFont,
             FlatStyle = FlatStyle.Flat,
@@ -154,7 +166,8 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
             // 底部留白给关闭按钮
             int bottomMargin = ScaleHelper.Scale(100);
             int gridHeight = h - gridTop - bottomMargin;
-            if (gridHeight < 100) gridHeight = 100;
+            if (gridHeight < 100)
+                gridHeight = 100;
 
             // 限制表格最大宽度，避免在 4K 屏上太宽难看
             int maxGridWidth = ScaleHelper.Scale(1200);
@@ -215,11 +228,15 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
         // 5. 计算居中位置
         int totalContentWidth =
-            lblFrom.Width + spacing +
-            dtpStart.Width + spacing +
-            lblTo.Width + spacing +
-            dtpEnd.Width + spacing +
-            btnSearch.Width;
+            lblFrom.Width
+            + spacing
+            + dtpStart.Width
+            + spacing
+            + lblTo.Width
+            + spacing
+            + dtpEnd.Width
+            + spacing
+            + btnSearch.Width;
 
         int startX = (panelWidth - totalContentWidth) / 2;
 
@@ -337,14 +354,18 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
             HeaderText = LanguageManager.GetString("LootTableDropTime"),
             Width = ScaleHelper.Scale(200),
             DataPropertyName = "DropTime",
-            DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy-MM-dd HH:mm", Alignment = DataGridViewContentAlignment.MiddleCenter }
+            DefaultCellStyle = new DataGridViewCellStyle
+            {
+                Format = "yyyy-MM-dd HH:mm",
+                Alignment = DataGridViewContentAlignment.MiddleCenter,
+            },
         };
 
         var colName = new DataGridViewTextBoxColumn
         {
             HeaderText = LanguageManager.GetString("LootTableItemName"),
             AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-            DataPropertyName = "Name"
+            DataPropertyName = "Name",
         };
         colName.DefaultCellStyle.Font = new Font(AppTheme.MainFont, FontStyle.Bold);
         colName.DefaultCellStyle.ForeColor = AppTheme.AccentColor;
@@ -354,7 +375,7 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
             HeaderText = LanguageManager.GetString("LootTableScene"),
             Width = ScaleHelper.Scale(220),
             DataPropertyName = "SceneName",
-            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
         };
 
         var colRun = new DataGridViewTextBoxColumn
@@ -362,7 +383,7 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
             HeaderText = LanguageManager.GetString("LootTableRun"),
             Width = ScaleHelper.Scale(100),
             DataPropertyName = "RunCount",
-            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
         };
 
         gridLoot.Columns.AddRange([colTime, colName, colScene, colRun]);
@@ -375,20 +396,23 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         try
         {
             var profile = _profileService.CurrentProfile;
-            if (profile == null) return;
+            if (profile == null)
+                return;
 
-            var records = profile.LootRecords
-                .Where(r => r.DropTime >= start && r.DropTime <= end)
+            var records = profile
+                .LootRecords.Where(r => r.DropTime >= start && r.DropTime <= end)
                 .OrderByDescending(r => r.DropTime)
                 .ToList();
 
-            var displayList = records.Select(r => new
-            {
-                r.DropTime,
-                r.Name,
-                SceneName = _sceneService.GetLocalizedShortSceneName(r.SceneName),
-                r.RunCount
-            }).ToList();
+            var displayList = records
+                .Select(r => new
+                {
+                    r.DropTime,
+                    r.Name,
+                    SceneName = _sceneService.GetLocalizedShortSceneName(r.SceneName),
+                    r.RunCount,
+                })
+                .ToList();
 
             var bindingSource = new BindingSource();
             bindingSource.DataSource = displayList;

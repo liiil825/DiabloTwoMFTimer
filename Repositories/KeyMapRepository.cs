@@ -18,9 +18,7 @@ public class KeyMapRepository : IKeyMapRepository
     public KeyMapRepository()
     {
         // 配置 YamlDotNet 使用驼峰命名 (camelCase)，符合 YAML 惯例
-        _serializer = new SerializerBuilder()
-            .WithNamingConvention(CamelCaseNamingConvention.Instance)
-            .Build();
+        _serializer = new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 
         _deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -77,15 +75,15 @@ public class KeyMapRepository : IKeyMapRepository
         [
             new KeyMapNode
             {
-                Key = "s",
+                Key = "q",
                 Text = "开始 (Start)",
-                Action = "Timer.Next"
+                Action = "Timer.Next",
             },
             new KeyMapNode
             {
-                Key = "d",
+                Key = "w",
                 Text = "切换暂停 (Toggle Pause)",
-                Action = "Timer.Toggle"
+                Action = "Timer.Toggle",
             },
             new KeyMapNode
             {
@@ -93,10 +91,25 @@ public class KeyMapRepository : IKeyMapRepository
                 Text = "计时器 (Timer)",
                 Children =
                 [
-                    new() { Key = "s", Text = "启动 (Start)", Action = "Timer.Start" },
-                    new() { Key = "p", Text = "暂停 (Pause)", Action = "Timer.Pause" },
-                    new() { Key = "r", Text = "重置 (Reset)", Action = "Timer.Reset" }
-                ]
+                    new()
+                    {
+                        Key = "s",
+                        Text = "启动 (Start)",
+                        Action = "Timer.Start",
+                    },
+                    new()
+                    {
+                        Key = "p",
+                        Text = "暂停 (Pause)",
+                        Action = "Timer.Pause",
+                    },
+                    new()
+                    {
+                        Key = "r",
+                        Text = "重置 (Reset)",
+                        Action = "Timer.Reset",
+                    },
+                ],
             },
             new KeyMapNode
             {
@@ -104,13 +117,43 @@ public class KeyMapRepository : IKeyMapRepository
                 Text = "番茄钟 (Pomodoro)",
                 Children =
                 [
-                    new() { Key = "q", Text = "切换 (Toggle)", Action = "Pomodoro.Toggle" },
-                    new() { Key = "p", Text = "暂停 (Pause)", Action = "Pomodoro.Pause" },
-                    new() { Key = "w", Text = "休息 (Break)", Action = "Pomodoro.ShowBreakForm" },
-                    new() { Key = "e", Text = "增加一分钟 (Add One Minute)", Action = "Pomodoro.PlusOneMinute" },
-                    new() { Key = "t", Text = "设置 (Settings)", Action = "Pomodoro.ShowSettings" },
-                    new() { Key = "r", Text = "重置 (Reset)", Action = "Pomodoro.Reset" }
-                ]
+                    new()
+                    {
+                        Key = "q",
+                        Text = "切换 (Toggle)",
+                        Action = "Pomodoro.Toggle",
+                    },
+                    new()
+                    {
+                        Key = "p",
+                        Text = "暂停 (Pause)",
+                        Action = "Pomodoro.Pause",
+                    },
+                    new()
+                    {
+                        Key = "w",
+                        Text = "休息 (Break)",
+                        Action = "Pomodoro.ShowBreakForm",
+                    },
+                    new()
+                    {
+                        Key = "e",
+                        Text = "增加一分钟 (Add One Minute)",
+                        Action = "Pomodoro.PlusOneMinute",
+                    },
+                    new()
+                    {
+                        Key = "t",
+                        Text = "设置 (Settings)",
+                        Action = "Pomodoro.ShowSettings",
+                    },
+                    new()
+                    {
+                        Key = "r",
+                        Text = "重置 (Reset)",
+                        Action = "Pomodoro.Reset",
+                    },
+                ],
             },
             new KeyMapNode
             {
@@ -118,9 +161,19 @@ public class KeyMapRepository : IKeyMapRepository
                 Text = "记录 (Record)",
                 Children =
                 [
-                    new() { Key = "l", Text = "添加掉落 (Loot)", Action = "Loot.Add" },
-                    new() { Key = "d", Text = "删除上一次 (Delete Last)", Action = "Record.DeleteLast" }
-                ]
+                    new()
+                    {
+                        Key = "l",
+                        Text = "添加掉落 (Loot)",
+                        Action = "Loot.Add",
+                    },
+                    new()
+                    {
+                        Key = "d",
+                        Text = "删除上一次 (Delete Last)",
+                        Action = "Record.DeleteLast",
+                    },
+                ],
             },
             new KeyMapNode
             {
@@ -128,22 +181,59 @@ public class KeyMapRepository : IKeyMapRepository
                 Text = "导航 (Go)",
                 Children =
                 [
-                    new() { Key = "2", Text = "计时页 (Timer)", Action = "Nav.Timer" },
-                    new() { Key = "3", Text = "番茄钟 (Pomodoro)", Action = "Nav.Pomodoro" },
-                    new() { Key = "1", Text = "角色页 (Char)", Action = "Nav.Profile" },
-                    new() { Key = "4", Text = "设置 (Settings)", Action = "Nav.Settings" }
-                ]
+                    new()
+                    {
+                        Key = "w",
+                        Text = "计时页 (Timer)",
+                        Action = "Nav.Timer",
+                    },
+                    new()
+                    {
+                        Key = "e",
+                        Text = "番茄钟 (Pomodoro)",
+                        Action = "Nav.Pomodoro",
+                    },
+                    new()
+                    {
+                        Key = "q",
+                        Text = "角色页 (Char)",
+                        Action = "Nav.Profile",
+                    },
+                    new()
+                    {
+                        Key = "r",
+                        Text = "设置 (Settings)",
+                        Action = "Nav.Settings",
+                    },
+                ],
             },
             new KeyMapNode
             {
-                Key = "s",
-                Text = "系统 (System)",
+                Key = "x",
+                Text = "窗口操作 (Window)",
                 Children =
                 [
-                    new() { Key = "s", Text = "截图 (Screenshot)", Action = "System.Screenshot" },
-                    new() { Key = "q", Text = "退出程序 (Quit)", Action = "App.Exit" }
-                ]
-            }
+                    new KeyMapNode
+                    {
+                        Key = "q",
+                        Text = "最小化到托盘 (Minimize)",
+                        Action = "App.Minimize",
+                    },
+                    // 恢复窗口
+                    new KeyMapNode
+                    {
+                        Key = "w",
+                        Text = "恢复窗口 (Restore)",
+                        Action = "App.Restore",
+                    },
+                    new()
+                    {
+                        Key = "x",
+                        Text = "退出程序 (Quit)",
+                        Action = "App.Exit",
+                    },
+                ],
+            },
         ];
     }
 }

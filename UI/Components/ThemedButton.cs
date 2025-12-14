@@ -88,7 +88,7 @@ public class ThemedButton : Button
         int h = textSize.Height + verticalPadding;
 
         // 确保不小于最小尺寸（可选，防止按钮太小点不到）
-        // w = Math.Max(w, ScaleHelper.Scale(80)); 
+        // w = Math.Max(w, ScaleHelper.Scale(80));
 
         return new Size(w, h);
     }
@@ -139,7 +139,8 @@ public class ThemedButton : Button
     // --- 核心绘制逻辑 ---
     protected override void OnPaint(PaintEventArgs e)
     {
-        if (this.Width <= 1 || this.Height <= 1) return;
+        if (this.Width <= 1 || this.Height <= 1)
+            return;
 
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;

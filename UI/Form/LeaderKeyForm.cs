@@ -19,11 +19,11 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
 
     // UI 控件
     private FlowLayoutPanel _breadcrumbPanel = null!; // 面包屑导航栏
-    private FlowLayoutPanel _itemsPanel = null!;      // 按键选项区域
+    private FlowLayoutPanel _itemsPanel = null!; // 按键选项区域
 
     // 状态数据
     private readonly Stack<KeyMapNode> _pathStack = new(); // 记录当前路径
-    private List<KeyMapNode> _currentNodes = null!;       // 当前显示的节点列表
+    private List<KeyMapNode> _currentNodes = null!; // 当前显示的节点列表
 
     // 【新增】根节点缓存，用于重置状态时恢复
     private List<KeyMapNode> _rootNodes = new();
@@ -70,7 +70,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
             Height = 40,
             FlowDirection = FlowDirection.LeftToRight,
             Padding = new Padding(20, 10, 0, 0),
-            BackColor = AppTheme.Colors.ControlBackground
+            BackColor = AppTheme.Colors.ControlBackground,
         };
 
         // --- 底部：按键列表 ---
@@ -79,7 +79,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
             Dock = DockStyle.Fill,
             FlowDirection = FlowDirection.LeftToRight,
             Padding = new Padding(20, 20, 20, 20),
-            AutoScroll = true
+            AutoScroll = true,
         };
 
         this.Controls.Add(_itemsPanel);
@@ -119,7 +119,12 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
             // 如果没有子节点了
             if (_currentNodes.Count == 0)
             {
-                var lbl = new ThemedLabel { Text = "没有可用操作", AutoSize = true, ForeColor = Color.Gray };
+                var lbl = new ThemedLabel
+                {
+                    Text = "没有可用操作",
+                    AutoSize = true,
+                    ForeColor = Color.Gray,
+                };
                 _itemsPanel.Controls.Add(lbl);
             }
         }
@@ -136,7 +141,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
             AutoSize = true,
             Font = new Font(AppTheme.Fonts.FontFamily, 12, FontStyle.Bold),
             ForeColor = AppTheme.Colors.Primary,
-            Margin = new Padding(0)
+            Margin = new Padding(0),
         };
         _breadcrumbPanel.Controls.Add(lbl);
     }
@@ -151,7 +156,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
         {
             Size = new Size(itemWidth, itemHeight),
             Margin = new Padding(0, 0, 15, 15),
-            BackColor = Color.Transparent
+            BackColor = Color.Transparent,
         };
 
         var lblKey = new Label
@@ -163,7 +168,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
             Size = new Size(keyBoxSize, keyBoxSize),
             AutoSize = false,
             TextAlign = ContentAlignment.MiddleCenter,
-            BorderStyle = BorderStyle.FixedSingle
+            BorderStyle = BorderStyle.FixedSingle,
         };
 
         var lblText = new Label
@@ -173,7 +178,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
             ForeColor = AppTheme.Colors.Text,
             Location = new Point(keyBoxSize + ScaleHelper.Scale(5), 0),
             Size = new Size(itemWidth - keyBoxSize - ScaleHelper.Scale(5), itemHeight),
-            TextAlign = ContentAlignment.MiddleLeft
+            TextAlign = ContentAlignment.MiddleLeft,
         };
 
         panel.Controls.Add(lblKey);
@@ -217,12 +222,14 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
 
     private void HandleInput(string key)
     {
-        if (_currentNodes == null) return;
+        if (_currentNodes == null)
+            return;
 
         // 查找匹配的节点
         var targetNode = _currentNodes.FirstOrDefault(n => n.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 
-        if (targetNode == null) return;
+        if (targetNode == null)
+            return;
 
         if (targetNode.IsLeaf)
         {
@@ -277,9 +284,12 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
     private string GetCharFromKeys(Keys key)
     {
         var k = key & ~Keys.Modifiers;
-        if (k >= Keys.A && k <= Keys.Z) return k.ToString().ToLower();
-        if (k >= Keys.D0 && k <= Keys.D9) return k.ToString().Replace("D", "");
-        if (k >= Keys.NumPad0 && k <= Keys.NumPad9) return k.ToString().Replace("NumPad", "");
+        if (k >= Keys.A && k <= Keys.Z)
+            return k.ToString().ToLower();
+        if (k >= Keys.D0 && k <= Keys.D9)
+            return k.ToString().Replace("D", "");
+        if (k >= Keys.NumPad0 && k <= Keys.NumPad9)
+            return k.ToString().Replace("NumPad", "");
         return string.Empty;
     }
 
@@ -292,10 +302,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
         }
         catch (Exception ex)
         {
-            _rootNodes =
-            [
-                new KeyMapNode { Text = $"配置加载失败: {ex.Message}", Key = "!" }
-            ];
+            _rootNodes = [new KeyMapNode { Text = $"配置加载失败: {ex.Message}", Key = "!" }];
         }
         // 调用 ResetState 将 _currentNodes 指向新的 _rootNodes
         ResetState();

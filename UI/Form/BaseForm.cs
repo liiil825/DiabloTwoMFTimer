@@ -24,6 +24,7 @@ public partial class BaseForm : System.Windows.Forms.Form
     [Browsable(true)]
     [Category("Appearance")]
     public string CancelButtonText { get; set; } = "Cancel";
+
     // ---------------------------------
 
     [AllowNull]
@@ -76,8 +77,8 @@ public partial class BaseForm : System.Windows.Forms.Form
         {
             btnConfirm.Text = LanguageManager.GetString("Confirm") ?? ConfirmButtonText;
 
-            btnConfirm.BackColor = AppTheme.Colors.ButtonBackColor;       // 石质背景
-            btnConfirm.ForeColor = AppTheme.AccentColor;           // 暗金文字 (突出显示)
+            btnConfirm.BackColor = AppTheme.Colors.ButtonBackColor; // 石质背景
+            btnConfirm.ForeColor = AppTheme.AccentColor; // 暗金文字 (突出显示)
             // btnConfirm.FlattenStyle();
         }
 
@@ -86,8 +87,8 @@ public partial class BaseForm : System.Windows.Forms.Form
             btnCancel.Text = LanguageManager.GetString("Cancel") ?? CancelButtonText;
 
             // 【新增】设置取消按钮样式
-            btnCancel.BackColor = AppTheme.Colors.ButtonBackColor;        // 石质背景 (保持统一)
-            btnCancel.ForeColor = AppTheme.Colors.TextSecondaryColor;     // 灰色文字 (弱化显示)
+            btnCancel.BackColor = AppTheme.Colors.ButtonBackColor; // 石质背景 (保持统一)
+            btnCancel.ForeColor = AppTheme.Colors.TextSecondaryColor; // 灰色文字 (弱化显示)
             // btnCancel.FlattenStyle();
         }
 

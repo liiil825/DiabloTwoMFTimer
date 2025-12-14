@@ -48,7 +48,7 @@ public class CloseOptionForm : BaseForm
             Dock = DockStyle.Top, // 停靠在 pnlContent 顶部
             Width = this.pnlContent.Width,
             Height = ScaleHelper.Scale(80),
-            Font = AppTheme.MainFont
+            Font = AppTheme.MainFont,
         };
 
         // 退出选项复选框
@@ -58,7 +58,7 @@ public class CloseOptionForm : BaseForm
             Checked = false,
             Cursor = Cursors.Hand,
             Font = AppTheme.MainFont,
-            ForeColor = AppTheme.AccentColor
+            ForeColor = AppTheme.AccentColor,
         };
 
         // 4. 将控件加入到 BaseForm 的 pnlContent 容器中
@@ -103,8 +103,10 @@ public class CloseOptionForm : BaseForm
         _chkClose.Text = LanguageManager.GetString("CloseOptionExitApp");
 
         // 确保 BaseForm 的按钮使用我们新定义的颜色 (如果 BaseForm 没有自动应用)
-        if (this.btnConfirm != null) this.btnConfirm.BackColor = AppTheme.Colors.ButtonBackColor;
-        if (this.btnCancel != null) this.btnCancel.BackColor = AppTheme.Colors.ButtonBackColor;
+        if (this.btnConfirm != null)
+            this.btnConfirm.BackColor = AppTheme.Colors.ButtonBackColor;
+        if (this.btnCancel != null)
+            this.btnCancel.BackColor = AppTheme.Colors.ButtonBackColor;
     }
 
     private void OnLanguageChanged(object? sender, EventArgs e)

@@ -89,9 +89,8 @@ public partial class PomodoroControl : UserControl
 
     private void OnShowBreakForm(ShowPomodoroBreakFormMessage msg)
     {
-        var breakType = (_timerService.CompletedPomodoros % 4 == 0)
-            ? PomodoroBreakType.LongBreak
-            : PomodoroBreakType.ShortBreak;
+        var breakType =
+            (_timerService.CompletedPomodoros % 4 == 0) ? PomodoroBreakType.LongBreak : PomodoroBreakType.ShortBreak;
         var mode = BreakFormMode.PomodoroBreak;
         if (_timerService.CurrentState == PomodoroTimerState.Work)
         {
@@ -153,19 +152,21 @@ public partial class PomodoroControl : UserControl
     private void AsyncShowBreakForm(PomodoroBreakType breakType, BreakFormMode mode = BreakFormMode.PomodoroBreak)
     {
         // 使用 BeginInvoke 脱离当前执行栈（特别是从 Hook/Hotkey 进来的调用）
-        this.BeginInvoke(new Action(async () =>
-        {
-            try
+        this.BeginInvoke(
+            new Action(async () =>
             {
-                // 延迟 100ms：让出 CPU 给游戏和系统消息循环，避免资源竞争导致卡死
-                await Task.Delay(100);
-                ShowBreakForm(breakType, mode);
-            }
-            catch (Exception ex)
-            {
-                LogManager.WriteErrorLog("PomodoroControl", "ShowBreakForm error", ex);
-            }
-        }));
+                try
+                {
+                    // 延迟 100ms：让出 CPU 给游戏和系统消息循环，避免资源竞争导致卡死
+                    await Task.Delay(100);
+                    ShowBreakForm(breakType, mode);
+                }
+                catch (Exception ex)
+                {
+                    LogManager.WriteErrorLog("PomodoroControl", "ShowBreakForm error", ex);
+                }
+            })
+        );
     }
 
     #endregion
@@ -224,9 +225,8 @@ public partial class PomodoroControl : UserControl
 
     private void BtnShowStats_Click(object? sender, EventArgs e)
     {
-        var breakType = (_timerService.CompletedPomodoros % 4 == 0)
-            ? PomodoroBreakType.LongBreak
-            : PomodoroBreakType.ShortBreak;
+        var breakType =
+            (_timerService.CompletedPomodoros % 4 == 0) ? PomodoroBreakType.LongBreak : PomodoroBreakType.ShortBreak;
 
         ShowBreakForm(breakType);
     }
@@ -243,14 +243,7 @@ public partial class PomodoroControl : UserControl
             _breakForm.Close();
         }
 
-        _breakForm = new BreakForm(
-            _timerService,
-            _appSettings,
-            _profileService,
-            _statsService,
-            mode,
-            breakType
-        );
+        _breakForm = new BreakForm(_timerService, _appSettings, _profileService, _statsService, mode, breakType);
         _breakForm.Show(this.FindForm());
     }
 

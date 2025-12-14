@@ -106,7 +106,6 @@ public class MainServices(
 
         int id = m.WParam.ToInt32();
 
-
         switch (id)
         {
             case HOTKEY_ID_STARTSTOP:
@@ -163,6 +162,22 @@ public class MainServices(
 
         RegisterHotkeys();
         Utils.LogManager.WriteDebugLog("MainServices", "热键已重新注册");
+    }
+
+    public void UpdateWindowHandle(IntPtr newHandle)
+    {
+        if (_windowHandle != newHandle)
+        {
+            // 先注销旧句柄的热键（虽然旧句柄可能已经销毁，但为了保险）
+            UnregisterHotKeys();
+
+            // 更新句柄
+            _windowHandle = newHandle;
+
+            // 重新注册
+            RegisterHotkeys();
+            Utils.LogManager.WriteDebugLog("MainServices", $"窗口句柄已更新为 {newHandle}，热键已重新注册");
+        }
     }
 
     #endregion

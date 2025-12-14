@@ -13,6 +13,7 @@ public partial class GeneralSettingsControl : UserControl
     {
         public string Name { get; set; } = "";
         public float Value { get; set; }
+
         public override string ToString() => Name;
     }
 
@@ -20,6 +21,7 @@ public partial class GeneralSettingsControl : UserControl
     {
         public string Name { get; set; } = "";
         public double Value { get; set; }
+
         public override string ToString() => Name;
     }
 
@@ -32,7 +34,8 @@ public partial class GeneralSettingsControl : UserControl
 
     private void InitializeScaleOptions()
     {
-        if (cmbUiScale == null) return;
+        if (cmbUiScale == null)
+            return;
 
         cmbUiScale.Items.Clear();
         cmbUiScale.Items.Add(new ScaleOption { Name = "Auto", Value = 0f });
@@ -46,7 +49,8 @@ public partial class GeneralSettingsControl : UserControl
 
     private void InitializeOpacityOptions()
     {
-        if (cmbOpacity == null) return;
+        if (cmbOpacity == null)
+            return;
         cmbOpacity.Items.Clear();
         // 添加 100% 到 10%
         for (int i = 100; i >= 10; i -= 10)
@@ -80,12 +84,24 @@ public partial class GeneralSettingsControl : UserControl
                 var position = AppSettings.StringToWindowPosition(settings.WindowPosition);
                 switch (position)
                 {
-                    case SettingsControl.WindowPosition.TopCenter: radioTopCenter!.Checked = true; break;
-                    case SettingsControl.WindowPosition.TopRight: radioTopRight!.Checked = true; break;
-                    case SettingsControl.WindowPosition.BottomLeft: radioBottomLeft!.Checked = true; break;
-                    case SettingsControl.WindowPosition.BottomCenter: radioBottomCenter!.Checked = true; break;
-                    case SettingsControl.WindowPosition.BottomRight: radioBottomRight!.Checked = true; break;
-                    default: radioTopLeft!.Checked = true; break;
+                    case SettingsControl.WindowPosition.TopCenter:
+                        radioTopCenter!.Checked = true;
+                        break;
+                    case SettingsControl.WindowPosition.TopRight:
+                        radioTopRight!.Checked = true;
+                        break;
+                    case SettingsControl.WindowPosition.BottomLeft:
+                        radioBottomLeft!.Checked = true;
+                        break;
+                    case SettingsControl.WindowPosition.BottomCenter:
+                        radioBottomCenter!.Checked = true;
+                        break;
+                    case SettingsControl.WindowPosition.BottomRight:
+                        radioBottomRight!.Checked = true;
+                        break;
+                    default:
+                        radioTopLeft!.Checked = true;
+                        break;
                 }
             }
 
@@ -129,7 +145,8 @@ public partial class GeneralSettingsControl : UserControl
     {
         this.SafeInvoke(() =>
         {
-            if (groupBoxPosition == null) return;
+            if (groupBoxPosition == null)
+                return;
             try
             {
                 groupBoxPosition.Text = LanguageManager.GetString("WindowPosition");
@@ -158,17 +175,24 @@ public partial class GeneralSettingsControl : UserControl
     {
         get
         {
-            if (radioTopCenter?.Checked ?? false) return SettingsControl.WindowPosition.TopCenter;
-            if (radioTopRight?.Checked ?? false) return SettingsControl.WindowPosition.TopRight;
-            if (radioBottomLeft?.Checked ?? false) return SettingsControl.WindowPosition.BottomLeft;
-            if (radioBottomCenter?.Checked ?? false) return SettingsControl.WindowPosition.BottomCenter;
-            if (radioBottomRight?.Checked ?? false) return SettingsControl.WindowPosition.BottomRight;
+            if (radioTopCenter?.Checked ?? false)
+                return SettingsControl.WindowPosition.TopCenter;
+            if (radioTopRight?.Checked ?? false)
+                return SettingsControl.WindowPosition.TopRight;
+            if (radioBottomLeft?.Checked ?? false)
+                return SettingsControl.WindowPosition.BottomLeft;
+            if (radioBottomCenter?.Checked ?? false)
+                return SettingsControl.WindowPosition.BottomCenter;
+            if (radioBottomRight?.Checked ?? false)
+                return SettingsControl.WindowPosition.BottomRight;
             return SettingsControl.WindowPosition.TopLeft;
         }
     }
 
     public SettingsControl.LanguageOption SelectedLanguage =>
-        (chineseRadioButton?.Checked ?? false) ? SettingsControl.LanguageOption.Chinese : SettingsControl.LanguageOption.English;
+        (chineseRadioButton?.Checked ?? false)
+            ? SettingsControl.LanguageOption.Chinese
+            : SettingsControl.LanguageOption.English;
 
     public bool IsAlwaysOnTop => alwaysOnTopCheckBox?.Checked ?? false;
 

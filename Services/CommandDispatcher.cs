@@ -22,14 +22,18 @@ public class CommandDispatcher : ICommandDispatcher
 
     public void Register(string commandId, Action action)
     {
-        if (action == null) return;
+        if (action == null)
+            return;
 
         // 将同步 Action 包装成 Task
-        Register(commandId, () =>
-        {
-            action();
-            return Task.CompletedTask;
-        });
+        Register(
+            commandId,
+            () =>
+            {
+                action();
+                return Task.CompletedTask;
+            }
+        );
     }
 
     public async Task ExecuteAsync(string commandId)

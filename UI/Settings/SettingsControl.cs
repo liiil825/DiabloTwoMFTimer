@@ -54,6 +54,7 @@ public partial class SettingsControl : UserControl
         InitializeData(_appSettings);
         SubscribeMessages();
     }
+
     private void SwitchTab(int index, ThemedButton activeBtn)
     {
         tabControl.SelectedIndex = index;
@@ -124,7 +125,10 @@ public partial class SettingsControl : UserControl
         _appSettings.TimerSyncStartPomodoro = timerSettings.TimerSyncStartPomodoro;
         _appSettings.TimerSyncPausePomodoro = timerSettings.TimerSyncPausePomodoro;
         _appSettings.GenerateRoomName = timerSettings.GenerateRoomName;
-        LogManager.WriteDebugLog("SettingsControl", $"保存设置 timerSettings.ScreenshotOnLoot={timerSettings.ScreenshotOnLoot}");
+        LogManager.WriteDebugLog(
+            "SettingsControl",
+            $"保存设置 timerSettings.ScreenshotOnLoot={timerSettings.ScreenshotOnLoot}"
+        );
         _appSettings.ScreenshotOnLoot = timerSettings.ScreenshotOnLoot;
         _appSettings.HideWindowOnScreenshot = timerSettings.HideWindowOnScreenshot;
         _appSettings.Opacity = generalSettings.SelectedOpacity;
@@ -156,7 +160,8 @@ public partial class SettingsControl : UserControl
             var result = DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(
                 "界面缩放设置已保存。需要重启程序才能完全生效。\n\n是否立即重启？",
                 "需要重启",
-                MessageBoxButtons.YesNo); // 使用 YesNo 按钮
+                MessageBoxButtons.YesNo
+            ); // 使用 YesNo 按钮
 
             if (result == DialogResult.Yes)
             {

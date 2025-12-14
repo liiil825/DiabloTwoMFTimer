@@ -12,8 +12,8 @@ public static class AppTheme
     public static class Colors
     {
         // 基础色
-        public static Color Background = Color.FromArgb(32, 32, 32);        // 深灰背景
-        public static Color Surface = Color.FromArgb(45, 45, 48);           // 容器背景
+        public static Color Background = Color.FromArgb(32, 32, 32); // 深灰背景
+        public static Color Surface = Color.FromArgb(45, 45, 48); // 容器背景
         public static Color ControlBackground = Color.FromArgb(45, 45, 48); // 控件背景(同Surface)
         public static Color Border = Color.FromArgb(60, 60, 60);
 
@@ -21,36 +21,36 @@ public static class AppTheme
         public static Color ButtonBackColor = Color.FromArgb(50, 45, 40);
 
         // 次要文本颜色
-        public static Color TextSecondaryColor = Color.FromArgb(160, 160, 160);  // 次要文本
+        public static Color TextSecondaryColor = Color.FromArgb(160, 160, 160); // 次要文本
 
         // 按钮文本
-        public static Color ButtonText = Color.FromArgb(240, 240, 240);  // 按钮文本
+        public static Color ButtonText = Color.FromArgb(240, 240, 240); // 按钮文本
 
         // 功能色
-        public static Color Primary = Color.FromArgb(199, 179, 119);        // 暗黑金 (原 AccentColor)
-        public static Color Text = Color.FromArgb(240, 240, 240);           // 主文本
-        public static Color TextSecondary = Color.FromArgb(160, 160, 160);  // 次要文本
+        public static Color Primary = Color.FromArgb(199, 179, 119); // 暗黑金 (原 AccentColor)
+        public static Color Text = Color.FromArgb(240, 240, 240); // 主文本
+        public static Color TextSecondary = Color.FromArgb(160, 160, 160); // 次要文本
 
         // 状态色 (对应暗黑2装备颜色)
-        public static Color Success = Color.FromArgb(0, 255, 0);     // Set Items
-        public static Color Warning = Color.FromArgb(255, 255, 0);   // Rare Items
-        public static Color Info = Color.FromArgb(100, 100, 255);    // Magic Items (原 69,69,255 调亮)
-        public static Color Error = Color.FromArgb(255, 80, 80);     // Life Red
+        public static Color Success = Color.FromArgb(0, 255, 0); // Set Items
+        public static Color Warning = Color.FromArgb(255, 255, 0); // Rare Items
+        public static Color Info = Color.FromArgb(100, 100, 255); // Magic Items (原 69,69,255 调亮)
+        public static Color Error = Color.FromArgb(255, 80, 80); // Life Red
     }
 
     public static class Fonts
     {
         // 通用字体
-        public static Font Regular { get; private set; } = null!;      // 正文 (原 MainFont)
-        public static Font Bold { get; private set; } = null!;         // 粗体 (原 SmallTitleFont)
-        public static Font Title { get; private set; } = null!;        // 标题 (原 TitleFont)
-        public static Font Large { get; private set; } = null!;        // 大号 (原 BigFont)
-        public static Font Console { get; private set; } = null!;      // 等宽 (原 ConsoleFont)
+        public static Font Regular { get; private set; } = null!; // 正文 (原 MainFont)
+        public static Font Bold { get; private set; } = null!; // 粗体 (原 SmallTitleFont)
+        public static Font Title { get; private set; } = null!; // 标题 (原 TitleFont)
+        public static Font Large { get; private set; } = null!; // 大号 (原 BigFont)
+        public static Font Console { get; private set; } = null!; // 等宽 (原 ConsoleFont)
 
         // 计时器专用
-        public static Font TimerBig { get; private set; } = null!;     // (原 BigTimeFont)
-        public static Font TimerFull { get; private set; } = null!;    // (原 FullTimeFont)
-        public static Font BigTitle { get; private set; } = null!;     // (原 BigTitleFont)
+        public static Font TimerBig { get; private set; } = null!; // (原 BigTimeFont)
+        public static Font TimerFull { get; private set; } = null!; // (原 FullTimeFont)
+        public static Font BigTitle { get; private set; } = null!; // (原 BigTitleFont)
 
         // 辅助属性
         public static FontFamily FontFamily => Regular?.FontFamily ?? System.Drawing.FontFamily.GenericSansSerif;

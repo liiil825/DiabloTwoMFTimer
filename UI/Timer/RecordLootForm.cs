@@ -80,6 +80,7 @@ public partial class RecordLootForm : BaseForm
     {
         SaveLootRecord();
     }
+
     private void SaveLootRecord()
     {
         if (string.IsNullOrWhiteSpace(txtLootName.Text))

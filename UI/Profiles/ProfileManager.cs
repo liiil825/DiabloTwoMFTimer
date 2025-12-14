@@ -437,7 +437,13 @@ public partial class ProfileManager : UserControl
             return;
 
         string confirmMsg = $"确定要删除角色: {currentProfile.Name}?";
-        if (DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(confirmMsg, LanguageManager.GetString("DeleteCharacter") ?? "删除角色", MessageBoxButtons.YesNo) == DialogResult.Yes)
+        if (
+            DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(
+                confirmMsg,
+                LanguageManager.GetString("DeleteCharacter") ?? "删除角色",
+                MessageBoxButtons.YesNo
+            ) == DialogResult.Yes
+        )
         {
             // 使用ProfileService删除角色档案
             bool deleteResult = _profileService.DeleteCharacter(currentProfile);
@@ -536,12 +542,14 @@ public partial class ProfileManager : UserControl
             }
 
             // 打开文件夹
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = profilesPath,
-                UseShellExecute = true,
-                Verb = "open"
-            });
+            Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = profilesPath,
+                    UseShellExecute = true,
+                    Verb = "open",
+                }
+            );
         }
         catch (Exception ex)
         {
