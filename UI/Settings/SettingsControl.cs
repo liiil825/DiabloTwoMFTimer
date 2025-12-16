@@ -72,7 +72,6 @@ public partial class SettingsControl : UserControl
             btnSetGeneral!.Text = LanguageManager.GetString("General");
             btnSetHotkeys!.Text = LanguageManager.GetString("Hotkeys");
             btnSetTimer!.Text = LanguageManager.GetString("TimerSettings");
-            btnAbout!.Text = LanguageManager.GetString("About") ?? "关于";
 
             generalSettings.RefreshUI();
             hotkeySettings.RefreshUI();

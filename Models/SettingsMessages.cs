@@ -81,3 +81,6 @@ public class ShowLootHistoryMessage { }
 
 // 请求删除角色消息
 public class DeleteCharacterMessage { }
+
+// 导航栏可见性变更消息
+public class NavigationVisibilityChangedMessage { }

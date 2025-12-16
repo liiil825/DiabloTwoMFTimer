@@ -51,6 +51,7 @@ public class AppSettings : IAppSettings
     public int PomodoroWarningLongTime { get; set; } = 60; // 番茄钟长时间提示（实际值）
     public int PomodoroWarningShortTime { get; set; } = 3; // 番茄钟短时间提示（实际值）
     public bool GenerateRoomName { get; set; } = true; // 是否生成房间名称
+    public bool ShowNavigation { get; set; } = true; // 是否显示导航栏
 
     public Keys HotkeyLeader { get; set; } = Keys.Space | Keys.Control;
     public Keys HotkeyStartOrNext { get; set; } = Keys.Q | Keys.Alt;

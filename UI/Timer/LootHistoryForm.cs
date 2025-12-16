@@ -34,10 +34,10 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     private ViewMode _currentMode = ViewMode.Today;
 
     public LootHistoryForm(
-        IProfileService profileService,
-        ISceneService sceneService,
-        IStatisticsService statisticsService
-    )
+            IProfileService profileService,
+            ISceneService sceneService,
+            IStatisticsService statisticsService
+        )
     {
         _profileService = profileService;
         _sceneService = sceneService;
@@ -50,6 +50,9 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
         // 绑定布局事件
         this.SizeChanged += LootHistoryForm_SizeChanged;
+
+        // 设置Esc键关闭窗口
+        this.CancelButton = btnClose;
 
         // --- 1. 动画初始化 ---
         this.Opacity = 0;

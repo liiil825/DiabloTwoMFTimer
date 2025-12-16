@@ -357,6 +357,18 @@ public class CommandInitializer
             () => _messenger.Publish(new ScreenshotRequestedMessage("LeaderKeyShot"))
         );
 
+        // 切换导航栏显示/隐藏
+        _dispatcher.Register(
+            "App.ToggleNavigation",
+            () =>
+            {
+                _appSettings.ShowNavigation = !_appSettings.ShowNavigation;
+                _appSettings.Save();
+                _messenger.Publish(new NavigationVisibilityChangedMessage());
+                Utils.Toast.Success($"导航栏已{(_appSettings.ShowNavigation ? "显示" : "隐藏")}");
+            }
+        );
+
         // 修改番茄钟模式
         _dispatcher.Register(
             "Pomodoro.SetMode",

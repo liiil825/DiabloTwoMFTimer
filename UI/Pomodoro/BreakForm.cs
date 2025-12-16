@@ -47,47 +47,50 @@ public partial class BreakForm : System.Windows.Forms.Form
     };
 
     public BreakForm(
-        IPomodoroTimerService timerService,
-        IAppSettings appSettings,
-        IProfileService? profileService,
-        IStatisticsService statsService,
-        BreakFormMode mode,
-        PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
-    )
-    {
-        _timerService = timerService;
-        _appSettings = appSettings;
-        _profileService = profileService;
-        _mode = mode;
-        _statsService = statsService;
-        _breakType = breakType;
-        _timeSettings = timerService.Settings;
-
-        _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
-
-        InitializeComponent();
-        InitializeToggleButtons();
-
-        // --- 1. 初始透明，准备动画 ---
-        this.Opacity = 0;
-        _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
-        _fadeInTimer.Tick += FadeInTimer_Tick;
-
-        // 强制设置所有标签为非自动大小，以便统一宽度对齐
-        ConfigureLabelStyles();
-
-        UpdateLayoutState();
-        UpdateContent();
-
-        if (_mode == BreakFormMode.PomodoroBreak)
+            IPomodoroTimerService timerService,
+            IAppSettings appSettings,
+            IProfileService? profileService,
+            IStatisticsService statsService,
+            BreakFormMode mode,
+            PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
+        )
         {
-            _timerService.TimeUpdated += TimerService_TimeUpdated;
-            _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
-            UpdateTimerDisplay();
-        }
+            _timerService = timerService;
+            _appSettings = appSettings;
+            _profileService = profileService;
+            _mode = mode;
+            _statsService = statsService;
+            _breakType = breakType;
+            _timeSettings = timerService.Settings;
 
-        this.SizeChanged += BreakForm_SizeChanged;
-    }
+            _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
+
+            InitializeComponent();
+            InitializeToggleButtons();
+
+            // 设置Esc键关闭窗口
+            this.CancelButton = btnClose;
+
+            // --- 1. 初始透明，准备动画 ---
+            this.Opacity = 0;
+            _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
+            _fadeInTimer.Tick += FadeInTimer_Tick;
+
+            // 强制设置所有标签为非自动大小，以便统一宽度对齐
+            ConfigureLabelStyles();
+
+            UpdateLayoutState();
+            UpdateContent();
+
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
+                _timerService.TimeUpdated += TimerService_TimeUpdated;
+                _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
+                UpdateTimerDisplay();
+            }
+
+            this.SizeChanged += BreakForm_SizeChanged;
+        }
 
     // --- 2. 动画逻辑 ---
     private void FadeInTimer_Tick(object? sender, EventArgs e)

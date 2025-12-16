@@ -39,7 +39,8 @@ public class ThemedButton : Button
         // 2. 基础设置
         this.Size = new Size(120, 40);
         this.Cursor = Cursors.Hand;
-        this.Font = AppTheme.MainFont;
+        // 设置默认字体，但允许外部覆盖
+        this.Font = AppTheme.Fonts.Regular;
         this.AutoSize = true;
         this.AutoSizeMode = AutoSizeMode.GrowAndShrink;
 

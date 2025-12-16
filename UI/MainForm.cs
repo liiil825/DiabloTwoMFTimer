@@ -189,6 +189,8 @@ public partial class MainForm : System.Windows.Forms.Form
         this.ShowInTaskbar = true;
         this.Opacity = _appSettings.Opacity;
         this.TopMost = _appSettings.AlwaysOnTop;
+        // 根据设置显示或隐藏导航栏
+        tlpNavigation.Visible = _appSettings.ShowNavigation;
     }
 
     // 【新增】初始化托盘图标的具体逻辑
@@ -352,6 +354,13 @@ public partial class MainForm : System.Windows.Forms.Form
         );
 
         _messenger.Subscribe<ShowRecordLootFormMessage>(_ => this.SafeInvoke(ShowRecordLootDialog));
+        // 响应导航栏可见性变更消息
+        _messenger.Subscribe<NavigationVisibilityChangedMessage>(_ =>
+            this.SafeInvoke(() =>
+            {
+                tlpNavigation.Visible = _appSettings.ShowNavigation;
+            })
+        );
     }
 
     private void OnScreenshotRequested(ScreenshotRequestedMessage message)

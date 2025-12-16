@@ -344,6 +344,12 @@ public class KeyMapRepository : IKeyMapRepository
                         RequiresInput = true,
                         InputHint = "输入 1.0 - 2.5 之间的数值,注意修改后需要重新启动程序",
                     },
+                    new KeyMapNode
+                    {
+                        Key = "s",
+                        Text = "切换显示",
+                        Action = "App.ToggleNavigation",
+                    },
                     new()
                     {
                         Key = "x",

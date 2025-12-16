@@ -53,6 +53,8 @@ public static class AppTheme
         public static Font TimerFull { get; private set; } = null!; // (原 FullTimeFont)
         public static Font BigTitle { get; private set; } = null!; // (原 BigTitleFont)
 
+        public static Font SegoeIcon { get; private set; } = null!; // 图标字体 (原 IconFont)
+
         // 辅助属性
         public static FontFamily FontFamily => Regular?.FontFamily ?? System.Drawing.FontFamily.GenericSansSerif;
 
@@ -73,6 +75,7 @@ public static class AppTheme
 
             Console = new Font("Consolas", ScaleHelper.ScaleFont(BaseMainFontSize), FontStyle.Regular);
             RomanTimer = new Font("Times New Roman", ScaleHelper.ScaleFont(BaseBigTimeFontSize), FontStyle.Bold);
+            SegoeIcon = new Font("Segoe MDL2 Assets", ScaleHelper.ScaleFont(BaseMainFontSize), FontStyle.Regular);
 
             TimerBig = new Font("Verdana", ScaleHelper.ScaleFont(BaseBigTimeFontSize), FontStyle.Bold);
             TimerFull = new Font("Consolas", BaseFullTimeFontSize, FontStyle.Bold); // 这个通常不缩放或者特殊处理

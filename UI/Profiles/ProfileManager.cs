@@ -256,6 +256,8 @@ public partial class ProfileManager : UserControl
     {
         // 更新按钮文本
         btnCreateCharacter!.Text = DiabloTwoMFTimer.Utils.LanguageManager.GetString("CreateCharacter");
+        // btnCreateCharacter!.Text = "\uE7C3";
+        // btnCreateCharacter!.Font = Theme.AppTheme.Fonts.SegoeIcon;
         btnSwitchCharacter!.Text = DiabloTwoMFTimer.Utils.LanguageManager.GetString("SwitchCharacter");
         btnDeleteCharacter!.Text = DiabloTwoMFTimer.Utils.LanguageManager.GetString("DeleteCharacter");
         btnShowStats!.Text = DiabloTwoMFTimer.Utils.LanguageManager.GetString("Statistics");
