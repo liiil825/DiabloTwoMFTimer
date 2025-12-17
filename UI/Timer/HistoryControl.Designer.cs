@@ -26,11 +26,11 @@ namespace DiabloTwoMFTimer.UI.Timer
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle cellStyleCenter = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle cellStyleRight = new System.Windows.Forms.DataGridViewCellStyle();
             // 【关键】当网格被点击或获得焦点时，触发交互事件
             this.gridRunHistory = new DiabloTwoMFTimer.UI.Components.ThemedDataGridView();
             this.gridRunHistory.Enter += (s, e) => InteractionOccurred?.Invoke(this, EventArgs.Empty);
             this.gridRunHistory.Click += (s, e) => InteractionOccurred?.Invoke(this, EventArgs.Empty);
-
             this.gridRunHistory.CellValueNeeded += GridRunHistory_CellValueNeeded;
             this.colIndex = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -64,6 +64,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             this.colIndex.Width = DiabloTwoMFTimer.Utils.ScaleHelper.Scale(50); // 缩放后的固定宽
             cellStyleCenter.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             this.colIndex.DefaultCellStyle = cellStyleCenter;
+            this.colIndex.HeaderCell.Style.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
 
             // 
             // colTime (Time)
@@ -74,6 +75,9 @@ namespace DiabloTwoMFTimer.UI.Timer
             this.colTime.ReadOnly = true;
             // 【关键】Fill 填充剩余空间
             this.colTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            cellStyleRight.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.colTime.DefaultCellStyle = cellStyleRight;
+            this.colTime.HeaderCell.Style.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
 
             // 
             // HistoryControl

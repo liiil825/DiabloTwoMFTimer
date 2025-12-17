@@ -539,10 +539,9 @@ public partial class TimerControl : UserControl
             return;
 
         lootRecordsControl.Visible = isVisible;
-        // 更新按钮文本
-        toggleLootButton.Text = isVisible
-            ? Utils.LanguageManager.GetString("HideLoot", "隐藏掉落")
-            : Utils.LanguageManager.GetString("ShowLoot", "显示掉落");
+        // 更新按钮图标
+        // 使用 Segoe MDL2 Assets 字体图标
+        toggleLootButton.Text = isVisible ? "\uE70E" : "\uE70D";
 
         // 2. 动态调整 TableLayoutPanel 的行高
         // 索引说明：

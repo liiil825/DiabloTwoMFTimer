@@ -28,6 +28,7 @@ public partial class LootRecordsControl : UserControl
     public LootRecordsControl()
     {
         InitializeComponent();
+        D2ScrollHelper.Attach(this.gridLoot, this);
     }
 
     public void Initialize(IProfileService profileService, ISceneService sceneService)
@@ -133,6 +134,10 @@ public partial class LootRecordsControl : UserControl
                 if (firstVisible < 0)
                     firstVisible = 0;
                 gridLoot.FirstDisplayedScrollingRowIndex = firstVisible;
+                int lastIndex = gridLoot.RowCount - 1;
+                // 为了配合【优化2】，这里最好也做一个限制，不要直接置顶最后一行
+                // 但简单起见，直接设为 lastIndex 也是可以的，ScrollHelper 会尽力修正
+                gridLoot.FirstDisplayedScrollingRowIndex = lastIndex;
             }
         });
     }

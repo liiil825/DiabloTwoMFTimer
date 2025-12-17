@@ -154,13 +154,19 @@ public class KeyMapRepository : IKeyMapRepository
                     new()
                     {
                         Key = "s",
-                        Text = "启动",
+                        Text = "开始/下一场",
                         Action = "Timer.Start",
                     },
                     new()
                     {
+                        Key = "w",
+                        Text = "切换显示掉落",
+                        Action = "Loot.ToggleVisibility",
+                    },
+                    new()
+                    {
                         Key = "p",
-                        Text = "暂停",
+                        Text = "切换暂停",
                         Action = "Timer.Pause",
                     },
                     new()
@@ -186,7 +192,7 @@ public class KeyMapRepository : IKeyMapRepository
                     new()
                     {
                         Key = "w",
-                        Text = "切换显示",
+                        Text = "切换显示掉落",
                         Action = "Loot.ToggleVisibility",
                     },
                     new()
@@ -347,7 +353,7 @@ public class KeyMapRepository : IKeyMapRepository
                     new KeyMapNode
                     {
                         Key = "s",
-                        Text = "切换显示",
+                        Text = "切换显示导航",
                         Action = "App.ToggleNavigation",
                     },
                     new()

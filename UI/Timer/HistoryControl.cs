@@ -23,6 +23,7 @@ public partial class HistoryControl : UserControl
     private GameDifficulty _currentDifficulty = GameDifficulty.Hell;
 
     public event EventHandler? InteractionOccurred = null;
+    private D2ScrollBar _customScrollBar = null!;
 
     public int RunCount => _historyService?.RunCount ?? 0;
     public TimeSpan FastestTime => _historyService?.FastestTime ?? TimeSpan.Zero;
@@ -34,6 +35,7 @@ public partial class HistoryControl : UserControl
     public HistoryControl()
     {
         InitializeComponent();
+        D2ScrollHelper.Attach(this.gridRunHistory, this);
     }
 
     public void Initialize(ITimerHistoryService historyService, IProfileService profileService)
@@ -142,6 +144,17 @@ public partial class HistoryControl : UserControl
                     firstVisible = 0;
 
                 gridRunHistory.FirstDisplayedScrollingRowIndex = firstVisible;
+
+                int lastIndex = gridRunHistory.RowCount - 1;
+                gridRunHistory.FirstDisplayedScrollingRowIndex = lastIndex;
+
+                // 2. 【保险措施】手动强制同步一次滚动条 (虽然 Scroll 事件应该会处理)
+                if (_customScrollBar != null)
+                {
+                    // 确保 Max 更新了 (防止还没来得及处理 RowsAdded 事件)
+                    _customScrollBar.Maximum = gridRunHistory.RowCount;
+                    _customScrollBar.Value = lastIndex;
+                }
             }
         });
     }

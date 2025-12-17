@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Services;
@@ -29,7 +30,7 @@ public partial class GeneralSettingsControl : UserControl
     {
         InitializeComponent();
         InitializeScaleOptions();
-        InitializeOpacityOptions(); // 新增初始化
+        InitializeOpacityOptions();
     }
 
     private void InitializeScaleOptions()
