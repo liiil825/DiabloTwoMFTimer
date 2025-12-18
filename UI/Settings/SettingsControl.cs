@@ -12,22 +12,6 @@ namespace DiabloTwoMFTimer.UI.Settings;
 
 public partial class SettingsControl : UserControl
 {
-    public enum WindowPosition
-    {
-        TopLeft,
-        TopCenter,
-        TopRight,
-        BottomLeft,
-        BottomCenter,
-        BottomRight,
-    }
-
-    public enum LanguageOption
-    {
-        Chinese,
-        English,
-    }
-
     private readonly IAppSettings _appSettings = null!;
     private readonly IMessenger _messenger = null!;
 
@@ -54,6 +38,7 @@ public partial class SettingsControl : UserControl
         InitializeData(_appSettings);
         SubscribeMessages();
     }
+
     private void SwitchTab(int index, ThemedButton activeBtn)
     {
         tabControl.SelectedIndex = index;
@@ -87,7 +72,6 @@ public partial class SettingsControl : UserControl
             btnSetGeneral!.Text = LanguageManager.GetString("General");
             btnSetHotkeys!.Text = LanguageManager.GetString("Hotkeys");
             btnSetTimer!.Text = LanguageManager.GetString("TimerSettings");
-            btnAbout!.Text = LanguageManager.GetString("About") ?? "关于";
 
             generalSettings.RefreshUI();
             hotkeySettings.RefreshUI();
@@ -114,6 +98,7 @@ public partial class SettingsControl : UserControl
         _appSettings.Language = AppSettings.LanguageToString(generalSettings.SelectedLanguage);
         _appSettings.AlwaysOnTop = generalSettings.IsAlwaysOnTop;
 
+        _appSettings.HotkeyLeader = hotkeySettings.LeaderHotkey;
         _appSettings.HotkeyStartOrNext = hotkeySettings.StartOrNextRunHotkey;
         _appSettings.HotkeyPause = hotkeySettings.PauseHotkey;
         _appSettings.HotkeyDeleteHistory = hotkeySettings.DeleteHistoryHotkey;
@@ -124,7 +109,10 @@ public partial class SettingsControl : UserControl
         _appSettings.TimerSyncStartPomodoro = timerSettings.TimerSyncStartPomodoro;
         _appSettings.TimerSyncPausePomodoro = timerSettings.TimerSyncPausePomodoro;
         _appSettings.GenerateRoomName = timerSettings.GenerateRoomName;
-        LogManager.WriteDebugLog("SettingsControl", $"保存设置 timerSettings.ScreenshotOnLoot={timerSettings.ScreenshotOnLoot}");
+        LogManager.WriteDebugLog(
+            "SettingsControl",
+            $"保存设置 timerSettings.ScreenshotOnLoot={timerSettings.ScreenshotOnLoot}"
+        );
         _appSettings.ScreenshotOnLoot = timerSettings.ScreenshotOnLoot;
         _appSettings.HideWindowOnScreenshot = timerSettings.HideWindowOnScreenshot;
         _appSettings.Opacity = generalSettings.SelectedOpacity;
@@ -156,7 +144,8 @@ public partial class SettingsControl : UserControl
             var result = DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(
                 "界面缩放设置已保存。需要重启程序才能完全生效。\n\n是否立即重启？",
                 "需要重启",
-                MessageBoxButtons.YesNo); // 使用 YesNo 按钮
+                MessageBoxButtons.YesNo
+            ); // 使用 YesNo 按钮
 
             if (result == DialogResult.Yes)
             {
@@ -186,20 +175,12 @@ public partial class SettingsControl : UserControl
                 x = screenBounds.Left;
                 y = screenBounds.Top;
                 break;
-            case WindowPosition.TopCenter:
-                x = screenBounds.Left + (screenBounds.Width - form.Width) / 2;
-                y = screenBounds.Top;
-                break;
             case WindowPosition.TopRight:
                 x = screenBounds.Right - form.Width;
                 y = screenBounds.Top;
                 break;
             case WindowPosition.BottomLeft:
                 x = screenBounds.Left;
-                y = screenBounds.Bottom - form.Height;
-                break;
-            case WindowPosition.BottomCenter:
-                x = screenBounds.Left + (screenBounds.Width - form.Width) / 2;
                 y = screenBounds.Bottom - form.Height;
                 break;
             case WindowPosition.BottomRight:

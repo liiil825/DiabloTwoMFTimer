@@ -80,7 +80,10 @@ public static class Toast
     }
 
     public static void Success(string msg) => Show(msg, ToastType.Success);
+
     public static void Error(string msg) => Show(msg, ToastType.Error);
+
     public static void Info(string msg) => Show(msg, ToastType.Info);
+
     public static void Warning(string msg) => Show(msg, ToastType.Warning);
 }

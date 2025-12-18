@@ -66,10 +66,18 @@ public class ToastForm : System.Windows.Forms.Form
         Color typeColor = AppTheme.TextColor;
         switch (type)
         {
-            case ToastType.Success: typeColor = AppTheme.SetColor; break; // 绿
-            case ToastType.Warning: typeColor = AppTheme.RareColor; break; // 黄
-            case ToastType.Info: typeColor = AppTheme.MagicColor; break; // 蓝
-            case ToastType.Error: typeColor = AppTheme.ErrorColor; break; // 红
+            case ToastType.Success:
+                typeColor = AppTheme.SetColor;
+                break; // 绿
+            case ToastType.Warning:
+                typeColor = AppTheme.RareColor;
+                break; // 黄
+            case ToastType.Info:
+                typeColor = AppTheme.MagicColor;
+                break; // 蓝
+            case ToastType.Error:
+                typeColor = AppTheme.ErrorColor;
+                break; // 红
         }
 
         // 2. 左侧色条

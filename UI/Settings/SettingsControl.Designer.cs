@@ -173,7 +173,8 @@ partial class SettingsControl
         this.btnAbout.Name = "btnAbout";
         this.btnAbout.Size = new System.Drawing.Size(80, 30);
         this.btnAbout.TabIndex = 1;
-        this.btnAbout.Text = "关于";
+        this.btnAbout.Text = "\uE0A5";
+        this.btnAbout.Font = Theme.AppTheme.Fonts.SegoeIcon;
         this.btnAbout.Margin = new System.Windows.Forms.Padding(0);
         this.btnAbout.Click += new System.EventHandler(this.BtnAbout_Click);
 

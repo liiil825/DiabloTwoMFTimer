@@ -21,12 +21,21 @@ partial class HotkeySettingsControl
         this.grpHotkeys = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
         this.tlpHotkeys = new System.Windows.Forms.TableLayoutPanel();
 
+        // 初始化控件
+        this.lblStatus = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+
+        this.lblLeaderKey = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+        this.txtLeaderKey = new DiabloTwoMFTimer.UI.Components.ThemedTextBox();
+
         this.lblStartNext = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
         this.txtStartNext = new DiabloTwoMFTimer.UI.Components.ThemedTextBox();
+
         this.lblPause = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
         this.txtPause = new DiabloTwoMFTimer.UI.Components.ThemedTextBox();
+
         this.lblDeleteHistory = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
         this.txtDeleteHistory = new DiabloTwoMFTimer.UI.Components.ThemedTextBox();
+
         this.lblRecordLoot = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
         this.txtRecordLoot = new DiabloTwoMFTimer.UI.Components.ThemedTextBox();
 
@@ -35,111 +44,122 @@ partial class HotkeySettingsControl
         this.tlpHotkeys.SuspendLayout();
         this.SuspendLayout();
 
+        // 
+        // HotkeySettingsControl (自身属性)
+        // 
+        this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
+        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+        this.AutoScroll = true;
         this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
+        this.Controls.Add(this.tlpMain);
+        this.Name = "HotkeySettingsControl";
+        // 【关键】启用自动大小，防止截断
+        // this.AutoSize = true;
+        // this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+        // this.Dock = System.Windows.Forms.DockStyle.Top;
+        this.Dock = System.Windows.Forms.DockStyle.Fill;
+
 
         // 
-        // tlpMain
+        // tlpMain (主布局容器)
         // 
+        this.tlpMain.AutoSize = true;
+        this.tlpMain.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
         this.tlpMain.ColumnCount = 1;
         this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
         this.tlpMain.Controls.Add(this.grpHotkeys, 0, 0);
-        // this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.tlpMain.Dock = System.Windows.Forms.DockStyle.Top; // 改为 Top
-        this.tlpMain.AutoSize = true; // 开启自动大小
-        this.tlpMain.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+        this.tlpMain.Dock = System.Windows.Forms.DockStyle.Top;
         this.tlpMain.Location = new System.Drawing.Point(0, 0);
         this.tlpMain.Name = "tlpMain";
         this.tlpMain.Padding = new System.Windows.Forms.Padding(10);
-        this.tlpMain.RowCount = 2;
+        this.tlpMain.RowCount = 1;
         this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-        this.tlpMain.Size = new System.Drawing.Size(350, 250);
         this.tlpMain.TabIndex = 0;
 
         // 
-        // grpHotkeys
+        // grpHotkeys (分组框)
         // 
         this.grpHotkeys.AutoSize = true;
+        this.grpHotkeys.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
         this.grpHotkeys.Controls.Add(this.tlpHotkeys);
         this.grpHotkeys.Dock = System.Windows.Forms.DockStyle.Fill;
         this.grpHotkeys.Location = new System.Drawing.Point(13, 13);
         this.grpHotkeys.Name = "grpHotkeys";
         this.grpHotkeys.Padding = new System.Windows.Forms.Padding(3, 20, 3, 3);
-        this.grpHotkeys.Size = new System.Drawing.Size(324, 200);
         this.grpHotkeys.TabIndex = 0;
         this.grpHotkeys.TabStop = false;
         this.grpHotkeys.Text = "快捷键设置";
 
         // 
-        // tlpHotkeys (2 Cols, 4 Rows)
+        // tlpHotkeys (内部表格布局)
         // 
         this.tlpHotkeys.AutoSize = true;
+        this.tlpHotkeys.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
         this.tlpHotkeys.ColumnCount = 2;
         this.tlpHotkeys.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
         this.tlpHotkeys.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-
-        // 添加控件
-        this.tlpHotkeys.Controls.Add(this.lblStartNext, 0, 0); // Index 0
-        this.tlpHotkeys.Controls.Add(this.txtStartNext, 1, 0); // Index 1
-        this.tlpHotkeys.Controls.Add(this.lblPause, 0, 1);
-        this.tlpHotkeys.Controls.Add(this.txtPause, 1, 1);
-        this.tlpHotkeys.Controls.Add(this.lblDeleteHistory, 0, 2);
-        this.tlpHotkeys.Controls.Add(this.txtDeleteHistory, 1, 2);
-        this.tlpHotkeys.Controls.Add(this.lblRecordLoot, 0, 3);
-        this.tlpHotkeys.Controls.Add(this.txtRecordLoot, 1, 3);
-
         this.tlpHotkeys.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.tlpHotkeys.Location = new System.Drawing.Point(3, 20);
+        this.tlpHotkeys.Location = new System.Drawing.Point(3, 20); // 避开 GroupBox 标题
         this.tlpHotkeys.Name = "tlpHotkeys";
-        this.tlpHotkeys.RowCount = 4;
-        this.tlpHotkeys.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpHotkeys.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpHotkeys.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpHotkeys.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpHotkeys.Size = new System.Drawing.Size(318, 177);
-        this.tlpHotkeys.TabIndex = 0;
+        this.tlpHotkeys.RowCount = 6;
 
-        // Labels
-        void SetLabel(System.Windows.Forms.Label lbl, string text)
+        // 设置所有行为 AutoSize，确保内容撑开高度
+        for (int i = 0; i < 6; i++)
         {
-            lbl.Anchor = System.Windows.Forms.AnchorStyles.Right; // 右对齐
-            lbl.AutoSize = true;
-            lbl.Margin = new System.Windows.Forms.Padding(3, 10, 3, 10);
-            lbl.Text = text;
+            this.tlpHotkeys.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
         }
-        SetLabel(lblStartNext, "开始/下一局:");
-        SetLabel(lblPause, "暂停/恢复:");
-        SetLabel(lblDeleteHistory, "删除最后记录:");
-        SetLabel(lblRecordLoot, "记录掉落:");
 
-        // TextBoxes
-        void SetTextBox(System.Windows.Forms.TextBox txt, string tag)
-        {
-            txt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right))); // 水平填充
-            txt.Cursor = System.Windows.Forms.Cursors.Hand;
-            txt.Margin = new System.Windows.Forms.Padding(5);
-            txt.ReadOnly = true;
-            txt.Tag = tag;
-            txt.TabStop = false;
-            // 事件在 .cs 文件中绑定
-            txt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnHotkeyInput);
-            txt.Enter += new System.EventHandler(this.OnTextBoxEnter);
-            txt.Leave += new System.EventHandler(this.OnTextBoxLeave);
-        }
-        SetTextBox(txtStartNext, "StartNext");
-        SetTextBox(txtPause, "Pause");
-        SetTextBox(txtDeleteHistory, "Delete");
-        SetTextBox(txtRecordLoot, "Record");
+        // --- 布局添加顺序 ---
+
+        // Row 0: 状态提示 (跨两列)
+        this.tlpHotkeys.Controls.Add(this.lblStatus, 0, 0);
+        this.tlpHotkeys.SetColumnSpan(this.lblStatus, 2);
+
+        // Row 1: Leader Key
+        this.tlpHotkeys.Controls.Add(this.lblLeaderKey, 0, 1);
+        this.tlpHotkeys.Controls.Add(this.txtLeaderKey, 1, 1);
+
+        // Row 2: Start/Next
+        this.tlpHotkeys.Controls.Add(this.lblStartNext, 0, 2);
+        this.tlpHotkeys.Controls.Add(this.txtStartNext, 1, 2);
+
+        // Row 3: Pause
+        this.tlpHotkeys.Controls.Add(this.lblPause, 0, 3);
+        this.tlpHotkeys.Controls.Add(this.txtPause, 1, 3);
+
+        // Row 4: Delete
+        this.tlpHotkeys.Controls.Add(this.lblDeleteHistory, 0, 4);
+        this.tlpHotkeys.Controls.Add(this.txtDeleteHistory, 1, 4);
+
+        // Row 5: Record
+        this.tlpHotkeys.Controls.Add(this.lblRecordLoot, 0, 5);
+        this.tlpHotkeys.Controls.Add(this.txtRecordLoot, 1, 5);
 
         // 
-        // HotkeySettingsControl
+        // 控件属性设置
         // 
-        this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
-        this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-        this.AutoScroll = true;
-        this.Controls.Add(this.tlpMain);
-        this.Name = "HotkeySettingsControl";
-        // this.Size = new System.Drawing.Size(350, 250);
+
+        // lblStatus
+        this.lblStatus.Anchor = System.Windows.Forms.AnchorStyles.Left;
+        this.lblStatus.AutoSize = true;
+        this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+        this.lblStatus.ForeColor = DiabloTwoMFTimer.UI.Theme.AppTheme.Colors.Primary;
+        this.lblStatus.Margin = new System.Windows.Forms.Padding(5, 5, 5, 10); // 底部多留点空隙
+        this.lblStatus.Name = "lblStatus";
+        this.lblStatus.Text = ""; // 默认留空，运行时填充
+
+        // 辅助方法设置 Label 和 TextBox
+        ConfigureLabel(lblLeaderKey, "Leader Key:");
+        ConfigureLabel(lblStartNext, "开始/下一局:");
+        ConfigureLabel(lblPause, "暂停/恢复:");
+        ConfigureLabel(lblDeleteHistory, "删除最后记录:");
+        ConfigureLabel(lblRecordLoot, "记录掉落:");
+
+        ConfigureTextBox(txtLeaderKey, "Leader");
+        ConfigureTextBox(txtStartNext, "StartNext");
+        ConfigureTextBox(txtPause, "Pause");
+        ConfigureTextBox(txtDeleteHistory, "Delete");
+        ConfigureTextBox(txtRecordLoot, "Record");
 
         this.tlpMain.ResumeLayout(false);
         this.tlpMain.PerformLayout();
@@ -148,6 +168,28 @@ partial class HotkeySettingsControl
         this.tlpHotkeys.ResumeLayout(false);
         this.tlpHotkeys.PerformLayout();
         this.ResumeLayout(false);
+        this.PerformLayout();
+    }
+
+    private void ConfigureLabel(System.Windows.Forms.Label lbl, string text)
+    {
+        lbl.Anchor = System.Windows.Forms.AnchorStyles.Right;
+        lbl.AutoSize = true;
+        lbl.Margin = new System.Windows.Forms.Padding(3, 8, 3, 8);
+        lbl.Text = text;
+    }
+
+    private void ConfigureTextBox(System.Windows.Forms.TextBox txt, string tag)
+    {
+        txt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+        txt.Cursor = System.Windows.Forms.Cursors.Hand;
+        txt.Margin = new System.Windows.Forms.Padding(5);
+        txt.ReadOnly = true;
+        txt.Tag = tag;
+        txt.TabStop = false;
+        txt.KeyDown += new System.Windows.Forms.KeyEventHandler(this.OnHotkeyInput);
+        txt.Enter += new System.EventHandler(this.OnTextBoxEnter);
+        txt.Leave += new System.EventHandler(this.OnTextBoxLeave);
     }
 
     #endregion
@@ -155,6 +197,10 @@ partial class HotkeySettingsControl
     private System.Windows.Forms.TableLayoutPanel tlpMain;
     private System.Windows.Forms.TableLayoutPanel tlpHotkeys;
     private DiabloTwoMFTimer.UI.Components.ThemedGroupBox grpHotkeys;
+    private DiabloTwoMFTimer.UI.Components.ThemedLabel lblStatus;
+
+    private DiabloTwoMFTimer.UI.Components.ThemedLabel lblLeaderKey;
+    private DiabloTwoMFTimer.UI.Components.ThemedTextBox txtLeaderKey;
     private DiabloTwoMFTimer.UI.Components.ThemedLabel lblStartNext;
     private DiabloTwoMFTimer.UI.Components.ThemedTextBox txtStartNext;
     private DiabloTwoMFTimer.UI.Components.ThemedLabel lblPause;

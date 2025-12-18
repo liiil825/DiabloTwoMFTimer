@@ -12,8 +12,8 @@ public class QuickMenuForm : System.Windows.Forms.Form
 
     // 定义颜色常量
     private readonly Color _accentColor = ColorTranslator.FromHtml("#C7B377"); // 流沙金
-    private readonly Color _bgColor = Color.FromArgb(32, 32, 32);       // 深灰背景(接近黑)
-    private readonly Color _textColor = Color.FromArgb(220, 220, 220);  // 浅灰白文字
+    private readonly Color _bgColor = Color.FromArgb(32, 32, 32); // 深灰背景(接近黑)
+    private readonly Color _textColor = Color.FromArgb(220, 220, 220); // 浅灰白文字
 
     public QuickMenuForm(List<CommandAction> commands)
     {
@@ -54,7 +54,12 @@ public class QuickMenuForm : System.Windows.Forms.Form
         line.Dock = DockStyle.Top;
         this.Controls.Add(line);
         // 加一点间距
-        Panel spacer = new Panel { Height = 10, Dock = DockStyle.Top, BackColor = Color.Transparent };
+        Panel spacer = new Panel
+        {
+            Height = 10,
+            Dock = DockStyle.Top,
+            BackColor = Color.Transparent,
+        };
         this.Controls.Add(spacer);
 
         // 3. 使用 TableLayoutPanel 实现整齐的网格布局
@@ -73,7 +78,7 @@ public class QuickMenuForm : System.Windows.Forms.Form
             // 左侧：按键 (例如 "S")
             Label lblKey = new Label();
             lblKey.Text = $"[{cmd.TriggerKey}]"; // 或者直接 cmd.TriggerKey.ToString()
-            lblKey.ForeColor = _accentColor;     // 按键用金色高亮
+            lblKey.ForeColor = _accentColor; // 按键用金色高亮
             lblKey.Font = new Font("Consolas", 11, FontStyle.Bold); // 等宽字体
             lblKey.TextAlign = ContentAlignment.MiddleLeft;
             lblKey.Dock = DockStyle.Fill;
@@ -98,7 +103,7 @@ public class QuickMenuForm : System.Windows.Forms.Form
         this.Controls.Add(grid);
 
         // 确保网格最后被添加到控件列表里（即显示在最下方），
-        // 但由于Dock顺序是反的，我们要把 grid BringToFront 
+        // 但由于Dock顺序是反的，我们要把 grid BringToFront
         grid.BringToFront();
     }
 

@@ -6,13 +6,13 @@ namespace DiabloTwoMFTimer.Utils;
 public static class FolderManager
 {
     // 基础应用数据目录: %AppData%/DiabloTwoMFTimer
-    public static string AppDataPath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "DiabloTwoMFTimer"
-    );
+    public static string AppDataPath =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DiabloTwoMFTimer");
 
     // 档案目录
     public static string ProfilesPath => Path.Combine(AppDataPath, "profiles");
+
+    public static string KeyMapConfigPath => Path.Combine(AppDataPath, "key_maps.yaml");
 
     // 截图目录 (与档案文件夹平级)
     public static string ScreenshotsPath => Path.Combine(AppDataPath, "screenshots");

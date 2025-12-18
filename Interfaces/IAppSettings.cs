@@ -28,6 +28,7 @@ public interface IAppSettings
     public bool TimerSyncPausePomodoro { get; set; }
     public bool ScreenshotOnLoot { get; set; }
     public bool HideWindowOnScreenshot { get; set; }
+    public bool ShowNavigation { get; set; }
 
     // 番茄钟提示时间设置
     public int PomodoroWarningLongTime { get; set; }
@@ -37,6 +38,7 @@ public interface IAppSettings
     public Models.PomodoroMode PomodoroMode { get; set; }
 
     // 热键设置
+    public Keys HotkeyLeader { get; set; }
     public Keys HotkeyStartOrNext { get; set; }
     public Keys HotkeyPause { get; set; }
     public Keys HotkeyDeleteHistory { get; set; }

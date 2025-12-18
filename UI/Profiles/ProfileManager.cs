@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
+using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.Utils;
 
@@ -20,6 +21,8 @@ public partial class ProfileManager : UserControl
     private readonly IStatisticsService _statisticsService;
     private readonly ISceneService _sceneService;
 
+    private readonly IMessenger _messenger;
+
     public ProfileManager(
         IProfileService profileService,
         IAppSettings appSettings,
@@ -27,7 +30,8 @@ public partial class ProfileManager : UserControl
         IPomodoroTimerService pomodoroTimerService,
         IMainService mainService,
         IStatisticsService statisticsService,
-        ISceneService sceneService
+        ISceneService sceneService,
+        IMessenger messenger
     )
     {
         _profileService = profileService;
@@ -37,13 +41,23 @@ public partial class ProfileManager : UserControl
         _statisticsService = statisticsService;
         _pomodoroTimerService = pomodoroTimerService;
         _sceneService = sceneService;
+        _messenger = messenger;
 
         InitializeComponent();
         // 注册语言变更事件
         LanguageManager.OnLanguageChanged += LanguageManager_OnLanguageChanged;
+        // 订阅ProfileService事件
+        _profileService.CurrentSceneChangedEvent += OnCurrentSceneChanged;
         LoadFarmingScenes();
         LoadLastRunSettings();
         UpdateUI();
+
+        // 订阅消息
+        _messenger.Subscribe<CreateCharacterMessage>(OnCreateCharacterRequested);
+        _messenger.Subscribe<SwitchCharacterMessage>(OnSwitchCharacterRequested);
+        _messenger.Subscribe<ExportCharacterMessage>(OnExportCharacterRequested);
+        _messenger.Subscribe<ShowLootHistoryMessage>(OnShowLootHistoryRequested);
+        _messenger.Subscribe<DeleteCharacterMessage>(OnDeleteCharacterRequested);
     }
 
     // MF记录功能相关字段
@@ -420,6 +434,7 @@ public partial class ProfileManager : UserControl
                 LoadLastRunSettings();
                 // 更新UI显示新角色信息
                 UpdateUI();
+                _mainService.SetActiveTabPage(Models.TabPage.Timer);
 
                 // 显示成功提示
                 Utils.Toast.Success($"已成功切换到角色 '{currentProfile.Name}'");
@@ -437,7 +452,13 @@ public partial class ProfileManager : UserControl
             return;
 
         string confirmMsg = $"确定要删除角色: {currentProfile.Name}?";
-        if (DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(confirmMsg, LanguageManager.GetString("DeleteCharacter") ?? "删除角色", MessageBoxButtons.YesNo) == DialogResult.Yes)
+        if (
+            DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(
+                confirmMsg,
+                LanguageManager.GetString("DeleteCharacter") ?? "删除角色",
+                MessageBoxButtons.YesNo
+            ) == DialogResult.Yes
+        )
         {
             // 使用ProfileService删除角色档案
             bool deleteResult = _profileService.DeleteCharacter(currentProfile);
@@ -523,11 +544,7 @@ public partial class ProfileManager : UserControl
         try
         {
             // 构造档案文件夹路径 (与 YamlProfileRepository 中的路径一致)
-            string profilesPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "DiabloTwoMFTimer",
-                "profiles"
-            );
+            string profilesPath = Utils.FolderManager.ProfilesPath;
 
             // 确保目录存在
             if (!Directory.Exists(profilesPath))
@@ -536,12 +553,14 @@ public partial class ProfileManager : UserControl
             }
 
             // 打开文件夹
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = profilesPath,
-                UseShellExecute = true,
-                Verb = "open"
-            });
+            Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = profilesPath,
+                    UseShellExecute = true,
+                    Verb = "open",
+                }
+            );
         }
         catch (Exception ex)
         {
@@ -594,5 +613,80 @@ public partial class ProfileManager : UserControl
         LoadFarmingScenes();
         // 更新UI以反映语言变化
         UpdateUI();
+    }
+
+    // 处理创建角色请求
+    private void OnCreateCharacterRequested(CreateCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            BtnCreateCharacter_Click(null, EventArgs.Empty);
+        });
+    }
+
+    // 处理切换角色请求
+    private void OnSwitchCharacterRequested(SwitchCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            BtnSwitchCharacter_Click(null, EventArgs.Empty);
+        });
+    }
+
+    // 处理导出角色请求
+    private void OnExportCharacterRequested(ExportCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            BtnExport_Click(null, EventArgs.Empty);
+        });
+    }
+
+    // 处理当前场景变更事件
+    private void OnCurrentSceneChanged(string newSceneName)
+    {
+        this.SafeInvoke(() =>
+        {
+            WriteDebugLog($"收到场景变更事件: {newSceneName}");
+
+            // 查找新场景在下拉框中的索引
+            int index = -1;
+            for (int i = 0; i < farmingScenes.Count; i++)
+            {
+                if (farmingScenes[i].EnUS == newSceneName)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            // 更新下拉框选中项
+            if (cmbScene != null && index >= 0 && index < cmbScene.Items.Count)
+            {
+                cmbScene.SelectedIndex = index;
+                WriteDebugLog($"已更新场景下拉框选中项: {cmbScene.Text}");
+            }
+
+            // 更新UI
+            UpdateUI();
+        });
+    }
+
+    // 处理显示掉落历史请求
+    private void OnShowLootHistoryRequested(ShowLootHistoryMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            BtnShowLootHistory_Click(null, EventArgs.Empty);
+        });
+    }
+
+    // 处理删除角色请求
+    private void OnDeleteCharacterRequested(DeleteCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            BtnDeleteCharacter_Click(null, EventArgs.Empty);
+        });
     }
 }

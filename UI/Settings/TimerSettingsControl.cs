@@ -62,14 +62,17 @@ public partial class TimerSettingsControl : UserControl
             GenerateRoomName = checkBox.Checked;
         }
     }
+
     private void OnScreenshotOnLootChanged(object? sender, EventArgs e)
     {
-        if (sender is CheckBox checkBox) ScreenshotOnLoot = checkBox.Checked;
+        if (sender is CheckBox checkBox)
+            ScreenshotOnLoot = checkBox.Checked;
     }
 
     private void OnHideWindowOnScreenshotChanged(object? sender, EventArgs e)
     {
-        if (sender is CheckBox checkBox) HideWindowOnScreenshot = checkBox.Checked;
+        if (sender is CheckBox checkBox)
+            HideWindowOnScreenshot = checkBox.Checked;
     }
 
     // 加载设置

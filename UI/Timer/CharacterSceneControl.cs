@@ -41,7 +41,6 @@ public partial class CharacterSceneControl : UserControl
         UpdateUI();
     }
 
-
     private void OnProfileChanged(CharacterProfile? profile) => UpdateUI();
 
     private void OnSceneChanged(string scene) => UpdateUI();

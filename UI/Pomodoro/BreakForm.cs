@@ -47,47 +47,50 @@ public partial class BreakForm : System.Windows.Forms.Form
     };
 
     public BreakForm(
-        IPomodoroTimerService timerService,
-        IAppSettings appSettings,
-        IProfileService? profileService,
-        IStatisticsService statsService,
-        BreakFormMode mode,
-        PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
-    )
-    {
-        _timerService = timerService;
-        _appSettings = appSettings;
-        _profileService = profileService;
-        _mode = mode;
-        _statsService = statsService;
-        _breakType = breakType;
-        _timeSettings = timerService.Settings;
-
-        _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
-
-        InitializeComponent();
-        InitializeToggleButtons();
-
-        // --- 1. 初始透明，准备动画 ---
-        this.Opacity = 0;
-        _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
-        _fadeInTimer.Tick += FadeInTimer_Tick;
-
-        // 强制设置所有标签为非自动大小，以便统一宽度对齐
-        ConfigureLabelStyles();
-
-        UpdateLayoutState();
-        UpdateContent();
-
-        if (_mode == BreakFormMode.PomodoroBreak)
+            IPomodoroTimerService timerService,
+            IAppSettings appSettings,
+            IProfileService? profileService,
+            IStatisticsService statsService,
+            BreakFormMode mode,
+            PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
+        )
         {
-            _timerService.TimeUpdated += TimerService_TimeUpdated;
-            _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
-            UpdateTimerDisplay();
-        }
+            _timerService = timerService;
+            _appSettings = appSettings;
+            _profileService = profileService;
+            _mode = mode;
+            _statsService = statsService;
+            _breakType = breakType;
+            _timeSettings = timerService.Settings;
 
-        this.SizeChanged += BreakForm_SizeChanged;
-    }
+            _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
+
+            InitializeComponent();
+            InitializeToggleButtons();
+
+            // 设置Esc键关闭窗口
+            this.CancelButton = btnClose;
+
+            // --- 1. 初始透明，准备动画 ---
+            this.Opacity = 0;
+            _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
+            _fadeInTimer.Tick += FadeInTimer_Tick;
+
+            // 强制设置所有标签为非自动大小，以便统一宽度对齐
+            ConfigureLabelStyles();
+
+            UpdateLayoutState();
+            UpdateContent();
+
+            if (_mode == BreakFormMode.PomodoroBreak)
+            {
+                _timerService.TimeUpdated += TimerService_TimeUpdated;
+                _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
+                UpdateTimerDisplay();
+            }
+
+            this.SizeChanged += BreakForm_SizeChanged;
+        }
 
     // --- 2. 动画逻辑 ---
     private void FadeInTimer_Tick(object? sender, EventArgs e)
@@ -120,7 +123,8 @@ public partial class BreakForm : System.Windows.Forms.Form
         // 统一设置标签属性：关闭 AutoSize，启用居中对齐
         void SetStyle(Label lbl)
         {
-            if (lbl == null) return;
+            if (lbl == null)
+                return;
             lbl.AutoSize = false;
             lbl.TextAlign = ContentAlignment.MiddleCenter;
         }
@@ -155,7 +159,12 @@ public partial class BreakForm : System.Windows.Forms.Form
             Text = text,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Padding = new Padding(ScaleHelper.Scale(25), ScaleHelper.Scale(5), ScaleHelper.Scale(25), ScaleHelper.Scale(5)),
+            Padding = new Padding(
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5),
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5)
+            ),
             MinimumSize = new Size(0, ScaleHelper.Scale(43)),
             Font = AppTheme.MainFont,
             FlatStyle = FlatStyle.Flat,
@@ -270,7 +279,8 @@ public partial class BreakForm : System.Windows.Forms.Form
             // 5. 统计内容 (填充剩余空间)
             int statsBottomLimit = btnY - ScaleHelper.Scale(20);
             int statsHeight = statsBottomLimit - currentY;
-            if (statsHeight < 100) statsHeight = 100;
+            if (statsHeight < 100)
+                statsHeight = 100;
 
             LayoutCenterControl(lblStats, currentY, statsHeight);
         }
@@ -297,7 +307,8 @@ public partial class BreakForm : System.Windows.Forms.Form
 
     private void HighlightButton(Button? btn, bool isActive)
     {
-        if (btn == null) return;
+        if (btn == null)
+            return;
         if (isActive)
         {
             btn.BackColor = Color.Gray;
@@ -337,8 +348,10 @@ public partial class BreakForm : System.Windows.Forms.Form
 
             if (_profileService == null || _profileService.CurrentProfile == null)
             {
-                if (lblStats != null) lblStats.Text = "暂无角色数据";
-                if (lblDuration != null) lblDuration.Text = "";
+                if (lblStats != null)
+                    lblStats.Text = "暂无角色数据";
+                if (lblDuration != null)
+                    lblDuration.Text = "";
                 return;
             }
 
@@ -350,11 +363,10 @@ public partial class BreakForm : System.Windows.Forms.Form
             {
                 case StatViewType.Session:
                     if (_breakType == PomodoroBreakType.ShortBreak)
-                        start = DateTime.Now.AddMinutes(-_timeSettings.WorkTimeMinutes - 5);
+                        start = _timerService.PomodoroCycleStartTime.AddSeconds(-30);
                     else
                     {
-                        int cycleMins = (_timeSettings.WorkTimeMinutes * 4) + (_timeSettings.ShortBreakMinutes * 3);
-                        start = DateTime.Now.AddMinutes(-cycleMins - 10);
+                        start = _timerService.FullPomodoroCycleStartTime.AddSeconds(-10);
                     }
                     title = ">>> 本轮战况 <<<";
                     break;
@@ -376,9 +388,11 @@ public partial class BreakForm : System.Windows.Forms.Form
 
             if (lblDuration != null)
             {
-                var validRecords = _profileService.CurrentProfile.Records.Where(r =>
-                    r.IsCompleted && r.StartTime >= start && r.StartTime <= end
-                );
+                var validRecords = _profileService
+                    .CurrentProfile.Records.Where(r =>
+                        r.IsCompleted && r.EndTime >= start && r.EndTime <= end && r.DurationSeconds > 0
+                    )
+                    .ToList();
 
                 double totalSeconds = validRecords.Sum(r => r.DurationSeconds);
                 TimeSpan ts = TimeSpan.FromSeconds(totalSeconds);
@@ -386,9 +400,11 @@ public partial class BreakForm : System.Windows.Forms.Form
                 string durationText =
                     totalSeconds < 60
                         ? $"{ts.Seconds}秒"
-                        : (totalSeconds < 3600
-                            ? $"{ts.Minutes}分 {ts.Seconds}秒"
-                            : $"{(int)ts.TotalHours}小时 {ts.Minutes}分"); // 修改了这里
+                        : (
+                            totalSeconds < 3600
+                                ? $"{ts.Minutes}分 {ts.Seconds}秒"
+                                : $"{(int)ts.TotalHours}小时 {ts.Minutes}分"
+                        ); // 修改了这里
 
                 lblDuration.Text = $"累计游戏时长: {durationText}";
             }
@@ -403,8 +419,10 @@ public partial class BreakForm : System.Windows.Forms.Form
     {
         if (_mode == BreakFormMode.PomodoroBreak)
         {
-            if (e.State == PomodoroTimerState.Work &&
-               (e.PreviousState == PomodoroTimerState.ShortBreak || e.PreviousState == PomodoroTimerState.LongBreak))
+            if (
+                e.State == PomodoroTimerState.Work
+                && (e.PreviousState == PomodoroTimerState.ShortBreak || e.PreviousState == PomodoroTimerState.LongBreak)
+            )
             {
                 AutoCloseForm();
             }

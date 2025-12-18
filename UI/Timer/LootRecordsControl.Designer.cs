@@ -60,6 +60,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             this.colRun.Width = DiabloTwoMFTimer.Utils.ScaleHelper.Scale(40);
             cellStyleCenter.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
             this.colRun.DefaultCellStyle = cellStyleCenter;
+            this.colRun.HeaderCell.Style.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
 
             // 
             // colName (Item)
@@ -78,9 +79,10 @@ namespace DiabloTwoMFTimer.UI.Timer
             this.colTime.ReadOnly = true;
             // 固定宽度显示时间，避免挤压
             this.colTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-            this.colTime.Width = DiabloTwoMFTimer.Utils.ScaleHelper.Scale(110);
+            this.colTime.Width = DiabloTwoMFTimer.Utils.ScaleHelper.Scale(75);
             cellStyleRight.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
             this.colTime.DefaultCellStyle = cellStyleRight;
+            this.colTime.HeaderCell.Style.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
 
             // 
             // LootRecordsControl

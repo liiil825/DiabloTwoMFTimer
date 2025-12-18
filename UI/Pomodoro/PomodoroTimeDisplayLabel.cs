@@ -25,11 +25,13 @@ public class PomodoroTimeDisplayLabel : Label
 
         // 【核心修改】启用双缓冲和自绘样式，解决高频刷新时的闪烁问题
         this.SetStyle(
-            ControlStyles.UserPaint |
-            ControlStyles.AllPaintingInWmPaint |
-            ControlStyles.OptimizedDoubleBuffer |
-            ControlStyles.ResizeRedraw |
-            ControlStyles.SupportsTransparentBackColor, true);
+            ControlStyles.UserPaint
+                | ControlStyles.AllPaintingInWmPaint
+                | ControlStyles.OptimizedDoubleBuffer
+                | ControlStyles.ResizeRedraw
+                | ControlStyles.SupportsTransparentBackColor,
+            true
+        );
 
         this.UpdateStyles();
     }

@@ -19,8 +19,8 @@ public enum PomodoroBreakType
 public enum PomodoroMode
 {
     Automatic, // 严格模式：全自动
-    SemiAuto,   // 半自动：工作->休息(手动)，休息->工作(自动)
-    Manual,    // 手动模式：双向都需要手动触发
+    SemiAuto, // 半自动：工作->休息(手动)，休息->工作(自动)
+    Manual, // 手动模式：双向都需要手动触发
 }
 
 public enum BreakFormMode
@@ -44,6 +44,7 @@ public class PomodoroTimeSettings
     public int ShortBreakSeconds { get; set; } = 0;
     public int LongBreakMinutes { get; set; } = 15;
     public int LongBreakSeconds { get; set; } = 0;
+    public PomodoroMode PomodoroMode { get; set; } = PomodoroMode.Automatic;
 }
 
 // 番茄钟事件参数类

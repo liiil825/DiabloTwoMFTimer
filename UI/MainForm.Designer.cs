@@ -12,9 +12,11 @@ partial class MainForm
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && (components != null))
+        if (disposing)
         {
-            components.Dispose();
+            if (_notifyIcon != null) _notifyIcon.Dispose();
+            if (_components != null) _components.Dispose();
+            if (components != null) components.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -57,28 +59,31 @@ partial class MainForm
         this.tabControl.Controls.Add(this.tabTimerPage);
         this.tabControl.Controls.Add(this.tabPomodoroPage);
         this.tabControl.Controls.Add(this.tabSettingsPage);
-        this.tabControl.Controls.Add(this.tabMinimizePage); // 添加到集合中
+        this.tabControl.Controls.Add(this.tabMinimizePage);
 
         this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
         this.tabControl.Margin = new System.Windows.Forms.Padding(0);
         this.tabControl.Padding = new System.Drawing.Point(0, 0);
         this.tabControl.BackColor = AppTheme.BackColor;
+        this.tabControl.Font = AppTheme.Fonts.SegoeIcon;
+        // this.tabControl.ItemSize = new System.Drawing.Size(UISizeConstants.TabItemWidth, UISizeConstants.TabItemHeight);
+        // this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
         this.tabControl.Name = "tabControl";
         this.tabControl.SelectedIndex = 0;
         this.tabControl.TabIndex = 1;
 
         // --- 核心修改：布局设置 ---
-        this.tabControl.ItemSize = new System.Drawing.Size(UISizeConstants.TabItemWidth, UISizeConstants.TabItemHeight);
-        this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
+        // this.tabControl.ItemSize = new System.Drawing.Size(UISizeConstants.TabItemWidth, UISizeConstants.TabItemHeight);
+        // this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
         // -------------------------
         this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
 
         this.tlpNavigation.ColumnCount = 5;
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
 
         this.tlpNavigation.Controls.Add(this.btnNavProfile, 0, 0);
         this.tlpNavigation.Controls.Add(this.btnNavTimer, 1, 0);
@@ -100,14 +105,8 @@ partial class MainForm
         ConfigureNavButton(btnNavTimer, "Timer");
         ConfigureNavButton(btnNavPomodoro, "Tomato");
         ConfigureNavButton(btnNavSettings, "Settings");
-        ConfigureNavButton(btnNavMinimize, "_"); // 下划线表示最小化
-
-        // 
-        // tabControl
-        // 
-        // 关键：因为 tlpNavigation Dock=Top，tabControl 设为 Fill 会自动填充剩余区域
-        this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-        this.tabControl.Location = new System.Drawing.Point(0, 40); // Y坐标会被自动调整
+        ConfigureNavButton(btnNavMinimize, "\uE711");
+        btnNavMinimize.Font = AppTheme.Fonts.SegoeIcon;
 
         // 
         // tabProfilePage
@@ -169,7 +168,6 @@ partial class MainForm
         // 无边框
         this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 
-        // 只添加 tabControl，移除了之前的 btnClose
         this.Controls.Add(this.tabControl);
         this.Controls.Add(this.tlpNavigation);
         this.Margin = new System.Windows.Forms.Padding(6);

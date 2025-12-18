@@ -27,7 +27,7 @@ public class ThemedMessageBox : BaseForm
             // 限制最大宽度以强制换行 (弹窗总宽 - 左右边距)
             MaximumSize = new Size(UISizeConstants.BaseFormWidth - 60, 0),
             TextAlign = ContentAlignment.MiddleCenter,
-            Dock = DockStyle.Fill
+            Dock = DockStyle.Fill,
         };
 
         // 使用 TableLayoutPanel 作为容器来实现居中布局
@@ -89,7 +89,7 @@ public class ThemedMessageBox : BaseForm
                 btnCancel.Text = LanguageManager.GetString("No") ?? "No";
                 break;
 
-                // OKCancel 默认使用 Confirm/Cancel 即可，不需要额外覆盖
+            // OKCancel 默认使用 Confirm/Cancel 即可，不需要额外覆盖
         }
     }
 

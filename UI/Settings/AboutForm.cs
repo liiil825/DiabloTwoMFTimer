@@ -10,6 +10,7 @@ public partial class AboutForm : BaseForm
 {
     // 定义跳转链接
     private const string GithubUrl = "https://github.com/liiil825/diablotwotimer";
+
     // 如果你有具体的个人空间链接，请替换此处
     private const string BilibiliUrl = "https://space.bilibili.com/3250094";
 
@@ -42,8 +43,10 @@ public partial class AboutForm : BaseForm
         btnBilibili.Text = LanguageManager.GetString("VisitBilibili") ?? "Bilibili";
 
         // 我们不需要底部的 Confirm/Cancel 按钮，在这里可以再次确保隐藏
-        if (btnConfirm != null) btnConfirm.Visible = false;
-        if (btnCancel != null) btnCancel.Visible = false;
+        if (btnConfirm != null)
+            btnConfirm.Visible = false;
+        if (btnCancel != null)
+            btnCancel.Visible = false;
     }
 
     private void BtnGithub_Click(object sender, EventArgs e)
@@ -60,11 +63,13 @@ public partial class AboutForm : BaseForm
     {
         try
         {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = url,
-                UseShellExecute = true // .NET Core/5+ 需要设置为 true 才能打开 URL
-            });
+            Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true, // .NET Core/5+ 需要设置为 true 才能打开 URL
+                }
+            );
         }
         catch (Exception ex)
         {

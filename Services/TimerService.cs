@@ -82,6 +82,7 @@ public class TimerService : ITimerService
         _pauseStartTime = DateTime.Now;
         _pausedDuration = TimeSpan.Zero;
         _timer.Start();
+        Utils.Toast.Success(Utils.LanguageManager.GetString("TimerStarted"));
 
         // 创建开始记录
         CreateStartRecord();
@@ -153,6 +154,7 @@ public class TimerService : ITimerService
         _pauseStartTime = DateTime.MinValue;
 
         _timer.Stop();
+        Utils.Toast.Warning(Utils.LanguageManager.GetString("TimerPaused"));
 
         UpdateIncompleteRecord();
         UpdateTimeDisplay();
@@ -167,6 +169,7 @@ public class TimerService : ITimerService
         _status = TimerStatus.Running;
         _pauseStartTime = DateTime.Now;
         _timer.Start();
+        Utils.Toast.Info(Utils.LanguageManager.GetString("TimerResumed"));
 
         TimerPauseStateChangedEvent?.Invoke(false);
         UpdateTimeDisplay();
@@ -350,7 +353,8 @@ public class TimerService : ITimerService
             existingRecord.DurationSeconds = durationSeconds;
 
             _profileService.UpdateRecord(existingRecord);
-            LogManager.WriteDebugLog("TimerService", "现有记录已完成并保存");
+            var timeString = TimeSpan.FromSeconds(durationSeconds).ToString("mm\\:ss\\.ff");
+            Toast.Success($"{timeString}");
         }
         else
         {

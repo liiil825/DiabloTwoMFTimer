@@ -16,9 +16,11 @@ public static class ServiceConfiguration
         services.AddSingleton<IAppSettings>(_ => AppSettings.Load());
         // 注册 Repository (必须是 Singleton 以保持缓存状态)
         services.AddSingleton<IProfileRepository, Repositories.YamlProfileRepository>();
+        services.AddSingleton<IKeyMapRepository, Repositories.KeyMapRepository>();
         services.AddSingleton<IMessenger, Messenger>();
         services.AddSingleton<ISceneService, SceneService>();
 
+        services.AddSingleton<ICommandDispatcher, CommandDispatcher>();
         // 2. 注册核心业务服务 (单例)
         services.AddSingleton<IProfileService, ProfileService>();
         services.AddSingleton<ITimerHistoryService, TimerHistoryService>();
@@ -28,10 +30,10 @@ public static class ServiceConfiguration
             sp.GetRequiredService<ITimerService>(),
             sp.GetRequiredService<IAppSettings>()
         ));
-        
 
         // MainServices 现在是纯逻辑协调者
         services.AddSingleton<IMainService, MainServices>();
+        services.AddTransient<CommandInitializer>();
 
         // 3. 注册 UI 组件 (瞬态)
         // MainForm 依赖以下控件，容器会自动注入它们

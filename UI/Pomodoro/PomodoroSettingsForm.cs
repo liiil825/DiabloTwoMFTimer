@@ -8,7 +8,8 @@ partial class PomodoroSettingsForm
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing && (components != null)) components.Dispose();
+        if (disposing && (components != null))
+            components.Dispose();
         base.Dispose(disposing);
     }
 
@@ -61,16 +62,20 @@ partial class PomodoroSettingsForm
         this.tlpContent.SuspendLayout();
         this.SuspendLayout();
 
-        // 
+        //
         // tlpContent (6 Rows, 5 Cols)
-        // 
+        //
         this.tlpContent.AutoSize = true;
         this.tlpContent.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
         this.tlpContent.ColumnCount = 5;
         this.tlpContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize)); // Label
-        this.tlpContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F)); // Input 1
+        this.tlpContent.ColumnStyles.Add(
+            new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F)
+        ); // Input 1
         this.tlpContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize)); // Unit 1
-        this.tlpContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F)); // Input 2
+        this.tlpContent.ColumnStyles.Add(
+            new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F)
+        ); // Input 2
         this.tlpContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize)); // Unit 2
 
         this.tlpContent.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -86,7 +91,14 @@ partial class PomodoroSettingsForm
         // Row 1: Work
         AddRow(1, lblWorkTime, nudWorkTimeMin, lblWorkMinUnit, nudWorkTimeSec, lblWorkSecUnit);
         // Row 2: Short Break
-        AddRow(2, lblShortBreakTime, nudShortBreakTimeMin, lblShortBreakMinUnit, nudShortBreakTimeSec, lblShortBreakSecUnit);
+        AddRow(
+            2,
+            lblShortBreakTime,
+            nudShortBreakTimeMin,
+            lblShortBreakMinUnit,
+            nudShortBreakTimeSec,
+            lblShortBreakSecUnit
+        );
         // Row 3: Long Break
         AddRow(3, lblLongBreakTime, nudLongBreakTimeMin, lblLongBreakMinUnit, nudLongBreakTimeSec, lblLongBreakSecUnit);
 
@@ -151,9 +163,9 @@ partial class PomodoroSettingsForm
         this.cmbMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
         this.cmbMode.Margin = new System.Windows.Forms.Padding(5, 5, 5, 15);
 
-        // 
+        //
         // PomodoroSettingsForm
-        // 
+        //
         this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.MinimumSize = new System.Drawing.Size(450, 0);
@@ -189,6 +201,7 @@ partial class PomodoroSettingsForm
     }
 
     private System.Windows.Forms.TableLayoutPanel tlpContent;
+
     // ... Controls definitions (same as before) ...
     private DiabloTwoMFTimer.UI.Components.ThemedLabel lblMode; // 新增
     private DiabloTwoMFTimer.UI.Components.ThemedComboBox cmbMode; // 新增

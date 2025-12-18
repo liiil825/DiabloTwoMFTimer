@@ -20,33 +20,35 @@ static class Program
     static void Main(string[] args)
     {
         // 1. 创建 Mutex
-        using (var mutex = new Mutex(false, AppMutexName))
+        using var mutex = new Mutex(false, AppMutexName);
+        // 2. 尝试获取锁 (抽取了独立方法，逻辑一目了然)
+        if (!TryAcquireMutex(mutex, args))
         {
-            // 2. 尝试获取锁 (抽取了独立方法，逻辑一目了然)
-            if (!TryAcquireMutex(mutex))
-            {
-                MessageBox.Show("程序已经在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            MessageBox.Show("程序已经在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
 
-            // 3. 获取成功，进入主逻辑保护区
-            try
-            {
-                RunApplication(args); // 可选：把主启动逻辑也封装一下，Main更干净
-            }
-            finally
-            {
-                // 4. 确保释放锁
-                mutex.ReleaseMutex();
-            }
+        // 3. 获取成功，进入主逻辑保护区
+        try
+        {
+            RunApplication(args); // 可选：把主启动逻辑也封装一下，Main更干净
+        }
+        finally
+        {
+            // 4. 确保释放锁
+            mutex.ReleaseMutex();
         }
     }
 
     /// <summary>
     /// 尝试获取互斥锁，处理了遗弃锁的情况
     /// </summary>
-    private static bool TryAcquireMutex(Mutex mutex)
+    private static bool TryAcquireMutex(Mutex mutex, string[] args)
     {
+        if (args.Length > 0 && args[0].Equals("--debug", StringComparison.CurrentCultureIgnoreCase))
+        {
+            return true;
+        }
         try
         {
             // 等待3秒，给旧进程退出的时间

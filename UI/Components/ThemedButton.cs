@@ -39,7 +39,8 @@ public class ThemedButton : Button
         // 2. 基础设置
         this.Size = new Size(120, 40);
         this.Cursor = Cursors.Hand;
-        this.Font = AppTheme.MainFont;
+        // 设置默认字体，但允许外部覆盖
+        this.Font = AppTheme.Fonts.Regular;
         this.AutoSize = true;
         this.AutoSizeMode = AutoSizeMode.GrowAndShrink;
 
@@ -88,7 +89,7 @@ public class ThemedButton : Button
         int h = textSize.Height + verticalPadding;
 
         // 确保不小于最小尺寸（可选，防止按钮太小点不到）
-        // w = Math.Max(w, ScaleHelper.Scale(80)); 
+        // w = Math.Max(w, ScaleHelper.Scale(80));
 
         return new Size(w, h);
     }
@@ -139,7 +140,8 @@ public class ThemedButton : Button
     // --- 核心绘制逻辑 ---
     protected override void OnPaint(PaintEventArgs e)
     {
-        if (this.Width <= 1 || this.Height <= 1) return;
+        if (this.Width <= 1 || this.Height <= 1)
+            return;
 
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;

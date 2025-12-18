@@ -10,12 +10,6 @@ namespace DiabloTwoMFTimer.Services;
 
 public class AppSettings : IAppSettings
 {
-    private static readonly string ConfigFilePath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "DiabloTwoMFTimer",
-        "config.yaml"
-    );
-
     private static readonly ISerializer serializer = new SerializerBuilder()
         .WithNamingConvention(CamelCaseNamingConvention.Instance)
         .Build();
@@ -57,26 +51,29 @@ public class AppSettings : IAppSettings
     public int PomodoroWarningLongTime { get; set; } = 60; // 番茄钟长时间提示（实际值）
     public int PomodoroWarningShortTime { get; set; } = 3; // 番茄钟短时间提示（实际值）
     public bool GenerateRoomName { get; set; } = true; // 是否生成房间名称
+    public bool ShowNavigation { get; set; } = true; // 是否显示导航栏
 
+    public Keys HotkeyLeader { get; set; } = Keys.Space | Keys.Control;
     public Keys HotkeyStartOrNext { get; set; } = Keys.Q | Keys.Alt;
-    public Keys HotkeyPause { get; set; } = Keys.Space | Keys.Control;
+    public Keys HotkeyPause { get; set; } = Keys.P | Keys.Control;
     public Keys HotkeyDeleteHistory { get; set; } = Keys.D | Keys.Control;
     public Keys HotkeyRecordLoot { get; set; } = Keys.A | Keys.Alt;
 
     // 保存设置
     public void Save()
     {
+        var configFilePath = FolderManager.ConfigFilePath;
         try
         {
             // 确保目录存在 - 添加null检查以修复CS8604警告
-            string? directory = Path.GetDirectoryName(ConfigFilePath);
+            string? directory = Path.GetDirectoryName(configFilePath);
             if (directory != null)
             {
                 Directory.CreateDirectory(directory);
             }
 
             var yaml = serializer.Serialize(this);
-            File.WriteAllText(ConfigFilePath, yaml);
+            File.WriteAllText(configFilePath, yaml);
         }
         catch (Exception ex)
         {
@@ -89,15 +86,16 @@ public class AppSettings : IAppSettings
     {
         try
         {
+            var configFilePath = FolderManager.ConfigFilePath;
             // 确保目录存在 - 添加null检查以修复CS8604警告
-            string? directory = Path.GetDirectoryName(ConfigFilePath);
+            string? directory = Path.GetDirectoryName(configFilePath);
             if (directory != null)
             {
                 Directory.CreateDirectory(directory);
             }
-            if (File.Exists(ConfigFilePath))
+            if (File.Exists(configFilePath))
             {
-                var yaml = File.ReadAllText(ConfigFilePath);
+                var yaml = File.ReadAllText(configFilePath);
                 var settings = deserializer.Deserialize<AppSettings>(yaml);
                 return settings;
             }
@@ -114,34 +112,34 @@ public class AppSettings : IAppSettings
 
     // UI相关转换方法
     // 将设置窗口的位置枚举转换为字符串
-    public static string WindowPositionToString(UI.Settings.SettingsControl.WindowPosition position)
+    public static string WindowPositionToString(Models.WindowPosition position)
     {
         return position.ToString();
     }
 
     // 将字符串转换为设置窗口的位置枚举
-    public static UI.Settings.SettingsControl.WindowPosition StringToWindowPosition(string positionStr)
+    public static Models.WindowPosition StringToWindowPosition(string positionStr)
     {
-        if (Enum.TryParse<UI.Settings.SettingsControl.WindowPosition>(positionStr, out var position))
+        if (Enum.TryParse<Models.WindowPosition>(positionStr, out var position))
         {
             return position;
         }
-        return UI.Settings.SettingsControl.WindowPosition.TopLeft;
+        return Models.WindowPosition.TopLeft;
     }
 
     // 将语言选项转换为字符串
-    public static string LanguageToString(UI.Settings.SettingsControl.LanguageOption language)
+    public static string LanguageToString(Models.LanguageOption language)
     {
         return language.ToString();
     }
 
     // 将字符串转换为语言选项
-    public static UI.Settings.SettingsControl.LanguageOption StringToLanguage(string languageStr)
+    public static Models.LanguageOption StringToLanguage(string languageStr)
     {
-        if (Enum.TryParse<UI.Settings.SettingsControl.LanguageOption>(languageStr, out var language))
+        if (Enum.TryParse<Models.LanguageOption>(languageStr, out var language))
         {
             return language;
         }
-        return UI.Settings.SettingsControl.LanguageOption.Chinese;
+        return Models.LanguageOption.Chinese;
     }
 }

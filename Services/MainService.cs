@@ -38,11 +38,13 @@ public class MainServices(
     private const int HOTKEY_ID_PAUSE = 2;
     private const int HOTKEY_ID_DELETE_HISTORY = 3;
     private const int HOTKEY_ID_RECORD_LOOT = 4;
+    private const int HOTKEY_ID_LEADER = 5;
 
     private Keys _currentStartOrNextRunHotkey;
     private Keys _currentPauseHotkey;
     private Keys _currentDeleteHistoryHotkey;
     private Keys _currentRecordLootHotkey;
+    private Keys _currentLeaderHotkey;
 
     [DllImport("user32.dll")]
     private static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
@@ -55,7 +57,30 @@ public class MainServices(
     public event Action<Models.TabPage>? OnRequestTabChange;
     public event Action? OnRequestRefreshUI;
     public event Action? OnRequestDeleteHistory;
-    public event Action? OnRequestRecordLoot;
+    public event Action? OnRequestDeleteLastHistory;
+    public event Action? OnRequestDeleteLastLoot;
+    #endregion
+
+    #region Public Methods
+
+    // 请求删除选中的记录
+    public void RequestDeleteSelectedRecord()
+    {
+        OnRequestDeleteHistory?.Invoke();
+    }
+
+    // 请求删除最后一个时间记录
+    public void RequestDeleteLastHistory()
+    {
+        OnRequestDeleteLastHistory?.Invoke();
+    }
+
+    // 请求删除最后一个掉落记录
+    public void RequestDeleteLastLoot()
+    {
+        OnRequestDeleteLastLoot?.Invoke();
+    }
+
     #endregion
 
     #region Public Methods
@@ -68,6 +93,7 @@ public class MainServices(
         _currentPauseHotkey = _appSettings.HotkeyPause;
         _currentDeleteHistoryHotkey = _appSettings.HotkeyDeleteHistory;
         _currentRecordLootHotkey = _appSettings.HotkeyRecordLoot;
+        _currentLeaderHotkey = _appSettings.HotkeyLeader;
 
         InitializeLanguageSupport();
         RegisterHotkeys();
@@ -103,7 +129,6 @@ public class MainServices(
 
         int id = m.WParam.ToInt32();
 
-
         switch (id)
         {
             case HOTKEY_ID_STARTSTOP:
@@ -122,7 +147,11 @@ public class MainServices(
 
             case HOTKEY_ID_RECORD_LOOT:
                 OnRequestTabChange?.Invoke(Models.TabPage.Timer);
-                OnRequestRecordLoot?.Invoke();
+                _messenger.Publish(new ShowRecordLootFormMessage());
+                break;
+
+            case HOTKEY_ID_LEADER:
+                _messenger.Publish(new ShowLeaderKeyFormMessage());
                 break;
         }
     }
@@ -152,9 +181,26 @@ public class MainServices(
         _currentPauseHotkey = _appSettings.HotkeyPause;
         _currentDeleteHistoryHotkey = _appSettings.HotkeyDeleteHistory;
         _currentRecordLootHotkey = _appSettings.HotkeyRecordLoot;
+        _currentLeaderHotkey = _appSettings.HotkeyLeader;
 
         RegisterHotkeys();
         Utils.LogManager.WriteDebugLog("MainServices", "热键已重新注册");
+    }
+
+    public void UpdateWindowHandle(IntPtr newHandle)
+    {
+        if (_windowHandle != newHandle)
+        {
+            // 先注销旧句柄的热键（虽然旧句柄可能已经销毁，但为了保险）
+            UnregisterHotKeys();
+
+            // 更新句柄
+            _windowHandle = newHandle;
+
+            // 重新注册
+            RegisterHotkeys();
+            Utils.LogManager.WriteDebugLog("MainServices", $"窗口句柄已更新为 {newHandle}，热键已重新注册");
+        }
     }
 
     #endregion
@@ -202,6 +248,7 @@ public class MainServices(
             RegisterHotKey(_currentPauseHotkey, HOTKEY_ID_PAUSE);
             RegisterHotKey(_currentDeleteHistoryHotkey, HOTKEY_ID_DELETE_HISTORY);
             RegisterHotKey(_currentRecordLootHotkey, HOTKEY_ID_RECORD_LOOT);
+            RegisterHotKey(_currentLeaderHotkey, HOTKEY_ID_LEADER);
         }
     }
 
@@ -213,6 +260,7 @@ public class MainServices(
             UnregisterHotKey(_windowHandle, HOTKEY_ID_PAUSE);
             UnregisterHotKey(_windowHandle, HOTKEY_ID_DELETE_HISTORY);
             UnregisterHotKey(_windowHandle, HOTKEY_ID_RECORD_LOOT);
+            UnregisterHotKey(_windowHandle, HOTKEY_ID_LEADER);
         }
     }
 
@@ -239,5 +287,17 @@ public class MainServices(
     {
         UnregisterHotKeys();
         _messenger.Unsubscribe<TimerSettingsChangedMessage>(OnTimerSettingsChanged);
+    }
+
+    // 设置番茄钟模式
+    public void SetPomodoroMode(Models.PomodoroMode mode)
+    {
+        _appSettings.PomodoroMode = mode;
+        _appSettings.Save();
+        _messenger.Publish(new Models.PomodoroModeChangedMessage(mode));
+
+        // 显示成功提示
+        string modeName = LanguageManager.GetString($"PomodoroMode_{mode}");
+        Utils.Toast.Success($"番茄钟模式已设置为: {modeName}");
     }
 }

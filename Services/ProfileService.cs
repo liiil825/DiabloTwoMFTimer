@@ -294,9 +294,33 @@ public class ProfileService : IProfileService
         return difficulties.IndexOf(difficulty);
     }
 
+    /// <summary>
+    /// 根据shortEnName切换场景
+    /// </summary>
+    /// <param name="shortEnName">场景的英文短名称</param>
+    /// <returns>是否成功切换场景</returns>
+    public bool SwitchSceneByShortEnName(string shortEnName)
+    {
+        if (string.IsNullOrWhiteSpace(shortEnName))
+            return false;
+
+        // 根据shortEnName查找场景
+        var scene = _sceneService.GetSceneByShortEnName(shortEnName);
+        if (scene == null)
+        {
+            Utils.Toast.Error($"未找到场景: {shortEnName}");
+            return false;
+        }
+
+        // 更新当前场景
+        CurrentScene = scene.EnUS;
+        Utils.Toast.Success($"已切换到场景: {scene.GetSceneName(scene.EnUS)}");
+        return true;
+    }
+
     #endregion
 
-    #region Record Management (新增区域)
+    #region Record Management
 
     /// <summary>
     /// 添加一条新的 MF 记录并保存

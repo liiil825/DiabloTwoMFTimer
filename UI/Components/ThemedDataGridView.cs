@@ -30,34 +30,39 @@ public class ThemedDataGridView : DataGridView
         this.DoubleBuffered = true;
 
         // --- 关键：深色主题样式 ---
-
         // 3. 表头样式 (必须禁用系统样式才能生效)
         this.EnableHeadersVisualStyles = false;
-
-        DataGridViewCellStyle headerStyle = new DataGridViewCellStyle();
-        headerStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        headerStyle.BackColor = AppTheme.SurfaceColor; // 表头深灰
-        headerStyle.ForeColor = AppTheme.TextSecondaryColor; // 表头文字灰白
-        headerStyle.SelectionBackColor = AppTheme.SurfaceColor; // 表头选中不变色
-        headerStyle.SelectionForeColor = AppTheme.TextSecondaryColor;
-        headerStyle.Font = new Font("微软雅黑", 9F, FontStyle.Bold);
-        headerStyle.WrapMode = DataGridViewTriState.True;
+        DataGridViewCellStyle headerStyle = new()
+        {
+            Alignment = DataGridViewContentAlignment.MiddleLeft,
+            BackColor = AppTheme.SurfaceColor, // 表头深灰
+            ForeColor = AppTheme.TextSecondaryColor, // 表头文字灰白
+            SelectionBackColor = AppTheme.SurfaceColor, // 表头选中不变色
+            SelectionForeColor = AppTheme.TextSecondaryColor,
+            Font = new Font("微软雅黑", 9F, FontStyle.Bold),
+            WrapMode = DataGridViewTriState.True
+        };
         this.ColumnHeadersDefaultCellStyle = headerStyle;
-        this.ColumnHeadersHeight = 35;
+        this.ColumnHeadersHeight = 35; // 调整表头高度
         this.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
         // 4. 单元格（数据行）样式
-        DataGridViewCellStyle cellStyle = new DataGridViewCellStyle();
-        cellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-        cellStyle.BackColor = AppTheme.BackColor; // 数据行深黑
-        cellStyle.ForeColor = AppTheme.TextColor; // 数据文字亮白
-        cellStyle.SelectionBackColor = AppTheme.AccentColor; // 选中背景（暗金）
-        cellStyle.SelectionForeColor = Color.Black; // 选中文字（黑色）
-        cellStyle.Padding = new Padding(5, 0, 0, 0);
+        DataGridViewCellStyle cellStyle = new()
+        {
+            Alignment = DataGridViewContentAlignment.MiddleLeft,
+            // Font = new Font("微软雅黑", 10F, FontStyle.Regular),
+            Font = new Font("微软雅黑", 9F, FontStyle.Regular),
+            BackColor = AppTheme.BackColor, // 数据行深黑
+            ForeColor = AppTheme.TextColor, // 数据文字亮白
+            SelectionBackColor = AppTheme.AccentColor, // 选中背景（暗金）
+            SelectionForeColor = Color.Black, // 选中文字（黑色）
+            Padding = new Padding(5, 0, 0, 0)
+        };
         this.DefaultCellStyle = cellStyle;
 
-        // 行高
-        this.RowTemplate.Height = 30;
+        // 行高设置
+        this.RowTemplate.Height = 35; // 调整数据行高度
+        // this.RowHeadersWidth = 30; // 调整行头宽度（如果可见）
     }
 
     // 可以在这里重写 OnPaint 做更高级的绘制，但在 DataGridView 中通常不需要

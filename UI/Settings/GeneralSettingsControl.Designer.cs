@@ -99,10 +99,8 @@ partial class GeneralSettingsControl
         this.tlpPosition.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
         this.tlpPosition.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33F));
         this.tlpPosition.Controls.Add(this.radioTopLeft, 0, 0);
-        this.tlpPosition.Controls.Add(this.radioTopCenter, 1, 0);
         this.tlpPosition.Controls.Add(this.radioTopRight, 2, 0);
         this.tlpPosition.Controls.Add(this.radioBottomLeft, 0, 1);
-        this.tlpPosition.Controls.Add(this.radioBottomCenter, 1, 1);
         this.tlpPosition.Controls.Add(this.radioBottomRight, 2, 1);
         this.tlpPosition.Dock = System.Windows.Forms.DockStyle.Fill;
         this.tlpPosition.Location = new System.Drawing.Point(3, 20);
@@ -121,10 +119,8 @@ partial class GeneralSettingsControl
             rb.Text = text;
         }
         SetRadio(radioTopLeft, "左上"); radioTopLeft.Checked = true;
-        SetRadio(radioTopCenter, "上中");
         SetRadio(radioTopRight, "右上");
         SetRadio(radioBottomLeft, "左下");
-        SetRadio(radioBottomCenter, "下中");
         SetRadio(radioBottomRight, "右下");
 
         // 

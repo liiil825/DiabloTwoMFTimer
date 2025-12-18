@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
-using DiabloTwoMFTimer.Models; // 引用消息命名空间
+using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.UI.Theme;
 using DiabloTwoMFTimer.Utils;
 
@@ -14,8 +14,9 @@ public partial class HotkeySettingsControl : UserControl
     private readonly Color ColorEditing = Color.FromArgb(60, 60, 70);
 
     private bool _isUpdating = false;
-    private IMessenger? _messenger; // 新增 Messenger 引用
+    private IMessenger? _messenger;
 
+    public Keys LeaderHotkey { get; private set; } // 新增
     public Keys StartOrNextRunHotkey { get; private set; }
     public Keys PauseHotkey { get; private set; }
     public Keys DeleteHistoryHotkey { get; private set; }
@@ -27,7 +28,6 @@ public partial class HotkeySettingsControl : UserControl
         InitializeTextBoxStyles();
     }
 
-    // 依赖注入方法
     public void SetMessenger(IMessenger messenger)
     {
         _messenger = messenger;
@@ -35,6 +35,7 @@ public partial class HotkeySettingsControl : UserControl
 
     private void InitializeTextBoxStyles()
     {
+        ApplyStyle(txtLeaderKey); // 新增
         ApplyStyle(txtStartNext);
         ApplyStyle(txtPause);
         ApplyStyle(txtDeleteHistory);
@@ -59,12 +60,21 @@ public partial class HotkeySettingsControl : UserControl
             return;
         }
 
-        // 进入编辑模式：暂停全局热键
+        // 暂停全局热键
         _messenger?.Publish(new SuspendHotkeysMessage());
 
         textBox.BackColor = ColorEditing;
         textBox.ForeColor = AppTheme.AccentColor;
-        textBox.Text = LanguageManager.GetString("HotkeyPressToSet") ?? "请按快捷键 (Esc取消)";
+
+        // --- 核心修改：提示信息显示在底部标签，而不是输入框内 ---
+        // 尝试从语言文件获取，如果为空则使用默认
+        string hint =
+            LanguageManager.GetString("HotkeyPressToSetDetail") ?? "请按下快捷键 (Esc取消, Backspace/Delete清除)";
+        lblStatus.Text = hint;
+        lblStatus.ForeColor = AppTheme.Colors.Primary;
+
+        // 可选：输入框内可以显示 "..." 表示正在等待
+        textBox.Text = LanguageManager.GetString("PleasePressKey") ?? "请按下快捷键";
     }
 
     private void OnTextBoxLeave(object? sender, EventArgs e)
@@ -72,17 +82,30 @@ public partial class HotkeySettingsControl : UserControl
         if (sender is not TextBox textBox)
             return;
 
-        // 离开编辑模式：恢复全局热键
+        // 恢复全局热键
         _messenger?.Publish(new ResumeHotkeysMessage());
 
         textBox.BackColor = ColorNormal;
         textBox.ForeColor = AppTheme.TextColor;
 
-        // 还原显示当前保存的键值 (如果是Esc取消，这里会自动还原)
+        // 清除底部提示
+        lblStatus.Text = "";
+
+        // 还原显示当前保存的键值
+        RestoreTextBoxValue(textBox);
+
+        _isUpdating = false;
+    }
+
+    private void RestoreTextBoxValue(TextBox textBox)
+    {
         string tag = textBox.Tag?.ToString() ?? "";
         Keys currentKey = Keys.None;
         switch (tag)
         {
+            case "Leader":
+                currentKey = LeaderHotkey;
+                break;
             case "StartNext":
                 currentKey = StartOrNextRunHotkey;
                 break;
@@ -97,7 +120,6 @@ public partial class HotkeySettingsControl : UserControl
                 break;
         }
         textBox.Text = FormatKeyString(currentKey);
-        _isUpdating = false;
     }
 
     private void OnHotkeyInput(object? sender, KeyEventArgs e)
@@ -107,20 +129,19 @@ public partial class HotkeySettingsControl : UserControl
 
         e.SuppressKeyPress = true;
 
-        // Esc: 取消 (通过转移焦点触发 Leave 事件来还原)
+        // Esc: 取消
         if (e.KeyCode == Keys.Escape)
         {
-            // 关键修复：将焦点移交给父容器（如 GroupBox 或 TabPage），强制 TextBox 失去焦点
             this.Parent?.Focus();
             return;
         }
 
-        // Back/Delete: 清除热键
+        // Back/Delete: 清除热键 (设为 None)
         if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete)
         {
             _isUpdating = true;
             UpdateHotkey(textBox, Keys.None);
-            this.Parent?.Focus(); // 清除后也自动退出编辑
+            this.Parent?.Focus();
             return;
         }
 
@@ -140,8 +161,6 @@ public partial class HotkeySettingsControl : UserControl
 
         _isUpdating = true;
         UpdateHotkey(textBox, keyData);
-
-        // 设置完成后自动退出编辑
         this.Parent?.Focus();
     }
 
@@ -150,6 +169,9 @@ public partial class HotkeySettingsControl : UserControl
         string tag = textBox.Tag?.ToString() ?? "";
         switch (tag)
         {
+            case "Leader":
+                LeaderHotkey = newKey;
+                break;
             case "StartNext":
                 StartOrNextRunHotkey = newKey;
                 break;
@@ -171,18 +193,22 @@ public partial class HotkeySettingsControl : UserControl
     private string FormatKeyString(Keys key)
     {
         if (key == Keys.None)
-            return "无 (None)";
+            return LanguageManager.GetString("HotkeyNone") ?? "无 (None)";
+
         var converter = new KeysConverter();
         return converter.ConvertToString(key) ?? "None";
     }
 
     public void LoadHotkeys(IAppSettings settings)
     {
+
+        LeaderHotkey = settings.HotkeyLeader;
         StartOrNextRunHotkey = settings.HotkeyStartOrNext;
         PauseHotkey = settings.HotkeyPause;
         DeleteHistoryHotkey = settings.HotkeyDeleteHistory;
         RecordLootHotkey = settings.HotkeyRecordLoot;
 
+        txtLeaderKey.Text = FormatKeyString(LeaderHotkey); // 更新 UI
         txtStartNext.Text = FormatKeyString(StartOrNextRunHotkey);
         txtPause.Text = FormatKeyString(PauseHotkey);
         txtDeleteHistory.Text = FormatKeyString(DeleteHistoryHotkey);
@@ -198,14 +224,21 @@ public partial class HotkeySettingsControl : UserControl
             try
             {
                 grpHotkeys.Text = LanguageManager.GetString("HotkeySettingsGroup");
+
+                // 确保添加 LeaderKey 的本地化字符串
+                lblLeaderKey.Text = LanguageManager.GetString("HotkeyLeader") ?? "Leader Key:";
+
                 lblStartNext.Text = LanguageManager.GetString("HotkeyStartNext");
                 lblPause.Text = LanguageManager.GetString("HotkeyPause");
                 lblDeleteHistory.Text = LanguageManager.GetString("HotkeyDeleteHistory");
                 lblRecordLoot.Text = LanguageManager.GetString("HotkeyRecordLoot");
 
+                // 这里保存逻辑需要根据你的 Settings 实现来调整
+                // 通常应该传递包含新属性的对象
                 LoadHotkeys(
                     new Services.AppSettings
                     {
+                        HotkeyLeader = LeaderHotkey,
                         HotkeyStartOrNext = StartOrNextRunHotkey,
                         HotkeyPause = PauseHotkey,
                         HotkeyDeleteHistory = DeleteHistoryHotkey,

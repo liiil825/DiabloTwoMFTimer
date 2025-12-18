@@ -46,14 +46,18 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     // 仅在非工作时间（即休息时间）允许查看统计
     public bool CanShowStats => _currentState != PomodoroTimerState.Work;
+    public DateTime PomodoroCycleStartTime { get; private set; } = DateTime.Now;
+    public DateTime FullPomodoroCycleStartTime { get; private set; } = DateTime.Now;
 
     public PomodoroTimerService(ITimerService? timerService, IAppSettings? appSettings)
     {
         _timerService = timerService;
         _appSettings = appSettings;
 
-        _timer = new System.Timers.Timer(100);
-        _timer.AutoReset = true; // 确保它会循环触发
+        _timer = new System.Timers.Timer(100)
+        {
+            AutoReset = true // 确保它会循环触发
+        };
         _timer.Elapsed += OnTimerTick; // 注意：事件名从 Tick 变成了 Elapse
 
         // 显式初始化为停止状态，防止自动运行
@@ -85,6 +89,11 @@ public class PomodoroTimerService : IPomodoroTimerService
         // 场景2：普通暂停后的恢复，或从停止状态开始
         if (_status != TimerStatus.Running)
         {
+            if (_status == TimerStatus.Stopped)
+            {
+                PomodoroCycleStartTime = DateTime.Now;
+                FullPomodoroCycleStartTime = DateTime.Now;
+            }
             _status = TimerStatus.Running;
             _timer.Start();
             NotifyStateChanged();
@@ -119,20 +128,20 @@ public class PomodoroTimerService : IPomodoroTimerService
     // 强制进入下一阶段 (用于手动跳过，或半自动模式下的触发)
     public void SwitchToNextState()
     {
-        if (!IsRunning) return;
+        if (!IsRunning)
+            return;
 
         TransitionToNextStage();
     }
 
     public void SkipBreak()
     {
-        // 只有在休息时才允许跳过
-        if (_currentState != PomodoroTimerState.Work)
-        {
-            TransitionToNextStage(); // 强制流转到下一阶段 (即工作)
-            PomodoroBreakSkipped?.Invoke(this, EventArgs.Empty);
-            Toast.Success(LanguageManager.GetString("PomodoroBreakSkipped", "Break skipped"));
-        }
+        if (_currentState == PomodoroTimerState.Work)
+            return;
+
+        TransitionToNextStage();
+        PomodoroBreakSkipped?.Invoke(this, EventArgs.Empty);
+        Toast.Success(LanguageManager.GetString("PomodoroBreakSkipped", "Break skipped"));
     }
 
     public void AddMinutes(int minutes)
@@ -148,7 +157,8 @@ public class PomodoroTimerService : IPomodoroTimerService
     private void OnTimerTick(object? sender, EventArgs e)
     {
         // 双重检查：只有 Running 状态才走字
-        if (_status != TimerStatus.Running) return;
+        if (_status != TimerStatus.Running)
+            return;
 
         // 扣减时间
         _timeLeft = _timeLeft.Subtract(TimeSpan.FromMilliseconds(100));
@@ -217,22 +227,22 @@ public class PomodoroTimerService : IPomodoroTimerService
 
             _currentState = isLongBreak ? PomodoroTimerState.LongBreak : PomodoroTimerState.ShortBreak;
 
-            TryPauseGameTimer(); // (可选) 暂停游戏主计时器
-
             // 先重置时间
             _timeLeft = GetDurationForState(_currentState);
-
+            TryPauseGameTimer();
             // 再触发UI弹窗 (UI会读取到新的休息时间)
             PomodoroBreakStarted?.Invoke(this, new PomodoroBreakStartedEventArgs(breakType));
         }
         else
         {
             // >>> 休息 -> 工作 <<<
+            PomodoroCycleStartTime = DateTime.Now;
+            if (_currentState == PomodoroTimerState.LongBreak)
+                FullPomodoroCycleStartTime = DateTime.Now;
             _currentState = PomodoroTimerState.Work;
 
-            TryResumeGameTimer(); // (可选) 恢复游戏主计时器
-
             _timeLeft = GetDurationForState(_currentState);
+            TryResumeGameTimer();
         }
 
         // 3. 进入新阶段后，状态自动变为 Running 并开始计时
@@ -250,12 +260,14 @@ public class PomodoroTimerService : IPomodoroTimerService
     private bool CheckIfShouldWait(PomodoroMode mode)
     {
         // 模式 3: 全手动 (工作结束等待；休息结束等待)
-        if (mode == PomodoroMode.Manual) return true;
+        if (mode == PomodoroMode.Manual)
+            return true;
 
         // 模式 2: 半自动 (工作->休息：暂停等待；休息->工作：自动)
         if (mode == PomodoroMode.SemiAuto)
         {
-            if (_currentState == PomodoroTimerState.Work) return true; // 工作结束，停下来等触发
+            if (_currentState == PomodoroTimerState.Work)
+                return true; // 工作结束，停下来等触发
             return false; // 休息结束，自动进工作
         }
 
@@ -279,34 +291,47 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     private void CheckForWarnings()
     {
-        if (_currentState != PomodoroTimerState.Work) return;
+        if (_currentState != PomodoroTimerState.Work)
+            return;
 
         double totalSeconds = _timeLeft.TotalSeconds;
         int warnLong = _appSettings?.PomodoroWarningLongTime ?? 60;
         int warnShort = _appSettings?.PomodoroWarningShortTime ?? 3;
+        var pomodoroMode = _appSettings?.PomodoroMode ?? PomodoroMode.Automatic;
 
         // 只有在整秒附近才触发，避免多次触发
         if (Math.Abs(totalSeconds - warnLong) < 0.05)
         {
             LogManager.WriteDebugLog("Pomodoro", $"工作时间警告：{warnLong}秒");
-            Toast.Info(LanguageManager.GetString("PomodoroWorkEndingLong", warnLong));
+            var message = LanguageManager.GetString("PomodoroWorkEndingLong", warnLong);
+            if (pomodoroMode == PomodoroMode.Automatic)
+                Toast.Warning(message);
+            else
+                Toast.Info(message);
         }
         else if (Math.Abs(totalSeconds - warnShort) < 0.05)
         {
             LogManager.WriteDebugLog("Pomodoro", $"工作时间警告：{warnShort}秒");
-            Toast.Info(LanguageManager.GetString("PomodoroWorkEndingShort", warnShort));
+            var message = LanguageManager.GetString("PomodoroWorkEndingShort", warnShort);
+            if (pomodoroMode == PomodoroMode.Automatic)
+                Toast.Error(message);
+            else
+                Toast.Info(message);
         }
     }
 
     private void TryPauseGameTimer()
     {
-        LogManager.WriteDebugLog("Pomodoro", "尝试暂停游戏主计时器");
         _timerService!.Pause();
     }
 
     private void TryResumeGameTimer()
     {
-        if (_timerService != null && !_timerService.IsRunning && _timerService.PreviousStatusBeforePause == TimerStatus.Running)
+        if (
+            _timerService != null
+            && !_timerService.IsRunning
+            && _timerService.PreviousStatusBeforePause == TimerStatus.Running
+        )
         {
             _timerService.Resume();
         }
@@ -319,7 +344,8 @@ public class PomodoroTimerService : IPomodoroTimerService
     // 当游戏开始 (Timer Running = true)
     private void OnGameTimerRunningStateChanged(bool isGameRunning)
     {
-        if (!isGameRunning) return;
+        if (!isGameRunning)
+            return;
 
         // 【核心修复】增加这一行：检查游戏计时器是否真的在运行。
         // 因为程序启动恢复记录时，会触发 isGameRunning=true，但状态其实是 Paused。
@@ -363,16 +389,18 @@ public class PomodoroTimerService : IPomodoroTimerService
             else // Game Resumed (暂停恢复)
             {
                 // 如果番茄钟处于【工作状态】且【被暂停】(非等待触发状态)，则恢复
-                if (_currentState == PomodoroTimerState.Work && _status == TimerStatus.Paused && _timeLeft > TimeSpan.Zero)
+                if (
+                    _currentState == PomodoroTimerState.Work
+                    && _status == TimerStatus.Paused
+                    && _timeLeft > TimeSpan.Zero
+                )
                 {
                     Start();
                 }
             }
         }
 
-        if (_appSettings?.TimerSyncStartPomodoro == true
-        && !isGamePaused
-        && _status == TimerStatus.Stopped)
+        if (_appSettings?.TimerSyncStartPomodoro == true && !isGamePaused && _status == TimerStatus.Stopped)
         {
             Start();
         }
@@ -390,7 +418,8 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     public void LoadSettings()
     {
-        if (_appSettings == null) return;
+        if (_appSettings == null)
+            return;
         Settings.WorkTimeMinutes = _appSettings.WorkTimeMinutes;
         Settings.WorkTimeSeconds = _appSettings.WorkTimeSeconds;
         Settings.ShortBreakMinutes = _appSettings.ShortBreakMinutes;
@@ -407,8 +436,10 @@ public class PomodoroTimerService : IPomodoroTimerService
         // 转换 TimerStatus 为 bool isRunning 传递给 UI
         bool isRunningBool = (_status == TimerStatus.Running);
 
-        PomodoroTimerStateChanged?.Invoke(this, new PomodoroTimerStateChangedEventArgs(
-            _currentState, _previousState, isRunningBool, _timeLeft));
+        PomodoroTimerStateChanged?.Invoke(
+            this,
+            new PomodoroTimerStateChangedEventArgs(_currentState, _previousState, isRunningBool, _timeLeft)
+        );
     }
 
     private void NotifyTimeUpdated()
