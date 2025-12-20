@@ -123,11 +123,11 @@ public class CommandInitializer
                 if (int.TryParse(arg?.ToString(), out int minutes) && minutes > 0 && minutes <= 59)
                 {
                     _pomodoroTimerService.AddMinutes(minutes);
-                    Utils.Toast.Info($"已增加 {minutes} 分钟");
+                    Utils.Toast.Info(Utils.LanguageManager.GetString("PomodoroAddedMinutes", minutes));
                 }
                 else
                 {
-                    Utils.Toast.Error("请输入 1 - 59 之间的数值");
+                    Utils.Toast.Error(Utils.LanguageManager.GetString("PomodoroInvalidMinutesRange"));
                 }
             }
         );
@@ -137,7 +137,7 @@ public class CommandInitializer
             () =>
             {
                 _pomodoroTimerService.SwitchToNextState();
-                Utils.Toast.Success($"已切换到 {_pomodoroTimerService.CurrentState}");
+                Utils.Toast.Success(Utils.LanguageManager.GetString("PomodoroStateSwitched", _pomodoroTimerService.CurrentState));
             }
         );
 
@@ -253,7 +253,7 @@ public class CommandInitializer
                 }
                 else
                 {
-                    Utils.Toast.Error($"未输入场景名称");
+                    Utils.Toast.Error(Utils.LanguageManager.GetString("SceneNameNotProvided"));
                 }
             }
         );
@@ -272,7 +272,7 @@ public class CommandInitializer
                 _appSettings.ShowNavigation = !_appSettings.ShowNavigation;
                 _appSettings.Save();
                 _messenger.Publish(new NavigationVisibilityChangedMessage());
-                Utils.Toast.Success($"导航栏已{(_appSettings.ShowNavigation ? "显示" : "隐藏")}");
+                Utils.Toast.Success(Utils.LanguageManager.GetString(_appSettings.ShowNavigation ? "NavigationShown" : "NavigationHidden"));
             }
         );
 
@@ -292,12 +292,12 @@ public class CommandInitializer
                     }
                     else
                     {
-                        Utils.Toast.Error("请输入 1-3 之间的数字");
+                        Utils.Toast.Error(Utils.LanguageManager.GetString("PomodoroInvalidModeNumber"));
                     }
                 }
                 else
                 {
-                    Utils.Toast.Error("请输入有效的数字");
+                    Utils.Toast.Error(Utils.LanguageManager.GetString("PomodoroInvalidNumber"));
                 }
             }
         );

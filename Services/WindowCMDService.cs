@@ -84,13 +84,13 @@ public class WindowCMDService : IWindowCMDService
                     // 调用调整透明度的逻辑
                     if (val < 0.1 || val > 1.0)
                     {
-                        Utils.Toast.Error("透明度值必须在 0.1-1.0 之间");
+                        Utils.Toast.Error(Utils.LanguageManager.GetString("OpacityValueInvalid"));
                         return;
                     }
                     _appSettings.Opacity = val;
                     _appSettings.Save();
                     _messenger.Publish(new OpacityChangedMessage());
-                    Utils.Toast.Success($"已设置透明度为 {val}");
+                    Utils.Toast.Success(Utils.LanguageManager.GetString("OpacitySet", val));
                 }
             }
         );
@@ -101,8 +101,8 @@ public class WindowCMDService : IWindowCMDService
                 if (float.TryParse(arg?.ToString(), out float val) && val >= 1.0f && val <= 2.5f)
                 {
                     var result = DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(
-                        "界面缩放设置已保存。需要重启程序才能完全生效。\n\n是否立即重启？",
-                        "需要重启",
+                        Utils.LanguageManager.GetString("UiScaleRestartRequired"),
+                        Utils.LanguageManager.GetString("RestartRequired"),
                         MessageBoxButtons.YesNo
                     ); // 使用 YesNo 按钮
                     _appSettings.UiScale = val;
@@ -115,7 +115,7 @@ public class WindowCMDService : IWindowCMDService
                 }
                 else
                 {
-                    Utils.Toast.Error("请输入 1.0 - 2.5 之间的数值");
+                    Utils.Toast.Error(Utils.LanguageManager.GetString("UiScaleValueInvalid"));
                 }
             }
         );
@@ -128,7 +128,8 @@ public class WindowCMDService : IWindowCMDService
             _appSettings.WindowPosition = windowPosition.ToString();
             _appSettings.Save();
             _messenger.Publish(new WindowPositionChangedMessage());
-            Utils.Toast.Success($"已设置位置为 {windowPosition}");
+            string message = Utils.LanguageManager.GetString($"SetWindowPosition.{windowPosition}");
+            Utils.Toast.Success(message);
         }
         else
         {
@@ -161,6 +162,7 @@ public class WindowCMDService : IWindowCMDService
         _appSettings.WindowPosition = position.ToString();
         _appSettings.Save();
         _messenger.Publish(new WindowPositionChangedMessage());
-        Utils.Toast.Success($"已设置位置为 {position}");
+        string message = Utils.LanguageManager.GetString($"SetWindowPosition.{position}");
+        Utils.Toast.Success(message);
     }
 }
