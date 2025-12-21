@@ -544,19 +544,19 @@ public partial class ProfileManager : UserControl
         try
         {
             // 构造档案文件夹路径 (与 YamlProfileRepository 中的路径一致)
-            string profilesPath = Utils.FolderManager.ProfilesPath;
+            string dirPath = Utils.FolderManager.AppDataPath;
 
             // 确保目录存在
-            if (!Directory.Exists(profilesPath))
+            if (!Directory.Exists(dirPath))
             {
-                Directory.CreateDirectory(profilesPath);
+                Directory.CreateDirectory(dirPath);
             }
 
             // 打开文件夹
             Process.Start(
                 new ProcessStartInfo
                 {
-                    FileName = profilesPath,
+                    FileName = dirPath,
                     UseShellExecute = true,
                     Verb = "open",
                 }
