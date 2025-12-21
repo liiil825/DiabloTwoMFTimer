@@ -34,6 +34,7 @@ public static class ServiceConfiguration
         // MainServices 现在是纯逻辑协调者
         services.AddSingleton<IMainService, MainServices>();
         services.AddSingleton<IWindowCMDService, WindowCMDService>();
+        services.AddSingleton<IProfileCMDService, ProfileCMDService>();
         services.AddTransient<CommandInitializer>();
 
         // 3. 注册 UI 组件 (瞬态)

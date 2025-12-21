@@ -30,10 +30,26 @@ public class SceneService : ISceneService
     {
         try
         {
-            var path = FarmingSpotsPath; // 私有方法，逻辑同原 Helper
-            if (File.Exists(path))
+            // 确保AppDataPath目录存在
+            FolderManager.EnsureDirectoryExists(FolderManager.AppDataPath);
+
+            // 目标场景文件路径
+            var sceneFilePath = FolderManager.SceneFilePath;
+
+            // 如果场景文件不存在，从原始路径复制一份
+            if (!File.Exists(sceneFilePath))
             {
-                var yaml = File.ReadAllText(path);
+                var farmingSpotsPath = FarmingSpotsPath;
+                if (File.Exists(farmingSpotsPath))
+                {
+                    File.Copy(farmingSpotsPath, sceneFilePath, true);
+                }
+            }
+
+            // 从场景文件读取数据
+            if (File.Exists(sceneFilePath))
+            {
+                var yaml = File.ReadAllText(sceneFilePath);
                 var deserializer = new DeserializerBuilder().IgnoreUnmatchedProperties().Build();
                 var data = deserializer.Deserialize<FarmingSpotsData>(yaml);
                 _cachedFarmingSpots = data?.FarmingSpots ?? [];

@@ -20,6 +20,9 @@ public static class FolderManager
     // 配置文件路径
     public static string ConfigFilePath => Path.Combine(AppDataPath, "config.yaml");
 
+    // 场景文件路径
+    public static string SceneFilePath => Path.Combine(AppDataPath, "scene.yaml");
+
     /// <summary>
     /// 确保指定目录存在
     /// </summary>

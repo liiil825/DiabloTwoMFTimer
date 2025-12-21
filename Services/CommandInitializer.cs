@@ -12,6 +12,7 @@ public class CommandInitializer
     private readonly IAppSettings _appSettings;
     private readonly IProfileService _profileService;
     private readonly IWindowCMDService _windowCMDService;
+    private readonly IProfileCMDService _profileCMDService;
 
     // UI 相关的动作通常需要通过 Messenger 或者直接注入 Controller (不太推荐)
     // 这里我们通过 Messenger 发送指令，或者直接调用 Service
@@ -25,7 +26,8 @@ public class CommandInitializer
         IAppSettings appSettings,
         IMessenger messenger,
         IProfileService profileService,
-        IWindowCMDService windowCMDService
+        IWindowCMDService windowCMDService,
+        IProfileCMDService profileCMDService
     )
     {
         _dispatcher = dispatcher;
@@ -36,6 +38,7 @@ public class CommandInitializer
         _messenger = messenger;
         _profileService = profileService;
         _windowCMDService = windowCMDService;
+        _profileCMDService = profileCMDService;
     }
 
     public void Initialize()
@@ -196,67 +199,6 @@ public class CommandInitializer
         _dispatcher.Register("Nav.Pomodoro", () => _mainService.SetActiveTabPage(Models.TabPage.Pomodoro));
         _dispatcher.Register("Nav.Settings", () => _mainService.SetActiveTabPage(Models.TabPage.Settings));
 
-        // 角色管理命令
-        _dispatcher.Register(
-            "Character.Create",
-            () =>
-            {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
-                _messenger.Publish(new CreateCharacterMessage());
-            }
-        );
-
-        _dispatcher.Register(
-            "Character.Switch",
-            () =>
-            {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
-                _messenger.Publish(new SwitchCharacterMessage());
-            }
-        );
-
-        _dispatcher.Register(
-            "Character.Export",
-            () =>
-            {
-                _messenger.Publish(new ExportCharacterMessage());
-            }
-        );
-
-        _dispatcher.Register(
-            "Loot.ShowHistory",
-            () =>
-            {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
-                _messenger.Publish(new ShowLootHistoryMessage());
-            }
-        );
-
-        _dispatcher.Register(
-            "Character.Delete",
-            () =>
-            {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
-                _messenger.Publish(new DeleteCharacterMessage());
-            }
-        );
-
-        // 场景操作
-        _dispatcher.Register(
-            "Scene.Switch",
-            (arg) =>
-            {
-                string? shortEnName = arg?.ToString();
-                if (!string.IsNullOrEmpty(shortEnName))
-                {
-                    _profileService.SwitchSceneByShortEnName(shortEnName);
-                }
-                else
-                {
-                    Utils.Toast.Error(Utils.LanguageManager.GetString("SceneNameNotProvided"));
-                }
-            }
-        );
 
         // 工具
         _dispatcher.Register(
@@ -323,5 +265,6 @@ public class CommandInitializer
             }
         );
         _windowCMDService.Initialize();
+        _profileCMDService.Initialize();
     }
 }
