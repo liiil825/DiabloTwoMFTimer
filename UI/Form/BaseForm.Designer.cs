@@ -98,15 +98,17 @@ partial class BaseForm
         // 
         // btnConfirm
         // 
-        this.btnConfirm.Size = new Size(80, 34);
-        this.btnConfirm.Text = "Confirm";
+        // 【修改】宽度从 80 改为 44，使其更像图标按钮
+        this.btnConfirm.Size = new Size(44, 34);
+        this.btnConfirm.Text = "Confirm"; // 这里的文字会被 BaseForm.cs 覆盖
         this.btnConfirm.Margin = new Padding(10, 0, 10, 0);
         this.btnConfirm.Click += new System.EventHandler(this.BtnConfirm_Click);
 
         // 
         // btnCancel
         // 
-        this.btnCancel.Size = new Size(80, 34);
+        // 【修改】宽度从 80 改为 44
+        this.btnCancel.Size = new Size(44, 34);
         this.btnCancel.Text = "Cancel";
         this.btnCancel.Margin = new Padding(0);
         this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);

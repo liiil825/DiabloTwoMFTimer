@@ -206,5 +206,12 @@
   "OpacitySet": "已设置透明度为 {{0}}",
   "UiScaleRestartRequired": "界面缩放设置已保存。需要重启程序才能完全生效。\n\n是否立即重启？",
   "RestartRequired": "需要重启",
-  "UiScaleValueInvalid": "请输入 1.0 - 2.5 之间的数值"
+  "UiScaleValueInvalid": "请输入 1.0 - 2.5 之间的数值",
+  "LootTableEdit": "编辑",
+  "LootTableDelete": "删除",
+  "LootEditTitle": "修改物品名称",
+  "LootDeleteTitle": "删除确认",
+  "LootDeleteConfirm": "确定要删除物品:\n'{0}'吗？",
+  "LootEditBadge": "E 编辑",
+  "LootDeleteBadge": "D 删除"
 }

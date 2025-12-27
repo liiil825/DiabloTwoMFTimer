@@ -95,8 +95,10 @@ public partial class MainForm : System.Windows.Forms.Form
         _mainService.ApplyWindowSettings(this);
 
         // 检查是否有上次使用的角色档案和场景记录，如果有则自动跳转到计时界面
-        if (!string.IsNullOrEmpty(_appSettings.LastUsedProfile) &&
-            !string.IsNullOrEmpty(_profileService.CurrentProfile?.LastRunScene))
+        if (
+            !string.IsNullOrEmpty(_appSettings.LastUsedProfile)
+            && !string.IsNullOrEmpty(_profileService.CurrentProfile?.LastRunScene)
+        )
         {
             _mainService.SetActiveTabPage(Models.TabPage.Timer);
         }

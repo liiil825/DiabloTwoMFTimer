@@ -13,7 +13,13 @@ public class ProfileCMDService : IProfileCMDService
     private readonly IProfileService _profileService;
     private readonly ISceneService _sceneService;
 
-    public ProfileCMDService(IMainService mainService, IMessenger messenger, ICommandDispatcher dispatcher, IProfileService profileService, ISceneService sceneService)
+    public ProfileCMDService(
+        IMainService mainService,
+        IMessenger messenger,
+        ICommandDispatcher dispatcher,
+        IProfileService profileService,
+        ISceneService sceneService
+    )
     {
         _mainService = mainService;
         _messenger = messenger;

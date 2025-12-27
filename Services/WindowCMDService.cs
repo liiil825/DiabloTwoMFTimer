@@ -12,7 +12,12 @@ public class WindowCMDService : IWindowCMDService
     private readonly IMainService _mainService;
     private readonly ICommandDispatcher _dispatcher;
 
-    public WindowCMDService(IAppSettings appSettings, IMessenger messenger, IMainService mainService, ICommandDispatcher dispatcher)
+    public WindowCMDService(
+        IAppSettings appSettings,
+        IMessenger messenger,
+        IMainService mainService,
+        ICommandDispatcher dispatcher
+    )
     {
         _appSettings = appSettings;
         _messenger = messenger;
@@ -50,30 +55,15 @@ public class WindowCMDService : IWindowCMDService
             }
         );
 
-        _dispatcher.Register(
-            "App.SetPosition",
-            (arg) => SetWindowPosition(arg?.ToString() ?? string.Empty)
-        );
+        _dispatcher.Register("App.SetPosition", (arg) => SetWindowPosition(arg?.ToString() ?? string.Empty));
 
-        _dispatcher.Register(
-            "App.SetPosition.TopLeft",
-            () => SetWindowPositionTopLeft()
-        );
+        _dispatcher.Register("App.SetPosition.TopLeft", () => SetWindowPositionTopLeft());
 
-        _dispatcher.Register(
-            "App.SetPosition.TopRight",
-            () => SetWindowPositionTopRight()
-        );
+        _dispatcher.Register("App.SetPosition.TopRight", () => SetWindowPositionTopRight());
 
-        _dispatcher.Register(
-            "App.SetPosition.BottomLeft",
-            () => SetWindowPositionBottomLeft()
-        );
+        _dispatcher.Register("App.SetPosition.BottomLeft", () => SetWindowPositionBottomLeft());
 
-        _dispatcher.Register(
-            "App.SetPosition.BottomRight",
-            () => SetWindowPositionBottomRight()
-        );
+        _dispatcher.Register("App.SetPosition.BottomRight", () => SetWindowPositionBottomRight());
 
         _dispatcher.Register(
             "App.SetOpacity",

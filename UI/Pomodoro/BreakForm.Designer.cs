@@ -185,7 +185,8 @@ partial class BreakForm
         this.btnSkip.Size = new System.Drawing.Size(120, 40);
         this.btnSkip.Margin = new System.Windows.Forms.Padding(20); // 你的修改
         this.btnSkip.TabIndex = 0;
-        this.btnSkip.Text = "结束休息";
+        this.btnSkip.Font = Theme.AppTheme.Fonts.SegoeIcon;
+        this.btnSkip.Text = "";
         this.btnSkip.SetThemePrimary();
         this.btnSkip.Click += (s, e) =>
         {
@@ -200,7 +201,8 @@ partial class BreakForm
         this.btnClose.Size = new System.Drawing.Size(120, 40);
         this.btnClose.Margin = new System.Windows.Forms.Padding(20); // 你的修改
         this.btnClose.TabIndex = 1;
-        this.btnClose.Text = "关闭";
+        this.btnClose.Font = Theme.AppTheme.Fonts.SegoeIcon;
+        this.btnClose.Text = "\uE711";
         this.btnClose.SetThemeDanger();
         this.btnClose.Click += (s, e) => this.Close();
 

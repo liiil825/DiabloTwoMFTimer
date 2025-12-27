@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel; // 必须引用，用于 Browsable 等特性
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -11,12 +11,17 @@ namespace DiabloTwoMFTimer.UI.Form;
 
 public partial class BaseForm : System.Windows.Forms.Form
 {
+    // --- 新增：字体和图标定义 ---
+    protected readonly Font _iconFont = new Font("Segoe MDL2 Assets", 10F, FontStyle.Bold);
+    protected const string ICON_CONFIRM = "\uE73E"; // CheckMark
+    protected const string ICON_CANCEL = "\uE711"; // ChromeClose
+
     public BaseForm()
     {
         InitializeComponent();
     }
 
-    // --- 【修复】将属性定义移到这里 ---
+    // 这些属性保留，但在 UpdateUI 中我们会优先使用图标
     [Browsable(true)]
     [Category("Appearance")]
     public string ConfirmButtonText { get; set; } = "Confirm";
@@ -24,8 +29,6 @@ public partial class BaseForm : System.Windows.Forms.Form
     [Browsable(true)]
     [Category("Appearance")]
     public string CancelButtonText { get; set; } = "Cancel";
-
-    // ---------------------------------
 
     [AllowNull]
     public override string Text
@@ -42,7 +45,6 @@ public partial class BaseForm : System.Windows.Forms.Form
     protected override void OnPaint(PaintEventArgs e)
     {
         base.OnPaint(e);
-        // 绘制边框
         using var pen = new Pen(AppTheme.AccentColor, 1);
         e.Graphics.DrawRectangle(pen, 0, 0, this.Width - 1, this.Height - 1);
     }
@@ -53,7 +55,6 @@ public partial class BaseForm : System.Windows.Forms.Form
     [DllImport("user32.dll")]
     public static extern int SendMessage(nint hWnd, int Msg, int wParam, int lParam);
 
-    // Designer.cs 中绑定了这个事件
     private void PnlTitleBar_MouseDown(object? sender, MouseEventArgs e)
     {
         if (e.Button == MouseButtons.Left)
@@ -72,24 +73,23 @@ public partial class BaseForm : System.Windows.Forms.Form
 
     protected virtual void UpdateUI()
     {
-        // 增加空值检查，防止设计器报错
+        // 核心修改：应用图标字体和字符
         if (btnConfirm != null)
         {
-            btnConfirm.Text = LanguageManager.GetString("Confirm") ?? ConfirmButtonText;
+            btnConfirm.Font = _iconFont;
+            btnConfirm.Text = ICON_CONFIRM; // 使用打钩图标
 
-            btnConfirm.BackColor = AppTheme.Colors.ButtonBackColor; // 石质背景
-            btnConfirm.ForeColor = AppTheme.AccentColor; // 暗金文字 (突出显示)
-            // btnConfirm.FlattenStyle();
+            btnConfirm.BackColor = AppTheme.Colors.ButtonBackColor;
+            btnConfirm.ForeColor = AppTheme.AccentColor;
         }
 
         if (btnCancel != null)
         {
-            btnCancel.Text = LanguageManager.GetString("Cancel") ?? CancelButtonText;
+            btnCancel.Font = _iconFont;
+            btnCancel.Text = ICON_CANCEL; // 使用关闭图标
 
-            // 【新增】设置取消按钮样式
-            btnCancel.BackColor = AppTheme.Colors.ButtonBackColor; // 石质背景 (保持统一)
-            btnCancel.ForeColor = AppTheme.Colors.TextSecondaryColor; // 灰色文字 (弱化显示)
-            // btnCancel.FlattenStyle();
+            btnCancel.BackColor = AppTheme.Colors.ButtonBackColor;
+            btnCancel.ForeColor = AppTheme.Colors.TextSecondaryColor;
         }
 
         if (lblTitle != null)
@@ -105,7 +105,6 @@ public partial class BaseForm : System.Windows.Forms.Form
         }
         if (keyData == Keys.Enter)
         {
-            // 如果焦点在按钮上，让按钮自己处理，否则默认触发确认
             if (btnConfirm != null && !btnConfirm.Focused && btnCancel != null && !btnCancel.Focused)
             {
                 BtnConfirm_Click(null, EventArgs.Empty);
@@ -115,14 +114,12 @@ public partial class BaseForm : System.Windows.Forms.Form
         return base.ProcessCmdKey(ref msg, keyData);
     }
 
-    // 注意：Designer.cs 中绑定了 btnConfirm.Click -> BtnConfirm_Click
     protected virtual void BtnConfirm_Click(object? sender, EventArgs e)
     {
         this.DialogResult = DialogResult.OK;
         this.Close();
     }
 
-    // 注意：Designer.cs 中绑定了 btnCancel.Click -> BtnCancel_Click
     protected virtual void BtnCancel_Click(object? sender, EventArgs e)
     {
         this.DialogResult = DialogResult.Cancel;

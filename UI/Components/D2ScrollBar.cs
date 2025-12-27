@@ -36,7 +36,8 @@ namespace DiabloTwoMFTimer.UI.Components
             get => _value;
             set
             {
-                if (_value == value) return;
+                if (_value == value)
+                    return;
                 _value = Math.Max(0, Math.Min(value, _maximum - _largeChange + 1)); // 范围限制
                 Invalidate();
                 Scroll?.Invoke(this, EventArgs.Empty);
@@ -46,13 +47,21 @@ namespace DiabloTwoMFTimer.UI.Components
         public int Maximum
         {
             get => _maximum;
-            set { _maximum = value; Invalidate(); }
+            set
+            {
+                _maximum = value;
+                Invalidate();
+            }
         }
 
         public int LargeChange
         {
             get => _largeChange;
-            set { _largeChange = value; Invalidate(); }
+            set
+            {
+                _largeChange = value;
+                Invalidate();
+            }
         }
 
         // === 绘图逻辑 (修改后支持 Padding) ===
@@ -73,8 +82,8 @@ namespace DiabloTwoMFTimer.UI.Components
 
             // 【关键修改】滑块的 X 和 Y 都要加上 Padding 的偏移
             Rectangle thumbRect = new Rectangle(
-                1 + Padding.Left,             // X: 稍微往里缩一点，防止贴边太紧
-                _thumbRectY + Padding.Top,    // Y: 加上顶部内边距
+                1 + Padding.Left, // X: 稍微往里缩一点，防止贴边太紧
+                _thumbRectY + Padding.Top, // Y: 加上顶部内边距
                 Width - 2 - Padding.Horizontal, // Width: 减去左右内边距
                 _thumbHeight
             );
@@ -97,10 +106,12 @@ namespace DiabloTwoMFTimer.UI.Components
         {
             // 【关键修改】可用高度要减去上下 Padding
             int trackHeight = Height - Padding.Vertical;
-            if (trackHeight <= 0) return;
+            if (trackHeight <= 0)
+                return;
 
             int scrollableRange = _maximum;
-            if (scrollableRange <= 0) scrollableRange = 1;
+            if (scrollableRange <= 0)
+                scrollableRange = 1;
 
             // 计算滑块高度
             float viewableRatio = (float)_largeChange / _maximum;
@@ -154,7 +165,8 @@ namespace DiabloTwoMFTimer.UI.Components
             {
                 int trackHeight = Height - Padding.Vertical;
                 int movableTrackHeight = trackHeight - _thumbHeight;
-                if (movableTrackHeight <= 0) return;
+                if (movableTrackHeight <= 0)
+                    return;
 
                 // 计算新的 Y 位置 (减去点击偏移和顶部 Padding)
                 int newThumbY = e.Y - _clickPointY - Padding.Top;

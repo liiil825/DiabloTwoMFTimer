@@ -26,6 +26,8 @@ public partial class SwitchCharacterForm : BaseForm
         {
             UpdateUI();
             LoadProfiles();
+            // 确保列表获得焦点，以便立即响应按键
+            lstCharacters.Focus();
         }
     }
 
@@ -37,8 +39,35 @@ public partial class SwitchCharacterForm : BaseForm
         if (lblCharacters != null)
             lblCharacters.Text = LanguageManager.GetString("SelectCharacter") ?? "选择角色:";
 
-        if (btnConfirm != null)
-            btnConfirm.Text = LanguageManager.GetString("Select") ?? "选择";
+        // 【核心修复】删除下面这行代码
+        // BaseForm 已经将按钮设置为图标样式 (Segoe MDL2 Assets)，
+        // 如果这里强行设置中文文字 "选择"，会导致显示乱码或方框。
+        // if (btnConfirm != null)
+        //    btnConfirm.Text = LanguageManager.GetString("Select") ?? "选择";
+    }
+
+    // 【核心修复】绑定 W/S 为上下方向键
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        const int WM_KEYDOWN = 0x100;
+        const int WM_SYSKEYDOWN = 0x104;
+
+        if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_SYSKEYDOWN)
+        {
+            switch (keyData)
+            {
+                // W -> Up
+                case Keys.W:
+                    msg.WParam = (IntPtr)Keys.Up;
+                    return base.ProcessCmdKey(ref msg, Keys.Up);
+
+                // S -> Down
+                case Keys.S:
+                    msg.WParam = (IntPtr)Keys.Down;
+                    return base.ProcessCmdKey(ref msg, Keys.Down);
+            }
+        }
+        return base.ProcessCmdKey(ref msg, keyData);
     }
 
     private void LoadProfiles()
@@ -48,7 +77,7 @@ public partial class SwitchCharacterForm : BaseForm
             LogManager.WriteDebugLog("SwitchCharacterForm", "[详细调试] 开始加载角色档案名称...");
             var profileNames = _profileService.GetAllProfileNames();
             string? currentName = _profileService.CurrentProfile?.Name;
-            int targetIndex = 0; // 默认选中第0个
+            int targetIndex = 0;
             lstCharacters.Items.Clear();
             foreach (var profileName in profileNames)
             {
@@ -57,7 +86,7 @@ public partial class SwitchCharacterForm : BaseForm
 
                 if (string.Equals(profileName, currentName, StringComparison.OrdinalIgnoreCase))
                 {
-                    targetIndex = lstCharacters.Items.Count - 1; // 当前角色档案的索引
+                    targetIndex = lstCharacters.Items.Count - 1;
                 }
             }
 
@@ -88,13 +117,10 @@ public partial class SwitchCharacterForm : BaseForm
         }
         else
         {
-            // 如果之前禁用了，且现在不是显示空消息的状态，则启用
-            // 简单的逻辑：只要选中的不是字符串类型的提示消息，就启用
             btnConfirm.Enabled = !(lstCharacters.Items.Count == 1 && lstCharacters.Items[0] is string);
         }
     }
 
-    // 注意：复用基类的 Confirm 点击事件，不需要重新 +=，只需要重写逻辑
     protected override void BtnConfirm_Click(object? sender, EventArgs e)
     {
         if (lstCharacters.SelectedItem is ProfileItem profileItem)
@@ -124,7 +150,6 @@ public partial class SwitchCharacterForm : BaseForm
         }
     }
 
-    // 内部类优化
     private class ProfileItem
     {
         public string ProfileName { get; }
@@ -133,15 +158,11 @@ public partial class SwitchCharacterForm : BaseForm
         public ProfileItem(string profileName)
         {
             ProfileName = profileName;
-            DisplayName = profileName; // 默认显示
-
-            // 尝试加载概要信息用于显示（可选优化：避免完全加载Profile）
-            // 这里为了保持原始逻辑，如果需要完整信息可以在这里处理
+            DisplayName = profileName;
         }
 
         public override string ToString()
         {
-            // ListBox 默认调用 ToString()
             return DisplayName;
         }
     }

@@ -255,11 +255,11 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
         {
             var lblArrow = new Label
             {
-                Text = "▶", // 或者使用 "..." 
+                Text = "▶", // 或者使用 "..."
                 Font = new Font(AppTheme.Fonts.FontFamily, 8, FontStyle.Regular), // 字体稍小
                 ForeColor = Color.Gray, // 颜色淡一点
                 AutoSize = true,
-                BackColor = Color.Transparent
+                BackColor = Color.Transparent,
             };
 
             // 将箭头放置在 Panel 最右侧垂直居中
@@ -271,10 +271,7 @@ public partial class LeaderKeyForm : System.Windows.Forms.Form
             lblArrow.BringToFront();
 
             // 手动定位：靠右边距 10px，垂直居中
-            lblArrow.Location = new Point(
-                itemWidth - ScaleHelper.Scale(20),
-                (itemHeight - ScaleHelper.Scale(15)) / 2
-            );
+            lblArrow.Location = new Point(itemWidth - ScaleHelper.Scale(20), (itemHeight - ScaleHelper.Scale(15)) / 2);
         }
 
         return panel;

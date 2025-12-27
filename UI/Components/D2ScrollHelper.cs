@@ -22,13 +22,14 @@ public static class D2ScrollHelper
     /// </summary>
     public static void Attach(DataGridView grid, Control parent)
     {
-        if (grid.Tag is D2ScrollBar) return;
+        if (grid.Tag is D2ScrollBar)
+            return;
 
         var scrollBar = new D2ScrollBar
         {
             Dock = DockStyle.Right,
             Width = 10,
-            Padding = new Padding(0, grid.ColumnHeadersHeight, 0, 0)
+            Padding = new Padding(0, grid.ColumnHeadersHeight, 0, 0),
         };
 
         parent.Controls.Add(scrollBar);
@@ -63,7 +64,8 @@ public static class D2ScrollHelper
 
         grid.MouseWheel += (s, e) =>
         {
-            if (scrollBar.Maximum <= 0) return;
+            if (scrollBar.Maximum <= 0)
+                return;
             int step = (e.Delta / 120) * -1;
             scrollBar.Value += step;
         };
@@ -97,20 +99,21 @@ public static class D2ScrollHelper
     /// </summary>
     public static void Attach(RichTextBox rtb, Control parent)
     {
-        if (rtb.Tag is D2ScrollBar) return;
+        if (rtb.Tag is D2ScrollBar)
+            return;
 
         // 1. 创建并配置滚动条
         var scrollBar = new D2ScrollBar
         {
             Dock = DockStyle.Right,
             Width = 10,
-            Padding = new Padding(0) // RTB 通常不需要顶部 Padding
+            Padding = new Padding(0), // RTB 通常不需要顶部 Padding
         };
 
         // 2. 布局
         parent.Controls.Add(scrollBar);
         scrollBar.SendToBack(); // 沉底，占据右侧
-        rtb.BringToFront();     // RTB 浮起，填充剩余
+        rtb.BringToFront(); // RTB 浮起，填充剩余
 
         // 3. 禁用原生滚动条
         rtb.ScrollBars = RichTextBoxScrollBars.None;
@@ -127,7 +130,8 @@ public static class D2ScrollHelper
         // B. RTB -> 滚动条 (鼠标滚轮)
         rtb.MouseWheel += (s, e) =>
         {
-            if (!scrollBar.Visible) return;
+            if (!scrollBar.Visible)
+                return;
             // 每次滚动约 40 像素，可根据需要调整手感
             int step = (e.Delta / 120) * -40;
             scrollBar.Value += step; // 这里会自动触发 Scroll 事件，反过来更新 RTB
@@ -137,7 +141,8 @@ public static class D2ScrollHelper
         // SelectionChanged 是捕获光标移动最可靠的事件
         rtb.SelectionChanged += (s, e) =>
         {
-            if (!scrollBar.Visible) return;
+            if (!scrollBar.Visible)
+                return;
 
             // 检查当前 RTB 实际滚动位置，如果与滚动条不一致，同步滚动条
             int currentY = GetRTBScrollPos(rtb).Y;
@@ -174,7 +179,10 @@ public static class D2ScrollHelper
                 int fontHeight = rtb.Font.Height; // 加上最后一行的字体高度
                 totalHeight = lastCharPos.Y + scrollPos.Y + fontHeight + 10; // +10 底部留白
             }
-            catch { totalHeight = 0; }
+            catch
+            {
+                totalHeight = 0;
+            }
         }
 
         // 2. 视口高度
@@ -208,7 +216,8 @@ public static class D2ScrollHelper
     /// </summary>
     public static void Attach(ScrollableControl viewport, Control content)
     {
-        if (viewport.Tag is D2ScrollBar) return;
+        if (viewport.Tag is D2ScrollBar)
+            return;
 
         viewport.AutoScroll = false;
 
@@ -216,14 +225,14 @@ public static class D2ScrollHelper
         {
             Dock = DockStyle.Right,
             Width = 10,
-            Padding = new Padding(0, 0, 0, 0)
+            Padding = new Padding(0, 0, 0, 0),
         };
 
         viewport.Controls.Add(scrollBar);
         scrollBar.SendToBack();
 
         // 确保滚动条在 Z-Order 正确位置 (视需求而定)
-        // scrollBar.BringToFront(); 
+        // scrollBar.BringToFront();
 
         viewport.Tag = scrollBar;
 
@@ -237,7 +246,8 @@ public static class D2ScrollHelper
 
         MouseEventHandler wheelHandler = (s, e) =>
         {
-            if (!scrollBar.Visible) return;
+            if (!scrollBar.Visible)
+                return;
             int step = (e.Delta / 120) * -1 * 40;
             scrollBar.Value += step;
         };
@@ -262,7 +272,8 @@ public static class D2ScrollHelper
         scrollBar.Maximum = content.Height;
         scrollBar.LargeChange = availableHeight;
 
-        if (scrollBar.Maximum < availableHeight) scrollBar.Maximum = availableHeight; // 防止负数
+        if (scrollBar.Maximum < availableHeight)
+            scrollBar.Maximum = availableHeight; // 防止负数
 
         bool canScroll = content.Height > availableHeight;
         scrollBar.Visible = canScroll;

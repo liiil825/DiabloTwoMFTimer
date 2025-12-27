@@ -63,11 +63,7 @@ public partial class HistoryControl : UserControl
         }
     }
 
-    public bool LoadProfileHistoryData(
-        CharacterProfile? profile,
-        string scene,
-        GameDifficulty difficulty
-    )
+    public bool LoadProfileHistoryData(CharacterProfile? profile, string scene, GameDifficulty difficulty)
     {
         if (_historyService == null)
             return false;

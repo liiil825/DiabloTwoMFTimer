@@ -50,13 +50,13 @@ public partial class BreakForm : System.Windows.Forms.Form
     };
 
     public BreakForm(
-            IPomodoroTimerService timerService,
-            IAppSettings appSettings,
-            IProfileService? profileService,
-            IStatisticsService statsService,
-            BreakFormMode mode,
-            PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
-        )
+        IPomodoroTimerService timerService,
+        IAppSettings appSettings,
+        IProfileService? profileService,
+        IStatisticsService statsService,
+        BreakFormMode mode,
+        PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
+    )
     {
         _timerService = timerService;
         _appSettings = appSettings;
@@ -83,7 +83,7 @@ public partial class BreakForm : System.Windows.Forms.Form
         // --- 核心修改 2: 为底部按钮添加快捷键提示 ---
         // S -> Skip, D -> Close (CancelButton 默认映射 ESC，我们额外增加 D)
         AttachKeyBadge(btnSkip, "S");
-        AttachKeyBadge(btnClose, "D");
+        AttachKeyBadge(btnClose, "X");
 
         // 设置Esc键关闭窗口 (保留 ESC 功能)
         this.CancelButton = btnClose;
@@ -135,7 +135,7 @@ public partial class BreakForm : System.Windows.Forms.Form
                     btnSkip.PerformClick();
                 break;
 
-            case Keys.D:
+            case Keys.X:
                 if (btnClose.Visible && btnClose.Enabled)
                     btnClose.PerformClick();
                 break;
@@ -154,7 +154,7 @@ public partial class BreakForm : System.Windows.Forms.Form
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleCenter,
             Cursor = Cursors.Hand,
-            Visible = _showShortcuts
+            Visible = _showShortcuts,
         };
 
         // 计算位置：右上角
@@ -258,7 +258,12 @@ public partial class BreakForm : System.Windows.Forms.Form
             Text = text,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Padding = new Padding(ScaleHelper.Scale(25), ScaleHelper.Scale(5), ScaleHelper.Scale(25), ScaleHelper.Scale(5)),
+            Padding = new Padding(
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5),
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5)
+            ),
             MinimumSize = new Size(0, ScaleHelper.Scale(43)),
             Font = AppTheme.MainFont,
             FlatStyle = FlatStyle.Flat,
@@ -299,7 +304,8 @@ public partial class BreakForm : System.Windows.Forms.Form
 
     private void HighlightButton(Button? btn, bool isActive)
     {
-        if (btn == null) return;
+        if (btn == null)
+            return;
         if (isActive)
         {
             btn.BackColor = Color.Gray;
@@ -338,8 +344,10 @@ public partial class BreakForm : System.Windows.Forms.Form
 
             if (_profileService == null || _profileService.CurrentProfile == null)
             {
-                if (rtbStats != null) rtbStats.Text = "暂无角色数据";
-                if (lblDuration != null) lblDuration.Text = "";
+                if (rtbStats != null)
+                    rtbStats.Text = "暂无角色数据";
+                if (lblDuration != null)
+                    lblDuration.Text = "";
                 return;
             }
 
@@ -414,8 +422,10 @@ public partial class BreakForm : System.Windows.Forms.Form
     {
         if (_mode == BreakFormMode.PomodoroBreak)
         {
-            if (e.State == PomodoroTimerState.Work &&
-               (e.PreviousState == PomodoroTimerState.ShortBreak || e.PreviousState == PomodoroTimerState.LongBreak))
+            if (
+                e.State == PomodoroTimerState.Work
+                && (e.PreviousState == PomodoroTimerState.ShortBreak || e.PreviousState == PomodoroTimerState.LongBreak)
+            )
             {
                 AutoCloseForm();
             }

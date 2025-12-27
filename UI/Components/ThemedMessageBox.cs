@@ -15,7 +15,7 @@ public class ThemedMessageBox : BaseForm
     public ThemedMessageBox(string message, string title, MessageBoxButtons buttons)
     {
         this._buttons = buttons;
-        this.Text = title; // BaseForm 会自动将其设置到标题栏 Label
+        this.Text = title;
 
         // --- 1. 构建消息内容 ---
         lblMessage = new Label
@@ -23,15 +23,12 @@ public class ThemedMessageBox : BaseForm
             Text = message,
             ForeColor = AppTheme.TextColor,
             Font = AppTheme.MainFont,
-            AutoSize = true, // 关键：让高度随内容自动撑开
-            // 限制最大宽度以强制换行 (弹窗总宽 - 左右边距)
+            AutoSize = true,
             MaximumSize = new Size(UISizeConstants.BaseFormWidth - 60, 0),
             TextAlign = ContentAlignment.MiddleCenter,
             Dock = DockStyle.Fill,
         };
 
-        // 使用 TableLayoutPanel 作为容器来实现居中布局
-        // 直接放在 pnlContent 里也可以，但 TLP 能更好地处理垂直/水平居中
         TableLayoutPanel tlp = new TableLayoutPanel();
         tlp.Dock = DockStyle.Fill;
         tlp.AutoSize = true;
@@ -42,13 +39,10 @@ public class ThemedMessageBox : BaseForm
         tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         tlp.Controls.Add(lblMessage, 0, 0);
-        // 增加一点内边距，让文字不要贴着边框
         tlp.Padding = new Padding(10, 20, 10, 20);
 
-        // --- 2. 将内容添加到 BaseForm 的 pnlContent ---
         this.pnlContent.Controls.Add(tlp);
 
-        // --- 3. 配置按钮可见性 ---
         ConfigureButtons();
     }
 
@@ -68,32 +62,24 @@ public class ThemedMessageBox : BaseForm
         }
     }
 
-    // 重写 BaseForm 的 UpdateUI，确保按钮文字正确
-    // BaseForm 会在 OnLoad 时调用此方法
+    // 重写 UpdateUI
     protected override void UpdateUI()
     {
-        base.UpdateUI(); // 先让基类设置标题和默认 Confirm/Cancel
+        base.UpdateUI(); // 这里已经将按钮设置为了图标 (Confirm=\uE73E, Cancel=\uE711)
 
-        // 覆盖特定类型的按钮文本
-        switch (_buttons)
-        {
-            case MessageBoxButtons.OK:
-                // 如果是 OK，显示 "确认" 或 "OK"
-                btnConfirm.Text = LanguageManager.GetString("Confirm") ?? "OK";
-                break;
+        // 针对特定按钮类型，如果有特殊需求可以在这里覆盖，
+        // 但既然统一改为图标，BaseForm 的默认设置已经满足 OK, OKCancel, YesNo 的视觉需求。
+        // OK       -> 显示 √
+        // OKCancel -> 显示 √ 和 ×
+        // YesNo    -> 显示 √ 和 ×
 
-            case MessageBoxButtons.YesNo:
-                // 如果是 YesNo，显示 "是/否" 或 "Yes/No"
-                // 尝试获取资源，没有则使用硬编码 fallback
-                btnConfirm.Text = LanguageManager.GetString("Yes") ?? "Yes";
-                btnCancel.Text = LanguageManager.GetString("No") ?? "No";
-                break;
-
-            // OKCancel 默认使用 Confirm/Cancel 即可，不需要额外覆盖
-        }
+        // 确保字体设置正确（双重保险）
+        if (btnConfirm != null)
+            btnConfirm.Font = _iconFont;
+        if (btnCancel != null)
+            btnCancel.Font = _iconFont;
     }
 
-    // 静态调用方法
     public static DialogResult Show(
         string message,
         string title = "Message",
@@ -104,7 +90,6 @@ public class ThemedMessageBox : BaseForm
         return msgBox.ShowDialog();
     }
 
-    // 按钮点击处理
     protected override void BtnConfirm_Click(object? sender, EventArgs e)
     {
         if (_buttons == MessageBoxButtons.YesNo)

@@ -40,7 +40,7 @@ public class ThemedDataGridView : DataGridView
             SelectionBackColor = AppTheme.SurfaceColor, // 表头选中不变色
             SelectionForeColor = AppTheme.TextSecondaryColor,
             Font = new Font("微软雅黑", 9F, FontStyle.Bold),
-            WrapMode = DataGridViewTriState.True
+            WrapMode = DataGridViewTriState.True,
         };
         this.ColumnHeadersDefaultCellStyle = headerStyle;
         this.ColumnHeadersHeight = 35; // 调整表头高度
@@ -56,7 +56,7 @@ public class ThemedDataGridView : DataGridView
             ForeColor = AppTheme.TextColor, // 数据文字亮白
             SelectionBackColor = AppTheme.AccentColor, // 选中背景（暗金）
             SelectionForeColor = Color.Black, // 选中文字（黑色）
-            Padding = new Padding(5, 0, 0, 0)
+            Padding = new Padding(5, 0, 0, 0),
         };
         this.DefaultCellStyle = cellStyle;
 

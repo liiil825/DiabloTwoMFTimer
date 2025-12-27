@@ -126,7 +126,8 @@ namespace DiabloTwoMFTimer.UI.Timer
             // 
             // btnSearch
             // 
-            this.btnSearch.Text = "Search";
+            this.btnSearch.Text = "";
+            this.btnSearch.Font = Theme.AppTheme.Fonts.SegoeIcon;
             this.btnSearch.Size = new System.Drawing.Size(80, 20);
             this.btnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
 
@@ -160,7 +161,7 @@ namespace DiabloTwoMFTimer.UI.Timer
             this.panelButtons.FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight;
             this.panelButtons.Location = new System.Drawing.Point(340, 520);
             this.panelButtons.Name = "panelButtons";
-            this.panelButtons.Size = new System.Drawing.Size(120, 60);
+            this.panelButtons.Size = new System.Drawing.Size(120, 40);
             this.panelButtons.TabIndex = 3;
             this.panelButtons.WrapContents = false;
 
@@ -186,7 +187,6 @@ namespace DiabloTwoMFTimer.UI.Timer
             this.Name = "LootHistoryForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "LootHistoryForm";
-            this.TopMost = true;
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
 
             this.mainLayout.ResumeLayout(false);

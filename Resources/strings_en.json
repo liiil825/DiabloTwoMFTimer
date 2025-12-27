@@ -202,5 +202,12 @@
   "OpacitySet": "Opacity set to {{0}}",
   "UiScaleRestartRequired": "UI scale settings saved. Program restart is required for full effect.\n\nRestart now?",
   "RestartRequired": "Restart Required",
-  "UiScaleValueInvalid": "Please enter a value between 1.0 - 2.5"
+  "UiScaleValueInvalid": "Please enter a value between 1.0 - 2.5",
+  "LootTableEdit": "Edit",
+  "LootTableDelete": "Del",
+  "LootEditTitle": "Edit Item Name",
+  "LootDeleteTitle": "Delete Confirmation",
+  "LootDeleteConfirm": "Are you sure you want to delete item:\n'{0}'?",
+  "LootEditBadge": "E Edit",
+  "LootDeleteBadge": "D Del"
 }

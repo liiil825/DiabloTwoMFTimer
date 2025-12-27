@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
@@ -25,6 +26,15 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     private readonly List<Label> _shortcutBadges = new();
     private bool _showShortcuts = false;
 
+    // --- 新增：专门用于当前行的动态 Badge ---
+    private Label? _lblRowEditBadge;
+    private Label? _lblRowDelBadge;
+
+    private readonly Font _iconFont = new Font("Segoe MDL2 Assets", 12F);
+    private const string ICON_CHECK = "\uE73E";
+    private const string ICON_CANCEL = "\uE711";
+    private const string ICON_CLOSE = "\uE711";
+
     private enum ViewMode
     {
         Today,
@@ -34,11 +44,24 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
     private ViewMode _currentMode = ViewMode.Today;
 
+    private class LootViewModel
+    {
+        public LootRecord OriginalRecord { get; set; } = null!;
+        public DateTime DropTime => OriginalRecord.DropTime;
+        public string Name
+        {
+            get => OriginalRecord.Name;
+            set => OriginalRecord.Name = value;
+        }
+        public string SceneName { get; set; } = string.Empty;
+        public int RunCount => OriginalRecord.RunCount;
+    }
+
     public LootHistoryForm(
-            IProfileService profileService,
-            ISceneService sceneService,
-            IStatisticsService statisticsService
-        )
+        IProfileService profileService,
+        ISceneService sceneService,
+        IStatisticsService statisticsService
+    )
     {
         _profileService = profileService;
         _sceneService = sceneService;
@@ -48,22 +71,37 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         InitializeToggleButtons();
         ApplyScaledLayout();
 
-        // 绑定滚动条
+        this.TopMost = false;
+
+        btnClose.Font = _iconFont;
+        btnClose.Text = ICON_CLOSE;
+        btnClose.Width = ScaleHelper.Scale(50);
+        btnClose.Height = ScaleHelper.Scale(50);
+
         D2ScrollHelper.Attach(this.gridLoot, this.pnlGridContainer);
 
         LanguageManager.OnLanguageChanged += LanguageChanged;
 
-        // Resize 事件负责动态调整 Grid 宽度
         this.Resize += LootHistoryForm_Resize;
 
-        // 键盘支持
         this.KeyPreview = true;
         this.KeyDown += LootHistoryForm_KeyDown;
 
         AttachKeyBadge(dtpStart, "Q", () => dtpStart.OpenDropdown());
         AttachKeyBadge(dtpEnd, "W", () => dtpEnd.OpenDropdown());
         AttachKeyBadge(btnSearch, "R", () => btnSearch.PerformClick());
-        AttachKeyBadge(btnClose, "D", () => btnClose.PerformClick());
+
+        AttachKeyBadge(btnClose, "X", () => btnClose.PerformClick());
+
+        gridLoot.AutoGenerateColumns = false;
+        // 既然没有按钮列了，CellClick 就不需要处理编辑删除了，全部走键盘或双击
+        // 为了方便鼠标用户，可以保留双击编辑
+        gridLoot.CellDoubleClick += (s, e) => PerformEdit();
+
+        // --- 新增：监听表格事件以更新动态 Badge 位置 ---
+        gridLoot.SelectionChanged += (s, e) => UpdateRowBadges();
+        gridLoot.Scroll += (s, e) => UpdateRowBadges();
+        gridLoot.Resize += (s, e) => UpdateRowBadges();
 
         this.CancelButton = btnClose;
 
@@ -71,123 +109,61 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
         _fadeInTimer.Tick += FadeInTimer_Tick;
 
+        pnlGridContainer.TabIndex = 0;
+        gridLoot.TabIndex = 0;
+        headerControl.TabIndex = 1;
+        pnlCustomDate.TabIndex = 2;
+        panelButtons.TabIndex = 3;
+
         UpdateLanguageText();
         SwitchMode(ViewMode.Today);
     }
 
-    private void ApplyScaledLayout()
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
     {
-        // 1. Header (固定高度)
-        mainLayout.RowStyles[0].Height = ScaleHelper.Scale(110);
+        bool isDateFocus = pnlCustomDate.Visible && (dtpStart.ContainsFocus || dtpEnd.ContainsFocus);
+        bool isGridFocus = gridLoot.ContainsFocus;
 
-        // 2. Date Panel (固定高度 60)
-        mainLayout.RowStyles[1] = new RowStyle(SizeType.Absolute, ScaleHelper.Scale(60));
+        if (isDateFocus || isGridFocus)
+        {
+            const int WM_KEYDOWN = 0x100;
+            const int WM_SYSKEYDOWN = 0x104;
 
-        // 3. 统一日期栏控件高度
-        int ctrlHeight = ScaleHelper.Scale(20);
-
-        dtpStart.Size = new Size(ScaleHelper.Scale(160), ctrlHeight);
-        dtpEnd.Size = new Size(ScaleHelper.Scale(160), ctrlHeight);
-
-        // --- 核心修复：关闭自动大小，强制应用高度 ---
-        btnSearch.AutoSize = false;
-        btnSearch.Size = new Size(ScaleHelper.Scale(80), ctrlHeight);
-
-        // 分隔符
-        lblSeparator.AutoSize = false;
-        lblSeparator.Size = new Size(ScaleHelper.Scale(20), ctrlHeight);
-        lblSeparator.TextAlign = ContentAlignment.MiddleCenter;
-        lblSeparator.Text = "-";
-
-        // 间距微调
-        int spacing = ScaleHelper.Scale(10);
-        dtpStart.Margin = new Padding(0, 0, spacing, 0);
-        lblSeparator.Margin = new Padding(0, 0, spacing, 0);
-        dtpEnd.Margin = new Padding(0, 0, spacing, 0);
-
-        // 4. Grid Container
-        pnlGridContainer.Margin = new Padding(0, ScaleHelper.Scale(10), 0, 0);
-
-        // 5. Bottom Buttons
-        mainLayout.RowStyles[3] = new RowStyle(SizeType.AutoSize);
-        panelButtons.Padding = new Padding(ScaleHelper.Scale(5));
-        panelButtons.Margin = new Padding(0, 0, 0, ScaleHelper.Scale(60));
-        btnClose.Margin = new Padding(ScaleHelper.Scale(10));
+            if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_SYSKEYDOWN)
+            {
+                switch (keyData)
+                {
+                    case Keys.W:
+                        msg.WParam = (IntPtr)Keys.Up;
+                        return base.ProcessCmdKey(ref msg, Keys.Up);
+                    case Keys.S:
+                        msg.WParam = (IntPtr)Keys.Down;
+                        return base.ProcessCmdKey(ref msg, Keys.Down);
+                }
+            }
+        }
+        if (isDateFocus)
+        {
+            switch (keyData)
+            {
+                case Keys.A:
+                    msg.WParam = (IntPtr)Keys.Left;
+                    return base.ProcessCmdKey(ref msg, Keys.Left);
+                case Keys.D:
+                    msg.WParam = (IntPtr)Keys.Right;
+                    return base.ProcessCmdKey(ref msg, Keys.Right);
+            }
+        }
+        return base.ProcessCmdKey(ref msg, keyData);
     }
-
-    private void LootHistoryForm_Resize(object? sender, EventArgs e)
-    {
-        // 1. Header 居中逻辑
-        if (headerControl != null && headerControl.TogglePanel != null)
-        {
-            headerControl.TogglePanel.Left = (headerControl.Width - headerControl.TogglePanel.Width) / 2;
-        }
-
-        // 2. Grid 宽度控制逻辑 (还原原版比例)
-        if (pnlGridContainer != null)
-        {
-            // 最大宽度限制，避免在 4K 屏过宽
-            int maxGridWidth = ScaleHelper.Scale(1200);
-            // 保持左右至少有留白
-            int availableWidth = this.ClientSize.Width - ScaleHelper.Scale(60);
-
-            // 计算最终宽度
-            int targetWidth = Math.Min(availableWidth, maxGridWidth);
-
-            // 设置宽度 (由于 Anchor=Top|Bottom，TLP 会自动将其水平居中)
-            pnlGridContainer.Width = targetWidth;
-        }
-    }
-
-    private void SwitchMode(ViewMode mode)
-    {
-        _currentMode = mode;
-        UpdateButtonStyles();
-
-        // 切换日期面板可见性
-        // 因为 RowStyle 是 Absolute，隐藏 Panel 后，行高度保留，显示为空白
-        pnlCustomDate.Visible = (mode == ViewMode.Custom);
-
-        // 同步 Badge 状态
-        if (_showShortcuts)
-        {
-            ToggleShortcutsVisibility(); // 刷新逻辑
-        }
-
-        DateTime start = DateTime.Now;
-        DateTime end = DateTime.Now;
-
-        switch (mode)
-        {
-            case ViewMode.Today:
-                start = DateTime.Today;
-                LoadData(start, end);
-                break;
-            case ViewMode.Week:
-                start = _statisticsService.GetStartOfWeek();
-                LoadData(start, end);
-                break;
-            case ViewMode.Custom:
-                dtpStart.Value = DateTime.Today.AddDays(-1);
-                dtpEnd.Value = DateTime.Now;
-                LoadData(dtpStart.Value, dtpEnd.Value);
-                break;
-        }
-    }
-
-    // --- 其余代码 (键盘事件、数据加载等) 保持不变 ---
 
     private void LootHistoryForm_KeyDown(object? sender, KeyEventArgs e)
     {
-        // 注意：E, S, D, F 的导航逻辑已经移至 ProcessCmdKey
-        // 这里只需要处理功能性按键
         switch (e.KeyCode)
         {
             case Keys.H:
                 ToggleShortcutsVisibility();
-                e.SuppressKeyPress = true;
                 break;
-
             case Keys.D1:
             case Keys.NumPad1:
                 btnToday?.PerformClick();
@@ -201,25 +177,20 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
                 btnCustom?.PerformClick();
                 break;
 
-            // Q -> 展开并聚焦开始时间
             case Keys.Q:
                 if (pnlCustomDate.Visible)
                 {
                     dtpStart.OpenDropdown();
-                    e.SuppressKeyPress = true; // 消除提示音
+                    e.SuppressKeyPress = true;
                 }
                 break;
-
-            // W -> 展开并聚焦结束时间
             case Keys.W:
-                if (pnlCustomDate.Visible)
+                if (pnlCustomDate.Visible && !dtpEnd.ContainsFocus)
                 {
                     dtpEnd.OpenDropdown();
                     e.SuppressKeyPress = true;
                 }
                 break;
-
-            // R -> 查询
             case Keys.R:
                 if (pnlCustomDate.Visible)
                 {
@@ -228,143 +199,415 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
                 }
                 break;
 
-            // D -> 关闭窗口
+            // --- 修改：D 键现在触发删除 ---
             case Keys.D:
-                // 这里不需要额外的逻辑判断！
-                // 原理：
-                // 1. 如果焦点在时间控件上，ProcessCmdKey 会把 'D' 变成 'Down'，
-                //    控件会消耗掉这个 'Down' 消息，所以代码根本不会运行到这里。
-                // 2. 如果焦点不在时间控件上，ProcessCmdKey 会放行 'D'，
-                //    代码就会运行到这里，执行关闭操作。
-                btnClose.PerformClick();
+                PerformDelete();
                 e.SuppressKeyPress = true;
+                break;
+
+            // --- 修改：E 键触发编辑 ---
+            case Keys.E:
+                PerformEdit();
+                e.SuppressKeyPress = true;
+                break;
+
+            case Keys.X:
+                if (btnClose.Visible && btnClose.Enabled)
+                    btnClose.PerformClick();
                 break;
         }
     }
 
-    // 核心修复：使用 ProcessCmdKey 进行底层的按键替换
-    // 这比 SendKeys.Send 更快、更稳，而且完美解决焦点问题
-    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    private LootViewModel? GetSelectedViewModel()
     {
-        // 1. 检查上下文
-        if (pnlCustomDate.Visible && (dtpStart.ContainsFocus || dtpEnd.ContainsFocus))
+        if (gridLoot.CurrentRow == null || gridLoot.CurrentRow.DataBoundItem == null)
+            return null;
+        return gridLoot.CurrentRow.DataBoundItem as LootViewModel;
+    }
+
+    private void PerformEdit()
+    {
+        var item = GetSelectedViewModel();
+        if (item == null)
+            return;
+
+        using (var editForm = new EditNameForm(item.Name))
         {
-            // 2. 只有在按下键盘消息时才处理 (防止处理 WM_KEYUP 等其他消息导致异常)
-            const int WM_KEYDOWN = 0x100;
-            const int WM_SYSKEYDOWN = 0x104;
-
-            if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_SYSKEYDOWN)
+            if (editForm.ShowDialog(this) == DialogResult.OK)
             {
-                switch (keyData)
-                {
-                    // E -> Up
-                    case Keys.W:
-                        msg.WParam = (IntPtr)Keys.Up; // 【核心修复】直接修改底层消息参数
-                        return base.ProcessCmdKey(ref msg, Keys.Up);
-
-                    // D -> Down
-                    case Keys.S:
-                        msg.WParam = (IntPtr)Keys.Down; // 【核心修复】把 'D' 变成 'Down'
-                        return base.ProcessCmdKey(ref msg, Keys.Down);
-
-                    // S -> Left
-                    case Keys.A:
-                        msg.WParam = (IntPtr)Keys.Left; // 【核心修复】
-                        return base.ProcessCmdKey(ref msg, Keys.Left);
-
-                    // F -> Right
-                    case Keys.D:
-                        msg.WParam = (IntPtr)Keys.Right; // 【核心修复】
-                        return base.ProcessCmdKey(ref msg, Keys.Right);
-                }
+                item.Name = editForm.NewName;
+                _profileService.SaveCurrentProfile();
+                gridLoot.Refresh();
+                gridLoot.Focus();
             }
         }
-
-        return base.ProcessCmdKey(ref msg, keyData);
     }
+
+    private void PerformDelete()
+    {
+        var item = GetSelectedViewModel();
+        if (item == null)
+            return;
+
+        string msgTemplate =
+            LanguageManager.GetString("LootDeleteConfirm") ?? "Are you sure you want to delete item:\n'{0}'?";
+        string msgTitle = LanguageManager.GetString("LootDeleteTitle") ?? "Delete Confirmation";
+        var result = ThemedMessageBox.Show(string.Format(msgTemplate, item.Name), msgTitle, MessageBoxButtons.YesNo);
+
+        if (result == DialogResult.Yes)
+        {
+            _profileService.CurrentProfile!.LootRecords.Remove(item.OriginalRecord);
+            _profileService.SaveCurrentProfile();
+            var bs = gridLoot.DataSource as BindingSource;
+            if (bs != null)
+                bs.Remove(item);
+            gridLoot.Focus();
+        }
+    }
+
+    // --- Badge 系统 ---
 
     private void ToggleShortcutsVisibility()
     {
         _showShortcuts = !_showShortcuts;
+
+        // 1. 全局静态 Badge
         foreach (var badge in _shortcutBadges)
         {
-            // 智能显隐：如果父控件被隐藏了（比如日期栏隐藏了），那么对应的 Badge 也不应该显示
             if (badge.Parent != null && badge.Parent.Visible)
-            {
                 badge.Visible = _showShortcuts;
-            }
             else
-            {
                 badge.Visible = false;
-            }
         }
+
+        // 2. 更新动态行 Badge
+        UpdateRowBadges();
+    }
+
+    // --- 核心新功能：动态行 Badge ---
+    // 这个方法会计算当前选中行的位置，把 [E 编辑] [D 删除] 贴在行旁边
+    private void UpdateRowBadges()
+    {
+        // 如果 H 模式未开启，或者没有选中行，直接隐藏
+        if (!_showShortcuts || gridLoot.CurrentRow == null || !gridLoot.Focused)
+        {
+            if (_lblRowEditBadge != null)
+                _lblRowEditBadge.Visible = false;
+            if (_lblRowDelBadge != null)
+                _lblRowDelBadge.Visible = false;
+            return;
+        }
+
+        // 初始化动态 Badge
+        if (_lblRowEditBadge == null)
+        {
+            string editText = LanguageManager.GetString("LootEditBadge") ?? "E Edit";
+            _lblRowEditBadge = CreateBadge(editText); // 带文字说明
+            _lblRowEditBadge.BackColor = AppTheme.AccentColor; // 用醒目颜色
+            _lblRowEditBadge.ForeColor = Color.Black;
+            pnlGridContainer.Controls.Add(_lblRowEditBadge);
+            _lblRowEditBadge.BringToFront();
+        }
+        if (_lblRowDelBadge == null)
+        {
+            string delText = LanguageManager.GetString("LootDeleteBadge") ?? "D Delete";
+            _lblRowDelBadge = CreateBadge(delText);
+            _lblRowDelBadge.BackColor = Color.IndianRed;
+            _lblRowDelBadge.ForeColor = Color.White;
+            pnlGridContainer.Controls.Add(_lblRowDelBadge);
+            _lblRowDelBadge.BringToFront();
+        }
+
+        // 获取当前行的矩形区域
+        // 注意：GetRowDisplayRectangle 只返回可见部分的坐标
+        Rectangle rect = gridLoot.GetRowDisplayRectangle(gridLoot.CurrentRow.Index, false);
+
+        // 如果行完全滚出去了 (Height = 0)
+        if (rect.Height == 0)
+        {
+            _lblRowEditBadge.Visible = false;
+            _lblRowDelBadge.Visible = false;
+            return;
+        }
+
+        // 计算坐标 (相对于 pnlGridContainer)
+        // gridLoot.Location 应该接近 (0,0)
+        int baseY = gridLoot.Location.Y + rect.Top + (rect.Height - _lblRowEditBadge.Height) / 2;
+
+        // 放在行的最右侧，向左排列
+        int rightMargin = gridLoot.Width - 20; // 留点边距
+
+        // D (Delete) 在最右
+        _lblRowDelBadge.Location = new Point(rightMargin - _lblRowDelBadge.Width, baseY);
+
+        // E (Edit) 在 D 的左边
+        _lblRowEditBadge.Location = new Point(_lblRowDelBadge.Left - 10 - _lblRowEditBadge.Width, baseY);
+
+        _lblRowEditBadge.Visible = true;
+        _lblRowDelBadge.Visible = true;
+    }
+
+    private Label CreateBadge(string text)
+    {
+        return new Label
+        {
+            Text = text,
+            Font = new Font("Consolas", 8F, FontStyle.Bold),
+            ForeColor = Color.Gold,
+            BackColor = Color.FromArgb(200, 0, 0, 0),
+            AutoSize = true,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Cursor = Cursors.Hand,
+            Visible = false,
+        };
     }
 
     private void AttachKeyBadge(Control target, string keyText, Action triggerAction)
     {
-        var lblBadge = new Label
-        {
-            Text = keyText,
-            Font = new Font("Consolas", 8F, FontStyle.Bold),
-            ForeColor = Color.Gold,
-            BackColor = Color.FromArgb(180, 0, 0, 0),
-            AutoSize = true,
-            TextAlign = ContentAlignment.MiddleCenter,
-            Cursor = Cursors.Hand,
-            Visible = false // 默认隐藏
-        };
-
-        // 计算位置：右上角
-        // 修复：从 Width - 15 改为 Width - 25，防止贴边被裁剪或遮挡控件图标
-        // Y 轴设为 2，稍微留点顶边距
-        lblBadge.Location = new Point(target.Width - 25, 2);
-
-        // 保持右上角锚定，以防控件大小改变
+        var lblBadge = CreateBadge(keyText);
+        // 先不设置 Location
         lblBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-
         lblBadge.Click += (s, e) => triggerAction();
 
+        // 先加入控件，让它计算出自己的 Width
         target.Controls.Add(lblBadge);
         lblBadge.BringToFront();
+
+        lblBadge.Location = new Point(target.Width - lblBadge.Width - 2, 2);
 
         _shortcutBadges.Add(lblBadge);
     }
 
-    private void InitializeToggleButtons()
+    private void SetupGridColumns()
     {
-        btnToday = CreateToggleButton("Today", ViewMode.Today);
-        AttachKeyBadge(btnToday, "1", () => btnToday.PerformClick());
+        gridLoot.Columns.Clear();
+        gridLoot.ColumnHeadersHeight = ScaleHelper.Scale(40);
+        gridLoot.RowTemplate.Height = ScaleHelper.Scale(35);
+        gridLoot.BackgroundColor = Color.FromArgb(32, 32, 32);
 
-        btnWeek = CreateToggleButton("Week", ViewMode.Week);
-        AttachKeyBadge(btnWeek, "2", () => btnWeek.PerformClick());
+        // --- 核心修改：移除 Edit 和 Del 列 ---
 
-        btnCustom = CreateToggleButton("Custom", ViewMode.Custom);
-        AttachKeyBadge(btnCustom, "3", () => btnCustom.PerformClick());
+        var colTime = new DataGridViewTextBoxColumn
+        {
+            HeaderText = LanguageManager.GetString("LootTableDropTime"),
+            Width = ScaleHelper.Scale(200),
+            DataPropertyName = "DropTime",
+            DefaultCellStyle = new DataGridViewCellStyle
+            {
+                Format = "yyyy-MM-dd HH:mm",
+                Alignment = DataGridViewContentAlignment.MiddleCenter,
+            },
+        };
+        var colName = new DataGridViewTextBoxColumn
+        {
+            HeaderText = LanguageManager.GetString("LootTableItemName"),
+            AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+            DataPropertyName = "Name",
+        };
+        colName.DefaultCellStyle.Font = new Font(AppTheme.MainFont, FontStyle.Bold);
+        colName.DefaultCellStyle.ForeColor = AppTheme.AccentColor;
+        var colScene = new DataGridViewTextBoxColumn
+        {
+            HeaderText = LanguageManager.GetString("LootTableScene"),
+            Width = ScaleHelper.Scale(220),
+            DataPropertyName = "SceneName",
+            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
+        };
+        var colRun = new DataGridViewTextBoxColumn
+        {
+            HeaderText = LanguageManager.GetString("LootTableRun"),
+            Width = ScaleHelper.Scale(100),
+            DataPropertyName = "RunCount",
+            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
+        };
 
-        headerControl.AddToggleButton(btnToday);
-        headerControl.AddToggleButton(btnWeek);
-        headerControl.AddToggleButton(btnCustom);
+        // 只添加数据列
+        gridLoot.Columns.AddRange([colTime, colName, colScene, colRun]);
     }
 
-    private Button CreateToggleButton(string text, ViewMode tag)
+    // --- ApplyScaledLayout, Resize, LoadData, etc. 保持不变 ---
+    // 为了完整性，保留核心布局代码
+    private void ApplyScaledLayout()
     {
-        var btn = new Button
+        mainLayout.RowStyles[0].Height = ScaleHelper.Scale(110);
+        mainLayout.RowStyles[1] = new RowStyle(SizeType.Absolute, ScaleHelper.Scale(60));
+        int ctrlHeight = ScaleHelper.Scale(20);
+        dtpStart.Size = new Size(ScaleHelper.Scale(160), ctrlHeight);
+        dtpEnd.Size = new Size(ScaleHelper.Scale(160), ctrlHeight);
+        btnSearch.AutoSize = false;
+        btnSearch.Size = new Size(ScaleHelper.Scale(80), ctrlHeight);
+        lblSeparator.AutoSize = false;
+        lblSeparator.Size = new Size(ScaleHelper.Scale(20), ctrlHeight);
+        lblSeparator.TextAlign = ContentAlignment.MiddleCenter;
+        lblSeparator.Text = "-";
+        int spacing = ScaleHelper.Scale(10);
+        dtpStart.Margin = new Padding(0, 0, spacing, 0);
+        lblSeparator.Margin = new Padding(0, 0, spacing, 0);
+        dtpEnd.Margin = new Padding(0, 0, spacing, 0);
+
+        pnlGridContainer.Margin = new Padding(0, ScaleHelper.Scale(10), 0, 0);
+
+        // 底部按钮区域
+        mainLayout.RowStyles[3] = new RowStyle(SizeType.AutoSize);
+        panelButtons.Padding = new Padding(0);
+
+        // --- 核心修复：调整底部间距策略 ---
+        // 1. 将 panelButtons 的底部 Margin 减小
+        panelButtons.Margin = new Padding(0, 0, 0, ScaleHelper.Scale(10));
+
+        btnClose.Margin = new Padding(ScaleHelper.Scale(10));
+
+        // 2. 将所需的底部空间加到主布局的 Padding 上，这样更稳定
+        // 之前 Margin 是 60，现在 Margin 是 10，所以 Padding 补上 50
+        mainLayout.Padding = new Padding(0, 0, 0, ScaleHelper.Scale(50));
+    }
+
+    private void LootHistoryForm_Resize(object? sender, EventArgs e)
+    {
+        if (headerControl != null && headerControl.TogglePanel != null)
+            headerControl.TogglePanel.Left = (headerControl.Width - headerControl.TogglePanel.Width) / 2;
+        if (pnlGridContainer != null)
         {
-            Text = text,
-            AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Padding = new Padding(ScaleHelper.Scale(25), ScaleHelper.Scale(5), ScaleHelper.Scale(25), ScaleHelper.Scale(5)),
-            MinimumSize = new Size(0, ScaleHelper.Scale(43)),
-            Font = AppTheme.MainFont,
-            FlatStyle = FlatStyle.Flat,
-            Cursor = Cursors.Hand,
-            TextAlign = ContentAlignment.MiddleCenter,
-            UseCompatibleTextRendering = true,
-            Tag = tag,
-        };
-        btn.FlatAppearance.BorderSize = 1;
-        btn.Click += (s, e) => SwitchMode(tag);
-        return btn;
+            int max = ScaleHelper.Scale(1200);
+            int w = Math.Min(this.ClientSize.Width - ScaleHelper.Scale(60), max);
+            pnlGridContainer.Width = w;
+        }
+        // 窗口大小改变时，也要更新动态 Badge 位置
+        UpdateRowBadges();
+    }
+
+    private class EditNameForm : System.Windows.Forms.Form
+    {
+        public string NewName => txtName.Text.Trim();
+        private ThemedTextBox txtName;
+        private ThemedModalButton btnSave;
+        private ThemedModalButton btnCancel;
+        private readonly Font _iconFont = new Font("Segoe MDL2 Assets", 12F);
+        private const string ICON_CHECK = "\uE73E";
+        private const string ICON_CANCEL = "\uE711";
+
+        public EditNameForm(string oldName)
+        {
+            this.FormBorderStyle = FormBorderStyle.None;
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.Size = new Size(ScaleHelper.Scale(420), ScaleHelper.Scale(280));
+            this.BackColor = Color.FromArgb(40, 40, 40);
+            this.Paint += (s, e) => e.Graphics.DrawRectangle(Pens.Gray, 0, 0, Width - 1, Height - 1);
+            var lblTitle = new ThemedLabel
+            {
+                Text = LanguageManager.GetString("LootEditTitle") ?? "Edit Item Name",
+                Font = AppTheme.BigTitleFont,
+                Location = new Point(20, 25),
+                AutoSize = true,
+            };
+            txtName = new ThemedTextBox
+            {
+                Text = oldName,
+                Location = new Point(20, 120),
+                Width = this.Width - 40,
+                Font = AppTheme.MainFont,
+            };
+            int btnSize = ScaleHelper.Scale(45);
+            int marginBottom = ScaleHelper.Scale(30);
+            int btnY = this.Height - btnSize - marginBottom;
+            int spacing = 20;
+            int cancelX = this.Width - 25 - btnSize;
+            int saveX = cancelX - spacing - btnSize;
+            btnSave = new ThemedModalButton
+            {
+                Text = ICON_CHECK,
+                Font = _iconFont,
+                Location = new Point(saveX, btnY),
+                Width = btnSize,
+                Height = btnSize,
+            };
+            btnSave.SetThemePrimary();
+            btnSave.Click += (s, e) =>
+            {
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            };
+            btnCancel = new ThemedModalButton
+            {
+                Text = ICON_CANCEL,
+                Font = _iconFont,
+                Location = new Point(cancelX, btnY),
+                Width = btnSize,
+                Height = btnSize,
+            };
+            btnCancel.Click += (s, e) =>
+            {
+                this.DialogResult = DialogResult.Cancel;
+                this.Close();
+            };
+            this.Controls.Add(lblTitle);
+            this.Controls.Add(txtName);
+            this.Controls.Add(btnSave);
+            this.Controls.Add(btnCancel);
+            this.AcceptButton = btnSave;
+            this.CancelButton = btnCancel;
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            txtName.Focus();
+            txtName.SelectAll();
+        }
+    }
+
+    // 省略其他未变更代码 (LoadData, SwitchMode 等)...
+    private void LoadData(DateTime start, DateTime end)
+    {
+        this.SuspendLayout();
+        try
+        {
+            var profile = _profileService.CurrentProfile;
+            if (profile == null)
+                return;
+            var records = profile
+                .LootRecords.Where(r => r.DropTime >= start && r.DropTime <= end)
+                .OrderByDescending(r => r.DropTime)
+                .ToList();
+            var displayList = records
+                .Select(r => new LootViewModel
+                {
+                    OriginalRecord = r,
+                    SceneName = _sceneService.GetLocalizedShortSceneName(r.SceneName),
+                })
+                .ToList();
+            var bs = new BindingSource();
+            bs.DataSource = displayList;
+            gridLoot.DataSource = bs;
+        }
+        finally
+        {
+            this.ResumeLayout();
+        }
+    }
+
+    private void SwitchMode(ViewMode mode)
+    {
+        _currentMode = mode;
+        UpdateButtonStyles();
+        pnlCustomDate.Visible = (mode == ViewMode.Custom);
+        if (_showShortcuts)
+            ToggleShortcutsVisibility();
+        DateTime s = DateTime.Now,
+            e = DateTime.Now;
+        switch (mode)
+        {
+            case ViewMode.Today:
+                s = DateTime.Today;
+                break;
+            case ViewMode.Week:
+                s = _statisticsService.GetStartOfWeek();
+                break;
+            case ViewMode.Custom:
+                s = DateTime.Today.AddDays(-1);
+                break;
+        }
+        LoadData(s, e);
     }
 
     private void UpdateButtonStyles()
@@ -390,10 +633,7 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         }
     }
 
-    private void LanguageChanged(object? sender, EventArgs e)
-    {
-        UpdateLanguageText();
-    }
+    private void LanguageChanged(object? sender, EventArgs e) => UpdateLanguageText();
 
     private void UpdateLanguageText()
     {
@@ -403,109 +643,18 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
             btnToday.Text = LanguageManager.GetString("LootToday");
             btnWeek.Text = LanguageManager.GetString("LootThisWeek");
             btnCustom.Text = LanguageManager.GetString("LootCustom");
-            btnSearch.Text = LanguageManager.GetString("LootSearch");
-            btnClose.Text = LanguageManager.GetString("LootClose");
             SetupGridColumns();
         });
     }
 
-    private void BtnSearch_Click(object sender, EventArgs e)
-    {
-        LoadData(dtpStart.Value, dtpEnd.Value);
-    }
+    private void BtnSearch_Click(object sender, EventArgs e) => LoadData(dtpStart.Value, dtpEnd.Value);
 
-    private void BtnClose_Click(object sender, EventArgs e)
-    {
-        this.Close();
-    }
-
-    private void SetupGridColumns()
-    {
-        gridLoot.Columns.Clear();
-        gridLoot.ColumnHeadersHeight = ScaleHelper.Scale(40);
-        gridLoot.RowTemplate.Height = ScaleHelper.Scale(35);
-        gridLoot.BackgroundColor = Color.FromArgb(32, 32, 32);
-
-        var colTime = new DataGridViewTextBoxColumn
-        {
-            HeaderText = LanguageManager.GetString("LootTableDropTime"),
-            Width = ScaleHelper.Scale(200),
-            DataPropertyName = "DropTime",
-            DefaultCellStyle = new DataGridViewCellStyle
-            {
-                Format = "yyyy-MM-dd HH:mm",
-                Alignment = DataGridViewContentAlignment.MiddleCenter,
-            },
-        };
-
-        var colName = new DataGridViewTextBoxColumn
-        {
-            HeaderText = LanguageManager.GetString("LootTableItemName"),
-            AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-            DataPropertyName = "Name",
-        };
-        colName.DefaultCellStyle.Font = new Font(AppTheme.MainFont, FontStyle.Bold);
-        colName.DefaultCellStyle.ForeColor = AppTheme.AccentColor;
-
-        var colScene = new DataGridViewTextBoxColumn
-        {
-            HeaderText = LanguageManager.GetString("LootTableScene"),
-            Width = ScaleHelper.Scale(220),
-            DataPropertyName = "SceneName",
-            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
-        };
-
-        var colRun = new DataGridViewTextBoxColumn
-        {
-            HeaderText = LanguageManager.GetString("LootTableRun"),
-            Width = ScaleHelper.Scale(100),
-            DataPropertyName = "RunCount",
-            DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter },
-        };
-
-        gridLoot.Columns.AddRange([colTime, colName, colScene, colRun]);
-    }
-
-    private void LoadData(DateTime start, DateTime end)
-    {
-        this.SuspendLayout();
-        try
-        {
-            var profile = _profileService.CurrentProfile;
-            if (profile == null)
-                return;
-
-            var records = profile
-                .LootRecords.Where(r => r.DropTime >= start && r.DropTime <= end)
-                .OrderByDescending(r => r.DropTime)
-                .ToList();
-
-            var displayList = records
-                .Select(r => new
-                {
-                    r.DropTime,
-                    r.Name,
-                    SceneName = _sceneService.GetLocalizedShortSceneName(r.SceneName),
-                    r.RunCount,
-                })
-                .ToList();
-
-            var bindingSource = new BindingSource();
-            bindingSource.DataSource = displayList;
-            gridLoot.DataSource = bindingSource;
-        }
-        finally
-        {
-            this.ResumeLayout();
-        }
-    }
+    private void BtnClose_Click(object sender, EventArgs e) => this.Close();
 
     private void FadeInTimer_Tick(object? sender, EventArgs e)
     {
         if (this.Opacity < 1)
-        {
             this.Opacity += 0.08;
-        }
         else
         {
             this.Opacity = 1;
@@ -517,7 +666,6 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     {
         base.OnLoad(e);
         _fadeInTimer.Start();
-        // 确保布局刷新
         LootHistoryForm_Resize(this, EventArgs.Empty);
     }
 
@@ -526,5 +674,44 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         _fadeInTimer.Stop();
         LanguageManager.OnLanguageChanged -= LanguageChanged;
         base.OnFormClosed(e);
+    }
+
+    private void InitializeToggleButtons()
+    {
+        btnToday = CreateToggleButton("Today", ViewMode.Today);
+        AttachKeyBadge(btnToday, "1", () => btnToday.PerformClick());
+        btnWeek = CreateToggleButton("Week", ViewMode.Week);
+        AttachKeyBadge(btnWeek, "2", () => btnWeek.PerformClick());
+        btnCustom = CreateToggleButton("Custom", ViewMode.Custom);
+        AttachKeyBadge(btnCustom, "3", () => btnCustom.PerformClick());
+        headerControl.AddToggleButton(btnToday);
+        headerControl.AddToggleButton(btnWeek);
+        headerControl.AddToggleButton(btnCustom);
+    }
+
+    private Button CreateToggleButton(string text, ViewMode tag)
+    {
+        var btn = new Button
+        {
+            Text = text,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Padding = new Padding(
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5),
+                ScaleHelper.Scale(25),
+                ScaleHelper.Scale(5)
+            ),
+            MinimumSize = new Size(0, ScaleHelper.Scale(43)),
+            Font = AppTheme.MainFont,
+            FlatStyle = FlatStyle.Flat,
+            Cursor = Cursors.Hand,
+            TextAlign = ContentAlignment.MiddleCenter,
+            UseCompatibleTextRendering = true,
+            Tag = tag,
+        };
+        btn.FlatAppearance.BorderSize = 1;
+        btn.Click += (s, e) => SwitchMode(tag);
+        return btn;
     }
 }

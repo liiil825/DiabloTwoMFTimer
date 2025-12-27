@@ -140,7 +140,9 @@ public class CommandInitializer
             () =>
             {
                 _pomodoroTimerService.SwitchToNextState();
-                Utils.Toast.Success(Utils.LanguageManager.GetString("PomodoroStateSwitched", _pomodoroTimerService.CurrentState));
+                Utils.Toast.Success(
+                    Utils.LanguageManager.GetString("PomodoroStateSwitched", _pomodoroTimerService.CurrentState)
+                );
             }
         );
 
@@ -199,7 +201,6 @@ public class CommandInitializer
         _dispatcher.Register("Nav.Pomodoro", () => _mainService.SetActiveTabPage(Models.TabPage.Pomodoro));
         _dispatcher.Register("Nav.Settings", () => _mainService.SetActiveTabPage(Models.TabPage.Settings));
 
-
         // 工具
         _dispatcher.Register(
             "System.Screenshot",
@@ -214,7 +215,11 @@ public class CommandInitializer
                 _appSettings.ShowNavigation = !_appSettings.ShowNavigation;
                 _appSettings.Save();
                 _messenger.Publish(new NavigationVisibilityChangedMessage());
-                Utils.Toast.Success(Utils.LanguageManager.GetString(_appSettings.ShowNavigation ? "NavigationShown" : "NavigationHidden"));
+                Utils.Toast.Success(
+                    Utils.LanguageManager.GetString(
+                        _appSettings.ShowNavigation ? "NavigationShown" : "NavigationHidden"
+                    )
+                );
             }
         );
 

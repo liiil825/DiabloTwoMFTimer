@@ -201,7 +201,6 @@ public partial class HotkeySettingsControl : UserControl
 
     public void LoadHotkeys(IAppSettings settings)
     {
-
         LeaderHotkey = settings.HotkeyLeader;
         StartOrNextRunHotkey = settings.HotkeyStartOrNext;
         PauseHotkey = settings.HotkeyPause;
