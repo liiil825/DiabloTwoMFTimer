@@ -162,22 +162,13 @@ public class StatisticsService(IProfileService profileService, IAppSettings appS
         {
             // 只显示最近的
             sb.AppendLine($"【{LanguageManager.GetString("LootItems")}】");
-            int maxDisplayCount = 10;
+            int maxDisplayCount = loots.Count;
             var displayLoots = loots.Take(maxDisplayCount).ToList();
             foreach (var l in displayLoots)
             {
                 // 格式：崔凡客(25): 28号符文
                 string localizedSceneName = _sceneService.GetLocalizedShortSceneName(l.SceneName);
                 sb.AppendLine($"{localizedSceneName} ({LanguageManager.GetString("Round")} {l.RunCount}): {l.Name}");
-            }
-
-            // 如果超过10条，给出提示
-            if (loots.Count > maxDisplayCount)
-            {
-                int hiddenCount = loots.Count - maxDisplayCount;
-                sb.AppendLine(
-                    $"... {LanguageManager.GetString("And")} {hiddenCount} {LanguageManager.GetString("MoreRecords")}"
-                );
             }
         }
         // 如果没有掉落，就不显示掉落栏位，或者显示"无"

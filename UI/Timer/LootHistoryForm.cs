@@ -21,8 +21,9 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     private Button btnWeek = null!;
     private Button btnCustom = null!;
 
-    // 动画定时器
     private System.Windows.Forms.Timer _fadeInTimer;
+    private readonly List<Label> _shortcutBadges = new();
+    private bool _showShortcuts = false;
 
     private enum ViewMode
     {
@@ -45,17 +46,27 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
         InitializeComponent();
         InitializeToggleButtons();
-        D2ScrollHelper.Attach(this.gridLoot, this);
+        ApplyScaledLayout();
+
+        // 绑定滚动条
+        D2ScrollHelper.Attach(this.gridLoot, this.pnlGridContainer);
 
         LanguageManager.OnLanguageChanged += LanguageChanged;
 
-        // 绑定布局事件
-        this.SizeChanged += LootHistoryForm_SizeChanged;
+        // Resize 事件负责动态调整 Grid 宽度
+        this.Resize += LootHistoryForm_Resize;
 
-        // 设置Esc键关闭窗口
+        // 键盘支持
+        this.KeyPreview = true;
+        this.KeyDown += LootHistoryForm_KeyDown;
+
+        AttachKeyBadge(dtpStart, "Q", () => dtpStart.OpenDropdown());
+        AttachKeyBadge(dtpEnd, "W", () => dtpEnd.OpenDropdown());
+        AttachKeyBadge(btnSearch, "R", () => btnSearch.PerformClick());
+        AttachKeyBadge(btnClose, "D", () => btnClose.PerformClick());
+
         this.CancelButton = btnClose;
 
-        // --- 1. 动画初始化 ---
         this.Opacity = 0;
         _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
         _fadeInTimer.Tick += FadeInTimer_Tick;
@@ -64,199 +75,68 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         SwitchMode(ViewMode.Today);
     }
 
-    // --- 2. 动画逻辑 ---
-    private void FadeInTimer_Tick(object? sender, EventArgs e)
+    private void ApplyScaledLayout()
     {
-        if (this.Opacity < 1)
+        // 1. Header (固定高度)
+        mainLayout.RowStyles[0].Height = ScaleHelper.Scale(110);
+
+        // 2. Date Panel (固定高度 60)
+        mainLayout.RowStyles[1] = new RowStyle(SizeType.Absolute, ScaleHelper.Scale(60));
+
+        // 3. 统一日期栏控件高度
+        int ctrlHeight = ScaleHelper.Scale(20);
+
+        dtpStart.Size = new Size(ScaleHelper.Scale(160), ctrlHeight);
+        dtpEnd.Size = new Size(ScaleHelper.Scale(160), ctrlHeight);
+
+        // --- 核心修复：关闭自动大小，强制应用高度 ---
+        btnSearch.AutoSize = false;
+        btnSearch.Size = new Size(ScaleHelper.Scale(80), ctrlHeight);
+
+        // 分隔符
+        lblSeparator.AutoSize = false;
+        lblSeparator.Size = new Size(ScaleHelper.Scale(20), ctrlHeight);
+        lblSeparator.TextAlign = ContentAlignment.MiddleCenter;
+        lblSeparator.Text = "-";
+
+        // 间距微调
+        int spacing = ScaleHelper.Scale(10);
+        dtpStart.Margin = new Padding(0, 0, spacing, 0);
+        lblSeparator.Margin = new Padding(0, 0, spacing, 0);
+        dtpEnd.Margin = new Padding(0, 0, spacing, 0);
+
+        // 4. Grid Container
+        pnlGridContainer.Margin = new Padding(0, ScaleHelper.Scale(10), 0, 0);
+
+        // 5. Bottom Buttons
+        mainLayout.RowStyles[3] = new RowStyle(SizeType.AutoSize);
+        panelButtons.Padding = new Padding(ScaleHelper.Scale(5));
+        panelButtons.Margin = new Padding(0, 0, 0, ScaleHelper.Scale(60));
+        btnClose.Margin = new Padding(ScaleHelper.Scale(10));
+    }
+
+    private void LootHistoryForm_Resize(object? sender, EventArgs e)
+    {
+        // 1. Header 居中逻辑
+        if (headerControl != null && headerControl.TogglePanel != null)
         {
-            this.Opacity += 0.08;
+            headerControl.TogglePanel.Left = (headerControl.Width - headerControl.TogglePanel.Width) / 2;
         }
-        else
+
+        // 2. Grid 宽度控制逻辑 (还原原版比例)
+        if (pnlGridContainer != null)
         {
-            this.Opacity = 1;
-            _fadeInTimer.Stop();
-        }
-    }
-
-    protected override void OnLoad(EventArgs e)
-    {
-        base.OnLoad(e);
-        // 确保布局在显示前完成一次计算
-        LootHistoryForm_SizeChanged(this, EventArgs.Empty);
-        _fadeInTimer.Start();
-    }
-
-    private void InitializeToggleButtons()
-    {
-        btnToday = CreateToggleButton("Today", ViewMode.Today);
-        btnWeek = CreateToggleButton("Week", ViewMode.Week);
-        btnCustom = CreateToggleButton("Custom", ViewMode.Custom);
-
-        headerControl.AddToggleButton(btnToday);
-        headerControl.AddToggleButton(btnWeek);
-        headerControl.AddToggleButton(btnCustom);
-    }
-
-    private Button CreateToggleButton(string text, ViewMode tag)
-    {
-        var btn = new Button
-        {
-            Text = text,
-            AutoSize = true,
-            AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            // 增加内边距让按钮看起来更宽敞
-            Padding = new Padding(
-                ScaleHelper.Scale(25),
-                ScaleHelper.Scale(5),
-                ScaleHelper.Scale(25),
-                ScaleHelper.Scale(5)
-            ),
-            MinimumSize = new Size(0, ScaleHelper.Scale(43)),
-            Font = AppTheme.MainFont,
-            FlatStyle = FlatStyle.Flat,
-            Cursor = Cursors.Hand,
-            TextAlign = ContentAlignment.MiddleCenter,
-            UseCompatibleTextRendering = true,
-            Tag = tag,
-        };
-        btn.FlatAppearance.BorderSize = 1;
-        btn.Click += (s, e) => SwitchMode(tag);
-        return btn;
-    }
-
-    // --- 核心布局逻辑 ---
-    private void LootHistoryForm_SizeChanged(object? sender, EventArgs e)
-    {
-        // --- 3. 挂起布局 ---
-        this.SuspendLayout();
-        try
-        {
-            int w = this.ClientSize.Width;
-            int h = this.ClientSize.Height;
-            int cx = w / 2;
-
-            // 1. 设置 Header 高度 (固定)
-            int headerHeight = ScaleHelper.Scale(110);
-            headerControl.Height = headerHeight;
-
-            // 【解决问题1：顶部按钮居中】
-            // 访问 ThemedWindowHeader 暴露的 FlowLayoutPanel
-            var togglePanel = headerControl.TogglePanel;
-            if (togglePanel != null)
-            {
-                // 确保 Panel 大小已计算
-                togglePanel.PerformLayout();
-                // 计算居中 X 坐标
-                togglePanel.Left = (w - togglePanel.Width) / 2;
-            }
-
-            // 2. 预留给自定义日期栏的高度 (固定保留，解决表格跳动问题)
-            int datePanelHeight = ScaleHelper.Scale(60);
-            int datePanelTop = headerHeight; // 紧接 Header 下方
-
-            // 配置 pnlCustomDate (始终占据这个位置和大小)
-            pnlCustomDate.Location = new Point(0, datePanelTop);
-            pnlCustomDate.Size = new Size(w, datePanelHeight);
-
-            // 【解决问题2 & 3：对齐日期控件和按钮】
-            LayoutCustomDatePanel(w, datePanelHeight);
-
-            // 3. 配置表格容器
-            // 【解决问题4：表格位移】
-            // 表格的 Top 永远是 (Header高度 + DatePanel高度 + 间距)，无论 DatePanel 是否可见
-            int gridTopPadding = ScaleHelper.Scale(10);
-            int gridTop = datePanelTop + datePanelHeight + gridTopPadding;
-
-            // 底部留白给关闭按钮
-            int bottomMargin = ScaleHelper.Scale(100);
-            int gridHeight = h - gridTop - bottomMargin;
-            if (gridHeight < 100)
-                gridHeight = 100;
-
-            // 限制表格最大宽度，避免在 4K 屏上太宽难看
+            // 最大宽度限制，避免在 4K 屏过宽
             int maxGridWidth = ScaleHelper.Scale(1200);
-            int gridWidth = Math.Min(w - ScaleHelper.Scale(60), maxGridWidth); // 左右留30间距
+            // 保持左右至少有留白
+            int availableWidth = this.ClientSize.Width - ScaleHelper.Scale(60);
 
-            pnlGridContainer.Size = new Size(gridWidth, gridHeight);
-            pnlGridContainer.Location = new Point((w - gridWidth) / 2, gridTop);
+            // 计算最终宽度
+            int targetWidth = Math.Min(availableWidth, maxGridWidth);
 
-            // 4. 配置关闭按钮 (底部居中)
-            int btnY = h - ScaleHelper.Scale(80);
-            btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
+            // 设置宽度 (由于 Anchor=Top|Bottom，TLP 会自动将其水平居中)
+            pnlGridContainer.Width = targetWidth;
         }
-        finally
-        {
-            // --- 4. 恢复布局 ---
-            this.ResumeLayout();
-        }
-    }
-
-    private void LayoutCustomDatePanel(int panelWidth, int panelHeight)
-    {
-        // 1. 【核心】统一参数设置
-        // 增加一点高度，让控件看起来更饱满
-        int ctrlHeight = ScaleHelper.Scale(36);
-        int datePickerWidth = ScaleHelper.Scale(160);
-        int btnWidth = ScaleHelper.Scale(80);
-        int spacing = ScaleHelper.Scale(10); // 间距稍微收紧一点
-
-        // 2. 【核心】统一字体 (这是解决字体大小不一致的关键)
-        // 强制所有控件使用相同的主题字体，确保视觉大小一致
-        Font unifiedFont = AppTheme.MainFont;
-
-        lblFrom.Font = unifiedFont;
-        lblTo.Font = unifiedFont;
-        dtpStart.Font = unifiedFont;
-        dtpEnd.Font = unifiedFont;
-        btnSearch.Font = unifiedFont;
-
-        // 3. 【核心】统一 Label 样式以实现完美垂直居中
-        // 关闭 AutoSize，手动设置高度与输入框一致，并开启垂直居中对齐
-        void ConfigureLabel(Label lbl)
-        {
-            lbl.AutoSize = false;
-            lbl.Height = ctrlHeight;
-            lbl.TextAlign = ContentAlignment.MiddleRight; // 文字靠右，紧贴输入框
-            // 动态计算文字所需宽度 + 少量留白
-            Size size = TextRenderer.MeasureText(lbl.Text, unifiedFont);
-            lbl.Width = size.Width + ScaleHelper.Scale(5);
-        }
-
-        ConfigureLabel(lblFrom);
-        ConfigureLabel(lblTo);
-
-        // 4. 设置输入控件尺寸
-        dtpStart.Size = new Size(datePickerWidth, ctrlHeight);
-        dtpEnd.Size = new Size(datePickerWidth, ctrlHeight);
-        btnSearch.Size = new Size(btnWidth, ctrlHeight);
-
-        // 5. 计算居中位置
-        int totalContentWidth =
-            lblFrom.Width
-            + spacing
-            + dtpStart.Width
-            + spacing
-            + lblTo.Width
-            + spacing
-            + dtpEnd.Width
-            + spacing
-            + btnSearch.Width;
-
-        int startX = (panelWidth - totalContentWidth) / 2;
-
-        // 【核心】因为所有控件高度一致(ctrlHeight)，这里只需要计算一次 Y 坐标
-        int commonY = (panelHeight - ctrlHeight) / 2;
-
-        // 6. 逐个定位 (所有控件的 Y 坐标都使用 commonY，绝对对齐)
-        lblFrom.Location = new Point(startX, commonY);
-
-        dtpStart.Location = new Point(lblFrom.Right + spacing, commonY);
-
-        lblTo.Location = new Point(dtpStart.Right + spacing, commonY);
-
-        dtpEnd.Location = new Point(lblTo.Right + spacing, commonY);
-
-        btnSearch.Location = new Point(dtpEnd.Right + spacing, commonY);
     }
 
     private void SwitchMode(ViewMode mode)
@@ -265,10 +145,14 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         UpdateButtonStyles();
 
         // 切换日期面板可见性
+        // 因为 RowStyle 是 Absolute，隐藏 Panel 后，行高度保留，显示为空白
         pnlCustomDate.Visible = (mode == ViewMode.Custom);
 
-        // 注意：LootHistoryForm_SizeChanged 中 gridTop 是根据固定高度计算的
-        // 所以即使 pnlCustomDate 隐藏了，那里也是留白的，表格不会跳动。
+        // 同步 Badge 状态
+        if (_showShortcuts)
+        {
+            ToggleShortcutsVisibility(); // 刷新逻辑
+        }
 
         DateTime start = DateTime.Now;
         DateTime end = DateTime.Now;
@@ -289,6 +173,198 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
                 LoadData(dtpStart.Value, dtpEnd.Value);
                 break;
         }
+    }
+
+    // --- 其余代码 (键盘事件、数据加载等) 保持不变 ---
+
+    private void LootHistoryForm_KeyDown(object? sender, KeyEventArgs e)
+    {
+        // 注意：E, S, D, F 的导航逻辑已经移至 ProcessCmdKey
+        // 这里只需要处理功能性按键
+        switch (e.KeyCode)
+        {
+            case Keys.H:
+                ToggleShortcutsVisibility();
+                e.SuppressKeyPress = true;
+                break;
+
+            case Keys.D1:
+            case Keys.NumPad1:
+                btnToday?.PerformClick();
+                break;
+            case Keys.D2:
+            case Keys.NumPad2:
+                btnWeek?.PerformClick();
+                break;
+            case Keys.D3:
+            case Keys.NumPad3:
+                btnCustom?.PerformClick();
+                break;
+
+            // Q -> 展开并聚焦开始时间
+            case Keys.Q:
+                if (pnlCustomDate.Visible)
+                {
+                    dtpStart.OpenDropdown();
+                    e.SuppressKeyPress = true; // 消除提示音
+                }
+                break;
+
+            // W -> 展开并聚焦结束时间
+            case Keys.W:
+                if (pnlCustomDate.Visible)
+                {
+                    dtpEnd.OpenDropdown();
+                    e.SuppressKeyPress = true;
+                }
+                break;
+
+            // R -> 查询
+            case Keys.R:
+                if (pnlCustomDate.Visible)
+                {
+                    btnSearch.PerformClick();
+                    e.SuppressKeyPress = true;
+                }
+                break;
+
+            // D -> 关闭窗口
+            case Keys.D:
+                // 这里不需要额外的逻辑判断！
+                // 原理：
+                // 1. 如果焦点在时间控件上，ProcessCmdKey 会把 'D' 变成 'Down'，
+                //    控件会消耗掉这个 'Down' 消息，所以代码根本不会运行到这里。
+                // 2. 如果焦点不在时间控件上，ProcessCmdKey 会放行 'D'，
+                //    代码就会运行到这里，执行关闭操作。
+                btnClose.PerformClick();
+                e.SuppressKeyPress = true;
+                break;
+        }
+    }
+
+    // 核心修复：使用 ProcessCmdKey 进行底层的按键替换
+    // 这比 SendKeys.Send 更快、更稳，而且完美解决焦点问题
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        // 1. 检查上下文
+        if (pnlCustomDate.Visible && (dtpStart.ContainsFocus || dtpEnd.ContainsFocus))
+        {
+            // 2. 只有在按下键盘消息时才处理 (防止处理 WM_KEYUP 等其他消息导致异常)
+            const int WM_KEYDOWN = 0x100;
+            const int WM_SYSKEYDOWN = 0x104;
+
+            if (msg.Msg == WM_KEYDOWN || msg.Msg == WM_SYSKEYDOWN)
+            {
+                switch (keyData)
+                {
+                    // E -> Up
+                    case Keys.W:
+                        msg.WParam = (IntPtr)Keys.Up; // 【核心修复】直接修改底层消息参数
+                        return base.ProcessCmdKey(ref msg, Keys.Up);
+
+                    // D -> Down
+                    case Keys.S:
+                        msg.WParam = (IntPtr)Keys.Down; // 【核心修复】把 'D' 变成 'Down'
+                        return base.ProcessCmdKey(ref msg, Keys.Down);
+
+                    // S -> Left
+                    case Keys.A:
+                        msg.WParam = (IntPtr)Keys.Left; // 【核心修复】
+                        return base.ProcessCmdKey(ref msg, Keys.Left);
+
+                    // F -> Right
+                    case Keys.D:
+                        msg.WParam = (IntPtr)Keys.Right; // 【核心修复】
+                        return base.ProcessCmdKey(ref msg, Keys.Right);
+                }
+            }
+        }
+
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+    private void ToggleShortcutsVisibility()
+    {
+        _showShortcuts = !_showShortcuts;
+        foreach (var badge in _shortcutBadges)
+        {
+            // 智能显隐：如果父控件被隐藏了（比如日期栏隐藏了），那么对应的 Badge 也不应该显示
+            if (badge.Parent != null && badge.Parent.Visible)
+            {
+                badge.Visible = _showShortcuts;
+            }
+            else
+            {
+                badge.Visible = false;
+            }
+        }
+    }
+
+    private void AttachKeyBadge(Control target, string keyText, Action triggerAction)
+    {
+        var lblBadge = new Label
+        {
+            Text = keyText,
+            Font = new Font("Consolas", 8F, FontStyle.Bold),
+            ForeColor = Color.Gold,
+            BackColor = Color.FromArgb(180, 0, 0, 0),
+            AutoSize = true,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Cursor = Cursors.Hand,
+            Visible = false // 默认隐藏
+        };
+
+        // 计算位置：右上角
+        // 修复：从 Width - 15 改为 Width - 25，防止贴边被裁剪或遮挡控件图标
+        // Y 轴设为 2，稍微留点顶边距
+        lblBadge.Location = new Point(target.Width - 25, 2);
+
+        // 保持右上角锚定，以防控件大小改变
+        lblBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+
+        lblBadge.Click += (s, e) => triggerAction();
+
+        target.Controls.Add(lblBadge);
+        lblBadge.BringToFront();
+
+        _shortcutBadges.Add(lblBadge);
+    }
+
+    private void InitializeToggleButtons()
+    {
+        btnToday = CreateToggleButton("Today", ViewMode.Today);
+        AttachKeyBadge(btnToday, "1", () => btnToday.PerformClick());
+
+        btnWeek = CreateToggleButton("Week", ViewMode.Week);
+        AttachKeyBadge(btnWeek, "2", () => btnWeek.PerformClick());
+
+        btnCustom = CreateToggleButton("Custom", ViewMode.Custom);
+        AttachKeyBadge(btnCustom, "3", () => btnCustom.PerformClick());
+
+        headerControl.AddToggleButton(btnToday);
+        headerControl.AddToggleButton(btnWeek);
+        headerControl.AddToggleButton(btnCustom);
+    }
+
+    private Button CreateToggleButton(string text, ViewMode tag)
+    {
+        var btn = new Button
+        {
+            Text = text,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Padding = new Padding(ScaleHelper.Scale(25), ScaleHelper.Scale(5), ScaleHelper.Scale(25), ScaleHelper.Scale(5)),
+            MinimumSize = new Size(0, ScaleHelper.Scale(43)),
+            Font = AppTheme.MainFont,
+            FlatStyle = FlatStyle.Flat,
+            Cursor = Cursors.Hand,
+            TextAlign = ContentAlignment.MiddleCenter,
+            UseCompatibleTextRendering = true,
+            Tag = tag,
+        };
+        btn.FlatAppearance.BorderSize = 1;
+        btn.Click += (s, e) => SwitchMode(tag);
+        return btn;
     }
 
     private void UpdateButtonStyles()
@@ -317,8 +393,6 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
     private void LanguageChanged(object? sender, EventArgs e)
     {
         UpdateLanguageText();
-        // 语言改变可能导致 Label 宽度变化，重新布局以保持居中
-        LootHistoryForm_SizeChanged(this, EventArgs.Empty);
     }
 
     private void UpdateLanguageText()
@@ -342,7 +416,6 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
     private void BtnClose_Click(object sender, EventArgs e)
     {
-        // 简单的淡出 (可选，如果觉得太复杂直接 Close 也可以)
         this.Close();
     }
 
@@ -395,7 +468,6 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
 
     private void LoadData(DateTime start, DateTime end)
     {
-        // 4. 数据加载也挂起布局
         this.SuspendLayout();
         try
         {
@@ -426,6 +498,27 @@ public partial class LootHistoryForm : System.Windows.Forms.Form
         {
             this.ResumeLayout();
         }
+    }
+
+    private void FadeInTimer_Tick(object? sender, EventArgs e)
+    {
+        if (this.Opacity < 1)
+        {
+            this.Opacity += 0.08;
+        }
+        else
+        {
+            this.Opacity = 1;
+            _fadeInTimer.Stop();
+        }
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        _fadeInTimer.Start();
+        // 确保布局刷新
+        LootHistoryForm_Resize(this, EventArgs.Empty);
     }
 
     protected override void OnFormClosed(FormClosedEventArgs e)

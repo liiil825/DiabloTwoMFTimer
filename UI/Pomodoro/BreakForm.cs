@@ -27,10 +27,13 @@ public partial class BreakForm : System.Windows.Forms.Form
     // 动画定时器
     private System.Windows.Forms.Timer _fadeInTimer;
 
-    // 动态生成的切换按钮
     private Button btnToggleSession = null!;
     private Button btnToggleToday = null!;
     private Button btnToggleWeek = null!;
+
+    // --- 新增：用于存储所有的快捷键提示标签，方便统一显隐 ---
+    private readonly List<Label> _shortcutBadges = new();
+    private bool _showShortcuts = false; // 默认隐藏
 
     private readonly List<string> _shortBreakMessages = new()
     {
@@ -54,50 +57,157 @@ public partial class BreakForm : System.Windows.Forms.Form
             BreakFormMode mode,
             PomodoroBreakType breakType = PomodoroBreakType.ShortBreak
         )
+    {
+        _timerService = timerService;
+        _appSettings = appSettings;
+        _profileService = profileService;
+        _mode = mode;
+        _statsService = statsService;
+        _breakType = breakType;
+        _timeSettings = timerService.Settings;
+
+        _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
+
+        InitializeComponent();
+        InitializeToggleButtons();
+
+        ApplyScaledLayout();
+
+        // 绑定滚动条
+        D2ScrollHelper.Attach(this.rtbStats, this.panelStatsContainer);
+
+        // --- 核心修改 1: 开启键盘预览并绑定事件 ---
+        this.KeyPreview = true;
+        this.KeyDown += BreakForm_KeyDown;
+
+        // --- 核心修改 2: 为底部按钮添加快捷键提示 ---
+        // S -> Skip, D -> Close (CancelButton 默认映射 ESC，我们额外增加 D)
+        AttachKeyBadge(btnSkip, "S");
+        AttachKeyBadge(btnClose, "D");
+
+        // 设置Esc键关闭窗口 (保留 ESC 功能)
+        this.CancelButton = btnClose;
+
+        this.Opacity = 0;
+        _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
+        _fadeInTimer.Tick += FadeInTimer_Tick;
+
+        UpdateLayoutState();
+        UpdateContent();
+
+        if (_mode == BreakFormMode.PomodoroBreak)
         {
-            _timerService = timerService;
-            _appSettings = appSettings;
-            _profileService = profileService;
-            _mode = mode;
-            _statsService = statsService;
-            _breakType = breakType;
-            _timeSettings = timerService.Settings;
-
-            _currentViewType = (_mode == BreakFormMode.PomodoroBreak) ? StatViewType.Session : StatViewType.Today;
-
-            InitializeComponent();
-            InitializeToggleButtons();
-
-            // 设置Esc键关闭窗口
-            this.CancelButton = btnClose;
-
-            // --- 1. 初始透明，准备动画 ---
-            this.Opacity = 0;
-            _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
-            _fadeInTimer.Tick += FadeInTimer_Tick;
-
-            // 强制设置所有标签为非自动大小，以便统一宽度对齐
-            ConfigureLabelStyles();
-
-            UpdateLayoutState();
-            UpdateContent();
-
-            if (_mode == BreakFormMode.PomodoroBreak)
-            {
-                _timerService.TimeUpdated += TimerService_TimeUpdated;
-                _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
-                UpdateTimerDisplay();
-            }
-
-            this.SizeChanged += BreakForm_SizeChanged;
+            _timerService.TimeUpdated += TimerService_TimeUpdated;
+            _timerService.PomodoroTimerStateChanged += TimerService_PomodoroTimerStateChanged;
+            UpdateTimerDisplay();
         }
 
-    // --- 2. 动画逻辑 ---
+        this.Resize += BreakForm_Resize;
+    }
+
+    // --- 核心修改 3: 键盘事件处理逻辑 ---
+    private void BreakForm_KeyDown(object? sender, KeyEventArgs e)
+    {
+        switch (e.KeyCode)
+        {
+            case Keys.H:
+                // 切换提示显示/隐藏
+                ToggleShortcutsVisibility();
+                break;
+
+            case Keys.D1:
+            case Keys.NumPad1:
+                btnToggleSession?.PerformClick();
+                break;
+
+            case Keys.D2:
+            case Keys.NumPad2:
+                btnToggleToday?.PerformClick();
+                break;
+
+            case Keys.D3:
+            case Keys.NumPad3:
+                btnToggleWeek?.PerformClick();
+                break;
+
+            case Keys.S:
+                if (btnSkip.Visible && btnSkip.Enabled)
+                    btnSkip.PerformClick();
+                break;
+
+            case Keys.D:
+                if (btnClose.Visible && btnClose.Enabled)
+                    btnClose.PerformClick();
+                break;
+        }
+    }
+
+    // --- 核心修改 4: 动态添加快捷键徽标 (Badge) ---
+    private void AttachKeyBadge(Button targetBtn, string keyText)
+    {
+        var lblBadge = new Label
+        {
+            Text = keyText,
+            Font = new Font("Consolas", 8F, FontStyle.Bold),
+            ForeColor = Color.Gold,
+            BackColor = Color.FromArgb(180, 0, 0, 0),
+            AutoSize = true,
+            TextAlign = ContentAlignment.MiddleCenter,
+            Cursor = Cursors.Hand,
+            Visible = _showShortcuts
+        };
+
+        // 计算位置：右上角
+        lblBadge.Location = new Point(targetBtn.Width - 15, 2);
+        lblBadge.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+
+        // 点击徽标也能触发按钮点击
+        // 修改后 targetBtn 是 Button 类型，编译器就能找到 PerformClick 了
+        lblBadge.Click += (s, e) => targetBtn.PerformClick();
+
+        targetBtn.Controls.Add(lblBadge);
+        lblBadge.BringToFront();
+
+        _shortcutBadges.Add(lblBadge);
+    }
+
+    private void ToggleShortcutsVisibility()
+    {
+        _showShortcuts = !_showShortcuts;
+        foreach (var badge in _shortcutBadges)
+        {
+            badge.Visible = _showShortcuts;
+        }
+    }
+
+    private void ApplyScaledLayout()
+    {
+        mainLayout.RowStyles[0].Height = ScaleHelper.Scale(110);
+
+        lblMessage.Margin = new Padding(0, ScaleHelper.Scale(40), 0, ScaleHelper.Scale(30));
+        lblTimer.Margin = new Padding(0, 0, 0, ScaleHelper.Scale(10));
+        pomodoroStatusDisplay.Margin = new Padding(0, 0, 0, ScaleHelper.Scale(20));
+        lblDuration.Margin = new Padding(0, 0, 0, ScaleHelper.Scale(20));
+
+        panelStatsContainer.Margin = new Padding(
+            ScaleHelper.Scale(100),
+            ScaleHelper.Scale(20),
+            ScaleHelper.Scale(100),
+            0
+        );
+
+        mainLayout.RowStyles[6] = new RowStyle(SizeType.AutoSize);
+        panelButtons.Padding = new Padding(ScaleHelper.Scale(5));
+        panelButtons.Margin = new Padding(0, 0, 0, ScaleHelper.Scale(60));
+
+        mainLayout.Padding = new Padding(0);
+    }
+
     private void FadeInTimer_Tick(object? sender, EventArgs e)
     {
         if (this.Opacity < 1)
         {
-            this.Opacity += 0.08; // 调整这个数值控制速度
+            this.Opacity += 0.08;
         }
         else
         {
@@ -110,42 +220,31 @@ public partial class BreakForm : System.Windows.Forms.Form
     {
         base.OnLoad(e);
         RefreshStatistics();
-
-        // 触发一次布局计算，确保初始位置正确
-        BreakForm_SizeChanged(this, EventArgs.Empty);
-
-        // --- 3. 开始淡入 ---
         _fadeInTimer.Start();
+
+        BreakForm_Resize(this, EventArgs.Empty);
     }
 
-    private void ConfigureLabelStyles()
+    private void BreakForm_Resize(object? sender, EventArgs e)
     {
-        // 统一设置标签属性：关闭 AutoSize，启用居中对齐
-        void SetStyle(Label lbl)
+        if (headerControl != null && headerControl.TogglePanel != null)
         {
-            if (lbl == null)
-                return;
-            lbl.AutoSize = false;
-            lbl.TextAlign = ContentAlignment.MiddleCenter;
-        }
-
-        SetStyle(lblMessage);
-        SetStyle(lblTimer);
-        SetStyle(lblDuration);
-
-        // lblStats 是多行文本，通常 TopCenter 更自然
-        if (lblStats != null)
-        {
-            lblStats.AutoSize = false;
-            lblStats.TextAlign = ContentAlignment.TopCenter;
+            headerControl.TogglePanel.Left = (headerControl.Width - headerControl.TogglePanel.Width) / 2;
         }
     }
 
     private void InitializeToggleButtons()
     {
+        // --- 核心修改 5: 在创建时绑定快捷键 1, 2, 3 ---
+
         btnToggleSession = CreateToggleButton("本轮战况", StatViewType.Session);
+        AttachKeyBadge(btnToggleSession, "1");
+
         btnToggleToday = CreateToggleButton("今日累计", StatViewType.Today);
+        AttachKeyBadge(btnToggleToday, "2");
+
         btnToggleWeek = CreateToggleButton("本周累计", StatViewType.Week);
+        AttachKeyBadge(btnToggleWeek, "3");
 
         headerControl.AddToggleButton(btnToggleSession);
         headerControl.AddToggleButton(btnToggleToday);
@@ -159,12 +258,7 @@ public partial class BreakForm : System.Windows.Forms.Form
             Text = text,
             AutoSize = true,
             AutoSizeMode = AutoSizeMode.GrowAndShrink,
-            Padding = new Padding(
-                ScaleHelper.Scale(25),
-                ScaleHelper.Scale(5),
-                ScaleHelper.Scale(25),
-                ScaleHelper.Scale(5)
-            ),
+            Padding = new Padding(ScaleHelper.Scale(25), ScaleHelper.Scale(5), ScaleHelper.Scale(25), ScaleHelper.Scale(5)),
             MinimumSize = new Size(0, ScaleHelper.Scale(43)),
             Font = AppTheme.MainFont,
             FlatStyle = FlatStyle.Flat,
@@ -182,118 +276,16 @@ public partial class BreakForm : System.Windows.Forms.Form
     {
         headerControl.Title = _mode == BreakFormMode.PomodoroBreak ? "REST & RECOVER" : "STATISTICS";
 
-        if (_mode == BreakFormMode.StatisticsView)
-        {
-            lblMessage.Visible = false;
-            lblTimer.Visible = false;
-            pomodoroStatusDisplay.Visible = false;
-            btnSkip.Visible = false;
-        }
-        else
-        {
-            lblMessage.Visible = true;
-            lblTimer.Visible = true;
-            pomodoroStatusDisplay.Visible = true;
-            btnSkip.Visible = true;
-        }
-    }
+        bool isBreakMode = (_mode == BreakFormMode.PomodoroBreak);
 
-    // --- 核心布局逻辑 ---
-    private void BreakForm_SizeChanged(object? sender, EventArgs e)
-    {
-        // --- 4. 挂起布局，防止计算过程中控件乱跳 ---
-        this.SuspendLayout();
-
-        try
-        {
-            int w = this.ClientSize.Width;
-            int h = this.ClientSize.Height;
-            int cx = w / 2;
-
-            // 1. Header
-            int headerHeight = ScaleHelper.Scale(110);
-            headerControl.Height = headerHeight;
-
-            // Header 内部按钮居中
-            var togglePanel = headerControl.TogglePanel;
-            if (togglePanel != null)
-            {
-                togglePanel.PerformLayout();
-                togglePanel.Left = (w - togglePanel.Width) / 2;
-            }
-
-            // --- 核心修改：统一内容宽度 ---
-            // 所有中间的控件都使用这个宽度，并且 X 坐标统一
-            int contentWidth = w - ScaleHelper.Scale(100);
-            int contentLeft = (w - contentWidth) / 2;
-
-            // 辅助方法：统一设置控件位置和宽度
-            void LayoutCenterControl(Control ctrl, int y, int height)
-            {
-                ctrl.Location = new Point(contentLeft, y);
-                ctrl.Size = new Size(contentWidth, height);
-            }
-
-            int currentY = headerHeight + ScaleHelper.Scale(40);
-
-            // 2. 提示语
-            if (_mode == BreakFormMode.PomodoroBreak)
-            {
-                // 提示语
-                LayoutCenterControl(lblMessage, currentY, ScaleHelper.Scale(60));
-                currentY = lblMessage.Bottom + ScaleHelper.Scale(30);
-
-                // 倒计时
-                LayoutCenterControl(lblTimer, currentY, ScaleHelper.Scale(60)); // 高度给足，防止大字体切边
-                currentY = lblTimer.Bottom + ScaleHelper.Scale(10);
-
-                // 番茄状态 (PomodoroStatusDisplay 内部自绘逻辑已支持基于 Width 居中)
-                LayoutCenterControl(pomodoroStatusDisplay, currentY, ScaleHelper.Scale(40));
-                currentY = pomodoroStatusDisplay.Bottom + ScaleHelper.Scale(20);
-            }
-            else
-            {
-                currentY = headerHeight + ScaleHelper.Scale(20);
-            }
-
-            // 3. 总时长 (现在和上面的控件完全对齐)
-            LayoutCenterControl(lblDuration, currentY, ScaleHelper.Scale(30));
-            currentY = lblDuration.Bottom + ScaleHelper.Scale(20);
-
-            // 4. 底部按钮
-            int btnY = h - ScaleHelper.Scale(100);
-            if (_mode == BreakFormMode.PomodoroBreak)
-            {
-                int spacing = ScaleHelper.Scale(40);
-                int totalBtnW = btnSkip.Width + btnClose.Width + spacing;
-                int startX = (w - totalBtnW) / 2;
-
-                btnSkip.Location = new Point(startX, btnY);
-                btnClose.Location = new Point(btnSkip.Right + spacing, btnY);
-            }
-            else
-            {
-                btnClose.Location = new Point(cx - (btnClose.Width / 2), btnY);
-            }
-
-            // 5. 统计内容 (填充剩余空间)
-            int statsBottomLimit = btnY - ScaleHelper.Scale(20);
-            int statsHeight = statsBottomLimit - currentY;
-            if (statsHeight < 100)
-                statsHeight = 100;
-
-            LayoutCenterControl(lblStats, currentY, statsHeight);
-        }
-        finally
-        {
-            // --- 5. 恢复布局 ---
-            this.ResumeLayout();
-        }
+        lblMessage.Visible = isBreakMode;
+        lblTimer.Visible = isBreakMode;
+        pomodoroStatusDisplay.Visible = isBreakMode;
+        btnSkip.Visible = isBreakMode;
     }
 
     private void SwitchView(StatViewType type)
     {
-        // 这里也可以加一点简单的 Opacity 动画让切换更柔和，不过暂不复杂化
         _currentViewType = type;
         RefreshStatistics();
     }
@@ -307,8 +299,7 @@ public partial class BreakForm : System.Windows.Forms.Form
 
     private void HighlightButton(Button? btn, bool isActive)
     {
-        if (btn == null)
-            return;
+        if (btn == null) return;
         if (isActive)
         {
             btn.BackColor = Color.Gray;
@@ -335,7 +326,6 @@ public partial class BreakForm : System.Windows.Forms.Form
 
     private void RefreshStatistics()
     {
-        // 为了防止数据计算时 UI 卡顿，可以使用 SuspendLayout
         this.SuspendLayout();
         try
         {
@@ -348,10 +338,8 @@ public partial class BreakForm : System.Windows.Forms.Form
 
             if (_profileService == null || _profileService.CurrentProfile == null)
             {
-                if (lblStats != null)
-                    lblStats.Text = "暂无角色数据";
-                if (lblDuration != null)
-                    lblDuration.Text = "";
+                if (rtbStats != null) rtbStats.Text = "暂无角色数据";
+                if (lblDuration != null) lblDuration.Text = "";
                 return;
             }
 
@@ -365,9 +353,7 @@ public partial class BreakForm : System.Windows.Forms.Form
                     if (_breakType == PomodoroBreakType.ShortBreak)
                         start = _timerService.PomodoroCycleStartTime.AddSeconds(-30);
                     else
-                    {
                         start = _timerService.FullPomodoroCycleStartTime.AddSeconds(-10);
-                    }
                     title = ">>> 本轮战况 <<<";
                     break;
 
@@ -382,9 +368,18 @@ public partial class BreakForm : System.Windows.Forms.Form
                     break;
             }
 
-            string content = _statsService.GetDetailedSummary(start, end);
-            if (lblStats != null)
-                lblStats.Text = $"{title}\n\n{content}";
+            if (rtbStats != null)
+            {
+                string content = _statsService.GetDetailedSummary(start, end);
+                rtbStats.Text = $"{title}\n\n{content}";
+
+                rtbStats.SelectAll();
+                rtbStats.SelectionAlignment = HorizontalAlignment.Center;
+                rtbStats.DeselectAll();
+
+                rtbStats.SelectionStart = 0;
+                rtbStats.ScrollToCaret();
+            }
 
             if (lblDuration != null)
             {
@@ -404,7 +399,7 @@ public partial class BreakForm : System.Windows.Forms.Form
                             totalSeconds < 3600
                                 ? $"{ts.Minutes}分 {ts.Seconds}秒"
                                 : $"{(int)ts.TotalHours}小时 {ts.Minutes}分"
-                        ); // 修改了这里
+                        );
 
                 lblDuration.Text = $"累计游戏时长: {durationText}";
             }
@@ -419,10 +414,8 @@ public partial class BreakForm : System.Windows.Forms.Form
     {
         if (_mode == BreakFormMode.PomodoroBreak)
         {
-            if (
-                e.State == PomodoroTimerState.Work
-                && (e.PreviousState == PomodoroTimerState.ShortBreak || e.PreviousState == PomodoroTimerState.LongBreak)
-            )
+            if (e.State == PomodoroTimerState.Work &&
+               (e.PreviousState == PomodoroTimerState.ShortBreak || e.PreviousState == PomodoroTimerState.LongBreak))
             {
                 AutoCloseForm();
             }
@@ -461,14 +454,13 @@ public partial class BreakForm : System.Windows.Forms.Form
         if (!_isAutoClosed && !this.IsDisposed)
         {
             _isAutoClosed = true;
-            // 可以在这里做 FadeOut 动画，但这里直接关闭响应更快
             this.SafeInvoke(() => this.Close());
         }
     }
 
     private void BreakForm_FormClosing(object? sender, FormClosingEventArgs e)
     {
-        _fadeInTimer.Stop(); // 清理 Timer
+        _fadeInTimer.Stop();
         _timerService.TimeUpdated -= TimerService_TimeUpdated;
         _timerService.PomodoroTimerStateChanged -= TimerService_PomodoroTimerStateChanged;
     }
