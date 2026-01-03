@@ -19,8 +19,11 @@ public class AudioService : IAudioService
     private bool _isPreviewing = false;
     private Action? _currentPreviewCallback;
 
-    // 记录当前正在试听的文件名，用于UI状态判断
+    // 记录当前正在播放的文件名，用于UI状态判断
     private string? _currentPreviewFileName;
+    // 记录当前正在播放的音效
+    private IWavePlayer? _soundPlayer;
+    private AudioFileReader? _soundFile;
 
     public bool IsPreviewing => _isPreviewing;
 
@@ -70,23 +73,44 @@ public class AudioService : IAudioService
                 string fullPath = FolderManager.GetAudioFilePath(fileName);
                 if (!File.Exists(fullPath)) return;
 
-                using var audioFile = new AudioFileReader(fullPath);
-                using var outputDevice = new WaveOutEvent();
+                // 停止当前正在播放的音效
+                StopCurrentSound();
 
-                audioFile.Volume = _appSettings.AudioVolume / 100f;
-                outputDevice.Init(audioFile);
-                outputDevice.Play();
+                // 创建新的音频播放器
+                _soundFile = new AudioFileReader(fullPath);
+                _soundFile.Volume = _appSettings.AudioVolume / 100f;
 
-                while (outputDevice.PlaybackState == PlaybackState.Playing)
-                {
-                    System.Threading.Thread.Sleep(100);
-                }
+                _soundPlayer = new WaveOutEvent();
+                _soundPlayer.Init(_soundFile);
+                _soundPlayer.PlaybackStopped += OnSoundPlaybackStopped;
+                _soundPlayer.Play();
             }
             catch (Exception ex)
             {
                 LogManager.WriteErrorLog("AudioService", $"播放失败: {fileName}", ex);
             }
         });
+    }
+
+    private void StopCurrentSound()
+    {
+        if (_soundPlayer != null)
+        {
+            _soundPlayer.Stop();
+            _soundPlayer.Dispose();
+            _soundPlayer = null;
+        }
+
+        if (_soundFile != null)
+        {
+            _soundFile.Dispose();
+            _soundFile = null;
+        }
+    }
+
+    private void OnSoundPlaybackStopped(object? sender, StoppedEventArgs e)
+    {
+        StopCurrentSound();
     }
 
     public void PreviewSound(string fileName, Action onPlaybackStopped)

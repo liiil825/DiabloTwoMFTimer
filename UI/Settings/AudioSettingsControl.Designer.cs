@@ -7,6 +7,7 @@ partial class AudioSettingsControl
     // 核心控件
     private DiabloTwoMFTimer.UI.Components.ThemedGroupBox grpAudioSettings;
     private System.Windows.Forms.TableLayoutPanel tlpMain;
+    private System.Windows.Forms.TableLayoutPanel tlpAudioContent;
     private DiabloTwoMFTimer.UI.Components.ThemedCheckBox chkEnableAudio;
     private System.Windows.Forms.TableLayoutPanel tlpVolume;
     private DiabloTwoMFTimer.UI.Components.ThemedLabel lblVolumeTitle;
@@ -25,8 +26,9 @@ partial class AudioSettingsControl
 
     private void InitializeComponent()
     {
-        this.grpAudioSettings = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
         this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
+        this.grpAudioSettings = new DiabloTwoMFTimer.UI.Components.ThemedGroupBox();
+        this.tlpAudioContent = new System.Windows.Forms.TableLayoutPanel();
         this.chkEnableAudio = new DiabloTwoMFTimer.UI.Components.ThemedCheckBox();
         this.tlpVolume = new System.Windows.Forms.TableLayoutPanel();
         this.lblVolumeTitle = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
@@ -35,41 +37,59 @@ partial class AudioSettingsControl
         this.tblAudioRows = new System.Windows.Forms.TableLayoutPanel();
 
         ((System.ComponentModel.ISupportInitialize)(this.trackVolume)).BeginInit();
-        this.grpAudioSettings.SuspendLayout();
         this.tlpMain.SuspendLayout();
+        this.grpAudioSettings.SuspendLayout();
+        this.tlpAudioContent.SuspendLayout();
         this.tlpVolume.SuspendLayout();
         this.SuspendLayout();
-
-        // 
-        // grpAudioSettings
-        // 
-        this.grpAudioSettings.AutoSize = true;
-        this.grpAudioSettings.Controls.Add(this.tlpMain);
-        this.grpAudioSettings.Dock = System.Windows.Forms.DockStyle.Top;
-        this.grpAudioSettings.Location = new System.Drawing.Point(0, 0);
-        this.grpAudioSettings.Name = "grpAudioSettings";
-        this.grpAudioSettings.Padding = new System.Windows.Forms.Padding(3, 20, 3, 3);
-        this.grpAudioSettings.TabIndex = 0;
-        this.grpAudioSettings.TabStop = false;
-        this.grpAudioSettings.Text = "声音设置";
 
         // 
         // tlpMain
         // 
         this.tlpMain.ColumnCount = 1;
         this.tlpMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-        this.tlpMain.Controls.Add(this.chkEnableAudio, 0, 0);
-        this.tlpMain.Controls.Add(this.tlpVolume, 0, 1);
-        this.tlpMain.Controls.Add(this.tblAudioRows, 0, 2);
-        this.tlpMain.Dock = System.Windows.Forms.DockStyle.Top;
-        this.tlpMain.Location = new System.Drawing.Point(3, 20);
+        this.tlpMain.Controls.Add(this.grpAudioSettings, 0, 0);
+        this.tlpMain.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.tlpMain.Location = new System.Drawing.Point(0, 0);
         this.tlpMain.Name = "tlpMain";
-        this.tlpMain.RowCount = 3;
-        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpMain.Size = new System.Drawing.Size(644, 400);
+        this.tlpMain.Padding = new System.Windows.Forms.Padding(10);
+        this.tlpMain.RowCount = 1;
+        this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+        this.tlpMain.Size = new System.Drawing.Size(650, 450);
         this.tlpMain.TabIndex = 0;
+
+        // 
+        // grpAudioSettings
+        // 
+        this.grpAudioSettings.AutoSize = false;
+        this.grpAudioSettings.Controls.Add(this.tlpAudioContent);
+        this.grpAudioSettings.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.grpAudioSettings.Location = new System.Drawing.Point(13, 13);
+        this.grpAudioSettings.Name = "grpAudioSettings";
+        this.grpAudioSettings.Padding = new System.Windows.Forms.Padding(3, 20, 3, 3);
+        this.grpAudioSettings.Size = new System.Drawing.Size(624, 424);
+        this.grpAudioSettings.TabIndex = 0;
+        this.grpAudioSettings.TabStop = false;
+        this.grpAudioSettings.Text = "声音设置";
+
+        // 
+        // tlpAudioContent
+        // 
+        this.tlpAudioContent.ColumnCount = 1;
+        this.tlpAudioContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+        this.tlpAudioContent.Controls.Add(this.chkEnableAudio, 0, 0);
+        this.tlpAudioContent.Controls.Add(this.tlpVolume, 0, 1);
+        this.tlpAudioContent.Controls.Add(this.tblAudioRows, 0, 2);
+        this.tlpAudioContent.Dock = System.Windows.Forms.DockStyle.Fill;
+        this.tlpAudioContent.Location = new System.Drawing.Point(3, 20);
+        this.tlpAudioContent.Name = "tlpAudioContent";
+        this.tlpAudioContent.RowCount = 4;
+        this.tlpAudioContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpAudioContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpAudioContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+        this.tlpAudioContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+        this.tlpAudioContent.Size = new System.Drawing.Size(618, 401);
+        this.tlpAudioContent.TabIndex = 0;
 
         // 
         // chkEnableAudio
@@ -90,7 +110,7 @@ partial class AudioSettingsControl
         this.tlpVolume.ColumnCount = 3;
         this.tlpVolume.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
         this.tlpVolume.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
-        this.tlpVolume.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 60F));
+        this.tlpVolume.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 80F));
         this.tlpVolume.Controls.Add(this.lblVolumeTitle, 0, 0);
         this.tlpVolume.Controls.Add(this.trackVolume, 1, 0);
         this.tlpVolume.Controls.Add(this.lblVolumeValue, 2, 0);
@@ -99,7 +119,7 @@ partial class AudioSettingsControl
         this.tlpVolume.Name = "tlpVolume";
         this.tlpVolume.RowCount = 1;
         this.tlpVolume.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
-        this.tlpVolume.Size = new System.Drawing.Size(270, 50);
+        this.tlpVolume.Size = new System.Drawing.Size(300, 50);
         this.tlpVolume.TabIndex = 1;
 
         // 
@@ -107,9 +127,10 @@ partial class AudioSettingsControl
         // 
         this.lblVolumeTitle.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
         this.lblVolumeTitle.AutoSize = true;
-        this.lblVolumeTitle.Location = new System.Drawing.Point(3, 15);
+        this.lblVolumeTitle.Location = new System.Drawing.Point(13, 5);
+        this.lblVolumeTitle.Margin = new System.Windows.Forms.Padding(10, 0, 0, 0);
         this.lblVolumeTitle.Name = "lblVolumeTitle";
-        this.lblVolumeTitle.Size = new System.Drawing.Size(54, 20);
+        this.lblVolumeTitle.Size = new System.Drawing.Size(44, 20);
         this.lblVolumeTitle.TabIndex = 0;
         this.lblVolumeTitle.Text = "Volume";
 
@@ -117,10 +138,11 @@ partial class AudioSettingsControl
         // trackVolume
         // 
         this.trackVolume.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-        this.trackVolume.Location = new System.Drawing.Point(63, 10);
+        this.trackVolume.Location = new System.Drawing.Point(63, 20);
+        this.trackVolume.Margin = new System.Windows.Forms.Padding(0, 20, 0, 0);
         this.trackVolume.Maximum = 100;
         this.trackVolume.Name = "trackVolume";
-        this.trackVolume.Size = new System.Drawing.Size(522, 30);
+        this.trackVolume.Size = new System.Drawing.Size(144, 30);
         this.trackVolume.TabIndex = 1;
         this.trackVolume.TickFrequency = 10;
         this.trackVolume.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -130,13 +152,12 @@ partial class AudioSettingsControl
         // 
         this.lblVolumeValue.Anchor = System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
         this.lblVolumeValue.AutoSize = true;
-        this.lblVolumeValue.Location = new System.Drawing.Point(591, 15);
+        this.lblVolumeValue.Location = new System.Drawing.Point(554, 5);
         this.lblVolumeValue.Name = "lblVolumeValue";
-        this.lblVolumeValue.Size = new System.Drawing.Size(44, 20);
+        this.lblVolumeValue.Size = new System.Drawing.Size(54, 20);
         this.lblVolumeValue.TabIndex = 2;
         this.lblVolumeValue.Text = "100%";
 
-        // 
         // tblAudioRows (使用表格布局管理4行配置)
         // 
         this.tblAudioRows.ColumnCount = 3;
@@ -146,11 +167,11 @@ partial class AudioSettingsControl
         this.tblAudioRows.Dock = System.Windows.Forms.DockStyle.Top;
         this.tblAudioRows.Location = new System.Drawing.Point(3, 94);
         this.tblAudioRows.Name = "tblAudioRows";
-        this.tblAudioRows.RowCount = 5; // 预留
-        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
+        this.tblAudioRows.RowCount = 5;
+        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 55F));
+        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 55F));
+        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 55F));
+        this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 55F));
         this.tblAudioRows.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
         this.tblAudioRows.AutoSize = true;
         this.tblAudioRows.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
@@ -162,14 +183,17 @@ partial class AudioSettingsControl
         this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.BackColor = DiabloTwoMFTimer.UI.Theme.AppTheme.BackColor;
-        this.Controls.Add(this.grpAudioSettings);
+        this.Controls.Add(this.tlpMain);
         this.Name = "AudioSettingsControl";
         this.Size = new System.Drawing.Size(650, 450);
 
         ((System.ComponentModel.ISupportInitialize)(this.trackVolume)).EndInit();
-        this.grpAudioSettings.ResumeLayout(false);
         this.tlpMain.ResumeLayout(false);
         this.tlpMain.PerformLayout();
+        this.grpAudioSettings.ResumeLayout(false);
+        this.grpAudioSettings.PerformLayout();
+        this.tlpAudioContent.ResumeLayout(false);
+        this.tlpAudioContent.PerformLayout();
         this.tlpVolume.ResumeLayout(false);
         this.tlpVolume.PerformLayout();
         this.ResumeLayout(false);

@@ -72,7 +72,7 @@ public partial class AudioSettingsControl : UserControl
                 Height = 30, // 稍微高一点方便点击
                 Dock = DockStyle.Left,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(0, 0, 10, 0)
+                Margin = new Padding(0, 5, 10, 5)
             };
 
             // 添加到 TableLayout
@@ -227,10 +227,25 @@ public partial class AudioSettingsControl : UserControl
     private void UpdateControlState(bool enabled)
     {
         if (trackVolume != null)
+        {
             trackVolume.Enabled = enabled;
+            trackVolume.ForeColor = enabled ? UI.Theme.AppTheme.TextColor : UI.Theme.AppTheme.Colors.TextSecondaryColor;
+        }
+
+        if (lblVolumeTitle != null)
+        {
+            lblVolumeTitle.ForeColor = enabled ? UI.Theme.AppTheme.TextColor : UI.Theme.AppTheme.Colors.TextSecondaryColor;
+        }
+
+        if (lblVolumeValue != null)
+        {
+            lblVolumeValue.ForeColor = enabled ? UI.Theme.AppTheme.TextColor : UI.Theme.AppTheme.Colors.TextSecondaryColor;
+        }
+
         if (tblAudioRows != null)
+        {
             tblAudioRows.Enabled = enabled;
-        // 变灰效果可由各控件自身处理，或统一调整透明度
+        }
     }
 
     protected override void OnHandleDestroyed(EventArgs e)

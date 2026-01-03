@@ -20,6 +20,7 @@ public class PomodoroTimerService : IPomodoroTimerService
     private readonly System.Timers.Timer _timer;
     private readonly ITimerService? _timerService;
     private readonly IAppSettings? _appSettings;
+    private readonly IAudioService? _audioService;
 
     // --- 状态数据 ---
     private TimeSpan _timeLeft;
@@ -49,10 +50,11 @@ public class PomodoroTimerService : IPomodoroTimerService
     public DateTime PomodoroCycleStartTime { get; private set; } = DateTime.Now;
     public DateTime FullPomodoroCycleStartTime { get; private set; } = DateTime.Now;
 
-    public PomodoroTimerService(ITimerService? timerService, IAppSettings? appSettings)
+    public PomodoroTimerService(ITimerService? timerService, IAppSettings? appSettings, IAudioService? audioService)
     {
         _timerService = timerService;
         _appSettings = appSettings;
+        _audioService = audioService;
 
         _timer = new System.Timers.Timer(100)
         {
@@ -234,6 +236,9 @@ public class PomodoroTimerService : IPomodoroTimerService
             TryPauseGameTimer();
             // 再触发UI弹窗 (UI会读取到新的休息时间)
             PomodoroBreakStarted?.Invoke(this, new PomodoroBreakStartedEventArgs(breakType));
+
+            // 播放番茄钟休息开始音效
+            _audioService?.PlaySound(_appSettings?.SoundBreakStart ?? "");
         }
         else
         {
@@ -245,6 +250,9 @@ public class PomodoroTimerService : IPomodoroTimerService
 
             _timeLeft = GetDurationForState(_currentState);
             TryResumeGameTimer();
+
+            // 播放番茄钟休息结束音效
+            _audioService?.PlaySound(_appSettings?.SoundBreakEnd ?? "");
         }
 
         // 3. 进入新阶段后，状态自动变为 Running 并开始计时

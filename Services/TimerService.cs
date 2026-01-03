@@ -14,6 +14,7 @@ public class TimerService : ITimerService
     private readonly ITimerHistoryService _historyService;
     private readonly IAppSettings _settings;
     private readonly ISceneService _sceneService;
+    private readonly IAudioService _audioService;
 
     private readonly System.Timers.Timer _timer;
     private DateTime _startTime = DateTime.MinValue;
@@ -28,13 +29,15 @@ public class TimerService : ITimerService
         IProfileService profileService,
         ITimerHistoryService historyService,
         IAppSettings settings,
-        ISceneService sceneService
+        ISceneService sceneService,
+        IAudioService audioService
     )
     {
         _profileService = profileService;
         _historyService = historyService;
         _settings = settings;
         _sceneService = sceneService;
+        _audioService = audioService;
 
         _timer = new System.Timers.Timer(15);
         _timer.Elapsed += OnTimerElapsed;
@@ -83,6 +86,9 @@ public class TimerService : ITimerService
         _pausedDuration = TimeSpan.Zero;
         _timer.Start();
         Utils.Toast.Success(Utils.LanguageManager.GetString("TimerStarted"));
+
+        // 播放计时器开始音效
+        _audioService.PlaySound(_settings.SoundTimerStart);
 
         // 创建开始记录
         CreateStartRecord();
@@ -156,6 +162,9 @@ public class TimerService : ITimerService
         _timer.Stop();
         Utils.Toast.Warning(Utils.LanguageManager.GetString("TimerPaused"));
 
+        // 播放计时器暂停音效
+        _audioService.PlaySound(_settings.SoundTimerPause);
+
         UpdateIncompleteRecord();
         UpdateTimeDisplay();
         TimerPauseStateChangedEvent?.Invoke(true);
@@ -170,6 +179,7 @@ public class TimerService : ITimerService
         _pauseStartTime = DateTime.Now;
         _timer.Start();
         Utils.Toast.Info(Utils.LanguageManager.GetString("TimerResumed"));
+        _audioService.PlaySound(_settings.SoundTimerStart);
 
         TimerPauseStateChangedEvent?.Invoke(false);
         UpdateTimeDisplay();
