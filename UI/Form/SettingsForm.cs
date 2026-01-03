@@ -122,22 +122,19 @@ public partial class SettingsForm : BaseForm
             timerSettings.RefreshUI();
 
             // 刷新音频设置UI
-            var audioSettings = tabControl.TabPages[3].Controls[0] as UI.Settings.AudioSettingsControl;
-            if (audioSettings != null)
+            if (tabControl.TabPages[3].Controls[0] is UI.Settings.AudioSettingsControl audioSettings)
             {
                 audioSettings.RefreshUI();
             }
 
             // 刷新番茄设置UI
-            var pomodoroSettings = tabControl.TabPages[3].Controls[0] as UI.Settings.PomodoroSettingsControl;
-            if (pomodoroSettings != null)
+            if (tabControl.TabPages[3].Controls[0] is UI.Settings.PomodoroSettingsControl pomodoroSettings)
             {
                 pomodoroSettings.RefreshUI();
             }
 
             // 刷新关于设置UI
-            var aboutSettings = tabControl.TabPages[5].Controls[0] as UI.Settings.AboutSettingsControl;
-            if (aboutSettings != null)
+            if (tabControl.TabPages[5].Controls[0] is UI.Settings.AboutSettingsControl aboutSettings)
             {
                 aboutSettings.UpdateUI();
             }
@@ -259,6 +256,7 @@ public partial class SettingsForm : BaseForm
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
+        this.KeyDown -= SettingsForm_KeyDown;
         base.OnFormClosing(e);
     }
 

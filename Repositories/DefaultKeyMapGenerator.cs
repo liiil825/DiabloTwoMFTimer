@@ -125,14 +125,14 @@ public static class DefaultKeyMapGenerator
                     },
                     new()
                     {
-                        Key = "p",
-                        Text = "切换暂停",
-                        Action = "Timer.Pause",
+                        Key = "e",
+                        Text = "重置启动",
+                        Action = "Timer.ResetAndStart",
                     },
                     new()
                     {
                         Key = "r",
-                        Text = "重置",
+                        Text = "重置停止",
                         Action = "Timer.Reset",
                     },
                 ],

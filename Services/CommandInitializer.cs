@@ -68,6 +68,15 @@ public class CommandInitializer
                 _timerService.Reset();
             }
         );
+        _dispatcher.Register(
+            "Timer.ResetAndStart",
+            () =>
+            {
+                _mainService.SetActiveTabPage(Models.TabPage.Timer);
+                _timerService.Reset();
+                _timerService.Start();
+            }
+        );
         // StartOrNextRun
         _dispatcher.Register(
             "Timer.Next",

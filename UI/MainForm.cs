@@ -34,7 +34,7 @@ public partial class MainForm : System.Windows.Forms.Form
     private readonly ICommandDispatcher _commandDispatcher = null!;
     private readonly IKeyMapRepository _keyMapRepository = null!;
     private readonly CommandInitializer _commandInitializer = null!;
-    private LeaderKeyForm _leaderKeyForm = null!;
+    private readonly LeaderKeyForm _leaderKeyForm = null!;
     private System.ComponentModel.IContainer _components = null!;
     private readonly IAudioService _audioService = null!;
 
@@ -81,9 +81,9 @@ public partial class MainForm : System.Windows.Forms.Form
         InitializeChildControls();
         InitializeForm();
         InitializeSystemTray();
+        InitializeAudio();
         SubscribeToEvents();
         SubscribeToMessages();
-        InitializeAudio();
         Utils.Toast.RegisterUiInvoker(action => this.SafeInvoke(action));
         this.Shown += OnMainForm_Shown;
     }
@@ -108,7 +108,7 @@ public partial class MainForm : System.Windows.Forms.Form
     private void OnMainForm_Shown(object? sender, EventArgs e)
     {
         _mainService.InitializeApplication(this.Handle);
-        _mainService.ApplyWindowSettings(this);
+        this.MoveWindowToPosition(this);
 
         // 检查是否有上次使用的角色档案和场景记录，如果有则自动跳转到计时界面
         if (
@@ -348,7 +348,11 @@ public partial class MainForm : System.Windows.Forms.Form
         _messenger.Subscribe<ShowLeaderKeyFormMessage>(_ =>
             this.SafeInvoke(() =>
             {
-                if (!_leaderKeyForm.Visible)
+                if (_leaderKeyForm.Visible)
+                {
+                    _leaderKeyForm.Hide();
+                }
+                else
                 {
                     // 确保显示在当前屏幕 (多屏支持)
                     _leaderKeyForm.StartPosition = FormStartPosition.Manual;
@@ -376,6 +380,24 @@ public partial class MainForm : System.Windows.Forms.Form
             this.SafeInvoke(() =>
             {
                 RestoreFromTray();
+            })
+        );
+
+        // 【新增】响应切换窗口可见性消息
+        _messenger.Subscribe<ToggleWindowVisibilityMessage>(_ =>
+            this.SafeInvoke(() =>
+            {
+                if (this.Visible)
+                {
+                    // 如果窗口可见，最小化到托盘
+                    this.WindowState = FormWindowState.Minimized;
+                    // OnMainForm_Resize 会处理后续的 Hide 和 ShowInTaskbar = false
+                }
+                else
+                {
+                    // 如果窗口不可见，从托盘恢复
+                    RestoreFromTray();
+                }
             })
         );
 
@@ -522,7 +544,7 @@ public partial class MainForm : System.Windows.Forms.Form
         if (this.ClientSize.Height != targetHeight)
         {
             this.ClientSize = new Size(Theme.UISizeConstants.ClientWidth, targetHeight);
-            _mainService.ApplyWindowSettings(this);
+            this.MoveWindowToPosition(this);
         }
     }
 

@@ -44,7 +44,7 @@ partial class AboutSettingsControl
         this.lblAppName.AutoSize = true;
         this.lblAppName.Font = DiabloTwoMFTimer.UI.Theme.AppTheme.BigTitleFont;
         this.lblAppName.ForeColor = System.Drawing.Color.White;
-        this.lblAppName.Margin = new System.Windows.Forms.Padding(20, 20, 0, 10);
+        this.lblAppName.Margin = new System.Windows.Forms.Padding(20, 10, 0, 10);
         this.lblAppName.Name = "lblAppName";
         this.lblAppName.Size = new System.Drawing.Size(225, 32);
         this.lblAppName.Text = "Diablo II Timer";
@@ -69,7 +69,7 @@ partial class AboutSettingsControl
         // 
         this.lblAuthor.AutoSize = true;
         this.lblAuthor.Font = new System.Drawing.Font("Microsoft YaHei", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-        this.lblAuthor.ForeColor = System.Drawing.Color.White;
+        this.lblAuthor.ForeColor = System.Drawing.Color.LightGray;
         this.lblAuthor.Margin = new System.Windows.Forms.Padding(20, 10, 0, 10);
         this.lblAuthor.Name = "lblAuthor";
         this.lblAuthor.Size = new System.Drawing.Size(80, 25);

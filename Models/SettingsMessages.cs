@@ -53,8 +53,13 @@ public class MinimizeToTrayMessage { }
 
 /// <summary>
 /// 请求从系统托盘恢复
-/// 请求从系统托盘恢复
+/// </summary>
 public class RestoreFromTrayMessage { }
+
+/// <summary>
+/// 请求切换窗口可见性（最小化到托盘或从托盘恢复）
+/// </summary>
+public class ToggleWindowVisibilityMessage { }
 
 public class ShowRecordLootFormMessage { }
 

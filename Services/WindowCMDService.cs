@@ -55,6 +55,15 @@ public class WindowCMDService : IWindowCMDService
             }
         );
 
+        // 切换窗口可见性（最小化到托盘或从托盘恢复）
+        _dispatcher.Register(
+            "App.ToggleVisibility",
+            () =>
+            {
+                _messenger.Publish(new ToggleWindowVisibilityMessage());
+            }
+        );
+
         _dispatcher.Register("App.SetPosition", (arg) => SetWindowPosition(arg?.ToString() ?? string.Empty));
 
         _dispatcher.Register("App.SetPosition.TopLeft", () => SetWindowPositionTopLeft());
