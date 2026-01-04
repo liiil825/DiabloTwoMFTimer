@@ -12,7 +12,7 @@ namespace DiabloTwoMFTimer.UI.Form;
 public partial class BaseForm : System.Windows.Forms.Form
 {
     // --- 新增：字体和图标定义 ---
-    protected readonly Font _iconFont = new Font("Segoe MDL2 Assets", 10F, FontStyle.Bold);
+    protected readonly Font _iconFont = new Font("Segoe MDL2 Assets", 16F, FontStyle.Bold);
     protected const string ICON_CONFIRM = "\uE73E"; // CheckMark
     protected const string ICON_CANCEL = "\uE711"; // ChromeClose
 

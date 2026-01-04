@@ -22,6 +22,9 @@ public partial class SettingsForm : BaseForm
     private readonly List<Label> _shortcutBadges = new();
     private bool _showShortcuts = false; // 默认隐藏
 
+    // 动画定时器
+    private System.Windows.Forms.Timer _fadeInTimer;
+
     public SettingsForm(
         IAppSettings appSettings,
         IServiceProvider serviceProvider,
@@ -42,6 +45,11 @@ public partial class SettingsForm : BaseForm
         // 开启键盘预览并绑定事件
         this.KeyPreview = true;
         this.KeyDown += SettingsForm_KeyDown;
+
+        // 初始化淡入动画
+        this.Opacity = 0;
+        _fadeInTimer = new System.Windows.Forms.Timer { Interval = 15 };
+        _fadeInTimer.Tick += FadeInTimer_Tick;
 
         // 去掉构造函数里的 Size 设置，移到 OnLoad
         SetupTabs();
@@ -254,8 +262,31 @@ public partial class SettingsForm : BaseForm
         }
     }
 
+    // 淡入动画定时器事件
+    private void FadeInTimer_Tick(object? sender, EventArgs e)
+    {
+        if (this.Opacity < 1)
+        {
+            this.Opacity += 0.08;
+        }
+        else
+        {
+            this.Opacity = 1;
+            _fadeInTimer.Stop();
+        }
+    }
+
+    // 重写 OnLoad 方法，在窗口加载时启动淡入动画
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        _fadeInTimer.Start();
+    }
+
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
+        _fadeInTimer.Stop();
+        _fadeInTimer.Tick -= FadeInTimer_Tick;
         this.KeyDown -= SettingsForm_KeyDown;
         base.OnFormClosing(e);
     }
