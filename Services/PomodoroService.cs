@@ -18,9 +18,9 @@ public class PomodoroTimerService : IPomodoroTimerService
 
     // --- 核心字段 ---
     private readonly System.Timers.Timer _timer;
-    private readonly ITimerService? _timerService;
-    private readonly IAppSettings? _appSettings;
-    private readonly IAudioService? _audioService;
+    private readonly ITimerService? _timerService = null!;
+    private readonly IAppSettings? _appSettings = null!;
+    private readonly IAudioService? _audioService = null!;
 
     // --- 状态数据 ---
     private TimeSpan _timeLeft;
@@ -189,7 +189,7 @@ public class PomodoroTimerService : IPomodoroTimerService
     {
         // 1. 先暂停计时器
         _timer.Stop();
-        SystemSounds.Beep.Play();
+        _audioService!.PlaySound(AudioType.TimerPause);
 
         // 2. 判断当前模式是否需要“等待”
         bool shouldWait = CheckIfShouldWait(_appSettings?.PomodoroMode ?? PomodoroMode.Automatic);

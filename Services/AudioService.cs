@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DiabloTwoMFTimer.Interfaces;
+using DiabloTwoMFTimer.Models;
 using DiabloTwoMFTimer.Utils;
 using NAudio.Wave;
 
@@ -90,6 +91,37 @@ public class AudioService : IAudioService
                 LogManager.WriteErrorLog("AudioService", $"播放失败: {fileName}", ex);
             }
         });
+    }
+
+    public void PlaySound(AudioType audioType)
+    {
+        switch (audioType)
+        {
+            case AudioType.TimerStart:
+                if (_appSettings.SoundTimerStartEnabled)
+                {
+                    PlaySound(_appSettings.SoundTimerStart);
+                }
+                break;
+            case AudioType.TimerPause:
+                if (_appSettings.SoundTimerPauseEnabled)
+                {
+                    PlaySound(_appSettings.SoundTimerPause);
+                }
+                break;
+            case AudioType.BreakStart:
+                if (_appSettings.SoundBreakStartEnabled)
+                {
+                    PlaySound(_appSettings.SoundBreakStart);
+                }
+                break;
+            case AudioType.BreakEnd:
+                if (_appSettings.SoundBreakEndEnabled)
+                {
+                    PlaySound(_appSettings.SoundBreakEnd);
+                }
+                break;
+        }
     }
 
     private void StopCurrentSound()

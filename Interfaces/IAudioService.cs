@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DiabloTwoMFTimer.Models;
 
 namespace DiabloTwoMFTimer.Interfaces;
 
@@ -15,6 +16,8 @@ public interface IAudioService : IDisposable
     /// </summary>
     /// <param name="fileName">文件名 (相对于 audio 目录)</param>
     void PlaySound(string fileName);
+
+    void PlaySound(AudioType audioType);
 
     /// <summary>
     /// 预览/试听音频 (支持播放/暂停切换)

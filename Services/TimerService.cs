@@ -88,11 +88,7 @@ public class TimerService : ITimerService
         Utils.Toast.Success(Utils.LanguageManager.GetString("TimerStarted"));
 
         // 播放计时器开始音效
-        if (_settings.SoundTimerStartEnabled)
-        {
-            _audioService.PlaySound(_settings.SoundTimerStart);
-        }
-
+        _audioService.PlaySound(AudioType.TimerStart);
         // 创建开始记录
         CreateStartRecord();
 
@@ -166,10 +162,7 @@ public class TimerService : ITimerService
         Utils.Toast.Warning(Utils.LanguageManager.GetString("TimerPaused"));
 
         // 播放计时器暂停音效
-        if (_settings.SoundTimerPauseEnabled)
-        {
-            _audioService.PlaySound(_settings.SoundTimerPause);
-        }
+        _audioService.PlaySound(AudioType.TimerPause);
 
         UpdateIncompleteRecord();
         UpdateTimeDisplay();
@@ -186,10 +179,7 @@ public class TimerService : ITimerService
         _timer.Start();
         Utils.Toast.Info(Utils.LanguageManager.GetString("TimerResumed"));
         // 播放计时器继续音效
-        if (_settings.SoundTimerStartEnabled)
-        {
-            _audioService.PlaySound(_settings.SoundTimerStart);
-        }
+        _audioService.PlaySound(AudioType.TimerStart);
 
         TimerPauseStateChangedEvent?.Invoke(false);
         UpdateTimeDisplay();
