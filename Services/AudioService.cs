@@ -13,6 +13,7 @@ namespace DiabloTwoMFTimer.Services;
 public class AudioService : IAudioService
 {
     private readonly IAppSettings _appSettings;
+    private readonly object _playbackLock = new object();
 
     // NAudio 核心对象
     private IWavePlayer? _outputDevice;
@@ -69,26 +70,33 @@ public class AudioService : IAudioService
 
         Task.Run(() =>
         {
-            try
+            // 加锁，确保“停止旧的 -> 创建新的 -> 播放”这整个过程不会被其他线程打断
+            lock (_playbackLock)
             {
-                string fullPath = FolderManager.GetAudioFilePath(fileName);
-                if (!File.Exists(fullPath)) return;
+                try
+                {
+                    string fullPath = FolderManager.GetAudioFilePath(fileName);
+                    if (!File.Exists(fullPath)) return;
 
-                // 停止当前正在播放的音效
-                StopCurrentSound();
+                    // 停止当前正在播放的音效
+                    StopCurrentSound();
 
-                // 创建新的音频播放器
-                _soundFile = new AudioFileReader(fullPath);
-                _soundFile.Volume = _appSettings.AudioVolume / 100f;
+                    // 创建新的音频播放器
+                    _soundFile = new AudioFileReader(fullPath);
+                    _soundFile.Volume = _appSettings.AudioVolume / 100f;
 
-                _soundPlayer = new WaveOutEvent();
-                _soundPlayer.Init(_soundFile);
-                _soundPlayer.PlaybackStopped += OnSoundPlaybackStopped;
-                _soundPlayer.Play();
-            }
-            catch (Exception ex)
-            {
-                LogManager.WriteErrorLog("AudioService", $"播放失败: {fileName}", ex);
+                    _soundPlayer = new WaveOutEvent();
+                    _soundPlayer.Init(_soundFile);
+
+                    // 订阅事件前先移除旧的（虽然是新对象，但保持习惯），并在回调中处理多线程安全
+                    _soundPlayer.PlaybackStopped += OnSoundPlaybackStopped;
+
+                    _soundPlayer.Play();
+                }
+                catch (Exception ex)
+                {
+                    LogManager.WriteErrorLog("AudioService", $"播放失败: {fileName}", ex);
+                }
             }
         });
     }
@@ -126,8 +134,10 @@ public class AudioService : IAudioService
 
     private void StopCurrentSound()
     {
+        LogManager.WriteDebugLog("StopCurrentSound", $"_soundPlayer: {_soundPlayer}, _soundFile: {_soundFile}");
         if (_soundPlayer != null)
         {
+            _soundPlayer.PlaybackStopped -= OnSoundPlaybackStopped;
             _soundPlayer.Stop();
             _soundPlayer.Dispose();
             _soundPlayer = null;
@@ -142,7 +152,16 @@ public class AudioService : IAudioService
 
     private void OnSoundPlaybackStopped(object? sender, StoppedEventArgs e)
     {
-        StopCurrentSound();
+        // 回调通常在另一个线程触发，所以必须加锁
+        lock (_playbackLock)
+        {
+            // 关键检查：只有当触发停止事件的播放器 等于 当前的播放器时，才清理资源。
+            // 这样可以防止：线程A启动了新音乐，旧音乐（线程B）刚好播放完触发回调，结果把线程A的新音乐给关了。
+            if (_soundPlayer == sender)
+            {
+                StopCurrentSound();
+            }
+        }
     }
 
     public void PreviewSound(string fileName, Action onPlaybackStopped)
