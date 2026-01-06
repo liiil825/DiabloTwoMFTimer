@@ -282,6 +282,7 @@ public partial class MainForm : System.Windows.Forms.Form
             this.Show();
             this.ShowInTaskbar = true;
             this.WindowState = FormWindowState.Normal;
+            this.MoveWindowToPosition(this); // 确保窗口恢复到正确位置，解决位置偏移问题
             this.Activate(); // 激活窗口到最前
             _mainService.ReloadHotkeys(); // 重新注册热键，确保热键正常工作
         }

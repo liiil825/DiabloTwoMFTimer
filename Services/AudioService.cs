@@ -13,7 +13,7 @@ namespace DiabloTwoMFTimer.Services;
 public class AudioService : IAudioService
 {
     private readonly IAppSettings _appSettings;
-    private readonly object _playbackLock = new object();
+    private readonly object _playbackLock = new();
 
     // NAudio 核心对象
     private IWavePlayer? _outputDevice;
@@ -82,15 +82,16 @@ public class AudioService : IAudioService
                     StopCurrentSound();
 
                     // 创建新的音频播放器
-                    _soundFile = new AudioFileReader(fullPath);
-                    _soundFile.Volume = _appSettings.AudioVolume / 100f;
+                    _soundFile = new AudioFileReader(fullPath)
+                    {
+                        Volume = _appSettings.AudioVolume / 100f
+                    };
 
                     _soundPlayer = new WaveOutEvent();
                     _soundPlayer.Init(_soundFile);
 
                     // 订阅事件前先移除旧的（虽然是新对象，但保持习惯），并在回调中处理多线程安全
                     _soundPlayer.PlaybackStopped += OnSoundPlaybackStopped;
-
                     _soundPlayer.Play();
                 }
                 catch (Exception ex)
@@ -134,7 +135,6 @@ public class AudioService : IAudioService
 
     private void StopCurrentSound()
     {
-        LogManager.WriteDebugLog("StopCurrentSound", $"_soundPlayer: {_soundPlayer}, _soundFile: {_soundFile}");
         if (_soundPlayer != null)
         {
             _soundPlayer.PlaybackStopped -= OnSoundPlaybackStopped;
@@ -188,8 +188,10 @@ public class AudioService : IAudioService
                 return;
             }
 
-            _audioFile = new AudioFileReader(fullPath);
-            _audioFile.Volume = _appSettings.AudioVolume / 100f;
+            _audioFile = new AudioFileReader(fullPath)
+            {
+                Volume = _appSettings.AudioVolume / 100f
+            };
 
             _outputDevice = new WaveOutEvent();
             _outputDevice.Init(_audioFile);
