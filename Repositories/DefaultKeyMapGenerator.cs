@@ -288,24 +288,18 @@ public static class DefaultKeyMapGenerator
                     new()
                     {
                         Key = "q",
-                        Text = "角色页",
-                        Action = "Nav.Profile",
-                    },
-                    new()
-                    {
-                        Key = "w",
                         Text = "计时页",
                         Action = "Nav.Timer",
                     },
                     new()
                     {
-                        Key = "e",
+                        Key = "w",
                         Text = "番茄钟",
                         Action = "Nav.Pomodoro",
                     },
                     new()
                     {
-                        Key = "r",
+                        Key = "e",
                         Text = "设置",
                         Action = "App.ShowSettings",
                     },

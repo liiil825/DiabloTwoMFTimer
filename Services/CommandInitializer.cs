@@ -157,7 +157,6 @@ public class CommandInitializer
 
         // 导航：切换 Tab
         _dispatcher.Register("Nav.Timer", () => _mainService.SetActiveTabPage(Models.TabPage.Timer));
-        _dispatcher.Register("Nav.Profile", () => _mainService.SetActiveTabPage(Models.TabPage.Profile));
         _dispatcher.Register("Nav.Pomodoro", () => _mainService.SetActiveTabPage(Models.TabPage.Pomodoro));
         _dispatcher.Register("Nav.Settings", () => _mainService.RequestShowSettings());
         _dispatcher.Register("Nav.About", () => _mainService.RequestShowAbout());

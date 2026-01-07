@@ -95,3 +95,5 @@ public class PomodoroSettingsChangedMessage
 
 // 导航栏可见性变更消息
 public class NavigationVisibilityChangedMessage { }
+
+public class RequestSelectDifficultyMessage { }

@@ -1,6 +1,10 @@
 using System;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
 using DiabloTwoMFTimer.Interfaces;
 using DiabloTwoMFTimer.Models;
+using DiabloTwoMFTimer.UI.Components;
 using DiabloTwoMFTimer.UI.Form;
 using DiabloTwoMFTimer.Utils;
 
@@ -9,78 +13,134 @@ namespace DiabloTwoMFTimer.UI.Profiles;
 public partial class CreateCharacterForm : BaseForm
 {
     private readonly IProfileService _profileService;
+    private readonly ISceneService _sceneService;
 
     public string? CharacterName => txtCharacterName?.Text.Trim();
 
-    public CreateCharacterForm(IProfileService profileService)
+    public CreateCharacterForm(IProfileService profileService, ISceneService sceneService)
     {
         _profileService = profileService;
-        // 构造函数只负责初始化组件，不做业务逻辑
+        _sceneService = sceneService;
+
         InitializeComponent();
+        // 控件已在 Designer 中初始化，无需 InitializeManualControls
     }
 
-    // 将业务逻辑移至 OnLoad，防止设计器打开时崩溃
     protected override void OnLoad(EventArgs e)
     {
-        base.OnLoad(e); // 调用基类 OnLoad (触发 BaseForm 的 UpdateUI)
+        base.OnLoad(e);
 
-        if (!this.DesignMode) // 再次确保设计模式下不运行
+        if (!this.DesignMode)
         {
             SetupCharacterClasses();
+            SetupDifficulty();
+            SetupScenes();
             UpdateUI();
         }
     }
 
     private void SetupCharacterClasses()
     {
-        // 健壮性检查
-        if (cmbCharacterClass == null)
-            return;
+        if (cmbCharacterClass == null) return;
 
         cmbCharacterClass.Items.Clear();
         foreach (CharacterClass charClass in Enum.GetValues(typeof(CharacterClass)))
         {
-            // 此时还未加载本地化文本，先存入 Enum 值，DisplayMember 会处理显示，或者在 UpdateUI 统一处理
-            // 既然你在 UpdateUI 里会清除重加，这里其实可以简化，只做默认初始化
             cmbCharacterClass.Items.Add(charClass);
         }
         if (cmbCharacterClass.Items.Count > 0)
             cmbCharacterClass.SelectedIndex = 0;
     }
 
+    private void SetupDifficulty()
+    {
+        if (cmbDifficulty == null) return;
+
+        cmbDifficulty.Items.Clear();
+        foreach (GameDifficulty diff in Enum.GetValues(typeof(GameDifficulty)))
+        {
+            // 暂时存 Enum，UpdateUI 会本地化
+            cmbDifficulty.Items.Add(diff);
+        }
+        // 默认地狱难度 (Hell)
+        cmbDifficulty.SelectedItem = GameDifficulty.Hell;
+    }
+
+    private void SetupScenes()
+    {
+        if (cmbScene == null) return;
+
+        cmbScene.Items.Clear();
+        var scenes = _sceneService.FarmingScenes;
+
+        // 填充场景显示名称
+        foreach (var scene in scenes)
+        {
+            cmbScene.Items.Add(_sceneService.GetSceneDisplayName(scene));
+        }
+
+        if (cmbScene.Items.Count > 0)
+            cmbScene.SelectedIndex = 0;
+    }
+
     protected override void UpdateUI()
     {
-        // 这里的 base.UpdateUI() 会调用 BaseForm 的逻辑，更新确认/取消按钮
         base.UpdateUI();
 
-        this.Text = LanguageManager.GetString("CreateCharacter") ?? "创建";
-        lblCharacterName!.Text = LanguageManager.GetString("CharacterName") ?? "角色名称:";
-        lblCharacterClass!.Text = LanguageManager.GetString("CharacterClass") ?? "职业:";
+        this.Text = LanguageManager.GetString("CreateCharacter") ?? "Create Character";
+        if (lblCharacterName != null) lblCharacterName.Text = LanguageManager.GetString("CharacterName") ?? "Name";
+        if (lblCharacterClass != null) lblCharacterClass.Text = LanguageManager.GetString("CharacterClass") ?? "Class";
 
-        // 重新填充下拉框以应用本地化
+        // 使用本地化字符串更新新增的 Label
+        if (lblDifficulty != null) lblDifficulty.Text = LanguageManager.GetString("DifficultyLabel") ?? "Difficulty";
+        if (lblScene != null) lblScene.Text = LanguageManager.GetString("SelectScene") ?? "Scene";
+
+        UpdateComboBoxes();
+    }
+
+    private void UpdateComboBoxes()
+    {
+        // 更新职业下拉框 (本地化)
         if (cmbCharacterClass != null)
         {
-            // 记录当前选中的索引，避免刷新后丢失选择
             int oldIndex = cmbCharacterClass.SelectedIndex;
-            // 如果之前没选中（比如刚初始化），默认为0
-            if (oldIndex < 0)
-                oldIndex = 0;
-
+            if (oldIndex < 0) oldIndex = 0;
             cmbCharacterClass.Items.Clear();
-
             foreach (CharacterClass charClass in Enum.GetValues(typeof(CharacterClass)))
             {
-                string displayName = LanguageManager.GetLocalizedClassName(charClass);
-                // 这里可以直接存对象，利用 Tag 或者后续反查，
-                // 但为了配合你的 GetCharacterClassFromLocalizedName 逻辑，这里存字符串
-                cmbCharacterClass.Items.Add(displayName);
+                cmbCharacterClass.Items.Add(LanguageManager.GetLocalizedClassName(charClass));
+            }
+            if (cmbCharacterClass.Items.Count > 0)
+                cmbCharacterClass.SelectedIndex = Math.Min(oldIndex, cmbCharacterClass.Items.Count - 1);
+        }
+
+        // 更新难度下拉框 (本地化)
+        if (cmbDifficulty != null)
+        {
+            int oldIndex = cmbDifficulty.SelectedIndex;
+            cmbDifficulty.Items.Clear();
+            foreach (GameDifficulty diff in Enum.GetValues(typeof(GameDifficulty)))
+            {
+                cmbDifficulty.Items.Add(_sceneService.GetLocalizedDifficultyName(diff));
             }
 
-            if (cmbCharacterClass.Items.Count > 0)
+            if (oldIndex >= 0 && oldIndex < cmbDifficulty.Items.Count)
+                cmbDifficulty.SelectedIndex = oldIndex;
+            else
+                cmbDifficulty.SelectedIndex = 2; // 默认 Hell
+        }
+
+        // 更新场景下拉框
+        if (cmbScene != null)
+        {
+            int oldIndex = cmbScene.SelectedIndex;
+            cmbScene.Items.Clear();
+            foreach (var scene in _sceneService.FarmingScenes)
             {
-                // 确保索引不越界
-                cmbCharacterClass.SelectedIndex = Math.Min(oldIndex, cmbCharacterClass.Items.Count - 1);
+                cmbScene.Items.Add(_sceneService.GetSceneDisplayName(scene));
             }
+            if (oldIndex >= 0 && oldIndex < cmbScene.Items.Count)
+                cmbScene.SelectedIndex = oldIndex;
         }
     }
 
@@ -88,17 +148,47 @@ public partial class CreateCharacterForm : BaseForm
     {
         if (string.IsNullOrWhiteSpace(CharacterName))
         {
-            Utils.Toast.Info(LanguageManager.GetString("EnterCharacterName") ?? "请输入角色名称");
-            txtCharacterName!.Focus(); // 聚焦到输入框
+            Utils.Toast.Info(LanguageManager.GetString("EnterCharacterName") ?? "Please enter character name");
+            txtCharacterName!.Focus();
             return;
         }
 
         if (_profileService.FindProfileByName(CharacterName) != null)
         {
-            Utils.Toast.Warning(LanguageManager.GetString("CharacterExists") ?? "该角色名称已存在");
+            Utils.Toast.Warning(LanguageManager.GetString("CharacterExists") ?? "Character name already exists");
             txtCharacterName!.SelectAll();
             txtCharacterName!.Focus();
             return;
+        }
+
+        // 验证职业
+        var selectedClass = GetSelectedClass();
+        if (selectedClass == null) return;
+
+        // 1. 创建角色
+        var profile = _profileService.CreateCharacter(CharacterName, selectedClass.Value);
+
+        if (profile != null)
+        {
+            // 2. 设置初始场景和难度
+            if (cmbScene != null && cmbScene.SelectedIndex >= 0)
+            {
+                // 获取选中的场景对象
+                if (cmbScene.SelectedIndex < _sceneService.FarmingScenes.Count)
+                {
+                    var scene = _sceneService.FarmingScenes[cmbScene.SelectedIndex];
+                    profile.LastRunScene = scene.EnUS;
+                }
+            }
+
+            if (cmbDifficulty != null && cmbDifficulty.SelectedIndex >= 0)
+            {
+                profile.LastRunDifficulty = _sceneService.GetDifficultyByIndex(cmbDifficulty.SelectedIndex);
+            }
+
+            // 3. 立即切换到该角色并保存
+            _profileService.SwitchCharacter(profile);
+            _profileService.SaveCurrentProfile();
         }
 
         base.BtnConfirm_Click(sender, e);
@@ -108,23 +198,15 @@ public partial class CreateCharacterForm : BaseForm
     {
         if (cmbCharacterClass?.SelectedItem != null)
         {
-            string localizedName = cmbCharacterClass.SelectedItem.ToString()!;
-            return GetCharacterClassFromLocalizedName(localizedName);
+            if (cmbCharacterClass.SelectedIndex >= 0)
+            {
+                var values = Enum.GetValues(typeof(CharacterClass));
+                if (cmbCharacterClass.SelectedIndex < values.Length)
+                {
+                    return (CharacterClass?)values.GetValue(cmbCharacterClass.SelectedIndex);
+                }
+            }
         }
         return null;
-    }
-
-    private static CharacterClass GetCharacterClassFromLocalizedName(string localizedName)
-    {
-        foreach (CharacterClass charClass in Enum.GetValues(typeof(CharacterClass)))
-        {
-            if (
-                LanguageManager
-                    .GetLocalizedClassName(charClass)
-                    .Equals(localizedName, StringComparison.OrdinalIgnoreCase)
-            )
-                return charClass;
-        }
-        return CharacterClass.Barbarian;
     }
 }

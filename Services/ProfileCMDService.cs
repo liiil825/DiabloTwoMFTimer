@@ -38,7 +38,6 @@ public class ProfileCMDService : IProfileCMDService
             "Character.Create",
             () =>
             {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
                 _messenger.Publish(new CreateCharacterMessage());
             }
         );
@@ -47,7 +46,6 @@ public class ProfileCMDService : IProfileCMDService
             "Character.Switch",
             () =>
             {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
                 _messenger.Publish(new SwitchCharacterMessage());
             }
         );
@@ -64,7 +62,6 @@ public class ProfileCMDService : IProfileCMDService
             "Loot.ShowHistory",
             () =>
             {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
                 _messenger.Publish(new ShowLootHistoryMessage());
             }
         );
@@ -73,7 +70,6 @@ public class ProfileCMDService : IProfileCMDService
             "Character.Delete",
             () =>
             {
-                _mainService.SetActiveTabPage(Models.TabPage.Profile);
                 _messenger.Publish(new DeleteCharacterMessage());
             }
         );

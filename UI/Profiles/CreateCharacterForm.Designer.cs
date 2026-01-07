@@ -17,8 +17,13 @@ namespace DiabloTwoMFTimer.UI.Profiles
             this.txtCharacterName = new DiabloTwoMFTimer.UI.Components.ThemedTextBox();
             this.lblCharacterClass = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
             this.cmbCharacterClass = new DiabloTwoMFTimer.UI.Components.ThemedComboBox();
+            // 新增控件定义
+            this.lblDifficulty = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.cmbDifficulty = new DiabloTwoMFTimer.UI.Components.ThemedComboBox();
+            this.lblScene = new DiabloTwoMFTimer.UI.Components.ThemedLabel();
+            this.cmbScene = new DiabloTwoMFTimer.UI.Components.ThemedComboBox();
 
-            this.pnlContent.SuspendLayout(); // 挂起基类容器
+            this.pnlContent.SuspendLayout();
             this.tlpContent.SuspendLayout();
             this.SuspendLayout();
 
@@ -33,13 +38,20 @@ namespace DiabloTwoMFTimer.UI.Profiles
             // 第二列：Input (Percent 100%) - 占满剩余
             this.tlpContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
 
+            // 添加控件到布局 (Row 0: Name, Row 1: Class, Row 2: Difficulty, Row 3: Scene)
             this.tlpContent.Controls.Add(this.lblCharacterName, 0, 0);
             this.tlpContent.Controls.Add(this.txtCharacterName, 1, 0);
             this.tlpContent.Controls.Add(this.lblCharacterClass, 0, 1);
             this.tlpContent.Controls.Add(this.cmbCharacterClass, 1, 1);
+            this.tlpContent.Controls.Add(this.lblScene, 0, 2);
+            this.tlpContent.Controls.Add(this.cmbScene, 1, 2);
+            this.tlpContent.Controls.Add(this.lblDifficulty, 0, 3);
+            this.tlpContent.Controls.Add(this.cmbDifficulty, 1, 3);
 
             this.tlpContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpContent.RowCount = 2;
+            this.tlpContent.RowCount = 4; // 修改为4行
+            this.tlpContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.tlpContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.tlpContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.tlpContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.tlpContent.Padding = new System.Windows.Forms.Padding(0);
@@ -79,15 +91,49 @@ namespace DiabloTwoMFTimer.UI.Profiles
             this.cmbCharacterClass.Name = "cmbCharacterClass";
             this.cmbCharacterClass.TabIndex = 1;
 
+
+            // 
+            // lblScene (新增)
+            // 
+            this.lblScene.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblScene.AutoSize = true;
+            this.lblScene.Margin = new System.Windows.Forms.Padding(0, 10, 10, 10);
+            this.lblScene.Name = "lblScene";
+            this.lblScene.Text = "Scene:";
+
+            // 
+            // cmbScene (新增)
+            // 
+            this.cmbScene.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cmbScene.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbScene.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.cmbScene.Name = "cmbScene";
+            this.cmbScene.TabIndex = 2;
+            // 
+            // lblDifficulty (新增)
+            // 
+            this.lblDifficulty.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblDifficulty.AutoSize = true;
+            this.lblDifficulty.Margin = new System.Windows.Forms.Padding(0, 10, 10, 10);
+            this.lblDifficulty.Name = "lblDifficulty";
+            this.lblDifficulty.Text = "Difficulty:";
+
+            // 
+            // cmbDifficulty (新增)
+            // 
+            this.cmbDifficulty.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cmbDifficulty.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbDifficulty.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.cmbDifficulty.Name = "cmbDifficulty";
+            this.cmbDifficulty.TabIndex = 3;
+
             // 
             // CreateCharacterForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            // 只需要设定一个最小宽度，高度自动
             this.MinimumSize = new System.Drawing.Size(400, 0);
 
-            // 将布局添加到基类的 Content Panel
             this.pnlContent.Controls.Add(this.tlpContent);
 
             this.Name = "CreateCharacterForm";
@@ -106,5 +152,10 @@ namespace DiabloTwoMFTimer.UI.Profiles
         private DiabloTwoMFTimer.UI.Components.ThemedTextBox txtCharacterName;
         private DiabloTwoMFTimer.UI.Components.ThemedLabel lblCharacterClass;
         private DiabloTwoMFTimer.UI.Components.ThemedComboBox cmbCharacterClass;
+        // 新增字段
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblDifficulty;
+        private DiabloTwoMFTimer.UI.Components.ThemedComboBox cmbDifficulty;
+        private DiabloTwoMFTimer.UI.Components.ThemedLabel lblScene;
+        private DiabloTwoMFTimer.UI.Components.ThemedComboBox cmbScene;
     }
 }

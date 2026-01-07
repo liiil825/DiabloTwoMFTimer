@@ -47,7 +47,6 @@ public static class ServiceConfiguration
         // --- 3. 注册 UI 组件 (Transient) ---
 
         // 主窗体及其依赖控件
-        services.AddTransient<UI.Profiles.ProfileManager>();
         services.AddTransient<UI.Timer.TimerControl>();
         services.AddTransient<UI.Pomodoro.PomodoroControl>();
         services.AddTransient<UI.Timer.CharacterSceneControl>();

@@ -9,7 +9,6 @@ using DiabloTwoMFTimer.Services;
 using DiabloTwoMFTimer.UI.Components;
 using DiabloTwoMFTimer.UI.Form;
 using DiabloTwoMFTimer.UI.Pomodoro;
-using DiabloTwoMFTimer.UI.Profiles;
 using DiabloTwoMFTimer.UI.Settings;
 using DiabloTwoMFTimer.UI.Theme;
 using DiabloTwoMFTimer.UI.Timer;
@@ -26,7 +25,6 @@ public partial class MainForm : System.Windows.Forms.Form
     private readonly IMessenger _messenger = null!;
     private readonly ISceneService _sceneService = null!;
 
-    private readonly ProfileManager _profileManager = null!;
     private readonly TimerControl _timerControl = null!;
     private readonly PomodoroControl _pomodoroControl = null!;
     private NotifyIcon _notifyIcon = null!;
@@ -42,7 +40,7 @@ public partial class MainForm : System.Windows.Forms.Form
     {
         InitializeComponent();
         this.tlpNavigation.Height = Theme.UISizeConstants.TabItemHeight;
-        UpdateNavButtonStyles(btnNavProfile);
+        UpdateNavButtonStyles(btnNavTimer);
     }
 
     public MainForm(
@@ -52,7 +50,6 @@ public partial class MainForm : System.Windows.Forms.Form
         ITimerHistoryService timerHistoryService,
         ISceneService sceneService,
         IMessenger messenger,
-        ProfileManager profileManager,
         TimerControl timerControl,
         PomodoroControl pomodoroControl,
         ICommandDispatcher commandDispatcher,
@@ -67,7 +64,6 @@ public partial class MainForm : System.Windows.Forms.Form
         _profileService = profileService;
         _timerHistoryService = timerHistoryService;
         _sceneService = sceneService;
-        _profileManager = profileManager;
         _timerControl = timerControl;
         _pomodoroControl = pomodoroControl;
         _keyMapRepository = keyMapRepository;
@@ -88,9 +84,6 @@ public partial class MainForm : System.Windows.Forms.Form
         this.Shown += OnMainForm_Shown;
     }
 
-    /// <summary>
-    /// 初始化音频，将资源目录的音频复制到用户目录
-    /// </summary>
     private void InitializeAudio()
     {
         try
@@ -110,90 +103,118 @@ public partial class MainForm : System.Windows.Forms.Form
         _mainService.InitializeApplication(this.Handle);
         this.MoveWindowToPosition(this);
 
-        // 检查是否有上次使用的角色档案和场景记录，如果有则自动跳转到计时界面
-        if (
-            !string.IsNullOrEmpty(_appSettings.LastUsedProfile)
-            && !string.IsNullOrEmpty(_profileService.CurrentProfile?.LastRunScene)
-        )
-        {
-            _mainService.SetActiveTabPage(Models.TabPage.Timer);
-        }
+        // 核心逻辑：启动时自动加载上次的配置
+        LoadLastRunSettings();
+
+        // 核心逻辑：如果没有角色档案，自动触发创建
+        CheckAndCreateInitialProfile();
+
+        _mainService.SetActiveTabPage(Models.TabPage.Timer);
 
         this.Opacity = _appSettings.Opacity;
     }
 
-    // 统一的点击事件处理
+    // 检查并创建初始角色
+    private void CheckAndCreateInitialProfile()
+    {
+        var profiles = _profileService.GetAllProfiles();
+        if (profiles == null || profiles.Count == 0)
+        {
+            LogManager.WriteDebugLog("MainForm", "检测到无角色档案，自动触发创建流程");
+            // 延迟调用以确保窗体完全加载
+            this.BeginInvoke(new Action(() =>
+            {
+                // 手动触发创建请求
+                OnCreateCharacterRequested(new CreateCharacterMessage());
+            }));
+        }
+    }
+
+    private void LoadLastRunSettings()
+    {
+        string lastUsedProfileName = _appSettings.LastUsedProfile;
+
+        if (!string.IsNullOrWhiteSpace(lastUsedProfileName))
+        {
+            var profile = _profileService.FindProfileByName(lastUsedProfileName);
+            if (profile != null)
+            {
+                _profileService.SwitchCharacter(profile);
+
+                if (!string.IsNullOrEmpty(profile.LastRunScene))
+                {
+                    _profileService.CurrentScene = profile.LastRunScene;
+                }
+
+                _profileService.CurrentDifficulty = profile.LastRunDifficulty;
+                LogManager.WriteDebugLog("MainForm", $"已恢复上次状态: {profile.Name}, {profile.LastRunScene}, {profile.LastRunDifficulty}");
+            }
+        }
+    }
+
     private void NavButton_Click(object sender, EventArgs e)
     {
-        if (sender == btnNavProfile)
-            tabControl.SelectedIndex = 0;
-        else if (sender == btnNavTimer)
-            tabControl.SelectedIndex = 1;
+        if (sender == btnNavTimer)
+            tabControl.SelectedIndex = (int)Models.TabPage.Timer;
         else if (sender == btnNavPomodoro)
-            tabControl.SelectedIndex = 2;
+            tabControl.SelectedIndex = (int)Models.TabPage.Pomodoro;
         else if (sender == btnNavSettings)
         {
             _mainService.RequestShowSettings();
             return;
         }
-        else if (sender == btnNavMinimize) // 现在文字是 'x'
+        else if (sender == btnNavMinimize)
         {
-            using var form = new CloseOptionForm();
-            // 因为继承了 BaseForm，它已经自带了 ShowDialog 逻辑和 DialogResult 处理
-            var result = form.ShowDialog(this);
-
-            // BaseForm 的 "确认" 按钮会返回 DialogResult.OK
-            if (result == DialogResult.OK)
-            {
-                if (form.IsCloseAppSelected)
-                {
-                    // 用户勾选了退出 -> 彻底关闭
-                    _mainService.HandleApplicationClosing();
-                    Application.Exit();
-                }
-                else
-                {
-                    // 用户默认操作 -> 最小化到托盘
-
-                    // 1. 恢复按钮高亮到 Timer 或当前页 (防止 'x' 按钮一直亮着)
-                    if (tabControl.SelectedIndex != (int)Models.TabPage.Timer)
-                    {
-                        tabControl.SelectedIndex = (int)Models.TabPage.Timer;
-                        UpdateNavButtonStyles(btnNavTimer);
-                    }
-                    else
-                    {
-                        UpdateNavButtonStyles(btnNavTimer);
-                    }
-
-                    // 2. 执行最小化 (这会触发 Resize 事件从而隐藏窗口)
-                    this.WindowState = FormWindowState.Minimized;
-                }
-            }
-            // 如果点击 BaseForm 的 "取消" 或 "X"，返回 Cancel，这里什么都不做，直接返回
-            return; // 重要：阻止执行函数末尾的 UpdateNavButtonStyles((ThemedButton)sender);
+            HandleCloseOption();
+            return;
         }
 
         UpdateNavButtonStyles((ThemedButton)sender);
     }
 
-    // 样式更新：高亮当前，变灰其他
-    private void UpdateNavButtonStyles(ThemedButton activeBtn)
+    private void HandleCloseOption()
     {
-        var buttons = new[] { btnNavProfile, btnNavTimer, btnNavPomodoro, btnNavSettings };
+        using var form = new CloseOptionForm();
+        var result = form.ShowDialog(this);
 
-        foreach (var btn in buttons)
+        if (result == DialogResult.OK)
         {
-            // 只需要这一行，样式逻辑全在 Button 内部
-            btn.IsSelected = (btn == activeBtn);
+            if (form.IsCloseAppSelected)
+            {
+                _mainService.HandleApplicationClosing();
+                Application.Exit();
+            }
+            else
+            {
+                if (tabControl.SelectedIndex != (int)Models.TabPage.Timer)
+                {
+                    tabControl.SelectedIndex = (int)Models.TabPage.Timer;
+                    UpdateNavButtonStyles(btnNavTimer);
+                }
+                else
+                {
+                    UpdateNavButtonStyles(btnNavTimer);
+                }
+                this.WindowState = FormWindowState.Minimized;
+            }
         }
     }
 
-    // --- 保持绘制边框，这在无边框窗体中很重要 ---
+    private void UpdateNavButtonStyles(ThemedButton activeBtn)
+    {
+        var buttons = new[] { btnNavTimer, btnNavPomodoro, btnNavSettings };
+        foreach (var btn in buttons)
+        {
+            if (btn != null)
+                btn.IsSelected = (btn == activeBtn);
+        }
+
+        if (btnNavProfile != null) btnNavProfile.IsSelected = false;
+    }
+
     protected override void OnPaint(PaintEventArgs e)
     {
         base.OnPaint(e);
-        // 绘制一圈暗金色的细边框
         using var pen = new Pen(DiabloTwoMFTimer.UI.Theme.AppTheme.AccentColor, 1);
         e.Graphics.DrawRectangle(pen, 0, 0, this.Width - 1, this.Height - 1);
     }
@@ -206,7 +227,6 @@ public partial class MainForm : System.Windows.Forms.Form
             page.Controls.Add(control);
         }
 
-        AddControlToTab(tabProfilePage, _profileManager);
         AddControlToTab(tabTimerPage, _timerControl);
         AddControlToTab(tabPomodoroPage, _pomodoroControl);
     }
@@ -218,63 +238,53 @@ public partial class MainForm : System.Windows.Forms.Form
         this.ShowInTaskbar = true;
         this.Opacity = 0;
         this.TopMost = _appSettings.AlwaysOnTop;
-        // 根据设置显示或隐藏导航栏
         tlpNavigation.Visible = _appSettings.ShowNavigation;
+
+        if (btnNavProfile != null)
+        {
+            btnNavProfile.Visible = false;
+        }
     }
 
-    // 【新增】初始化托盘图标的具体逻辑
     private void InitializeSystemTray()
     {
         _components = new Container();
 
-        // 1. 创建右键菜单
         _trayMenu = new ContextMenuStrip(_components);
         var exitItem = new ToolStripMenuItem("退出程序");
         exitItem.Click += (s, e) =>
         {
-            // 彻底退出程序
             _mainService.HandleApplicationClosing();
             Application.Exit();
         };
         _trayMenu.Items.Add(exitItem);
 
-        // 2. 创建托盘图标
         _notifyIcon = new NotifyIcon(_components)
         {
-            Text = "D2R Timer", // 鼠标悬停时显示的文字
-            Icon = new Icon("Resources\\d2r.ico"), // 复用你的图标，确保路径正确
-            Visible = true, // 初始是否可见，建议设为 true，或者仅在最小化时 true
+            Text = "D2R Timer",
+            Icon = new Icon("Resources\\d2r.ico"),
+            Visible = true,
             ContextMenuStrip = _trayMenu,
         };
 
-        // 3. 绑定双击事件：还原窗口
         _notifyIcon.MouseDoubleClick += (s, e) =>
         {
             RestoreFromTray();
         };
 
-        // 4. 绑定窗体大小改变事件（用于检测最小化）
         this.Resize += OnMainForm_Resize;
     }
 
-    // 【新增】核心逻辑：最小化时隐藏窗口
     private void OnMainForm_Resize(object? sender, EventArgs e)
     {
         if (this.WindowState == FormWindowState.Minimized)
         {
-            // 隐藏任务栏图标
             this.ShowInTaskbar = false;
-            // 隐藏主窗口
             this.Hide();
-            // 确保托盘图标可见
             _notifyIcon.Visible = true;
-
-            // 可选：显示一个气泡提示
-            // _notifyIcon.ShowBalloonTip(2000, "D2R Helper", "程序已运行在系统托盘", ToolTipIcon.Info);
         }
     }
 
-    // 【新增】核心逻辑：从托盘还原
     private void RestoreFromTray()
     {
         if (!this.Visible)
@@ -282,9 +292,8 @@ public partial class MainForm : System.Windows.Forms.Form
             this.Show();
             this.ShowInTaskbar = true;
             this.WindowState = FormWindowState.Normal;
-            this.MoveWindowToPosition(this); // 确保窗口恢复到正确位置，解决位置偏移问题
-            this.Activate(); // 激活窗口到最前
-            _mainService.ReloadHotkeys(); // 重新注册热键，确保热键正常工作
+            this.Activate();
+            _mainService.ReloadHotkeys();
         }
     }
 
@@ -294,7 +303,12 @@ public partial class MainForm : System.Windows.Forms.Form
         {
             if (tabControl != null && (int)tabPage < tabControl.TabCount)
             {
-                this.SafeInvoke(() => tabControl.SelectedIndex = (int)tabPage);
+                this.SafeInvoke(() =>
+                {
+                    tabControl.SelectedIndex = (int)tabPage;
+                    if ((int)tabPage == 1) UpdateNavButtonStyles(btnNavTimer);
+                    else if ((int)tabPage == 2) UpdateNavButtonStyles(btnNavPomodoro);
+                });
             }
         };
 
@@ -311,7 +325,6 @@ public partial class MainForm : System.Windows.Forms.Form
             });
         };
 
-        // 添加删除最后一个时间记录的事件
         _mainService.OnRequestDeleteLastHistory += () =>
         {
             this.SafeInvoke(() =>
@@ -323,7 +336,6 @@ public partial class MainForm : System.Windows.Forms.Form
             });
         };
 
-        // 添加删除最后一个掉落记录的事件
         _mainService.OnRequestDeleteLastLoot += () =>
         {
             this.SafeInvoke(() =>
@@ -358,7 +370,6 @@ public partial class MainForm : System.Windows.Forms.Form
                 }
                 else
                 {
-                    // 确保显示在当前屏幕 (多屏支持)
                     _leaderKeyForm.StartPosition = FormStartPosition.Manual;
                     var screen = Screen.FromControl(this);
                     _leaderKeyForm.Location = new Point(screen.Bounds.X, screen.Bounds.Bottom - _leaderKeyForm.Height);
@@ -370,13 +381,10 @@ public partial class MainForm : System.Windows.Forms.Form
             })
         );
 
-        // 【新增】响应最小化和恢复消息
         _messenger.Subscribe<MinimizeToTrayMessage>(_ =>
             this.SafeInvoke(() =>
             {
-                // 模拟点击最小化按钮的行为
                 this.WindowState = FormWindowState.Minimized;
-                // OnMainForm_Resize 会处理后续的 Hide 和 ShowInTaskbar = false
             })
         );
 
@@ -387,40 +395,157 @@ public partial class MainForm : System.Windows.Forms.Form
             })
         );
 
-        // 【新增】响应切换窗口可见性消息
         _messenger.Subscribe<ToggleWindowVisibilityMessage>(_ =>
             this.SafeInvoke(() =>
             {
                 if (this.Visible)
                 {
-                    // 如果窗口可见，最小化到托盘
                     this.WindowState = FormWindowState.Minimized;
-                    // OnMainForm_Resize 会处理后续的 Hide 和 ShowInTaskbar = false
                 }
                 else
                 {
-                    // 如果窗口不可见，从托盘恢复
                     RestoreFromTray();
                 }
             })
         );
 
         _messenger.Subscribe<ShowRecordLootFormMessage>(_ => this.SafeInvoke(ShowRecordLootDialog));
-        // 响应导航栏可见性变更消息
         _messenger.Subscribe<NavigationVisibilityChangedMessage>(_ =>
             this.SafeInvoke(() =>
             {
                 tlpNavigation.Visible = _appSettings.ShowNavigation;
             })
         );
+
+        _messenger.Subscribe<CreateCharacterMessage>(OnCreateCharacterRequested);
+        _messenger.Subscribe<SwitchCharacterMessage>(OnSwitchCharacterRequested);
+        _messenger.Subscribe<ExportCharacterMessage>(OnExportCharacterRequested);
+        _messenger.Subscribe<ShowLootHistoryMessage>(OnShowLootHistoryRequested);
+        _messenger.Subscribe<DeleteCharacterMessage>(OnDeleteCharacterRequested);
+
+        _messenger.Subscribe<RequestSelectDifficultyMessage>(OnRequestSelectDifficulty);
+    }
+
+    private void OnCreateCharacterRequested(CreateCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            // 确保传入 _sceneService
+            using var form = new DiabloTwoMFTimer.UI.Profiles.CreateCharacterForm(_profileService, _sceneService);
+
+            if (form.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(form.CharacterName))
+            {
+                Utils.Toast.Success($"角色 '{form.CharacterName}' 创建成功并已选中！");
+                _mainService.SetActiveTabPage(Models.TabPage.Timer);
+            }
+        });
+    }
+
+    private void OnSwitchCharacterRequested(SwitchCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            using var form = new DiabloTwoMFTimer.UI.Profiles.SwitchCharacterForm(_profileService);
+            if (form.ShowDialog(this) == DialogResult.OK && form.SelectedProfile != null)
+            {
+                var selectedProfile = form.SelectedProfile;
+                if (_profileService.SwitchCharacter(selectedProfile))
+                {
+                    _appSettings.LastUsedProfile = selectedProfile.Name;
+                    _appSettings.Save();
+
+                    if (!string.IsNullOrEmpty(selectedProfile.LastRunScene))
+                        _profileService.CurrentScene = selectedProfile.LastRunScene;
+                    _profileService.CurrentDifficulty = selectedProfile.LastRunDifficulty;
+
+                    _mainService.SetActiveTabPage(Models.TabPage.Timer);
+                    Utils.Toast.Success($"已切换到角色 '{selectedProfile.Name}'");
+                }
+            }
+        });
+    }
+
+    private void OnDeleteCharacterRequested(DeleteCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            var currentProfile = _profileService.CurrentProfile;
+            if (currentProfile == null)
+            {
+                Utils.Toast.Warning("当前没有选择角色");
+                return;
+            }
+
+            string confirmMsg = $"确定要删除角色: {currentProfile.Name}?";
+            if (DiabloTwoMFTimer.UI.Components.ThemedMessageBox.Show(
+                    confirmMsg,
+                    LanguageManager.GetString("DeleteCharacter") ?? "删除角色",
+                    MessageBoxButtons.YesNo
+                ) == DialogResult.Yes)
+            {
+                if (_profileService.DeleteCharacter(currentProfile))
+                {
+                    Utils.Toast.Success($"已成功删除角色");
+                    // 核心逻辑：删除后检查是否为空，是则触发创建
+                    CheckAndCreateInitialProfile();
+                }
+            }
+        });
+    }
+
+    private void OnExportCharacterRequested(ExportCharacterMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            try
+            {
+                string dirPath = Utils.FolderManager.AppDataPath;
+                if (!System.IO.Directory.Exists(dirPath))
+                    System.IO.Directory.CreateDirectory(dirPath);
+
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = dirPath,
+                    UseShellExecute = true,
+                    Verb = "open",
+                });
+            }
+            catch (Exception ex)
+            {
+                LogManager.WriteErrorLog("MainForm", "打开档案文件夹失败", ex);
+                Utils.Toast.Error($"无法打开文件夹: {ex.Message}");
+            }
+        });
+    }
+
+    private void OnShowLootHistoryRequested(ShowLootHistoryMessage message)
+    {
+        this.SafeInvoke(() =>
+        {
+            // 注意：StatisticsService 的注入仍需您在构造函数中补充，此处保持占位
+            var historyForm = new DiabloTwoMFTimer.UI.Timer.LootHistoryForm(
+                _mainService,
+                _profileService,
+                _sceneService,
+                 null!,
+                _messenger
+            );
+
+            _messenger.Publish(new HideMainWindowMessage());
+            historyForm.ShowDialog(this);
+        });
+    }
+
+    private void OnRequestSelectDifficulty(RequestSelectDifficultyMessage message)
+    {
+        // 难度选择逻辑占位
     }
 
     public void MoveWindowToPosition(System.Windows.Forms.Form form)
     {
         var position = AppSettings.StringToWindowPosition(_appSettings.WindowPosition);
         Rectangle screenBounds = Screen.GetWorkingArea(form);
-        int x,
-            y;
+        int x, y;
         switch (position)
         {
             case WindowPosition.TopLeft:
@@ -447,17 +572,12 @@ public partial class MainForm : System.Windows.Forms.Form
 
     private void OnScreenshotRequested(ScreenshotRequestedMessage message)
     {
-        // 使用 BeginInvoke 确保脱离当前的事件调用栈
-        // 使用 async/await 让出 UI 线程，让系统有时间处理 RecordLootForm 关闭后的重绘
         this.BeginInvoke(
             new Action(async () =>
             {
                 try
                 {
-                    // 等待 500ms：这对于让刚刚关闭的 RecordLootForm 彻底消失绰绰有余
-                    // 此时 UI 线程是空闲的，可以处理 Paint 消息
                     await Task.Delay(500);
-
                     await PerformMainFormScreenshotAsync(message.LootName);
                 }
                 catch (Exception ex)
@@ -472,21 +592,14 @@ public partial class MainForm : System.Windows.Forms.Form
     private async Task PerformMainFormScreenshotAsync(string lootName)
     {
         bool hideWindow = _appSettings.HideWindowOnScreenshot;
-
         try
         {
-            // 如果需要隐藏主窗口
             if (hideWindow)
             {
                 this.Opacity = 0;
-                // 等待 200ms 让主窗口消失的重绘生效
-                // 使用 Task.Delay 而不是 Thread.Sleep，避免卡死 UI
                 await Task.Delay(200);
             }
-
-            // 执行截图 (这是耗时操作，但在 UI 线程执行没问题，因为我们已经让出了时间片)
             string? path = ScreenshotHelper.CaptureAndSave(lootName);
-
             if (path == null)
             {
                 Utils.Toast.Error(LanguageManager.GetString("ScreenshotFailed") ?? "截图失败");
@@ -503,7 +616,6 @@ public partial class MainForm : System.Windows.Forms.Form
         }
         finally
         {
-            // 恢复主窗口显示
             if (hideWindow)
             {
                 this.Opacity = _appSettings.Opacity;
@@ -514,13 +626,10 @@ public partial class MainForm : System.Windows.Forms.Form
     private void UpdateFormTitleAndTabs()
     {
         this.Text = LanguageManager.GetString("FormTitle");
-        btnNavProfile.Text = LanguageManager.GetString("TabProfile");
         btnNavTimer.Text = LanguageManager.GetString("TabTimer");
         btnNavPomodoro.Text = LanguageManager.GetString("TabPomodoro");
         btnNavSettings.Text = LanguageManager.GetString("TabSettings");
-        // Tab 4 始终是 "_"，不需要本地化
 
-        _profileManager.RefreshUI();
         _timerControl.RefreshUI();
         _pomodoroControl.RefreshUI();
     }
@@ -532,7 +641,7 @@ public partial class MainForm : System.Windows.Forms.Form
             _timerHistoryService,
             _sceneService,
             _appSettings,
-            _messenger // 传入信使
+            _messenger
         );
         lootForm.LootRecordSaved += (s, e) => _timerControl.HandleLootAdded();
         lootForm.ShowDialog(this);
@@ -554,22 +663,15 @@ public partial class MainForm : System.Windows.Forms.Form
 
     private void TabControl_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        // 【新增】核心修复：让按钮状态始终跟随 Tab 索引变化
-        // 这样无论是点击顶部按钮，还是程序内部跳转（如StartFarm），样式都会自动同步
         int index = tabControl.SelectedIndex;
-
-        // 根据索引找到对应的按钮
-        // (注意：这里使用了之前定义的按钮变量名，确保它们在当前类中可访问)
         DiabloTwoMFTimer.UI.Components.ThemedButton? targetBtn = index switch
         {
-            0 => btnNavProfile,
             1 => btnNavTimer,
             2 => btnNavPomodoro,
             3 => btnNavSettings,
             _ => null,
         };
 
-        // 更新高亮样式
         if (targetBtn != null)
         {
             UpdateNavButtonStyles(targetBtn);
@@ -579,10 +681,6 @@ public partial class MainForm : System.Windows.Forms.Form
         if (tabControl.SelectedIndex == (int)Models.TabPage.Timer)
         {
             _timerControl.HandleTabSelected();
-        }
-        else if (tabControl.SelectedIndex == (int)Models.TabPage.Profile)
-        {
-            _profileManager.RefreshUI();
         }
     }
 
@@ -601,7 +699,6 @@ public partial class MainForm : System.Windows.Forms.Form
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
-        // 当句柄重建时（例如修改 ShowInTaskbar 后），通知 Service 更新并重注册热键
         _mainService?.UpdateWindowHandle(this.Handle);
     }
 }

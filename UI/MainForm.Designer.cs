@@ -37,7 +37,6 @@ partial class MainForm
     private void InitializeComponent()
     {
         this.tabControl = new DiabloTwoMFTimer.UI.Components.ThemedTabControl();
-        this.tabProfilePage = new System.Windows.Forms.TabPage();
         this.tabTimerPage = new System.Windows.Forms.TabPage();
         this.tabPomodoroPage = new System.Windows.Forms.TabPage();
         this.tabSettingsPage = new System.Windows.Forms.TabPage();
@@ -55,7 +54,6 @@ partial class MainForm
         // 
         // tabControl
         // 
-        this.tabControl.Controls.Add(this.tabProfilePage);
         this.tabControl.Controls.Add(this.tabTimerPage);
         this.tabControl.Controls.Add(this.tabPomodoroPage);
         this.tabControl.Controls.Add(this.tabSettingsPage);
@@ -78,18 +76,16 @@ partial class MainForm
         // -------------------------
         this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
 
-        this.tlpNavigation.ColumnCount = 5;
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+        this.tlpNavigation.ColumnCount = 4;
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+        this.tlpNavigation.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
 
-        this.tlpNavigation.Controls.Add(this.btnNavProfile, 0, 0);
-        this.tlpNavigation.Controls.Add(this.btnNavTimer, 1, 0);
-        this.tlpNavigation.Controls.Add(this.btnNavPomodoro, 2, 0);
-        this.tlpNavigation.Controls.Add(this.btnNavSettings, 3, 0);
-        this.tlpNavigation.Controls.Add(this.btnNavMinimize, 4, 0);
+        this.tlpNavigation.Controls.Add(this.btnNavTimer, 0, 0);
+        this.tlpNavigation.Controls.Add(this.btnNavPomodoro, 1, 0);
+        this.tlpNavigation.Controls.Add(this.btnNavSettings, 2, 0);
+        this.tlpNavigation.Controls.Add(this.btnNavMinimize, 3, 0);
 
         this.tlpNavigation.Dock = System.Windows.Forms.DockStyle.Top;
         this.tlpNavigation.Location = new System.Drawing.Point(0, 0);
@@ -101,23 +97,12 @@ partial class MainForm
         this.tlpNavigation.TabIndex = 0;
 
         // 配置按钮 (去除边框，设为透明，文字颜色等在 CS 中统一管理)
-        ConfigureNavButton(btnNavProfile, "Profile");
         ConfigureNavButton(btnNavTimer, "Timer");
         ConfigureNavButton(btnNavPomodoro, "Tomato");
         ConfigureNavButton(btnNavSettings, "Settings");
-        ConfigureNavButton(btnNavMinimize, "\uE711");
+        ConfigureNavButton(btnNavMinimize, "");
 
         btnNavMinimize.Font = AppTheme.Fonts.SegoeIcon;
-
-        // 
-        // tabProfilePage
-        // 
-        this.tabProfilePage.Location = new System.Drawing.Point(0, UISizeConstants.TabItemHeight);
-        this.tabProfilePage.Name = "tabProfilePage";
-        this.tabProfilePage.Padding = new System.Windows.Forms.Padding(0);
-        this.tabProfilePage.TabIndex = 0;
-        this.tabProfilePage.Text = "Profile";
-        this.tabProfilePage.UseVisualStyleBackColor = true;
 
         // 
         // tabTimerPage
@@ -173,7 +158,6 @@ partial class MainForm
     #endregion
 
     private DiabloTwoMFTimer.UI.Components.ThemedTabControl tabControl;
-    private System.Windows.Forms.TabPage tabProfilePage;
     private System.Windows.Forms.TabPage tabTimerPage;
     private System.Windows.Forms.TabPage tabPomodoroPage;
     private System.Windows.Forms.TabPage tabSettingsPage;
